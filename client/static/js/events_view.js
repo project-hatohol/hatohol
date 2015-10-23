@@ -27,6 +27,7 @@ var EventsView = function(userProfile, options) {
   self.currentPage = 0;
   self.limitOfUnifiedId = 0;
   self.rawData = {};
+  self.rawSummaryData = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -49,18 +50,6 @@ var EventsView = function(userProfile, options) {
    // Don't enable datetimepicker for tests.
   } else {
     setupTimeRangeFilter();
-  }
-
-  if (params && (params.devel == "true")) {
-    // I'm not sure why, but sometimes Pizza doesn't work correctly without this
-    // hack, especially on Safari. We should investigate & fix it before we
-    // enable this feature by default.
-    Pizza.init();
-    if (self.options.disablePieChart) {
-      // Don't enable piechart for tests.
-    } else {
-      setTimeout(setupPieChart, 100);
-    }
   }
 
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
@@ -271,6 +260,7 @@ var EventsView = function(userProfile, options) {
       self.currentPage = 0;
     }
     self.startConnection(getQuery(options), updateCore);
+    self.startConnection("summary", updateSummary);
     $(document.body).scrollTop(0);
   }
 
@@ -495,14 +485,6 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupToggleSidebar() {
-    if (params && (params.devel != "true")) {
-      $("#event-table-area").removeClass("col-md-10");
-      $("#event-table-area").addClass("col-md-12");
-      $("#SummarySidebar").hide();
-      $("#toggle-sidebar").hide();
-      return;
-    }
-
     $("#SummarySidebar").show();
     $("#toggle-sidebar").show();
     $("#toggle-sidebar").click(function(){
@@ -512,10 +494,6 @@ var EventsView = function(userProfile, options) {
       $("#sidebar-left-glyph").toggle();
       $("#sidebar-right-glyph").toggle();
     });
-  }
-
-  function setupPieChart() {
-    Pizza.init(document.body, {always_show_text:true});
   }
 
   function setLoading(loading) {
@@ -899,6 +877,104 @@ var EventsView = function(userProfile, options) {
         switchSort();
       });
     }
+  }
+
+  function setupStatictics() {
+    // Assign/UnAssign events statistics
+    var numOfUnAssignedEvents = self.rawSummaryData["numOfUnAssignedEvents"];
+    $("#numOfUnAssignedEvents").text(numOfUnAssignedEvents);
+    var numOfAssignedEvents = self.rawSummaryData["numOfAssignedEvents"];
+    var totalNumOfAssignEvents = numOfUnAssignedEvents + numOfAssignedEvents;
+    var unAssignedEventsPercentage =
+          (numOfUnAssignedEvents/totalNumOfAssignEvents*100).toFixed(2);
+    $("#unAssignedEventsPercentage").text(unAssignedEventsPercentage + "%");
+    $("#unAssignedEventsPercentage").css("width", unAssignedEventsPercentage+"%");
+
+    // Important/NotImportant events statistics
+    var numOfImportantEvents = self.rawSummaryData["numOfImportantEvents"];
+    $("#numOfImportantEvents").text(numOfImportantEvents);
+    var numOfImportantEventOccurredHosts =
+          self.rawSummaryData["numOfImportantEventOccurredHosts"];
+    $("#numOfImportantEventOccurredHosts").text(numOfImportantEventOccurredHosts);
+    var numOfNotImportantEventOccurredHosts =
+          self.rawSummaryData["numOfNotImportantEventOccurredHosts"];
+    var totalNumOfEventOccurredHosts =
+          numOfImportantEventOccurredHosts + numOfNotImportantEventOccurredHosts;
+    var importantEventOccurredHostsPercentage =
+          (numOfImportantEventOccurredHosts/totalNumOfEventOccurredHosts*100)
+          .toFixed(2);
+    $("#importantEventOccurredHostsPercentage").text(importantEventOccurredHostsPercentage+"%");
+     $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
+  }
+
+  function setupPieChart() {
+    var item, severity, times, severityStatMap = {}, pieChartDataMap = {};
+    var preDefinedSeverityArray = [
+      hatohol.TRIGGER_SEVERITY_UNKNOWN,
+      hatohol.TRIGGER_SEVERITY_INFO,
+      hatohol.TRIGGER_SEVERITY_WARNING,
+      hatohol.TRIGGER_SEVERITY_ERROR,
+      hatohol.TRIGGER_SEVERITY_CRITICAL,
+      hatohol.TRIGGER_SEVERITY_EMERGENCY,
+    ];
+    var statisticsSize = self.rawSummaryData["statistics"].length;
+    for (var x = 0; x < statisticsSize; ++x) {
+      item = self.rawSummaryData["statistics"][x];
+      severity = item["severity"];
+      times = item["times"];
+
+      severityStatMap[severity] = times;
+    }
+
+    for (var idx = 0; idx < preDefinedSeverityArray.length; ++idx) {
+      pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
+    }
+    var dataSet = [
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY],
+        color: "#FF0000" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_CRITIAL],
+        color: "#FF9900" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_ERROR)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_ERROR],
+        color: "#FFFF00" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_WARNING)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_WARNING],
+        color: "#FDFD96" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_INFO)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_INFO],
+        color: "#CCE2CC" },
+      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)],
+        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_UNKNOWN],
+        color: "#BCBCBC" },
+    ];
+
+    var options = {
+      series: {
+        pie: {
+          show: true,
+          label: {
+            show: true,
+            background: {
+              opacity: 0.8,
+              color: '#000'
+            }
+          }
+        }
+      },
+      legend: {
+        show: false
+      },
+    };
+    $.plot($("#severityStatChart"), dataSet, options);
+  }
+
+  function updateSummary(reply) {
+    self.rawSummaryData = reply;
+
+    setupStatictics();
+    setupPieChart();
   }
 
   function updateCore(reply) {

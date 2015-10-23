@@ -41,12 +41,12 @@
       <li class="active"><a href="#" class="list-group-item list-group-item-warning">{% trans "Important event(s) index" %}<span class="sr-only">(current)</span></a></li>
       <li>
         <a href="#" color="black">
-          {% trans "Total amount of non assigned important event(s)" %}<br><span class="badge progress-bar-info">N/A</span><br>
+          {% trans "Total amount of non assigned important event(s)" %}<br><span class="badge progress-bar-info" id="numOfUnAssignedEvents">N/A</span><br>
         </a>
       </li>
       <li>
         <a href="#">
-          {% trans "Total amount of important event(s)" %}<br><span class="badge progress-bar-warning">N/A</span><br>
+          {% trans "Total amount of important event(s)" %}<br><span class="badge progress-bar-warning" id="numOfImportantEvents">N/A</span><br>
         </a>
       </li>
       <li>
@@ -55,14 +55,15 @@
       <li>
         <div class="progress">
           <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0"
-               aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+               aria-valuemin="0" aria-valuemax="100" style="width: 0%;"
+               id="unAssignedEventsPercentage">
             N/A%
           </div>
         </div>
       </li>
       <li>
         <a href="#">
-          {% trans "A number of host(s) which causes important event(s)" %}<br><span class="badge progress-bar-error">N/A</span><br>
+          {% trans "A number of host(s) which causes important event(s)" %}<br><span class="badge progress-bar-error" id="numOfImportantEventOccurredHosts">N/A</span><br>
         </a>
       </li>
       <li>
@@ -71,7 +72,8 @@
       <li>
         <div class="progress">
           <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0"
-               aria-valuemin="0" aria-valuemax="100" style="">
+               aria-valuemin="0" aria-valuemax="100" style="width: 0%;"
+               id="importantEventOccurredHostsPercentage">
             N/A
           </div>
         </div>
@@ -80,11 +82,8 @@
         <a href="#">{% trans "A percentage the important event(s)" %}</a></a>
       </li>
       <li>
-        <ul data-graph data-pie-id="pizza">
-          <li data-value="100"></li>
-        </ul>
+        <div id="severityStatChart"></div>
       </li>
-      <div id="pizza"></div>
     </ul>
   </div>
 
@@ -717,8 +716,8 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js.external/multiselect.min.js"></script>
-  <script src="{{ STATIC_URL }}js.external/snap.svg.js"></script>
-  <script src="{{ STATIC_URL }}js.external/pizza.js"></script>
+  <script src="{{ STATIC_URL }}js.external/jquery.flot.js"></script>
+  <script src="{{ STATIC_URL }}js.external/jquery.flot.pie.js"></script>
 {% endblock %}
 
 {% block logic %}
