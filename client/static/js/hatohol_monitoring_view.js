@@ -280,7 +280,7 @@ HatoholMonitoringView.prototype.updateScreen =
 
   this.setStatus({
     "class" : "success",
-    "label" : gettext("DONE"),
+    "label" : pgettext("Indicator", "DONE"),
     "lines" : [],
   });
 };

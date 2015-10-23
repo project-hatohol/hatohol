@@ -507,7 +507,7 @@ HatoholEventsViewConfig.prototype.setCurrentFilterConfig = function(filter) {
       { value: "NONE",        label: gettext("NONE") },
       { value: "HOLD",        label: gettext("HOLD") },
       { value: "IN PROGRESS", label: gettext("IN PROGRESS") },
-      { value: "DONE",        label: gettext("DONE") },
+      { value: "DONE",        label: pgettext("Incident", "DONE") },
     ],
     status: [
       { value: "0", label: gettext("OK") },
