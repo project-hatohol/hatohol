@@ -2662,7 +2662,7 @@ HatoholError DBTablesMonitoring::getEventSeverityStatistics(
 		ItemGroupStream itemGroupStream(itemGrp);
 		DBTablesMonitoring::EventSeverityStatistics statistics;
 
-		int64_t num;
+		uint64_t num;
 		itemGroupStream >> statistics.severity;
 		itemGroupStream >> num;
 		statistics.num = num;
