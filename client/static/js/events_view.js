@@ -52,18 +52,6 @@ var EventsView = function(userProfile, options) {
     setupTimeRangeFilter();
   }
 
-  if (params && (params.devel == "true")) {
-    // I'm not sure why, but sometimes Pizza doesn't work correctly without this
-    // hack, especially on Safari. We should investigate & fix it before we
-    // enable this feature by default.
-    Pizza.init();
-    if (self.options.disablePieChart) {
-      // Don't enable piechart for tests.
-    } else {
-      setTimeout(setupPieChart, 100);
-    }
-  }
-
   var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
                         gettext('Notification')];
   var severity_choices = [
@@ -514,10 +502,6 @@ var EventsView = function(userProfile, options) {
       $("#sidebar-left-glyph").toggle();
       $("#sidebar-right-glyph").toggle();
     });
-  }
-
-  function setupPieChart() {
-    Pizza.init(document.body, {always_show_text:true});
   }
 
   function setLoading(loading) {
