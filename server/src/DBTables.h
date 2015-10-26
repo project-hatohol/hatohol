@@ -105,17 +105,17 @@ private:
 };
 
 template <typename T, typename SEQ_TYPE>
-struct SeqTransactionProc : public DBAgent::TransactionProc {
+struct MutableSeqTransactionProc : public DBAgent::TransactionProc {
 	DBTables *dbTables;
-	const SEQ_TYPE *seq;
+	SEQ_TYPE *seq;
 
-	SeqTransactionProc(void)
+	MutableSeqTransactionProc(void)
 	: dbTables(NULL),
 	  seq(NULL)
 	{
 	}
 
-	void init(DBTables *_dbTables, const SEQ_TYPE *_seq)
+	void init(DBTables *_dbTables, SEQ_TYPE *_seq)
 	{
 		dbTables = _dbTables;
 		seq = _seq;
@@ -124,12 +124,12 @@ struct SeqTransactionProc : public DBAgent::TransactionProc {
 	virtual void operator ()(DBAgent &dbAgent) override
 	{
 		HATOHOL_ASSERT(seq, "Sequence is NULL");
-		typename SEQ_TYPE::const_iterator itr = seq->begin();
+		auto itr = seq->begin();
 		for (; itr != seq->end(); ++itr)
 			foreach(dbAgent, *itr);
 	}
 
-	virtual void foreach(DBAgent &dbAgent, const T &elem)
+	virtual void foreach(DBAgent &dbAgent, T &elem)
 	{
 	}
 
@@ -140,5 +140,9 @@ struct SeqTransactionProc : public DBAgent::TransactionProc {
 	}
 };
 
+template <typename T, typename SEQ_TYPE>
+struct SeqTransactionProc :
+  public MutableSeqTransactionProc<const T, const SEQ_TYPE> {
+};
 
 #endif // DB_h
