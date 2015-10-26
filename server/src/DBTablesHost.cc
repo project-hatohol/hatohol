@@ -979,25 +979,15 @@ void DBTablesHost::upsertHostgroupMembers(
   const HostgroupMemberVect &hostgroupMembers,
   DBAgent::TransactionHooks *hooks)
 {
-	struct Proc : public DBAgent::TransactionProc {
-		DBTablesHost &dbHost;
-		const HostgroupMemberVect &hostgrpMembers;
-
-		Proc(DBTablesHost &_dbHost,
-		     const HostgroupMemberVect &_hostgrpMembers)
-		: dbHost(_dbHost),
-		  hostgrpMembers(_hostgrpMembers)
+	struct :
+	  public SeqTransactionProc<HostgroupMember, HostgroupMemberVect> {
+		void foreach(DBAgent &, const HostgroupMember &hgrpMem) override
 		{
+			DBTablesHost &dbHost = get<DBTablesHost>();
+			dbHost.upsertHostgroupMember(hgrpMem, false);
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostgroupMemberVectConstIterator hgrpMemIt =
-			  hostgrpMembers.begin();
-			for (; hgrpMemIt != hostgrpMembers.end(); ++hgrpMemIt)
-				dbHost.upsertHostgroupMember(*hgrpMemIt, false);
-		}
-	} proc(*this, hostgroupMembers);
+	} proc;
+	proc.init(this, &hostgroupMembers);
 	getDBAgent().runTransaction(proc, hooks);
 }
 
