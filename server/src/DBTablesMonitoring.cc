@@ -1983,23 +1983,17 @@ void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList,
                                           DBAgent::TransactionHooks *hooks)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		EventInfoList &eventInfoList;
+	struct : public MutableSeqTransactionProc<EventInfo, EventInfoList> {
 		uint64_t numAdded;
-
-		TrxProc(EventInfoList &_eventInfoList)
-		: eventInfoList(_eventInfoList),
-		  numAdded(0)
+		void foreach(DBAgent &dbag, EventInfo &eventInfo) override
 		{
+			DBTablesMonitoring &dbMon = get<DBTablesMonitoring>();
+			dbMon.addEventInfoWithoutTransaction(dbag, eventInfo);
+			numAdded++;
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			EventInfoListIterator it = eventInfoList.begin();
-			for (; it != eventInfoList.end(); ++it, numAdded++)
-				addEventInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(eventInfoList);
+	} trx;
+	trx.numAdded = 0;
+	trx.init(this, &eventInfoList);
 	getDBAgent().runTransaction(trx, hooks);
 	m_impl->addEventStatistics(trx.numAdded);
 }
