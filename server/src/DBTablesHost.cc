@@ -856,24 +856,13 @@ GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup,
 void DBTablesHost::upsertHostgroups(const HostgroupVect &hostgroups,
                                     DBAgent::TransactionHooks *hooks)
 {
-	struct Proc : public DBAgent::TransactionProc {
-		DBTablesHost &dbHost;
-		const HostgroupVect &hostgroups;
-
-		Proc(DBTablesHost &_dbHost, const HostgroupVect &_hostgroups)
-		: dbHost(_dbHost),
-		  hostgroups(_hostgroups)
+	struct : public SeqTransactionProc<Hostgroup, HostgroupVect> {
+		void foreach(DBAgent &, const Hostgroup &hostgrp) override
 		{
+			get<DBTablesHost>().upsertHostgroup(hostgrp, false);
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostgroupVectConstIterator hostgrpItr =
-			  hostgroups.begin();
-			for (; hostgrpItr != hostgroups.end(); ++hostgrpItr)
-				dbHost.upsertHostgroup(*hostgrpItr, false);
-		}
-	} proc(*this, hostgroups);
+	} proc;
+	proc.init(this, &hostgroups);
 	getDBAgent().runTransaction(proc, hooks);
 }
 
