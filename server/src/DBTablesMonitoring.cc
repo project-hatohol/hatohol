@@ -1596,22 +1596,14 @@ void DBTablesMonitoring::addTriggerInfoList(
   const TriggerInfoList &triggerInfoList,
   DBAgent::TransactionHooks *hooks)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		const TriggerInfoList &triggerInfoList;
-
-		TrxProc(const TriggerInfoList &_triggerInfoList)
-		: triggerInfoList(_triggerInfoList)
+	struct : public SeqTransactionProc<TriggerInfo, TriggerInfoList> {
+		void foreach(DBAgent &dbag, const TriggerInfo &trig) override
 		{
+			DBTablesMonitoring &dbMon = get<DBTablesMonitoring>();
+			dbMon.addTriggerInfoWithoutTransaction(dbag, trig);
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			TriggerInfoListConstIterator it =
-			  triggerInfoList.begin();
-			for (; it != triggerInfoList.end(); ++it)
-				addTriggerInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(triggerInfoList);
+	} trx;
+	trx.init(this, &triggerInfoList);
 	getDBAgent().runTransaction(trx, hooks);
 }
 
