@@ -752,39 +752,20 @@ void DBTablesHost::upsertHosts(
   const ServerHostDefVect &serverHostDefs,
   HostHostIdMap *hostHostIdMapPtr, DBAgent::TransactionHooks *hooks)
 {
-	struct Proc : public DBAgent::TransactionProc {
-		DBTablesHost &dbHost;
-		const ServerHostDefVect &serverHostDefs;
-		HostHostIdMap  *hostHostIdMapPtr;
-
-		Proc(DBTablesHost &_dbHost,
-		     const ServerHostDefVect &_serverHostDefs,
-		     HostHostIdMap  *_hostHostIdMapPtr)
-		: dbHost(_dbHost),
-		  serverHostDefs(_serverHostDefs),
-		  hostHostIdMapPtr(_hostHostIdMapPtr)
+	struct : public SeqTransactionProc<ServerHostDef, ServerHostDefVect> {
+		function<void (const ServerHostDef &svHostDef)> func;
+		void foreach(DBAgent &, const ServerHostDef &svHostDef) override
 		{
+			func(svHostDef);
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			ServerHostDefVectConstIterator svHostDefItr =
-			  serverHostDefs.begin();
-			while (svHostDefItr != serverHostDefs.end()) {
-				doUpsert(*svHostDefItr);
-				++svHostDefItr;
-			}
-		}
-
-		void doUpsert(const ServerHostDef &svHostDef)
-		{
-			const HostIdType hostId =
-			  dbHost.upsertHost(svHostDef, false);
-			if (!hostHostIdMapPtr)
-				return;
-			(*hostHostIdMapPtr)[svHostDef.hostIdInServer] = hostId;
-		}
-	} proc(*this, serverHostDefs, hostHostIdMapPtr);
+	} proc;
+	proc.func = [&] (const ServerHostDef &svHostDef) {
+		const HostIdType hostId = this->upsertHost(svHostDef, false);
+		if (!hostHostIdMapPtr)
+			return;
+		(*hostHostIdMapPtr)[svHostDef.hostIdInServer] = hostId;
+	};
+	proc.init(this, &serverHostDefs);
 	getDBAgent().runTransaction(proc, hooks);
 }
 
