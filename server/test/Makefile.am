@@ -66,7 +66,7 @@ testHatohol_la_SOURCES = \
 	testSQLUtils.cc \
 	testMySQLWorkerZabbix.cc \
 	testFaceRest.cc \
-	testFaceRestSeverityRank.cc \
+	testFaceRestSeverityRank.cc testFaceRestSummary.cc \
 	testFaceRestSystem.cc testFaceRestAction.cc testFaceRestHost.cc \
 	testFaceRestServer.cc testFaceRestUser.cc testFaceRestNoInit.cc \
 	testFaceRestIncidentTracker.cc testSessionManager.cc \
