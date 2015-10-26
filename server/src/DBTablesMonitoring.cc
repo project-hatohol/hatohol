@@ -2234,21 +2234,14 @@ void DBTablesMonitoring::addItemInfo(const ItemInfo *itemInfo)
 
 void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		const ItemInfoList &itemInfoList;
-
-		TrxProc(const ItemInfoList &_itemInfoList)
-		: itemInfoList(_itemInfoList)
+	struct : public SeqTransactionProc<ItemInfo, ItemInfoList> {
+		void foreach(DBAgent &dbag, const ItemInfo &itemInfo) override
 		{
+			DBTablesMonitoring &dbMon = get<DBTablesMonitoring>();
+			dbMon.addItemInfoWithoutTransaction(dbag, itemInfo);
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			ItemInfoListConstIterator it = itemInfoList.begin();
-			for(; it != itemInfoList.end(); ++it)
-				addItemInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(itemInfoList);
+	} trx;
+	trx.init(this, &itemInfoList);
 	getDBAgent().runTransaction(trx);
 }
 
