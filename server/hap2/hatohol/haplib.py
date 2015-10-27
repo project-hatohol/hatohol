@@ -872,6 +872,14 @@ class BasePoller(HapiProcessor, ChildProcess):
     __CMD_MONITORING_SERVER_INFO = 1
     __DEFAULT_STATUS_LOG_INTERVAL = 600
 
+    ACTIONS = (
+        "hosts",
+        "host_groups",
+        "host_group_membership",
+        "triggers",
+        "events",
+    )
+
     def __init__(self, *args, **kwargs):
         HapiProcessor.__init__(self, kwargs["process_id"],
                                self.__COMPONENT_CODE, kwargs["sender"])
@@ -883,6 +891,21 @@ class BasePoller(HapiProcessor, ChildProcess):
         self.__command_queue.register(self.__CMD_MONITORING_SERVER_INFO,
                                       self.__set_ms_info)
 
+        self.__poll_actions = []
+        polling_targets_list = kwargs.get("polling_targets")
+        if polling_targets_list is None:
+            polling_targets_list = self.ACTIONS
+        polling_targets = set(polling_targets_list)
+        for action in self.ACTIONS:
+            if action in polling_targets:
+                func_name = "self.poll_%s" % action
+                self.__poll_actions.append(eval(func_name))
+                logger.info("Enable polling: %s" % action)
+                polling_targets.remove(action)
+
+        for unknown_action in polling_targets:
+            logger.warning("Unknown polling action: %s" % unknown_action)
+
         # The first polling result should be logged
         self.__next_log_status_time = datetime.now()
         interval = kwargs.get("status_log_interval",
@@ -891,12 +914,9 @@ class BasePoller(HapiProcessor, ChildProcess):
         self.__log_status_interval = timedelta(seconds=interval)
 
     def poll(self):
-       ctx = self.poll_setup()
-       self.poll_hosts()
-       self.poll_host_groups()
-       self.poll_host_group_membership()
-       self.poll_triggers()
-       self.poll_events()
+        ctx = self.poll_setup()
+        for action in self.__poll_actions:
+            action()
 
     def get_command_queue(self):
         return self.__command_queue
