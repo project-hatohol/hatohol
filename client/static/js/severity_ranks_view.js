@@ -45,15 +45,16 @@ var SeverityRanksView = function(userProfile) {
   ];
 
   function drawTableBody(replyData) {
-    var html, severityRankId, status, color, label, isImportant;
+    var html, severityRank, severityRankId, status, color, label, isImportant;
     html = "";
 
     for (var x = 0; x < replyData["SeverityRanks"].length; ++x) {
-      severityRankId = replyData["id"][x];
-      status = replyData["status"][x];
-      color = replyData["color"][x];
-      label = replyData["label"][x];
-      isImportant = replyData["isImportant"][x];
+      severityRank = replyData["SeverityRanks"][x];
+      severityRankId = severityRank["id"];
+      status = severityRank["status"];
+      color = severityRank["color"];
+      label = severityRank["label"];
+      isImportant = severityRank["isImportant"];
 
       html += "<tr>";
       html += "<td>" + severity_choices[Number(status)] + "</td>";
