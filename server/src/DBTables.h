@@ -123,14 +123,18 @@ struct MutableSeqTransactionProc : public DBAgent::TransactionProc {
 
 	virtual void operator ()(DBAgent &dbAgent) override
 	{
-		HATOHOL_ASSERT(seq, "Sequence is NULL");
-		auto itr = seq->begin();
-		for (; itr != seq->end(); ++itr)
-			foreach(dbAgent, *itr);
+		runBaseFunctor(dbAgent);
 	}
 
 	virtual void foreach(DBAgent &dbAgent, T &elem)
 	{
+	}
+
+	void runBaseFunctor(DBAgent &dbAgent)
+	{
+		HATOHOL_ASSERT(seq, "Sequence is NULL");
+		for (auto itr = seq->begin(); itr != seq->end(); ++itr)
+			foreach(dbAgent, *itr);
 	}
 
 	template <typename U>

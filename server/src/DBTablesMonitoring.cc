@@ -1694,39 +1694,39 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 void DBTablesMonitoring::setTriggerInfoList(
   const TriggerInfoList &triggerInfoList, const ServerIdType &serverId)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		const TriggerInfoList &triggerInfoList;
-		const ServerIdType &serverId;
-		DBAgent::DeleteArg deleteArg;
-
-		TrxProc(const TriggerInfoList &_triggerInfoList,
-		        const ServerIdType &_serverId)
-		: triggerInfoList(_triggerInfoList),
-		  serverId(_serverId),
-		  deleteArg(tableProfileTriggers)
-		{
-		}
+	DBAgent::DeleteArg deleteArg(tableProfileTriggers);
+	struct : public SeqTransactionProc<TriggerInfo, TriggerInfoList> {
+		function<bool (DBAgent &)> _preproc;
+		function<void (DBAgent &)> _funcTopHalf;
 
 		virtual bool preproc(DBAgent &dbAgent) override
 		{
-			// TODO: This way is too rough and inefficient.
-			//       We should update only the changed triggers.
-			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
-			deleteArg.condition = StringUtils::sprintf("%s=%s",
-			  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
-			  rhs(serverId));
-			return true;
+			return _preproc(dbAgent);
 		}
 
 		void operator ()(DBAgent &dbAgent) override
 		{
-			dbAgent.deleteRows(deleteArg);
-			TriggerInfoListConstIterator it =
-			  triggerInfoList.begin();
-			for (; it != triggerInfoList.end(); ++it)
-				addTriggerInfoWithoutTransaction(dbAgent, *it);
+			_funcTopHalf(dbAgent);
+			runBaseFunctor(dbAgent);
 		}
-	} trx(triggerInfoList, serverId);
+
+		void foreach(DBAgent &dbag, const TriggerInfo &trig) override
+		{
+			DBTablesMonitoring &dbMon = get<DBTablesMonitoring>();
+			dbMon.addTriggerInfoWithoutTransaction(dbag, trig);
+		}
+	} trx;
+	trx._preproc = [&] (DBAgent &dbAgent) {
+		// TODO: This way is too rough and inefficient.
+		//       We should update only the changed triggers.
+		DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
+		deleteArg.condition = StringUtils::sprintf("%s=%s",
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
+		  rhs(serverId));
+		return true;
+	};
+	trx._funcTopHalf = [&] (DBAgent &dbag) { dbag.deleteRows(deleteArg); };
+	trx.init(this, &triggerInfoList);
 	getDBAgent().runTransaction(trx);
 }
 
