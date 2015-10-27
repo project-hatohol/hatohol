@@ -385,36 +385,6 @@ static bool updateDB(
 	return true;
 }
 
-template <typename T, typename SEQ_TYPE>
-struct SeqTransactionProc : public DBAgent::TransactionProc {
-	DBTablesHost *dbHost;
-	const SEQ_TYPE *seq;
-
-	SeqTransactionProc(void)
-	: dbHost(NULL),
-	  seq(NULL)
-	{
-	}
-
-	void init(DBTablesHost *_dbHost, const SEQ_TYPE *_seq)
-	{
-		dbHost = _dbHost;
-		seq = _seq;
-	}
-
-	virtual void operator ()(DBAgent &dbAgent) override
-	{
-		HATOHOL_ASSERT(seq, "Sequence is NULL");
-		typename SEQ_TYPE::const_iterator itr = seq->begin();
-		for (; itr != seq->end(); ++itr)
-			foreach(dbAgent, *itr);
-	}
-
-	virtual void foreach(DBAgent &dbAgent, const T &elem)
-	{
-	}
-};
-
 // ---------------------------------------------------------------------------
 // HostsQueryOption
 // ---------------------------------------------------------------------------
@@ -782,39 +752,20 @@ void DBTablesHost::upsertHosts(
   const ServerHostDefVect &serverHostDefs,
   HostHostIdMap *hostHostIdMapPtr, DBAgent::TransactionHooks *hooks)
 {
-	struct Proc : public DBAgent::TransactionProc {
-		DBTablesHost &dbHost;
-		const ServerHostDefVect &serverHostDefs;
-		HostHostIdMap  *hostHostIdMapPtr;
-
-		Proc(DBTablesHost &_dbHost,
-		     const ServerHostDefVect &_serverHostDefs,
-		     HostHostIdMap  *_hostHostIdMapPtr)
-		: dbHost(_dbHost),
-		  serverHostDefs(_serverHostDefs),
-		  hostHostIdMapPtr(_hostHostIdMapPtr)
+	struct : public SeqTransactionProc<ServerHostDef, ServerHostDefVect> {
+		function<void (const ServerHostDef &svHostDef)> func;
+		void foreach(DBAgent &, const ServerHostDef &svHostDef) override
 		{
+			func(svHostDef);
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			ServerHostDefVectConstIterator svHostDefItr =
-			  serverHostDefs.begin();
-			while (svHostDefItr != serverHostDefs.end()) {
-				doUpsert(*svHostDefItr);
-				++svHostDefItr;
-			}
-		}
-
-		void doUpsert(const ServerHostDef &svHostDef)
-		{
-			const HostIdType hostId =
-			  dbHost.upsertHost(svHostDef, false);
-			if (!hostHostIdMapPtr)
-				return;
-			(*hostHostIdMapPtr)[svHostDef.hostIdInServer] = hostId;
-		}
-	} proc(*this, serverHostDefs, hostHostIdMapPtr);
+	} proc;
+	proc.func = [&] (const ServerHostDef &svHostDef) {
+		const HostIdType hostId = this->upsertHost(svHostDef, false);
+		if (!hostHostIdMapPtr)
+			return;
+		(*hostHostIdMapPtr)[svHostDef.hostIdInServer] = hostId;
+	};
+	proc.init(this, &serverHostDefs);
 	getDBAgent().runTransaction(proc, hooks);
 }
 
@@ -873,7 +824,7 @@ void DBTablesHost::upsertVMInfoVect(const VMInfoVect &vmInfoVect,
 	struct : public SeqTransactionProc<VMInfo, VMInfoVect> {
 		void foreach(DBAgent &dbAgent, const VMInfo &vminfo) override
 		{
-			dbHost->upsertVMInfo(vminfo, false);
+			get<DBTablesHost>().upsertVMInfo(vminfo, false);
 		}
 	} proc;
 	proc.init(this, &vmInfoVect);
@@ -905,24 +856,13 @@ GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup,
 void DBTablesHost::upsertHostgroups(const HostgroupVect &hostgroups,
                                     DBAgent::TransactionHooks *hooks)
 {
-	struct Proc : public DBAgent::TransactionProc {
-		DBTablesHost &dbHost;
-		const HostgroupVect &hostgroups;
-
-		Proc(DBTablesHost &_dbHost, const HostgroupVect &_hostgroups)
-		: dbHost(_dbHost),
-		  hostgroups(_hostgroups)
+	struct : public SeqTransactionProc<Hostgroup, HostgroupVect> {
+		void foreach(DBAgent &, const Hostgroup &hostgrp) override
 		{
+			get<DBTablesHost>().upsertHostgroup(hostgrp, false);
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostgroupVectConstIterator hostgrpItr =
-			  hostgroups.begin();
-			for (; hostgrpItr != hostgroups.end(); ++hostgrpItr)
-				dbHost.upsertHostgroup(*hostgrpItr, false);
-		}
-	} proc(*this, hostgroups);
+	} proc;
+	proc.init(this, &hostgroups);
 	getDBAgent().runTransaction(proc, hooks);
 }
 
@@ -1039,25 +979,15 @@ void DBTablesHost::upsertHostgroupMembers(
   const HostgroupMemberVect &hostgroupMembers,
   DBAgent::TransactionHooks *hooks)
 {
-	struct Proc : public DBAgent::TransactionProc {
-		DBTablesHost &dbHost;
-		const HostgroupMemberVect &hostgrpMembers;
-
-		Proc(DBTablesHost &_dbHost,
-		     const HostgroupMemberVect &_hostgrpMembers)
-		: dbHost(_dbHost),
-		  hostgrpMembers(_hostgrpMembers)
+	struct :
+	  public SeqTransactionProc<HostgroupMember, HostgroupMemberVect> {
+		void foreach(DBAgent &, const HostgroupMember &hgrpMem) override
 		{
+			DBTablesHost &dbHost = get<DBTablesHost>();
+			dbHost.upsertHostgroupMember(hgrpMem, false);
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			HostgroupMemberVectConstIterator hgrpMemIt =
-			  hostgrpMembers.begin();
-			for (; hgrpMemIt != hostgrpMembers.end(); ++hgrpMemIt)
-				dbHost.upsertHostgroupMember(*hgrpMemIt, false);
-		}
-	} proc(*this, hostgroupMembers);
+	} proc;
+	proc.init(this, &hostgroupMembers);
 	getDBAgent().runTransaction(proc, hooks);
 }
 

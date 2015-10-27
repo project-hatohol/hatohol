@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -102,6 +102,51 @@ protected:
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
+};
+
+template <typename T, typename SEQ_TYPE>
+struct MutableSeqTransactionProc : public DBAgent::TransactionProc {
+	DBTables *dbTables;
+	SEQ_TYPE *seq;
+
+	MutableSeqTransactionProc(void)
+	: dbTables(NULL),
+	  seq(NULL)
+	{
+	}
+
+	void init(DBTables *_dbTables, SEQ_TYPE *_seq)
+	{
+		dbTables = _dbTables;
+		seq = _seq;
+	}
+
+	virtual void operator ()(DBAgent &dbAgent) override
+	{
+		runBaseFunctor(dbAgent);
+	}
+
+	virtual void foreach(DBAgent &dbAgent, T &elem)
+	{
+	}
+
+	void runBaseFunctor(DBAgent &dbAgent)
+	{
+		HATOHOL_ASSERT(seq, "Sequence is NULL");
+		for (auto itr = seq->begin(); itr != seq->end(); ++itr)
+			foreach(dbAgent, *itr);
+	}
+
+	template <typename U>
+	U &get(void)
+	{
+		return *dynamic_cast<U *>(dbTables);
+	}
+};
+
+template <typename T, typename SEQ_TYPE>
+struct SeqTransactionProc :
+  public MutableSeqTransactionProc<const T, const SEQ_TYPE> {
 };
 
 #endif // DB_h

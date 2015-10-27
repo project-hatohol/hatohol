@@ -1596,22 +1596,14 @@ void DBTablesMonitoring::addTriggerInfoList(
   const TriggerInfoList &triggerInfoList,
   DBAgent::TransactionHooks *hooks)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		const TriggerInfoList &triggerInfoList;
-
-		TrxProc(const TriggerInfoList &_triggerInfoList)
-		: triggerInfoList(_triggerInfoList)
+	struct : public SeqTransactionProc<TriggerInfo, TriggerInfoList> {
+		void foreach(DBAgent &dbag, const TriggerInfo &trig) override
 		{
+			DBTablesMonitoring &dbMon = get<DBTablesMonitoring>();
+			dbMon.addTriggerInfoWithoutTransaction(dbag, trig);
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			TriggerInfoListConstIterator it =
-			  triggerInfoList.begin();
-			for (; it != triggerInfoList.end(); ++it)
-				addTriggerInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(triggerInfoList);
+	} trx;
+	trx.init(this, &triggerInfoList);
 	getDBAgent().runTransaction(trx, hooks);
 }
 
@@ -1702,39 +1694,39 @@ void DBTablesMonitoring::getTriggerInfoList(TriggerInfoList &triggerInfoList,
 void DBTablesMonitoring::setTriggerInfoList(
   const TriggerInfoList &triggerInfoList, const ServerIdType &serverId)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		const TriggerInfoList &triggerInfoList;
-		const ServerIdType &serverId;
-		DBAgent::DeleteArg deleteArg;
-
-		TrxProc(const TriggerInfoList &_triggerInfoList,
-		        const ServerIdType &_serverId)
-		: triggerInfoList(_triggerInfoList),
-		  serverId(_serverId),
-		  deleteArg(tableProfileTriggers)
-		{
-		}
+	DBAgent::DeleteArg deleteArg(tableProfileTriggers);
+	struct : public SeqTransactionProc<TriggerInfo, TriggerInfoList> {
+		function<bool (DBAgent &)> _preproc;
+		function<void (DBAgent &)> _funcTopHalf;
 
 		virtual bool preproc(DBAgent &dbAgent) override
 		{
-			// TODO: This way is too rough and inefficient.
-			//       We should update only the changed triggers.
-			DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
-			deleteArg.condition = StringUtils::sprintf("%s=%s",
-			  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
-			  rhs(serverId));
-			return true;
+			return _preproc(dbAgent);
 		}
 
 		void operator ()(DBAgent &dbAgent) override
 		{
-			dbAgent.deleteRows(deleteArg);
-			TriggerInfoListConstIterator it =
-			  triggerInfoList.begin();
-			for (; it != triggerInfoList.end(); ++it)
-				addTriggerInfoWithoutTransaction(dbAgent, *it);
+			_funcTopHalf(dbAgent);
+			runBaseFunctor(dbAgent);
 		}
-	} trx(triggerInfoList, serverId);
+
+		void foreach(DBAgent &dbag, const TriggerInfo &trig) override
+		{
+			DBTablesMonitoring &dbMon = get<DBTablesMonitoring>();
+			dbMon.addTriggerInfoWithoutTransaction(dbag, trig);
+		}
+	} trx;
+	trx._preproc = [&] (DBAgent &dbAgent) {
+		// TODO: This way is too rough and inefficient.
+		//       We should update only the changed triggers.
+		DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
+		deleteArg.condition = StringUtils::sprintf("%s=%s",
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SERVER_ID].columnName,
+		  rhs(serverId));
+		return true;
+	};
+	trx._funcTopHalf = [&] (DBAgent &dbag) { dbag.deleteRows(deleteArg); };
+	trx.init(this, &triggerInfoList);
 	getDBAgent().runTransaction(trx);
 }
 
@@ -1983,23 +1975,17 @@ void DBTablesMonitoring::addEventInfo(EventInfo *eventInfo)
 void DBTablesMonitoring::addEventInfoList(EventInfoList &eventInfoList,
                                           DBAgent::TransactionHooks *hooks)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		EventInfoList &eventInfoList;
+	struct : public MutableSeqTransactionProc<EventInfo, EventInfoList> {
 		uint64_t numAdded;
-
-		TrxProc(EventInfoList &_eventInfoList)
-		: eventInfoList(_eventInfoList),
-		  numAdded(0)
+		void foreach(DBAgent &dbag, EventInfo &eventInfo) override
 		{
+			DBTablesMonitoring &dbMon = get<DBTablesMonitoring>();
+			dbMon.addEventInfoWithoutTransaction(dbag, eventInfo);
+			numAdded++;
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			EventInfoListIterator it = eventInfoList.begin();
-			for (; it != eventInfoList.end(); ++it, numAdded++)
-				addEventInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(eventInfoList);
+	} trx;
+	trx.numAdded = 0;
+	trx.init(this, &eventInfoList);
 	getDBAgent().runTransaction(trx, hooks);
 	m_impl->addEventStatistics(trx.numAdded);
 }
@@ -2234,21 +2220,14 @@ void DBTablesMonitoring::addItemInfo(const ItemInfo *itemInfo)
 
 void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 {
-	struct TrxProc : public DBAgent::TransactionProc {
-		const ItemInfoList &itemInfoList;
-
-		TrxProc(const ItemInfoList &_itemInfoList)
-		: itemInfoList(_itemInfoList)
+	struct : public SeqTransactionProc<ItemInfo, ItemInfoList> {
+		void foreach(DBAgent &dbag, const ItemInfo &itemInfo) override
 		{
+			DBTablesMonitoring &dbMon = get<DBTablesMonitoring>();
+			dbMon.addItemInfoWithoutTransaction(dbag, itemInfo);
 		}
-
-		void operator ()(DBAgent &dbAgent) override
-		{
-			ItemInfoListConstIterator it = itemInfoList.begin();
-			for(; it != itemInfoList.end(); ++it)
-				addItemInfoWithoutTransaction(dbAgent, *it);
-		}
-	} trx(itemInfoList);
+	} trx;
+	trx.init(this, &itemInfoList);
 	getDBAgent().runTransaction(trx);
 }
 
