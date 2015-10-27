@@ -1052,7 +1052,7 @@ void test_eventsWithIncidentStatusesFilter(void)
 
 	expected += getExpectedServers() + ",";
 	expected += getExpectedIncidentTrackers() + "}";
-	cppcut_assert_equal(expected, arg.response);
+	assertEqualJSONString(expected, arg.response);
 }
 
 static void incidentInfo2StringMap(

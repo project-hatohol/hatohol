@@ -197,7 +197,7 @@ extern void _assertEqualJSONString(const string &expect, const string &actual)
 		set<string> expectMembers;
 		set<string> actualMembers;
 		expectParser.getMemberNames(expectMembers);
-		expectParser.getMemberNames(actualMembers);
+		actualParser.getMemberNames(actualMembers);
 		assertEqual(expectMembers, actualMembers);
 		for (auto name : expectMembers) {
 			auto expectType = expectParser.getValueType(name);
