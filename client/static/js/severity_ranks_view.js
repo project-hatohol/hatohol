@@ -58,7 +58,8 @@ var SeverityRanksView = function(userProfile) {
 
       html += "<tr>";
       html += "<td>" + severity_choices[Number(status)] + "</td>";
-      html += "<td>" + escapeHTML(color) + "</td>";
+      html += "<td style='background-color: " + escapeHTML(color) + "'>" +
+        escapeHTML(color) + "</td>";
       html += "<td>" + escapeHTML(label) + "</td>";
       html += "<td class='delete-selector'>";
       html += "<input type='checkbox' ";
