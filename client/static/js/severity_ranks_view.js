@@ -45,7 +45,7 @@ var SeverityRanksView = function(userProfile) {
   ];
 
   function drawTableBody(replyData) {
-    var html, severityRank, severityRankId, status, color, label, isImportant;
+    var html, severityRank, severityRankId, status, color, label, asImportant;
     html = "";
 
     for (var x = 0; x < replyData["SeverityRanks"].length; ++x) {
@@ -54,14 +54,18 @@ var SeverityRanksView = function(userProfile) {
       status = severityRank["status"];
       color = severityRank["color"];
       label = severityRank["label"];
-      isImportant = severityRank["isImportant"];
+      asImportant = severityRank["asImportant"];
 
       html += "<tr>";
       html += "<td>" + severity_choices[Number(status)] + "</td>";
       html += "<td>" + escapeHTML(color) + "</td>";
       html += "<td>" + escapeHTML(label) + "</td>";
       html += "<td class='delete-selector'>";
-      html += "<input type='checkbox' class='selectcheckbox' " +
+      html += "<input type='checkbox' ";
+      if (asImportant) {
+        html += "checked";
+      }
+      html += " class='selectcheckbox' " +
         "severityRankId='" + escapeHTML(severityRankId) + "'></td>";
       html += "</tr>";
     }
