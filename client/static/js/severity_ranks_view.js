@@ -113,9 +113,7 @@ var SeverityRanksView = function(userProfile) {
           replyCallback: function() {
             // nothing to do
           },
-          parseErrorCallback: function(reply, parser)  {
-            // TODO
-          },
+          parseErrorCallback: hatoholErrorMsgBoxForParser,
           completionCallback: function() {
             self.startConnection('severity-rank', updateCore);
           },
