@@ -22,6 +22,7 @@ var SeverityRanksView = function(userProfile) {
   // Variables
   //
   var self = this;
+  self.targetStatus = -1;
   var rawData;
 
   // call the constructor of the super class
@@ -57,22 +58,26 @@ var SeverityRanksView = function(userProfile) {
       asImportant = severityRank["asImportant"];
 
       html += "<tr>";
-      html += "<td>" + severity_choices[Number(status)] + "</td>";
-      html += "<td style='background-color: " + escapeHTML(color) + "'>" +
+      html += "<td id='severity-rank-status" + escapeHTML(status) +"'>" +
+        severity_choices[Number(status)] + "</td>";
+      html += "<td id='severity-rank-color" + escapeHTML(status) + "'" +
+        " style='background-color: " + escapeHTML(color) + "'>" +
         escapeHTML(color) + "</td>";
-      html += "<td>" + escapeHTML(label) + "</td>";
+      html += "<td id='severity-rank-label" + escapeHTML(status) +"'>" +
+        escapeHTML(label) + "</td>";
       html += "<td class='delete-selector'>";
-      html += "<input type='checkbox' ";
+      html += "<input type='checkbox'  id='severity-rank-checkbox" +
+        escapeHTML(status) +"'";
       if (asImportant) {
-        html += "checked";
+        html += "checked='checked'";
       }
       html += " class='selectcheckbox' " +
-        "severityRankId='" + escapeHTML(severityRankId) + "'></td>";
+        "severityRankStatus='" + escapeHTML(status) + "'></td>";
 
       html += "<td class='edit-severity-rank-setting-column' style='display: none;'>";
-      html += "<input id='edit-severity-rank-setting" + escapeHTML(severityRankId) + "'";
+      html += "<input id='edit-severity-rank-setting" + escapeHTML(status) + "'";
       html+= "  type='button' class='btn btn-default'";
-      html += "  severityRankId='" + escapeHTML(severityRankId) + "'";
+      html += "  severityStatus='" + escapeHTML(status) + "'";
       html += "  value='" + gettext("APPLY") + "' />";
       html += "</td>";
 
@@ -82,7 +87,42 @@ var SeverityRanksView = function(userProfile) {
     return html;
   }
 
+  function makeQueryData(status) {
+    var queryData = {};
+    queryData.status = status;
+    queryData.color = $("#severity-rank-color" + status).text();
+    queryData.label = $("#severity-rank-label" + status).text();
+    queryData.asImportant = $("#severity-rank-checkbox" + status).is(":checked");
+    return queryData;
+  }
+
   function setupApplyButtons(reply) {
+    var i, status, severityRanks = reply["SeverityRanks"];
+
+    for (i = 0; i < severityRanks.length; ++i) {
+      status = "#edit-severity-rank-setting" + severityRanks[i].status;
+      $(status).click(function() {
+        var severityStatus = this.getAttribute("severityStatus");
+        var url = "/severity-rank";
+        url += "/" + severityStatus;
+        self.targetStatus = severityStatus;
+        new HatoholConnector({
+          url: url,
+          request: "POST",
+          data: makeQueryData(self.targetStatus),
+          replyCallback: function() {
+            // nothing to do
+          },
+          parseErrorCallback: function(reply, parser)  {
+            // TODO
+          },
+          completionCallback: function() {
+            self.startConnection('severity-rank', updateCore);
+          },
+        });
+      });
+    }
+
     if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_SEVERITY_RANK)) {
       $(".edit-severity-rank-setting-column").show();
     }
