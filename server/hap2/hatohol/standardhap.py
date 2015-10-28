@@ -41,6 +41,10 @@ class StandardHap:
         hap.initialize_logger(parser)
 
         parser.add_argument("-p", "--disable-poller", action="store_true")
+        parser.add_argument("--polling-targets", nargs="*",
+                            choices=haplib.BasePoller.ACTIONS,
+                            default=haplib.BasePoller.ACTIONS,
+                            help="Names of polloing action. Defaut is all.")
 
         help_msg = """
             Minimum status logging interval in seconds.
@@ -126,10 +130,11 @@ class StandardHap:
             logger.info("Rerun after %d sec" % self.__error_sleep_time)
             time.sleep(self.__error_sleep_time)
 
-    def __create_poller(self, sender, dispatcher, status_log_interval):
+    def __create_poller(self, sender, dispatcher, status_log_interval, **kwargs):
         poller = self.create_poller(sender=sender,
                                     process_id="Poller",
-                                    status_log_interval=status_log_interval)
+                                    status_log_interval=status_log_interval,
+                                    **kwargs)
         if poller is None:
             return
         logger.info("created poller plugin.")
@@ -177,7 +182,8 @@ class StandardHap:
             self.__poller = self.__create_poller(
                                 self.__main_plugin.get_sender(),
                                 self.__main_plugin.get_dispatcher(),
-                                args.status_log_interval)
+                                args.status_log_interval,
+                                polling_targets=args.polling_targets)
 
         self.__main_plugin.start_dispatcher()
         logger.info("started dispatcher process.")
