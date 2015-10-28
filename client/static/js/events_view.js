@@ -384,7 +384,7 @@ var EventsView = function(userProfile, options) {
             errorMessage = gettext("Failed to update treatments");
           hatoholErrorMsgBox(errorMessage, { optionMessages: errors });
         }
-	$("#change-incident").val("");
+        $("#change-incident").val("");
         load();
       });
     }
@@ -883,9 +883,9 @@ var EventsView = function(userProfile, options) {
 
       var selected = $('.incident.selectable.selected');
       if (selected.length > 0) {
-	$("#change-incident").removeAttr("disabled", "disabled");
+        $("#change-incident").removeAttr("disabled", "disabled");
       } else {
-	$("#change-incident").attr("disabled", "disabled");
+        $("#change-incident").attr("disabled", "disabled");
       }
     });
 
