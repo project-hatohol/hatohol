@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-23 01:57-0500\n"
-"PO-Revision-Date: 2015-10-23 15:12+0900\n"
+"PO-Revision-Date: 2015-10-28 14:46+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -235,7 +235,7 @@ msgstr "終了時刻:"
 
 #: viewer/events_ajax.html:122
 msgid "Apply filter(s)"
-msgstr "フィルタ適用"
+msgstr "フィルター適用"
 
 #: viewer/events_ajax.html:129
 msgid "Treatment:"
@@ -397,7 +397,7 @@ msgstr "「重要度」の選択をフィルターの条件に含める"
 
 #: viewer/events_ajax.html:497
 msgid "Include \"Monitoring server\" to the filter condition"
-msgstr "「監視サーバー」の選択をフィルタの条件に含める"
+msgstr "「監視サーバー」の選択をフィルターの条件に含める"
 
 #: viewer/events_ajax.html:504
 msgid "Show selected servers"
@@ -441,11 +441,11 @@ msgstr "クリア"
 
 #: viewer/events_ajax.html:672
 msgid "Select a filter to apply as the default filter of the summary view."
-msgstr "サマリ表示で、デフォルトとして適用するフィルタの指定"
+msgstr "サマリ表示で、デフォルトとして適用するフィルターの指定"
 
 #: viewer/events_ajax.html:688
 msgid "Select a filter to apply as the default filter of the event list view."
-msgstr "一覧表示で、デフォルトのフィルタとして適用するフィルタの指定"
+msgstr "一覧表示で、デフォルトとして適用するフィルターの指定"
 
 #: viewer/events_ajax.html:705
 msgid "Close"
