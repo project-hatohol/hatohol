@@ -510,6 +510,7 @@ var EventsView = function(userProfile, options) {
       $("#event-table-area").toggleClass("col-md-10");
       $("#sidebar-left-glyph").toggle();
       $("#sidebar-right-glyph").toggle();
+      updateSummary();
     });
   }
 
@@ -988,7 +989,11 @@ var EventsView = function(userProfile, options) {
   }
 
   function updateSummary(reply) {
-    self.rawSummaryData = reply;
+    if (!$("#SummarySidebar").is(":visible"))
+      return;
+
+    if (reply)
+      self.rawSummaryData = reply;
 
     setupStatictics();
     setupPieChart();
