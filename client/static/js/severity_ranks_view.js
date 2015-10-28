@@ -60,10 +60,9 @@ var SeverityRanksView = function(userProfile) {
       html += "<td id='severity-rank-status" + escapeHTML(status) +"'>" +
         severity_choices[Number(status)] + "</td>";
       html += "<td id='severity-rank-color" + escapeHTML(status) + "'" +
-        " style='background-color: " + escapeHTML(color) + "; display: none;'>" +
+        " style='background-color: " + escapeHTML(color) + "'>" +
         escapeHTML(color) + "</td>";
-      html += "<td id='severity-rank-label" + escapeHTML(status) +"'" +
-        "style='display: none;'>" +
+      html += "<td id='severity-rank-label" + escapeHTML(status) +"'>" +
         escapeHTML(label) + "</td>";
       html += "<td class='delete-selector'>";
       html += "<input type='checkbox' id='severity-rank-checkbox" +
