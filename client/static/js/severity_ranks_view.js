@@ -107,7 +107,7 @@ var SeverityRanksView = function(userProfile) {
   function load() {
     self.displayUpdateTime();
 
-    self.startConnection(getQuery(self.currentPage), updateCore);
+    self.startConnection(getQuery(), updateCore);
   }
 };
 
