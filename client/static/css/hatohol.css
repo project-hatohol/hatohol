@@ -340,6 +340,7 @@ h2.hatohol-graph {
 }
 
 div#severityStatChart {
+    min-width: 30px;
     width: auto;
     height: 200px;
     margin: 0 auto;
