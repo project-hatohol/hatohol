@@ -880,6 +880,13 @@ var EventsView = function(userProfile, options) {
 
     $('.incident.selectable').on('click', function() {
       $(this).toggleClass('selected');
+
+      var selected = $('.incident.selectable.selected');
+      if (selected.length > 0) {
+	$("#change-incident").removeAttr("disabled", "disabled");
+      } else {
+	$("#change-incident").attr("disabled", "disabled");
+      }
     });
 
     setupSortColumn();
