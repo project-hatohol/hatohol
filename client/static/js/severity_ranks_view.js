@@ -68,10 +68,24 @@ var SeverityRanksView = function(userProfile) {
       }
       html += " class='selectcheckbox' " +
         "severityRankId='" + escapeHTML(severityRankId) + "'></td>";
+
+      html += "<td class='edit-severity-rank-setting-column' style='display: none;'>";
+      html += "<input id='edit-severity-rank-setting" + escapeHTML(severityRankId) + "'";
+      html+= "  type='button' class='btn btn-default'";
+      html += "  severityRankId='" + escapeHTML(severityRankId) + "'";
+      html += "  value='" + gettext("APPLY") + "' />";
+      html += "</td>";
+
       html += "</tr>";
     }
 
     return html;
+  }
+
+  function setupApplyButtons(reply) {
+    if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_SEVERITY_RANK)) {
+      $(".edit-severity-rank-setting-column").show();
+    }
   }
 
   function drawTableContents(data) {
@@ -87,6 +101,7 @@ var SeverityRanksView = function(userProfile) {
     rawData = reply;
 
     drawTableContents(rawData);
+    setupApplyButtons(rawData);
   }
 
   function load() {
