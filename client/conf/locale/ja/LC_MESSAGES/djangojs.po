@@ -313,9 +313,8 @@ msgid "Successfully created."
 msgstr "正常に作成されました。"
 
 #: static/js/events_view.js:1048
-#, fuzzy
 msgid "Failed to get severity rank!"
-msgstr "重要度設定の削除"
+msgstr "重要度設定の取得に失敗しました。"
 
 #: static/js/graphs_view.js:47
 msgid "Do you delete the selected items ?"
@@ -1684,19 +1683,16 @@ msgid "Comment for the failure"
 msgstr "失敗備考"
 
 #: static/js/severity_ranks_view.js:123
-#, fuzzy
 msgid "Saving..."
 msgstr "再読込中..."
 
 #: static/js/severity_ranks_view.js:127
-#, fuzzy
 msgid "Succeeded to save."
-msgstr "適用に成功しました。"
+msgstr "保存に成功しました。"
 
 #: static/js/severity_ranks_view.js:131
-#, fuzzy
 msgid "Failed to save!"
-msgstr "取得失敗"
+msgstr "保存に失敗しました。"
 
 #: static/js/utils.js:298
 msgid " day, "
