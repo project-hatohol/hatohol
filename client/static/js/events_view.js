@@ -28,6 +28,7 @@ var EventsView = function(userProfile, options) {
   self.limitOfUnifiedId = 0;
   self.rawData = {};
   self.rawSummaryData = {};
+  self.rawSeverityRankData = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -937,6 +938,32 @@ var EventsView = function(userProfile, options) {
      $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
   }
 
+  function setupSeverityRank() {
+    var deferred = new $.Deferred;
+    new HatoholConnector({
+      url: "/severity-rank",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        self.rawSeverityRankData = reply;
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
+  }
+
+  function setupTableColor() {
+    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    for (var x = 0; x < severityRanks.length; ++x) {
+      $('td.severity'+x).css("background-color", severityRanks[x].color);
+    }
+  }
+
   function setupPieChart() {
     var item, severity, times, severityStatMap = {}, pieChartDataMap = {};
     var preDefinedSeverityArray = [
@@ -955,29 +982,34 @@ var EventsView = function(userProfile, options) {
 
       severityStatMap[severity] = times;
     }
-
+    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    var severityRankColorMap = {};
+    for (var ix = 0; ix < severityRanks.length; ++ix) {
+      severityRankColorMap[Number(severityRanks[ix].status)] =
+        severityRanks[ix].color;
+    }
     for (var idx = 0; idx < preDefinedSeverityArray.length; ++idx) {
       pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
     }
     var dataSet = [
       { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY],
-        color: "#FF0000" },
+        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_EMERGENCY] },
       { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_CRITIAL],
-        color: "#FF9900" },
+        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_CRITICAL] },
       { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_ERROR)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_ERROR],
-        color: "#FFFF00" },
+        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_ERROR] },
       { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_WARNING)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_WARNING],
-        color: "#FDFD96" },
+        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_WARNING] },
       { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_INFO)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_INFO],
-        color: "#CCE2CC" },
+        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_INFO] },
       { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_UNKNOWN],
-        color: "#BCBCBC" },
+        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_UNKNOWN] },
     ];
 
     var options = {
@@ -1008,7 +1040,13 @@ var EventsView = function(userProfile, options) {
       self.rawSummaryData = reply;
 
     setupStatictics();
-    setupPieChart();
+    $.when(setupSeverityRank())
+      .done(function() {
+        setupTableColor();
+        setupPieChart();
+      }).fail(function() {
+        hatoholInfoMsgBox(gettext("Failed to get severity rank!"));
+      });
   }
 
   function updateCore(reply) {
