@@ -143,6 +143,26 @@ var SeverityRanksView = function(userProfile) {
     });
   }
 
+  function setupColorPickers(reply) {
+    var i, color, severityRanks = reply["SeverityRanks"];
+    for (i = 0; i < severityRanks.length; ++i) {
+      var colorSelector = "#severity-rank-color" + severityRanks[i].status;
+      color = severityRanks[i].color;
+      setupSpectrum(color, colorSelector);
+    }
+
+    function setupSpectrum(color, colorSelector) {
+      $(colorSelector).spectrum({
+        color: color,
+        change: function(color) {
+          var colorHexString = color.toHexString();
+          $(colorSelector).text(colorHexString);
+          $(colorSelector).css("background-color", colorHexString);
+        }
+      });
+    }
+  }
+
   function drawTableContents(data) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(data));
@@ -157,6 +177,7 @@ var SeverityRanksView = function(userProfile) {
 
     drawTableContents(rawData);
     setupApplyButton(rawData);
+    setupColorPickers(rawData);
   }
 
   function load() {
