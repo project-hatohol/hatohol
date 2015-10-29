@@ -28,6 +28,7 @@ var EventsView = function(userProfile, options) {
   self.limitOfUnifiedId = 0;
   self.rawData = {};
   self.rawSummaryData = {};
+  self.rawSeverityRankData = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -925,6 +926,25 @@ var EventsView = function(userProfile, options) {
      $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
   }
 
+  function setupSeverityRank() {
+    var deferred = new $.Deferred;
+    new HatoholConnector({
+      url: "/severity-rank",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        self.rawSeverityRankData = reply;
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
+  }
+
   function setupPieChart() {
     var item, severity, times, severityStatMap = {}, pieChartDataMap = {};
     var preDefinedSeverityArray = [
@@ -997,6 +1017,11 @@ var EventsView = function(userProfile, options) {
 
     setupStatictics();
     setupPieChart();
+    $.when(setupSeverityRank())
+      .done(function() {
+      }).fail(function() {
+        hatoholInfoMsgBox(gettext("Failed to get severity rank!"));
+      });
   }
 
   function updateCore(reply) {
