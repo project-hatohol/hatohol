@@ -22,7 +22,6 @@ var SeverityRanksView = function(userProfile) {
   // Variables
   //
   var self = this;
-  self.targetStatus = -1;
   var rawData;
 
   // call the constructor of the super class
@@ -75,13 +74,6 @@ var SeverityRanksView = function(userProfile) {
       html += " class='selectcheckbox' " +
         "severityRankStatus='" + escapeHTML(status) + "'></td>";
 
-      html += "<td class='edit-severity-rank-setting-column' style='display: none;'>";
-      html += "<input id='edit-severity-rank-setting" + escapeHTML(status) + "'";
-      html+= "  type='button' class='btn btn-default'";
-      html += "  severityStatus='" + escapeHTML(status) + "'";
-      html += "  value='" + gettext("APPLY") + "' />";
-      html += "</td>";
-
       html += "</tr>";
     }
 
@@ -97,34 +89,59 @@ var SeverityRanksView = function(userProfile) {
     return queryData;
   }
 
-  function setupApplyButtons(reply) {
-    var i, status, severityRanks = reply["SeverityRanks"];
+  function saveSeverityRank(status) {
+    var deferred = new $.Deferred;
+    var url = "/severity-rank";
+    url += "/" + status;
+    new HatoholConnector({
+      url: url,
+      request: "POST",
+      data: makeQueryData(status),
+      replyCallback: function() {
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
+  }
 
-    for (i = 0; i < severityRanks.length; ++i) {
-      status = "#edit-severity-rank-setting" + severityRanks[i].status;
-      $(status).click(function() {
-        var severityStatus = this.getAttribute("severityStatus");
-        var url = "/severity-rank";
-        url += "/" + severityStatus;
-        self.targetStatus = severityStatus;
-        new HatoholConnector({
-          url: url,
-          request: "POST",
-          data: makeQueryData(self.targetStatus),
-          replyCallback: function() {
-            // nothing to do
-          },
-          parseErrorCallback: hatoholErrorMsgBoxForParser,
-          completionCallback: function() {
-            self.startConnection('severity-rank', updateCore);
-          },
-        });
+  function saveSeverityRanks() {
+    var severityRanks = rawData["SeverityRanks"];
+    var promise, promises = [];
+
+    // TODO: Save only modified ranks
+
+    $.map(severityRanks, function(rank, i) {
+      promise = saveSeverityRank(rank.status);
+      promises.push(promise);
+    });
+
+    hatoholInfoMsgBox(gettext("Saving..."));
+
+    $.when.apply($, promises)
+      .done(function() {
+        hatoholInfoMsgBox(gettext("Succeeded to save."));
+        self.startConnection('severity-rank', updateCore);
+      })
+      .fail(function() {
+        hatoholInfoMsgBox(gettext("Failed to save!"));
+        self.startConnection('severity-rank', updateCore);
       });
-    }
+  }
 
-    if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_SEVERITY_RANK)) {
-      $(".edit-severity-rank-setting-column").show();
-    }
+  function setupApplyButton(reply) {
+    if (!userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_SEVERITY_RANK))
+      return;
+
+    $("#save-severity-ranks").show();
+    $("#save-severity-ranks").click(function() {
+      saveSeverityRanks();
+    });
   }
 
   function drawTableContents(data) {
@@ -140,7 +157,7 @@ var SeverityRanksView = function(userProfile) {
     rawData = reply;
 
     drawTableContents(rawData);
-    setupApplyButtons(rawData);
+    setupApplyButton(rawData);
   }
 
   function load() {
