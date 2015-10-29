@@ -1684,7 +1684,7 @@ msgstr "失敗備考"
 
 #: static/js/severity_ranks_view.js:123
 msgid "Saving..."
-msgstr "再読込中..."
+msgstr "保存中..."
 
 #: static/js/severity_ranks_view.js:127
 msgid "Succeeded to save."
