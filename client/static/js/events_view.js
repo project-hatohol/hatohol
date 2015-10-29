@@ -156,6 +156,16 @@ var EventsView = function(userProfile, options) {
       if (filter.id == defaultFilterId)
         option.attr("selected", true)
     });
+
+    // summary
+    if (config.config["events.hide-sidebar"] == "true") {
+      $("#event-table-area").removeClass("col-md-10");
+      $("#event-table-area").addClass("col-md-12");
+      $("#sidebar-left-glyph").toggle();
+      $("#sidebar-right-glyph").toggle();
+    } else {
+      $("#SummarySidebar").show();
+    }
   }
 
   function updatePager() {
@@ -507,7 +517,6 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupToggleSidebar() {
-    $("#SummarySidebar").show();
     $("#toggle-sidebar").show();
     $("#toggle-sidebar").click(function(){
       $("#SummarySidebar").toggle();
