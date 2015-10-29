@@ -33,8 +33,8 @@
     <thead>
       <tr>
         <th> {% trans "Severity Ranks" %} </th>
-        <th style="display: none;"> {% trans "Display Colors" %} </th>
-        <th style="display: none;"> {% trans "Display Label Names" %} </th>
+        <th> {% trans "Display Colors" %} </th>
+        <th> {% trans "Display Label Names" %} </th>
         <th> {% trans "Important or Not" %} </th>
       </tr>
     </thead>
@@ -46,6 +46,7 @@
 {% endblock %}
 
 {% block logic %}
+  <script src="{{ STATIC_URL }}js.external/spectrum.js"></script>
   <script src="{{ STATIC_URL }}js/severity_ranks_view.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {

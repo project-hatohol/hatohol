@@ -60,11 +60,10 @@ var SeverityRanksView = function(userProfile) {
       html += "<td id='severity-rank-status" + escapeHTML(status) +"'>" +
         severity_choices[Number(status)] + "</td>";
       html += "<td id='severity-rank-color" + escapeHTML(status) + "'" +
-        " style='background-color: " + escapeHTML(color) + "; display: none;'>" +
+        " style='background-color: " + escapeHTML(color) + "'>" +
         escapeHTML(color) + "</td>";
       html += "<td id='severity-rank-label" + escapeHTML(status) +"'" +
-        "style='display: none;'>" +
-        escapeHTML(label) + "</td>";
+        "contenteditable='true'>" + escapeHTML(label) + "</td>";
       html += "<td class='delete-selector'>";
       html += "<input type='checkbox' id='severity-rank-checkbox" +
         escapeHTML(status) +"'";
@@ -144,6 +143,26 @@ var SeverityRanksView = function(userProfile) {
     });
   }
 
+  function setupColorPickers(reply) {
+    var i, color, severityRanks = reply["SeverityRanks"];
+    for (i = 0; i < severityRanks.length; ++i) {
+      var colorSelector = "#severity-rank-color" + severityRanks[i].status;
+      color = severityRanks[i].color;
+      setupSpectrum(color, colorSelector);
+    }
+
+    function setupSpectrum(color, colorSelector) {
+      $(colorSelector).spectrum({
+        color: color,
+        change: function(color) {
+          var colorHexString = color.toHexString();
+          $(colorSelector).text(colorHexString);
+          $(colorSelector).css("background-color", colorHexString);
+        }
+      });
+    }
+  }
+
   function drawTableContents(data) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(data));
@@ -158,6 +177,7 @@ var SeverityRanksView = function(userProfile) {
 
     drawTableContents(rawData);
     setupApplyButton(rawData);
+    setupColorPickers(rawData);
   }
 
   function load() {
