@@ -184,7 +184,8 @@
       	  <form class="form-inline hatohol-filter-toolbar">
 	    <div class="filter-element change-treatment">
               <p><label>{% trans "Change Treatment:" %}</label></p>
-              <select id="change-incident" class="form-control">
+              <select id="change-incident" class="form-control" disabled>
+		<option value="">---------</option>
 		<option value="NONE">{% trans "NONE" %}</option>
 		<option value="IN PROGRESS">{% trans "IN PROGRESS" %}</option>
 		<option value="DONE">{% trans "DONE" %}</option>

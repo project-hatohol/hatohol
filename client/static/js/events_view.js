@@ -353,10 +353,14 @@ var EventsView = function(userProfile, options) {
   }
 
   function updateIncidentStatus() {
+    var status = $("#change-incident").val();
     var updateIncidentIds = [], unifiedId;
     var incidents = $(".incident.selected");
     var promise, promises = [], errors = [];
     var errorMessage;
+
+    if (!status)
+      return;
 
     for (var i = 0; i < incidents.length; i++) {
       unifiedId = incidents[i].getAttribute("data-unified-id");
@@ -380,25 +384,23 @@ var EventsView = function(userProfile, options) {
             errorMessage = gettext("Failed to update treatments");
           hatoholErrorMsgBox(errorMessage, { optionMessages: errors });
         }
+        $("#change-incident").val("");
+        $('.incident.selectable').removeClass("selected");
+        setupChangeIncidentMenu();
         load();
       });
     }
   }
 
-  function makeQueryData() {
-    var queryData = {};
-    queryData.status = $("#change-incident").val();
-    return queryData;
-  }
-
   function applyIncidentStatus(updateIncidentId, errors) {
+    var status = $("#change-incident").val();
     var deferred = new $.Deferred;
     var url = "/incident";
     url += "/" + updateIncidentId;
     new HatoholConnector({
       url: url,
       request: "PUT",
-      data: makeQueryData(),
+      data: { status: status },
       replyCallback: function() {
         // nothing to do
       },
@@ -880,6 +882,7 @@ var EventsView = function(userProfile, options) {
 
     $('.incident.selectable').on('click', function() {
       $(this).toggleClass('selected');
+      setupChangeIncidentMenu();
     });
 
     setupSortColumn();
@@ -894,6 +897,15 @@ var EventsView = function(userProfile, options) {
       th.click(function() {
         switchSort();
       });
+    }
+  }
+
+  function setupChangeIncidentMenu() {
+    var selected = $('.incident.selectable.selected');
+    if (selected.length > 0) {
+      $("#change-incident").removeAttr("disabled", "disabled");
+    } else {
+      $("#change-incident").attr("disabled", "disabled");
     }
   }
 
