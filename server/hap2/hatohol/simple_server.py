@@ -18,13 +18,15 @@
   <http://www.gnu.org/licenses/>.
 """
 
-import haplib
 import multiprocessing
-import transporter
+from hatohol import hap
+from hatohol import haplib
+from hatohol import transporter
 import argparse
 import logging
 import json
 
+DEFAULT_TRANSPORTER = "RabbitMQHapiConnector"
 
 class SimpleServer:
 
@@ -182,12 +184,16 @@ def basic_setup(arg_def_func=None, prog_name="Simple Server for HAPI 2.0"):
     logging.basicConfig(level=logging.INFO)
     logging.info(prog_name)
     parser = argparse.ArgumentParser()
-    haplib.Utils.define_transporter_arguments(parser)
+    transporter_manager = transporter.Manager(DEFAULT_TRANSPORTER)
+    transporter_manager.define_arguments(parser)
     if arg_def_func is not None:
         arg_def_func(parser)
 
     args = parser.parse_args()
-    transporter_class = haplib.Utils.load_transporter(args)
+    transporter_class = transporter_manager.find(args.transporter)
+    if transporter_class is None:
+        logging.critical("Not found transporter: %s" % args.transporter)
+        raise SystemExit()
     transporter_args = {"class": transporter_class}
     transporter_args.update(transporter_class.parse_arguments(args))
     transporter_args["amqp_send_queue_suffix"] = "-T"
