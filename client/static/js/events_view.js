@@ -744,11 +744,11 @@ var EventsView = function(userProfile, options) {
       return html + "</td>";
 
     if (!incident.localtion)
-      return html + escapeHTML(incident.status) + "</td>";
+      return html + pgettext("Incident", escapeHTML(incident.status)) + "</td>";
 
     html += "<a href='" + escapeHTML(incident.location)
       + "' target='_blank'>";
-    html += escapeHTML(incident.status) + "</a>";
+    html += pgettext("Incident", escapeHTML(incident.status)) + "</a>";
     html += "</td>";
 
     return html;

@@ -793,14 +793,17 @@ msgid "New filter"
 msgstr "新規フィルター"
 
 #: static/js/hatohol_events_view_config.js:507
+msgctxt "Incident"
 msgid "NONE"
 msgstr "未対処"
 
 #: static/js/hatohol_events_view_config.js:508
+msgctxt "Incident"
 msgid "HOLD"
 msgstr "保留"
 
 #: static/js/hatohol_events_view_config.js:509
+msgctxt "Incident"
 msgid "IN PROGRESS"
 msgstr "処理中"
 
