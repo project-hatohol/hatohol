@@ -422,6 +422,7 @@ HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
     'events.sort.order': "" + hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
     'events.default-filter-id': "0",
     'events.summary.default-filter-id': "0",
+    'events.hide-sidebar': false,
   };
 };
 
