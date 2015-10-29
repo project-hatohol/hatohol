@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-23 01:57-0500\n"
+"POT-Creation-Date: 2015-10-29 02:29-0500\n"
 "PO-Revision-Date: 2015-10-23 15:57+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -157,19 +157,19 @@ msgstr "トリガー数 [障害あり]"
 msgid "New values per second"
 msgstr "１秒あたりの監視項目数"
 
-#: static/js/events_view.js:66 static/js/hatohol_add_action_dialog.js:715
+#: static/js/events_view.js:56 static/js/hatohol_add_action_dialog.js:715
 #: static/js/hatohol_events_view_config.js:513 static/js/servers_view.js:426
 #: static/js/triggers_view.js:92 static/js/utils.js:59
 msgid "OK"
 msgstr "正常"
 
-#: static/js/events_view.js:66 static/js/hatohol_add_action_dialog.js:716
+#: static/js/events_view.js:56 static/js/hatohol_add_action_dialog.js:716
 #: static/js/hatohol_events_view_config.js:514 static/js/triggers_view.js:93
 #: static/js/utils.js:61
 msgid "Problem"
 msgstr "障害"
 
-#: static/js/events_view.js:66 static/js/hatohol_add_action_dialog.js:819
+#: static/js/events_view.js:56 static/js/hatohol_add_action_dialog.js:819
 #: static/js/hatohol_events_view_config.js:515
 #: static/js/hatohol_incident_trackers_editor.js:197
 #: static/js/incident_settings_view.js:201
@@ -184,100 +184,104 @@ msgstr "障害"
 msgid "Unknown"
 msgstr "不明"
 
-#: static/js/events_view.js:67 static/js/hatohol_events_view_config.js:516
+#: static/js/events_view.js:57 static/js/hatohol_events_view_config.js:516
 msgid "Notification"
 msgstr "通知"
 
-#: static/js/events_view.js:69 static/js/hatohol_events_view_config.js:519
-#: static/js/triggers_view.js:97 static/js/utils.js:70
+#: static/js/events_view.js:59 static/js/hatohol_events_view_config.js:519
+#: static/js/severity_ranks_view.js:39 static/js/triggers_view.js:97
+#: static/js/utils.js:70
 msgid "Not classified"
 msgstr "未分類"
 
-#: static/js/events_view.js:69 static/js/hatohol_add_action_dialog.js:722
+#: static/js/events_view.js:59 static/js/hatohol_add_action_dialog.js:722
 #: static/js/hatohol_events_view_config.js:520
-#: static/js/hatohol_message_box.js:175 static/js/triggers_view.js:98
-#: static/js/utils.js:72
+#: static/js/hatohol_message_box.js:175 static/js/severity_ranks_view.js:40
+#: static/js/triggers_view.js:98 static/js/utils.js:72
 msgid "Information"
 msgstr "情報"
 
-#: static/js/events_view.js:69 static/js/hatohol_add_action_dialog.js:723
+#: static/js/events_view.js:59 static/js/hatohol_add_action_dialog.js:723
 #: static/js/hatohol_events_view_config.js:521
-#: static/js/hatohol_message_box.js:182 static/js/triggers_view.js:99
-#: static/js/utils.js:74
+#: static/js/hatohol_message_box.js:182 static/js/severity_ranks_view.js:41
+#: static/js/triggers_view.js:99 static/js/utils.js:74
 msgid "Warning"
 msgstr "警告"
 
-#: static/js/events_view.js:70 static/js/hatohol_add_action_dialog.js:724
-#: static/js/hatohol_events_view_config.js:522 static/js/triggers_view.js:100
+#: static/js/events_view.js:60 static/js/hatohol_add_action_dialog.js:724
+#: static/js/hatohol_events_view_config.js:522
+#: static/js/severity_ranks_view.js:42 static/js/triggers_view.js:100
 #: static/js/utils.js:76
 msgid "Average"
 msgstr "軽度の障害"
 
-#: static/js/events_view.js:70 static/js/hatohol_add_action_dialog.js:725
-#: static/js/hatohol_events_view_config.js:523 static/js/triggers_view.js:101
+#: static/js/events_view.js:60 static/js/hatohol_add_action_dialog.js:725
+#: static/js/hatohol_events_view_config.js:523
+#: static/js/severity_ranks_view.js:43 static/js/triggers_view.js:101
 #: static/js/utils.js:78
 msgid "High"
 msgstr "重度の障害"
 
-#: static/js/events_view.js:70 static/js/hatohol_add_action_dialog.js:726
-#: static/js/hatohol_events_view_config.js:524 static/js/triggers_view.js:102
+#: static/js/events_view.js:60 static/js/hatohol_add_action_dialog.js:726
+#: static/js/hatohol_events_view_config.js:524
+#: static/js/severity_ranks_view.js:44 static/js/triggers_view.js:102
 #: static/js/utils.js:80
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: static/js/events_view.js:74
+#: static/js/events_view.js:64
 msgid "Monitoring Server"
 msgstr "監視サーバー"
 
-#: static/js/events_view.js:78 static/js/hatohol_add_action_dialog.js:699
+#: static/js/events_view.js:68 static/js/hatohol_add_action_dialog.js:699
 msgid "Host"
 msgstr "ホスト名"
 
-#: static/js/events_view.js:82
+#: static/js/events_view.js:72
 msgid "Event ID"
 msgstr "イベントID"
 
-#: static/js/events_view.js:86 static/js/hatohol_add_action_dialog.js:712
+#: static/js/events_view.js:76 static/js/hatohol_add_action_dialog.js:712
 msgid "Status"
 msgstr "ステータス"
 
-#: static/js/events_view.js:90 static/js/hatohol_add_action_dialog.js:719
+#: static/js/events_view.js:80 static/js/hatohol_add_action_dialog.js:719
 msgid "Severity"
 msgstr "重要度"
 
-#: static/js/events_view.js:94
+#: static/js/events_view.js:84
 msgid "Time"
 msgstr "時間"
 
-#: static/js/events_view.js:98 static/js/hatohol_trigger_selector.js:49
+#: static/js/events_view.js:88 static/js/hatohol_trigger_selector.js:49
 msgid "Brief"
 msgstr "概要"
 
-#: static/js/events_view.js:102
+#: static/js/events_view.js:92
 msgid "Duration"
 msgstr "継続時間"
 
-#: static/js/events_view.js:106
+#: static/js/events_view.js:96
 msgid "Treatment"
 msgstr "対応"
 
-#: static/js/events_view.js:110
+#: static/js/events_view.js:100
 msgid "Priority"
 msgstr "優先度"
 
-#: static/js/events_view.js:114
+#: static/js/events_view.js:104
 msgid "Assignee"
 msgstr "担当者"
 
-#: static/js/events_view.js:118
+#: static/js/events_view.js:108
 msgid "% Done"
 msgstr "進捗率"
 
-#: static/js/events_view.js:365
+#: static/js/events_view.js:379
 msgid "Appling the treatment..."
 msgstr "対応を適用中..."
 
-#: static/js/events_view.js:368 static/js/events_view.js.c:419
+#: static/js/events_view.js:382 static/js/events_view.js.c:431
 #: static/js/hatohol_add_action_dialog.js:370
 #: static/js/hatohol_incident_trackers_editor.js:308
 #: static/js/hatohol_log_search_system_editor.js:88
@@ -287,19 +291,19 @@ msgstr "対応を適用中..."
 msgid "Successfully updated."
 msgstr "正常に更新されました。"
 
-#: static/js/events_view.js:371
+#: static/js/events_view.js:385
 msgid "Failed to update a treatment"
 msgstr "対応の更新に失敗しました"
 
-#: static/js/events_view.js:373
+#: static/js/events_view.js:387
 msgid "Failed to update treatments"
 msgstr "対応の更新に失敗しました"
 
-#: static/js/events_view.js:402
+#: static/js/events_view.js:414
 msgid "An unknown error is occured on changing "
 msgstr "変更中に未知のエラーが発生しました"
 
-#: static/js/events_view.js:421 static/js/hatohol_add_action_dialog.js:372
+#: static/js/events_view.js:433 static/js/hatohol_add_action_dialog.js:372
 #: static/js/hatohol_incident_trackers_editor.js:310
 #: static/js/hatohol_log_search_system_editor.js:90
 #: static/js/hatohol_server_edit_dialog_parameterized.js:116
@@ -307,6 +311,11 @@ msgstr "変更中に未知のエラーが発生しました"
 #: static/js/hatohol_user_roles_editor.js:331
 msgid "Successfully created."
 msgstr "正常に作成されました。"
+
+#: static/js/events_view.js:1048
+#, fuzzy
+msgid "Failed to get severity rank!"
+msgstr "重要度設定の削除"
 
 #: static/js/graphs_view.js:47
 msgid "Do you delete the selected items ?"
@@ -1160,16 +1169,20 @@ msgstr "ログ検索システム"
 msgid "Users"
 msgstr "ユーザー"
 
-#: static/js/hatohol_navi.js:85
+#: static/js/hatohol_navi.js:83
+msgid "Severity Ranks"
+msgstr "重要度設定"
+
+#: static/js/hatohol_navi.js:93
 msgid "Help"
 msgstr "ヘルプ"
 
-#: static/js/hatohol_navi.js:88 test/browser/test_hatohol_navi.js:70
+#: static/js/hatohol_navi.js:96 test/browser/test_hatohol_navi.js:70
 #: test/browser/test_hatohol_navi.js:112
 msgid "Online Documents"
 msgstr "オンラインドキュメント"
 
-#: static/js/hatohol_navi.js:92 test/browser/test_hatohol_navi.js:72
+#: static/js/hatohol_navi.js:100 test/browser/test_hatohol_navi.js:72
 #: test/browser/test_hatohol_navi.js:114
 msgid "Hatohol version: "
 msgstr "Hatoholバージョン: "
@@ -1669,6 +1682,21 @@ msgstr "失敗回数"
 #: static/js/servers_view.js:489 test/browser/test_server_view.js:259
 msgid "Comment for the failure"
 msgstr "失敗備考"
+
+#: static/js/severity_ranks_view.js:123
+#, fuzzy
+msgid "Saving..."
+msgstr "再読込中..."
+
+#: static/js/severity_ranks_view.js:127
+#, fuzzy
+msgid "Succeeded to save."
+msgstr "適用に成功しました。"
+
+#: static/js/severity_ranks_view.js:131
+#, fuzzy
+msgid "Failed to save!"
+msgstr "取得失敗"
 
 #: static/js/utils.js:298
 msgid " day, "
