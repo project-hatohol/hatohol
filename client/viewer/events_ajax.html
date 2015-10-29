@@ -120,6 +120,10 @@
 	      <button id="apply-all-filter" type="button" class="btn btn-info btn-apply-all-filter">
 		{% trans "Apply filter(s)" %} <span class="glyphicon glyphicon-ok-circle" id="sidebar-left-glyph"></span>
 	      </button>
+              <button type="button" class="btn btn-info latest-button">
+                <span class="glyphicon glyphicon-refresh"></span>
+                {% trans "Latest events" %}
+              </button>
 	    </div>
 	  </div>
 	  <br><br>
@@ -206,10 +210,6 @@
       </div>
 
       <form id="events-pager" class="form-inline" style="text-align: center;">
-	<button id="latest-events-button2" type="button" class="btn btn-info latest-button">
-	  <span class="glyphicon glyphicon-refresh"></span>
-	  {% trans "Latest events" %}
-	</button>
 	<ul class="pagination">
 	</ul>
       </form>
