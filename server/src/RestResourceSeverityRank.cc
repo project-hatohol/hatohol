@@ -120,11 +120,20 @@ static HatoholError parseSeverityRankParameter(
   const bool &forUpdate = false)
 {
 	const bool allowEmpty = forUpdate;
+	char *value;
 
 	PARSE_VALUE(severityRankInfo, status, SeverityRankStatusType, allowEmpty);
 	PARSE_STRING_VALUE(severityRankInfo, color, allowEmpty);
 	PARSE_STRING_VALUE(severityRankInfo, label, allowEmpty);
-	PARSE_VALUE(severityRankInfo, asImportant, bool, allowEmpty);
+	// TODO: We should create a method to parse Boolean value.
+	value = (char *)g_hash_table_lookup(query, "asImportant");
+	if (!value && !allowEmpty)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, "asImportant");
+	bool asImportant = false;
+	if (value) {
+		asImportant = (string(value) == "true");
+		severityRankInfo.asImportant = asImportant;
+	}
 
 	return HatoholError(HTERR_OK);
 }

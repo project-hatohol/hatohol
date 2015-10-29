@@ -147,8 +147,11 @@ static void createPostData(const SeverityRankInfo &severityRank,
 	params["status"] = StringUtils::toString(static_cast<int>(severityRank.status));
 	params["color"]  = severityRank.color;
 	params["label"]  = severityRank.label;
-	params["asImportant"] =
-		StringUtils::toString(static_cast<int>(severityRank.asImportant));
+	if (severityRank.asImportant) {
+		params["asImportant"] = "true";
+	} else {
+		params["asImportant"] = "false";
+	}
 }
 
 void test_addSeverityRank(void)
