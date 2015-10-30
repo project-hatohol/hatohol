@@ -524,9 +524,13 @@ var EventsView = function(userProfile, options) {
       $("#event-table-area").toggleClass("col-md-10");
       $("#sidebar-left-glyph").toggle();
       $("#sidebar-right-glyph").toggle();
-      self.userConfig.saveValue("events.hide-sidebar",
-                                $("#event-table-area").hasClass("col-md-12"));
-      updateSummary();
+      var summaryConcealed =
+        self.userConfig.saveValue("events.hide-sidebar",
+                                  $("#event-table-area").hasClass("col-md-12"));
+      if (!summaryConcealed) {
+        self.startConnection(getSummaryQuery(), updateSummary);
+        updateSummary();
+      }
     });
   }
 
