@@ -158,7 +158,7 @@ var EventsView = function(userProfile, options) {
     });
 
     // summary
-    if (config.config["events.hide-sidebar"] == "true") {
+    if (config.config["events.show-sidebar"] == "false") {
       $("#event-table-area").removeClass("col-md-10");
       $("#event-table-area").addClass("col-md-12");
       $("#sidebar-left-glyph").toggle();
@@ -281,8 +281,8 @@ var EventsView = function(userProfile, options) {
       self.currentPage = 0;
     }
     self.startConnection(getQuery(options), updateCore);
-    var summaryConcealed = $("#event-table-area").hasClass("col-md-12");
-    if (!summaryConcealed) {
+    var summaryShown = $("#event-table-area").hasClass("col-md-10");
+    if (summaryShown) {
       self.startConnection(getSummaryQuery(), updateSummary);
       getSummaryQuery();
     }
@@ -527,10 +527,10 @@ var EventsView = function(userProfile, options) {
       $("#event-table-area").toggleClass("col-md-10");
       $("#sidebar-left-glyph").toggle();
       $("#sidebar-right-glyph").toggle();
-      self.userConfig.saveValue("events.hide-sidebar",
-                                $("#event-table-area").hasClass("col-md-12"));
-      var summaryConcealed = $("#event-table-area").hasClass("col-md-12");
-      if (!summaryConcealed) {
+      self.userConfig.saveValue("events.show-sidebar",
+                                $("#event-table-area").hasClass("col-md-10"));
+      var summaryShown = $("#event-table-area").hasClass("col-md-10");
+      if (summaryShown) {
         self.startConnection(getSummaryQuery(), updateSummary);
       }
     });
