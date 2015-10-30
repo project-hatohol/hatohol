@@ -532,7 +532,6 @@ var EventsView = function(userProfile, options) {
       var summaryConcealed = $("#event-table-area").hasClass("col-md-12");
       if (!summaryConcealed) {
         self.startConnection(getSummaryQuery(), updateSummary);
-        updateSummary();
       }
     });
   }
