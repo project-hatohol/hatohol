@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-29 02:29-0500\n"
-"PO-Revision-Date: 2015-10-28 14:46+0900\n"
+"POT-Creation-Date: 2015-10-30 03:34-0500\n"
+"PO-Revision-Date: 2015-10-30 17:36+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -232,6 +232,10 @@ msgstr "開始時刻:"
 #: viewer/events_ajax.html:114
 msgid "End time:"
 msgstr "終了時刻:"
+
+#: viewer/events_ajax.html:115
+msgid "Current time"
+msgstr "現在時刻"
 
 #: viewer/events_ajax.html:121
 msgid "Apply filter(s)"

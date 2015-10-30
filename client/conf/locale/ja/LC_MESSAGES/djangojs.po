@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-29 02:29-0500\n"
+"POT-Creation-Date: 2015-10-30 03:34-0500\n"
 "PO-Revision-Date: 2015-10-23 15:57+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -158,19 +158,19 @@ msgid "New values per second"
 msgstr "１秒あたりの監視項目数"
 
 #: static/js/events_view.js:56 static/js/hatohol_add_action_dialog.js:715
-#: static/js/hatohol_events_view_config.js:513 static/js/servers_view.js:426
+#: static/js/hatohol_events_view_config.js:514 static/js/servers_view.js:426
 #: static/js/triggers_view.js:92 static/js/utils.js:59
 msgid "OK"
 msgstr "正常"
 
 #: static/js/events_view.js:56 static/js/hatohol_add_action_dialog.js:716
-#: static/js/hatohol_events_view_config.js:514 static/js/triggers_view.js:93
+#: static/js/hatohol_events_view_config.js:515 static/js/triggers_view.js:93
 #: static/js/utils.js:61
 msgid "Problem"
 msgstr "障害"
 
 #: static/js/events_view.js:56 static/js/hatohol_add_action_dialog.js:819
-#: static/js/hatohol_events_view_config.js:515
+#: static/js/hatohol_events_view_config.js:516
 #: static/js/hatohol_incident_trackers_editor.js:197
 #: static/js/incident_settings_view.js:201
 #: static/js/incident_settings_view.js:208 static/js/triggers_view.js:94
@@ -184,46 +184,46 @@ msgstr "障害"
 msgid "Unknown"
 msgstr "不明"
 
-#: static/js/events_view.js:57 static/js/hatohol_events_view_config.js:516
+#: static/js/events_view.js:57 static/js/hatohol_events_view_config.js:517
 msgid "Notification"
 msgstr "通知"
 
-#: static/js/events_view.js:59 static/js/hatohol_events_view_config.js:519
+#: static/js/events_view.js:59 static/js/hatohol_events_view_config.js:520
 #: static/js/severity_ranks_view.js:39 static/js/triggers_view.js:97
 #: static/js/utils.js:70
 msgid "Not classified"
 msgstr "未分類"
 
 #: static/js/events_view.js:59 static/js/hatohol_add_action_dialog.js:722
-#: static/js/hatohol_events_view_config.js:520
+#: static/js/hatohol_events_view_config.js:521
 #: static/js/hatohol_message_box.js:175 static/js/severity_ranks_view.js:40
 #: static/js/triggers_view.js:98 static/js/utils.js:72
 msgid "Information"
 msgstr "情報"
 
 #: static/js/events_view.js:59 static/js/hatohol_add_action_dialog.js:723
-#: static/js/hatohol_events_view_config.js:521
+#: static/js/hatohol_events_view_config.js:522
 #: static/js/hatohol_message_box.js:182 static/js/severity_ranks_view.js:41
 #: static/js/triggers_view.js:99 static/js/utils.js:74
 msgid "Warning"
 msgstr "警告"
 
 #: static/js/events_view.js:60 static/js/hatohol_add_action_dialog.js:724
-#: static/js/hatohol_events_view_config.js:522
+#: static/js/hatohol_events_view_config.js:523
 #: static/js/severity_ranks_view.js:42 static/js/triggers_view.js:100
 #: static/js/utils.js:76
 msgid "Average"
 msgstr "軽度の障害"
 
 #: static/js/events_view.js:60 static/js/hatohol_add_action_dialog.js:725
-#: static/js/hatohol_events_view_config.js:523
+#: static/js/hatohol_events_view_config.js:524
 #: static/js/severity_ranks_view.js:43 static/js/triggers_view.js:101
 #: static/js/utils.js:78
 msgid "High"
 msgstr "重度の障害"
 
 #: static/js/events_view.js:60 static/js/hatohol_add_action_dialog.js:726
-#: static/js/hatohol_events_view_config.js:524
+#: static/js/hatohol_events_view_config.js:525
 #: static/js/severity_ranks_view.js:44 static/js/triggers_view.js:102
 #: static/js/utils.js:80
 msgid "Disaster"
@@ -277,11 +277,11 @@ msgstr "担当者"
 msgid "% Done"
 msgstr "進捗率"
 
-#: static/js/events_view.js:379
+#: static/js/events_view.js:397
 msgid "Appling the treatment..."
 msgstr "対応を適用中..."
 
-#: static/js/events_view.js:382 static/js/events_view.js.c:431
+#: static/js/events_view.js:400 static/js/events_view.js.c:449
 #: static/js/hatohol_add_action_dialog.js:370
 #: static/js/hatohol_incident_trackers_editor.js:308
 #: static/js/hatohol_log_search_system_editor.js:88
@@ -291,19 +291,19 @@ msgstr "対応を適用中..."
 msgid "Successfully updated."
 msgstr "正常に更新されました。"
 
-#: static/js/events_view.js:385
+#: static/js/events_view.js:403
 msgid "Failed to update a treatment"
 msgstr "対応の更新に失敗しました"
 
-#: static/js/events_view.js:387
+#: static/js/events_view.js:405
 msgid "Failed to update treatments"
 msgstr "対応の更新に失敗しました"
 
-#: static/js/events_view.js:414
+#: static/js/events_view.js:432
 msgid "An unknown error is occured on changing "
 msgstr "変更中に未知のエラーが発生しました"
 
-#: static/js/events_view.js:433 static/js/hatohol_add_action_dialog.js:372
+#: static/js/events_view.js:451 static/js/hatohol_add_action_dialog.js:372
 #: static/js/hatohol_incident_trackers_editor.js:310
 #: static/js/hatohol_log_search_system_editor.js:90
 #: static/js/hatohol_server_edit_dialog_parameterized.js:116
@@ -312,7 +312,7 @@ msgstr "変更中に未知のエラーが発生しました"
 msgid "Successfully created."
 msgstr "正常に作成されました。"
 
-#: static/js/events_view.js:1048
+#: static/js/events_view.js:1070
 msgid "Failed to get severity rank!"
 msgstr "重要度設定の取得に失敗しました。"
 
@@ -784,35 +784,35 @@ msgstr "HAP2接続が利用できません。"
 msgid "Invalid object passed by HAP2."
 msgstr "HAP2から不正なオブジェクトが渡されました。"
 
-#: static/js/hatohol_events_view_config.js:463
+#: static/js/hatohol_events_view_config.js:464
 msgid "Add a new filter"
 msgstr "新しいフィルターを追加"
 
-#: static/js/hatohol_events_view_config.js:467
+#: static/js/hatohol_events_view_config.js:468
 msgid "New filter"
 msgstr "新規フィルター"
 
-#: static/js/hatohol_events_view_config.js:507
-msgctxt "Incident"
+#: static/js/hatohol_events_view_config.js:508
+#, fuzzy
 msgid "NONE"
 msgstr "未対処"
 
-#: static/js/hatohol_events_view_config.js:508
-msgctxt "Incident"
+#: static/js/hatohol_events_view_config.js:509
+#, fuzzy
 msgid "HOLD"
 msgstr "保留"
 
-#: static/js/hatohol_events_view_config.js:509
-msgctxt "Incident"
+#: static/js/hatohol_events_view_config.js:510
+#, fuzzy
 msgid "IN PROGRESS"
 msgstr "処理中"
 
-#: static/js/hatohol_events_view_config.js:510
+#: static/js/hatohol_events_view_config.js:511
 msgctxt "Incident"
 msgid "DONE"
 msgstr "対処済"
 
-#: static/js/hatohol_events_view_config.js:634
+#: static/js/hatohol_events_view_config.js:635
 msgid "ALL (31 days)"
 msgstr "全て（31日間）"
 
