@@ -245,6 +245,11 @@ var EventsView = function(userProfile, options) {
       limitOfUnifiedId: self.limitOfUnifiedId,
     });
 
+    // TODO: Should set it by caller
+    var beginTime = new Date(baseFilter.beginTime * 1000);
+    var beginTimeString = formatDateTimeWithZeroSecond(beginTime);
+    $("#begin-time").attr("placeholder", beginTimeString);
+
     return 'events?' + $.param(query);
   };
 
