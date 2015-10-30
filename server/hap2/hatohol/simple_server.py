@@ -167,7 +167,7 @@ class SimpleServer:
     def __rpc_get_last_info(self, call_id, params):
         logging.info(params)
         if not params in self.__last_info:
-            logging.error("Invalid paramter: '%s'" % paramsa)
+            logging.error("Invalid parameter: '%s'" % params)
             self.__sender.error(haplib.ERR_CODE_INVALID_PARAMS, call_id)
             return
         result = self.__last_info[params]
