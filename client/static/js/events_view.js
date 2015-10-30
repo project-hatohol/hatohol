@@ -281,8 +281,11 @@ var EventsView = function(userProfile, options) {
       self.currentPage = 0;
     }
     self.startConnection(getQuery(options), updateCore);
-    self.startConnection(getSummaryQuery(), updateSummary);
-    getSummaryQuery();
+    var summaryConcealed = $("#event-table-area").hasClass("col-md-12");
+    if (!summaryConcealed) {
+      self.startConnection(getSummaryQuery(), updateSummary);
+      getSummaryQuery();
+    }
     $(document.body).scrollTop(0);
   }
 
