@@ -23,6 +23,7 @@ import urllib2
 import json
 from logging import getLogger
 from hatohol.haplib import Utils
+from hatohol import hap
 
 logger = getLogger(__name__)
 
@@ -211,6 +212,7 @@ class ZabbixAPI:
                                  "extendedInfo": description})
             except KeyError:
                 logger.warning("Get a imperfect trigger: %s" % trigger)
+                hap.handle_exception()
 
         return triggers
 
@@ -275,6 +277,7 @@ class ZabbixAPI:
                                "extendedInfo": ""})
             except KeyError:
                 logger.warning("Get a imperfect event: %s" % event)
+                hap.handle_exception()
 
         return events
 
