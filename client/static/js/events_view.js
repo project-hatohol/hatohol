@@ -954,14 +954,12 @@ var EventsView = function(userProfile, options) {
     var numOfImportantEventOccurredHosts =
           self.rawSummaryData["numOfImportantEventOccurredHosts"];
     $("#numOfImportantEventOccurredHosts").text(numOfImportantEventOccurredHosts);
-    var numOfNotImportantEventOccurredHosts =
-          self.rawSummaryData["numOfNotImportantEventOccurredHosts"];
-    var totalNumOfEventOccurredHosts =
-          numOfImportantEventOccurredHosts + numOfNotImportantEventOccurredHosts;
+    var numOfAllEventOccurredHosts =
+          self.rawSummaryData["numOfAllEventOccurredHosts"];
     var importantEventOccurredHostsPercentage = 0;
-    if (totalNumOfEventOccurredHosts > 0)
+    if (numOfAllEventOccurredHosts > 0)
       importantEventOccurredHostsPercentage =
-        (numOfImportantEventOccurredHosts / totalNumOfEventOccurredHosts * 100)
+        (numOfImportantEventOccurredHosts / numOfAllEventOccurredHosts * 100)
         .toFixed(2);
     $("#importantEventOccurredHostsPercentage").text(importantEventOccurredHostsPercentage+"%");
      $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
