@@ -96,6 +96,7 @@ void RestResourceSummary::handlerSummary(void)
 	EventsQueryOption assignedEventOption(option);
 	std::set<std::string> assignedStatusSet, unAssignedStatusSet;
 	assignedStatusSet.insert(definedStatuses[static_cast<int>(Status::IN_PROGRESS)].label.c_str());
+	assignedStatusSet.insert(definedStatuses[static_cast<int>(Status::DONE)].label.c_str());
 	assignedEventOption.setIncidentStatuses(assignedStatusSet);
 	int64_t numOfAssignedEvents =
 	  dataStore->getNumberOfEvents(assignedEventOption);
