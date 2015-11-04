@@ -605,11 +605,13 @@ static void updateIncidentCallback(const IncidentSender &sender,
 		agent.endObject();
 		job->replyJSONData(agent);
 		job->unpauseResponse();
+		job->unref();
 		break;
 	}
 	case IncidentSender::JOB_FAILED:
 		job->replyError(sender.getLastResult());
 		job->unpauseResponse();
+		job->unref();
 		break;
 	default:
 		break;
@@ -653,6 +655,7 @@ void RestResourceHost::handlerPutIncident(void)
 	}
 
 	// try to update
+	ref();
 	IncidentSenderManager &senderManager
 	  = IncidentSenderManager::getInstance();
 	senderManager.queue(incidentInfo, comment,
