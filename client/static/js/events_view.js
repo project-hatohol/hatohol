@@ -738,7 +738,6 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataEventSeverity(event, server) {
     var severity = event["severity"];
-    var statusClass = "status" + event["status"];
 
     return "<td class='" + getSeverityClass(event) + "'>" +
       severity_choices[Number(severity)] + "</td>";
