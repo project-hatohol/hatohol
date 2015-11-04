@@ -113,7 +113,7 @@ class ZabbixAPIConductor:
         if direction == "ASC":
             if isinstance(last_info, int):
                 event_id_from = last_info + 1
-            event_id_till = None
+            event_id_till = event_id_from + 1000
             if count is not None:
                 event_id_till = event_id_from + count
         # The following elif sentence is used from only fetchEvents
