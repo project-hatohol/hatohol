@@ -36,6 +36,7 @@ EXTRA_DIST = \
 	browser/test_hap2_ceilometer.js \
 	browser/test_hap2_fluentd.js \
 	browser/test_hap2_zabbix.js \
+	browser/test_severity_ranks_view.js \
 	browser/test_hatohol_events_view_config.js \
 	feature/dashboard_test.js \
 	feature/feature_test_utils.js \
