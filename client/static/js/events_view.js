@@ -937,8 +937,10 @@ var EventsView = function(userProfile, options) {
     $("#numOfUnAssignedEvents").text(numOfUnAssignedEvents);
     var numOfAssignedEvents = self.rawSummaryData["numOfAssignedEvents"];
     var totalNumOfAssignEvents = numOfUnAssignedEvents + numOfAssignedEvents;
-    var unAssignedEventsPercentage =
-          (numOfUnAssignedEvents/totalNumOfAssignEvents*100).toFixed(2);
+    var unAssignedEventsPercentage = 0;
+    if (totalNumOfAssignEvents > 0)
+      unAssignedEventsPercentage =
+        (numOfUnAssignedEvents / totalNumOfAssignEvents * 100).toFixed(2);
     $("#unAssignedEventsPercentage").text(unAssignedEventsPercentage + "%");
     $("#unAssignedEventsPercentage").css("width", unAssignedEventsPercentage+"%");
 
@@ -952,9 +954,11 @@ var EventsView = function(userProfile, options) {
           self.rawSummaryData["numOfNotImportantEventOccurredHosts"];
     var totalNumOfEventOccurredHosts =
           numOfImportantEventOccurredHosts + numOfNotImportantEventOccurredHosts;
-    var importantEventOccurredHostsPercentage =
-          (numOfImportantEventOccurredHosts/totalNumOfEventOccurredHosts*100)
-          .toFixed(2);
+    var importantEventOccurredHostsPercentage = 0;
+    if (totalNumOfEventOccurredHosts > 0)
+      importantEventOccurredHostsPercentage =
+        (numOfImportantEventOccurredHosts / totalNumOfEventOccurredHosts * 100)
+        .toFixed(2);
     $("#importantEventOccurredHostsPercentage").text(importantEventOccurredHostsPercentage+"%");
      $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
   }
