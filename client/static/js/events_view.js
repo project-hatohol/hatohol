@@ -730,7 +730,7 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataEventStatus(event, server) {
     var status = event["type"];
-    var statusClass = "status" + event["status"];
+    var statusClass = "status" + status;
 
     return "<td class='" + getSeverityClass(event) + " " + statusClass + "'>" +
       status_choices[Number(status)] + "</td>";
@@ -738,7 +738,6 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataEventSeverity(event, server) {
     var severity = event["severity"];
-    var statusClass = "status" + event["status"];
 
     return "<td class='" + getSeverityClass(event) + "'>" +
       severity_choices[Number(severity)] + "</td>";
