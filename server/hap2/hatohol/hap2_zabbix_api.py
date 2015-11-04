@@ -104,19 +104,18 @@ class ZabbixAPIConductor:
                           last_info=self.__trigger_last_info,
                           fetch_id=fetch_id)
 
-    def update_events(self, last_info=None, count=None, direction="ASC",
+    def update_events(self, last_info=None, count=1000, direction="ASC",
                       fetch_id=None):
         if last_info is None:
             last_info = self.get_cached_event_last_info()
 
         event_id_from = None
+        event_id_till = None
         if direction == "ASC":
             if isinstance(last_info, unicode) or isinstance(last_info, str):
                 last_info = int(last_info)
             if isinstance(last_info, int):
                 event_id_from = last_info + 1
-            event_id_till = None
-            if count is not None:
                 event_id_till = event_id_from + count
         # The following elif sentence is used from only fetchEvents
         elif direction == "DESC":
