@@ -309,7 +309,7 @@ describe('EventsView', function() {
     var eventURL =
       "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332";
     var expected =
-      '<td class=" status1">OK</td>' +
+      '<td class=" status0">OK</td>' +
       '<td class="">Information</td>' +
       '<td class=""><a href="' + escapeHTML(eventURL) +
       '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
@@ -318,7 +318,10 @@ describe('EventsView', function() {
       '<td class=""><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
       '<td class="" title="Test description.">Test description.</td>';
     var events = [
-      $.extend({}, dummyEventInfo[0], { type: hatohol.EVENT_TYPE_GOOD })
+      $.extend({}, dummyEventInfo[0], {
+	  type: hatohol.EVENT_TYPE_GOOD,
+	  status: hatohol.TRIGGER_STATUS_PROBLEM,
+      })
     ];
     respond(eventsJson(events, getDummyServerInfo(0)));
     expect($('#table')).to.have.length(1);
