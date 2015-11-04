@@ -730,7 +730,7 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataEventStatus(event, server) {
     var status = event["type"];
-    var statusClass = "status" + event["status"];
+    var statusClass = "status" + status;
 
     return "<td class='" + getSeverityClass(event) + " " + statusClass + "'>" +
       status_choices[Number(status)] + "</td>";
