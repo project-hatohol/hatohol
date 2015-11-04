@@ -169,7 +169,7 @@ describe('EventsViewConfig', function() {
         enable: false,
         selected: []
       },
-      status: {
+      type: {
         enable: false,
         selected: []
       },
@@ -206,7 +206,7 @@ describe('EventsViewConfig', function() {
         enable: true,
         selected: ["NONE", "IN PROGRESS"]
       },
-      status: {
+      type: {
         enable: true,
         selected: ["0", "1"]
       },
@@ -246,7 +246,7 @@ describe('EventsViewConfig', function() {
         enable: true,
         selected: ["NONE", "IN PROGRESS", "DONE"]
       },
-      status: {
+      type: {
         enable: true,
         selected: ["0", "1"]
       },
@@ -272,7 +272,7 @@ describe('EventsViewConfig', function() {
     };
     var expected = {
       incidentStatuses: "NONE,IN PROGRESS,DONE",
-      statuses: "0,1",
+      types: "0,1",
       severities: "2,3",
       selectHosts: [
         { serverId: "1", },

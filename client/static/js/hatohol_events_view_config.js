@@ -47,7 +47,7 @@ var HatoholEventsViewConfig = function(options) {
   self.config = self.getDefaultConfig();
   self.servers = null;
   self.multiselectFilterTypes = [
-    "incident", "status", "severity", "server", "hostgroup", "host"
+    "incident", "type", "severity", "server", "hostgroup", "host"
   ];
   self.filterList = [self.getDefaultFilterConfig()];
   self.resetEditingFilterList();
@@ -510,7 +510,7 @@ HatoholEventsViewConfig.prototype.setCurrentFilterConfig = function(filter) {
       { value: "IN PROGRESS", label: gettext("IN PROGRESS") },
       { value: "DONE",        label: pgettext("Incident", "DONE") },
     ],
-    status: [
+    type: [
       { value: "0", label: gettext("OK") },
       { value: "1", label: gettext("Problem") },
       { value: "2", label: gettext("Unknown") },
@@ -638,7 +638,7 @@ HatoholEventsViewConfig.prototype.getDefaultFilterConfig = function() {
       enable: false,
       selected: []
     },
-    status: {
+    type: {
       enable: false,
       selected: []
     },
@@ -721,8 +721,8 @@ HatoholEventsViewConfig.prototype.createFilter = function(filterConfig) {
   if (conf.incident.enable && conf.incident.selected.length > 0)
     filter["incidentStatuses"] = conf.incident.selected.join(",");
 
-  if (conf.status.enable && conf.status.selected.length > 0)
-    filter["statuses"] = conf.status.selected.join(",");
+  if (conf.type.enable && conf.type.selected.length > 0)
+    filter["types"] = conf.type.selected.join(",");
 
   if (conf.severity.enable && conf.severity.selected.length > 0)
     filter["severities"] = conf.severity.selected.join(",");

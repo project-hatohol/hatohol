@@ -389,42 +389,42 @@
 		  </div>
 		</div>
 
-		<!-- Status filter config -->
+		<!-- Type filter config -->
 		<div class="panel panel-default">
-		  <div class="panel-heading" role="tab" id="status-filter-pane">
+		  <div class="panel-heading" role="tab" id="type-filter-pane">
 		    <h4 class="panel-title">
 		      <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
-			 href="#collapse-status-filter" aria-expanded="false" aria-controls="collapse-status-filter">
+			 href="#collapse-type-filter" aria-expanded="false" aria-controls="collapse-type-filter">
 			{% trans "Status" %}
 		      </a>
 		    </h4>
 		  </div>
-		  <div id="collapse-status-filter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="status-filter-pane">
+		  <div id="collapse-type-filter" class="panel-collapse collapse" role="tabpanel" aria-labelledby="type-filter-pane">
 		    <div class="panel-body">
 		      <p>
-			<input type="checkbox" id="enable-status-filter-selector">
-			<label for="enable-status-filter-selector">{% trans 'Include "Status" to the filter condition' %}</label>
+			<input type="checkbox" id="enable-type-filter-selector">
+			<label for="enable-type-filter-selector">{% trans 'Include "Status" to the filter condition' %}</label>
 		      </p>
 		      <div class="row">
 			<div class="col-xs-5">
-			  <p><label for="status-filter-selector">{% trans "Candidates" %}<label></p>
-			  <select name="from[]" id="status-filter-selector"
+			  <p><label for="type-filter-selector">{% trans "Candidates" %}<label></p>
+			  <select name="from[]" id="type-filter-selector"
 				  class="form-control" size="4" multiple="multiple">
 			  </select>
 			</div>
 
-			<div class="status-filter-selector-buttons col-xs-2" style="margin-top: 46px;">
-			  <button type="button" id="status-filter-selector_rightSelected" class="btn btn-block">
+			<div class="type-filter-selector-buttons col-xs-2" style="margin-top: 46px;">
+			  <button type="button" id="type-filter-selector_rightSelected" class="btn btn-block">
 			    <i class="glyphicon glyphicon-chevron-right"></i>
 			  </button>
-			  <button type="button" id="status-filter-selector_leftSelected" class="btn btn-block">
+			  <button type="button" id="type-filter-selector_leftSelected" class="btn btn-block">
 			    <i class="glyphicon glyphicon-chevron-left"></i>
 			  </button>
 			</div>
 
 			<div class="col-xs-5">
-			  <p><label for="status-filter-selector-selected">{% trans "Selected" %}<label></p>
-			  <select name="to[]" id="status-filter-selector-selected"
+			  <p><label for="type-filter-selector-selected">{% trans "Selected" %}<label></p>
+			  <select name="to[]" id="type-filter-selector-selected"
 				  class="form-control" size="4" multiple="multiple">
 			  </select>
 			</div>
