@@ -111,6 +111,8 @@ class ZabbixAPIConductor:
 
         event_id_from = None
         if direction == "ASC":
+            if isinstance(last_info, unicode) or isinstance(last_info, str):
+                last_info = int(last_info)
             if isinstance(last_info, int):
                 event_id_from = last_info + 1
             event_id_till = None
