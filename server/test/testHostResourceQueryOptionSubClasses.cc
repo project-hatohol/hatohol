@@ -540,6 +540,24 @@ void test_eventQueryOptionGetEndTime(void)
 	cppcut_assert_equal(expected.tv_nsec, actual.tv_nsec);
 }
 
+void data_eventQueryOptionWithTypes(void)
+{
+	prepareTestDataExcludeDefunctServers();
+}
+
+void test_eventQueryOptionWithTypes(gconstpointer data)
+{
+	EventsQueryOption option(USER_ID_SYSTEM);
+	set<EventType> types;
+	types.insert(EVENT_TYPE_BAD);
+	types.insert(EVENT_TYPE_UNKNOWN);
+	option.setEventTypes(types);
+
+	string expected = "(event_value=1 OR event_value=2)";
+	fixupForFilteringDefunctServer(data, expected, option);
+	cppcut_assert_equal(expected, option.getCondition());
+}
+
 void data_eventQueryOptionWithSeverities(void)
 {
 	prepareTestDataExcludeDefunctServers();
