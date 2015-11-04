@@ -1739,6 +1739,33 @@ void test_getEventsExcludeByHostgroup(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_getEventsSelectByTypes(void)
+{
+	loadTestDBServerHostDef();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+	loadTestDBEvents();
+	loadTestDBIncidents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+
+	EventsQueryOption option(USER_ID_SYSTEM);
+	set<EventType> types;
+	types.insert(EVENT_TYPE_BAD);
+	types.insert(EVENT_TYPE_UNKNOWN);
+	option.setEventTypes(types);
+
+	EventInfoList events;
+	dbMonitoring.getEventInfoList(events, option, NULL);
+	string actual = sortedJoin(events);
+	string expected(
+	   "3|3|1390000000|123456789|1|2|1|2|35|10001|hostZ1|TEST Trigger 2|"
+	     "{\"expandedDescription\":\"Test Trigger on hostZ1\"}\n"
+	   "3|4|1390000100|123456789|2|4|2|4|41|10002|hostZ2|"
+	     "Status:Unknown, Severity:Critical|\n");
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_getEventsSelectByIncidentStatuses(void)
 {
 	loadTestDBServerHostDef();

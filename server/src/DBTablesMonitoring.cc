@@ -848,6 +848,7 @@ struct EventsQueryOption::Impl {
 	TriggerIdType triggerId;
 	timespec beginTime;
 	timespec endTime;
+	set<EventType> eventTypes;
 	set<TriggerSeverityType> triggerSeverities;
 	set<TriggerStatusType> triggerStatuses;
 	set<string> incidentStatuses;
@@ -971,6 +972,20 @@ string EventsQueryOption::getCondition(void) const
 			getColumnName(IDX_EVENTS_TIME_NS).c_str(),
 			m_impl->endTime.tv_nsec);
 	}
+
+	string typeCondition;
+	for (const auto &type: m_impl->eventTypes) {
+		addCondition(
+		  typeCondition,
+		  StringUtils::sprintf(
+		    "%s=%d",
+		    getColumnName(IDX_EVENTS_EVENT_TYPE).c_str(),
+		    type),
+		  ADD_TYPE_OR);
+	}
+	if (m_impl->eventTypes.size() > 1)
+		typeCondition = string("(") + typeCondition + string(")");
+	addCondition(condition, typeCondition);
 
 	string severityCondition;
 	for (const auto &severity: m_impl->triggerSeverities) {
@@ -1156,6 +1171,16 @@ void EventsQueryOption::setEndTime(const timespec &_endTime)
 const timespec &EventsQueryOption::getEndTime(void)
 {
 	return m_impl->endTime;
+}
+
+void EventsQueryOption::setEventTypes(const std::set<EventType> &types)
+{
+	m_impl->eventTypes = types;
+}
+
+const std::set<EventType> &EventsQueryOption::getEventTypes(void) const
+{
+	return m_impl->eventTypes;
 }
 
 void EventsQueryOption::setTriggerSeverities(

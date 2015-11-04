@@ -878,6 +878,60 @@ void test_eventsWithHostsFilter(void)
 	assertEqualJSONString(expected, arg.response);
 }
 
+void test_eventsWithTypesFilter(void)
+{
+	loadTestDBArmPlugin();
+	loadTestDBTriggers();
+	loadTestDBEvents();
+	loadTestDBServerHostDef();
+	startFaceRest();
+
+	RequestArg arg("/event?types=1%2C2");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	getServerResponse(arg);
+	string expected(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"lastUnifiedEventId\":7,"
+	  "\"haveIncident\":false,"
+	  "\"events\":"
+	  "["
+	  "{"
+	  "\"unifiedId\":7,"
+	  "\"serverId\":3,"
+	  "\"time\":1390000100,"
+	  "\"type\":2,"
+	  "\"triggerId\":\"4\","
+	  "\"eventId\":\"4\","
+	  "\"status\":2,"
+	  "\"severity\":4,"
+	  "\"hostId\":\"10002\","
+	  "\"brief\":\"Status:Unknown, Severity:Critical\","
+	  "\"extendedInfo\":\"\""
+	  "},"
+	  "{"
+	  "\"unifiedId\":6,"
+	  "\"serverId\":3,"
+	  "\"time\":1390000000,"
+	  "\"type\":1,"
+	  "\"triggerId\":\"2\","
+	  "\"eventId\":\"3\","
+	  "\"status\":1,"
+	  "\"severity\":2,"
+	  "\"hostId\":\"10001\","
+	  "\"brief\":\"TEST Trigger 2\","
+	  "\"extendedInfo\":"
+	  "\"{\\\"expandedDescription\\\":\\\"Test Trigger on hostZ1\\\"}\""
+	  "}"
+	  "],"
+	  "\"numberOfEvents\":2,");
+
+	expected += getExpectedServers() + ",";
+	expected += getExpectedIncidentTrackers() + "}";
+	assertEqualJSONString(expected, arg.response);
+}
+
 void test_eventsWithSeveritiesFilter(void)
 {
 	loadTestDBArmPlugin();

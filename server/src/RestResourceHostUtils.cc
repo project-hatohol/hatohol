@@ -374,8 +374,22 @@ HatoholError RestResourceHostUtils::parseEventParameter(
 		return err;
 	option.setEndTime(endTime);
 
-	// severities
+	// types
 	const gchar *value = static_cast<const gchar*>(
+	  g_hash_table_lookup(query, "types"));
+	if (value && *value) {
+		StringVector values;
+		StringUtils::split(values, value, ',');
+		std::set<EventType> types;
+		for (auto &type: values) {
+			uint64_t v = StringUtils::toUint64(type);
+			types.insert(static_cast<EventType>(v));
+		}
+		option.setEventTypes(types);
+	}
+
+	// severities
+	value = static_cast<const gchar*>(
 	  g_hash_table_lookup(query, "severities"));
 	if (value && *value) {
 		StringVector values;
@@ -402,7 +416,7 @@ HatoholError RestResourceHostUtils::parseEventParameter(
 		option.setTriggerStatuses(statuses);
 	}
 
-	// statuses
+	// incident statuses
 	value = static_cast<const gchar*>(
 	  g_hash_table_lookup(query, "incidentStatuses"));
 	if (value && *value) {
