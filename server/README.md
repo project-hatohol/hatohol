@@ -155,7 +155,7 @@ Then run the following commands to install Hatohol:
 (0.1) Run MySQL server for storing configuration.
 Type the following comannds to run MySQL server.
 
-    # mysqld
+    # system mysql start
 
 (0.2) Set QPid's setting
 (0.2.a) Disable authentification
