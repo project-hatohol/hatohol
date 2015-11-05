@@ -892,8 +892,6 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
     self.setupIncidentTrackersEditor();
     $("#selectTriggerStatus").val("TRIGGER_STATUS_PROBLEM");
     $("#selectTriggerSeverityCompType").val("CMP_EQ_GT");
-    $("label[for='selectTriggerStatus']").hide();
-    $("#selectTriggerStatus").hide();
   }
 };
 
