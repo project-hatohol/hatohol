@@ -58,6 +58,10 @@ var EventsView = function(userProfile, options) {
   var severity_choices = [
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
+  var incident_choices = [pgettext('Incident', 'NONE'),
+                          pgettext('Incident', 'IN PROGRESS'),
+                          pgettext('Incident', 'HOLD'),
+                          pgettext('Incident', 'DONE')];
 
   var columnDefinitions = {
     "monitoringServerName": {
