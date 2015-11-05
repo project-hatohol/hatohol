@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-30 03:34-0500\n"
-"PO-Revision-Date: 2015-10-23 15:57+0900\n"
+"POT-Creation-Date: 2015-11-04 23:22-0600\n"
+"PO-Revision-Date: 2015-11-05 14:23+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
 "Language: \n"
@@ -229,59 +229,79 @@ msgstr "重度の障害"
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: static/js/events_view.js:64
+#: static/js/events_view.js:61
+msgctxt "Incident"
+msgid "NONE"
+msgstr "未対処"
+
+#: static/js/events_view.js:62
+msgctxt "Incident"
+msgid "IN PROGRESS"
+msgstr "処理中"
+
+#: static/js/events_view.js:63
+msgctxt "Incident"
+msgid "HOLD"
+msgstr "保留"
+
+#: static/js/events_view.js:64 static/js/hatohol_events_view_config.js:511
+msgctxt "Incident"
+msgid "DONE"
+msgstr "対処済"
+
+#: static/js/events_view.js:68
 msgid "Monitoring Server"
 msgstr "監視サーバー"
 
-#: static/js/events_view.js:68 static/js/hatohol_add_action_dialog.js:699
+#: static/js/events_view.js:72 static/js/hatohol_add_action_dialog.js:699
 msgid "Host"
 msgstr "ホスト名"
 
-#: static/js/events_view.js:72
+#: static/js/events_view.js:76
 msgid "Event ID"
 msgstr "イベントID"
 
-#: static/js/events_view.js:76 static/js/hatohol_add_action_dialog.js:712
+#: static/js/events_view.js:80 static/js/hatohol_add_action_dialog.js:712
 msgid "Status"
 msgstr "ステータス"
 
-#: static/js/events_view.js:80 static/js/hatohol_add_action_dialog.js:719
+#: static/js/events_view.js:84 static/js/hatohol_add_action_dialog.js:719
 msgid "Severity"
 msgstr "重要度"
 
-#: static/js/events_view.js:84
+#: static/js/events_view.js:88
 msgid "Time"
 msgstr "時間"
 
-#: static/js/events_view.js:88 static/js/hatohol_trigger_selector.js:49
+#: static/js/events_view.js:92 static/js/hatohol_trigger_selector.js:49
 msgid "Brief"
 msgstr "概要"
 
-#: static/js/events_view.js:92
+#: static/js/events_view.js:96
 msgid "Duration"
 msgstr "継続時間"
 
-#: static/js/events_view.js:96
+#: static/js/events_view.js:100
 msgid "Treatment"
 msgstr "対応"
 
-#: static/js/events_view.js:100
+#: static/js/events_view.js:104
 msgid "Priority"
 msgstr "優先度"
 
-#: static/js/events_view.js:104
+#: static/js/events_view.js:108
 msgid "Assignee"
 msgstr "担当者"
 
-#: static/js/events_view.js:108
+#: static/js/events_view.js:112
 msgid "% Done"
 msgstr "進捗率"
 
-#: static/js/events_view.js:397
+#: static/js/events_view.js:401
 msgid "Appling the treatment..."
 msgstr "対応を適用中..."
 
-#: static/js/events_view.js:400 static/js/events_view.js.c:449
+#: static/js/events_view.js:404 static/js/events_view.js.c:453
 #: static/js/hatohol_add_action_dialog.js:370
 #: static/js/hatohol_incident_trackers_editor.js:308
 #: static/js/hatohol_log_search_system_editor.js:88
@@ -291,19 +311,19 @@ msgstr "対応を適用中..."
 msgid "Successfully updated."
 msgstr "正常に更新されました。"
 
-#: static/js/events_view.js:403
+#: static/js/events_view.js:407
 msgid "Failed to update a treatment"
 msgstr "対応の更新に失敗しました"
 
-#: static/js/events_view.js:405
+#: static/js/events_view.js:409
 msgid "Failed to update treatments"
 msgstr "対応の更新に失敗しました"
 
-#: static/js/events_view.js:432
+#: static/js/events_view.js:436
 msgid "An unknown error is occured on changing "
 msgstr "変更中に未知のエラーが発生しました"
 
-#: static/js/events_view.js:451 static/js/hatohol_add_action_dialog.js:372
+#: static/js/events_view.js:455 static/js/hatohol_add_action_dialog.js:372
 #: static/js/hatohol_incident_trackers_editor.js:310
 #: static/js/hatohol_log_search_system_editor.js:90
 #: static/js/hatohol_server_edit_dialog_parameterized.js:116
@@ -312,7 +332,7 @@ msgstr "変更中に未知のエラーが発生しました"
 msgid "Successfully created."
 msgstr "正常に作成されました。"
 
-#: static/js/events_view.js:1070
+#: static/js/events_view.js:1077
 msgid "Failed to get severity rank!"
 msgstr "重要度設定の取得に失敗しました。"
 
@@ -793,24 +813,16 @@ msgid "New filter"
 msgstr "新規フィルター"
 
 #: static/js/hatohol_events_view_config.js:508
-#, fuzzy
 msgid "NONE"
 msgstr "未対処"
 
 #: static/js/hatohol_events_view_config.js:509
-#, fuzzy
 msgid "HOLD"
 msgstr "保留"
 
 #: static/js/hatohol_events_view_config.js:510
-#, fuzzy
 msgid "IN PROGRESS"
 msgstr "処理中"
-
-#: static/js/hatohol_events_view_config.js:511
-msgctxt "Incident"
-msgid "DONE"
-msgstr "対処済"
 
 #: static/js/hatohol_events_view_config.js:635
 msgid "ALL (31 days)"
