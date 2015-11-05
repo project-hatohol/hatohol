@@ -88,8 +88,8 @@ def handle_exception(raises=(SystemExit,)):
     if exctype in raises:
         raise
     if exctype is not Signal:
-        logger.error("Unexpected error: %s, %s, %s" % \
-                      (exctype, value, traceback.format_tb(tb)))
+        logger.error("Unexpected error: %s, %s\n%s" % \
+                      (exctype, value, traceback.format_exc()))
     elif value.critical:
         logger.critical("Got critical signal.")
         raise
