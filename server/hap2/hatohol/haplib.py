@@ -532,7 +532,7 @@ class HapiProcessor:
 
             if last_info_generator is None:
                 last_info_generator = self.generate_event_last_info
-            last_info = last_info_generator(event_chunk)
+            last_info = str(last_info_generator(event_chunk))
             params = {"events": event_chunk, "lastInfo": last_info,
                       "updateType": "UPDATE"}
 
