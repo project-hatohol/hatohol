@@ -26,7 +26,7 @@ Parameters
      - Comments
    * - hostgroupId
      - N/A
-     - If you select all host groups, the value should be `*`.
+     - If you select all host groups, the value must be `*`.
    * - serverId
      - N/A
      - N/A

@@ -30,7 +30,7 @@ Parameters
      - JSONP
    * - fmt
      - json or jsonp
-     - This parameter is omitted, the return format is json.
+     - If this parameter is omitted, the return format is json.
      - Optional 
      - Optional
    * - callback
