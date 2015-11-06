@@ -165,6 +165,7 @@ public:
 	  HostInfoCache &hostInfoCache,
 	  DBAgent::TransactionHooks *hooks = NULL);
 	bool wasStoredHostsChanged(void);
+	size_t getNumberOfHosts(HostsQueryOption &option);
 
 	HatoholError upsertHostgroups(const HostgroupVect &hostgroups,
 	                              DBAgent::TransactionHooks *hooks = NULL);
