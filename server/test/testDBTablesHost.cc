@@ -1096,6 +1096,16 @@ void test_getHostInfoListWithUserWhoCanAccessSomeHostgroups(gpointer data)
 	assertGetHosts(arg);
 }
 
+void test_getNumberOfHosts(void)
+{
+	loadTestDBServerHostDef();
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	HostsQueryOption option(USER_ID_SYSTEM);
+	size_t numberOfHosts = dbHost.getNumberOfHosts(option);
+	cppcut_assert_equal((size_t)NumTestServerHostDef, numberOfHosts);
+}
+
 void test_syncHostsMarkInvalid(void)
 {
 	loadTestDBServerHostDef();
