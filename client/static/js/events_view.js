@@ -954,17 +954,15 @@ var EventsView = function(userProfile, options) {
     var numOfImportantEventOccurredHosts =
           self.rawSummaryData["numOfImportantEventOccurredHosts"];
     $("#numOfImportantEventOccurredHosts").text(numOfImportantEventOccurredHosts);
-    var numOfNotImportantEventOccurredHosts =
-          self.rawSummaryData["numOfNotImportantEventOccurredHosts"];
-    var totalNumOfEventOccurredHosts =
-          numOfImportantEventOccurredHosts + numOfNotImportantEventOccurredHosts;
+    var numOfAllHosts =
+          self.rawSummaryData["numOfAllHosts"];
     var importantEventOccurredHostsPercentage = 0;
-    if (totalNumOfEventOccurredHosts > 0)
+    if (numOfAllHosts > 0)
       importantEventOccurredHostsPercentage =
-        (numOfImportantEventOccurredHosts / totalNumOfEventOccurredHosts * 100)
+        (numOfImportantEventOccurredHosts / numOfAllHosts * 100)
         .toFixed(2);
     $("#importantEventOccurredHostsPercentage").text(importantEventOccurredHostsPercentage+"%");
-     $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
+    $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
   }
 
   function setupSeverityRank() {

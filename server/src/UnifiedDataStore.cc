@@ -524,6 +524,12 @@ bool UnifiedDataStore::wasStoredHostsChanged(void)
 	return cache.getHost().wasStoredHostsChanged();
 }
 
+size_t UnifiedDataStore::getNumberOfHosts(HostsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	return cache.getHost().getNumberOfHosts(option);
+}
+
 HatoholError UnifiedDataStore::upsertHostgroups(
   const HostgroupVect &hostgroups, DBAgent::TransactionHooks *hooks)
 {

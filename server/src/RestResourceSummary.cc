@@ -90,8 +90,9 @@ void RestResourceSummary::handlerSummary(void)
 	notImportantEventOption.setTriggerSeverities(notImportantStatusSet);
 	int64_t numOfNotImportantEvents =
 	  dataStore->getNumberOfEvents(notImportantEventOption);
-	int64_t numOfNotImportantEventOccurredHosts =
-	  dataStore->getNumberOfHostsWithSpecifiedEvents(notImportantEventOption);
+	HostsQueryOption hostsOption(m_dataQueryContextPtr);
+	int64_t numOfAllHosts =
+	  dataStore->getNumberOfHosts(hostsOption);
 
 	EventsQueryOption assignedEventOption(option);
 	std::set<std::string> assignedStatusSet, unAssignedStatusSet;
@@ -114,8 +115,8 @@ void RestResourceSummary::handlerSummary(void)
 	reply.add("numOfImportantEventOccurredHosts",
 		  numOfImportantEventOccurredHosts);
 	reply.add("numOfNotImportantEvents", numOfNotImportantEvents);
-	reply.add("numOfNotImportantEventOccurredHosts",
-		  numOfNotImportantEventOccurredHosts);
+	reply.add("numOfAllHosts",
+		  numOfAllHosts);
 	reply.add("numOfAssignedEvents", numOfAssignedEvents);
 	reply.add("numOfUnAssignedEvents", numOfUnAssignedEvents);
 	reply.startArray("statistics");

@@ -1284,6 +1284,22 @@ static bool isHostNameChanged(
 	return false;
 }
 
+size_t DBTablesHost::getNumberOfHosts(HostsQueryOption &option)
+{
+	string stmt =
+	  StringUtils::sprintf("count(distinct %s)",
+	    option.getColumnName(IDX_HOST_SERVER_HOST_DEF_ID).c_str());
+	DBAgent::SelectExArg arg(tableProfileServerHostDef);
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+
+	getDBAgent().runTransaction(arg);
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
+}
+
 HatoholError DBTablesHost::syncHosts(
   const ServerHostDefVect &svHostDefs, const ServerIdType &serverId,
   HostHostIdMap *hostHostIdMapPtr, DBAgent::TransactionHooks *hooks)

@@ -387,6 +387,7 @@ public:
 	                               const HostsQueryOption &option);
 
 	bool wasStoredHostsChanged(void);
+	size_t getNumberOfHosts(HostsQueryOption &option);
 
 	/**
 	 * Synchronize records.
