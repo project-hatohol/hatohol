@@ -962,7 +962,7 @@ var EventsView = function(userProfile, options) {
         (numOfImportantEventOccurredHosts / numOfAllHosts * 100)
         .toFixed(2);
     $("#importantEventOccurredHostsPercentage").text(importantEventOccurredHostsPercentage+"%");
-     $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
+    $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
   }
 
   function setupSeverityRank() {
