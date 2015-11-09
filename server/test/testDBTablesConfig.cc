@@ -1698,6 +1698,31 @@ void test_createTableCustomIncidentStatuses(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
+void test_upsertCustomIncidentStatusUpdate(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	CustomIncidentStatus customIncidentStatus;
+	constexpr int targetId = 1;
+	constexpr int actualId = targetId + 1;
+	customIncidentStatus.id = actualId;
+	customIncidentStatus.code = "IN PROGRESS";
+	customIncidentStatus.label = "In progress (edit)";
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbConfig.upsertCustomIncidentStatus(customIncidentStatus, privilege);
+	const string statement =
+		"SELECT * FROM custom_incident_statuses WHERE id = " +
+		StringUtils::toString(static_cast<int>(actualId));
+	const string expect =
+	  StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s",
+			       actualId,
+			       customIncidentStatus.code.c_str(),
+			       customIncidentStatus.label.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+}
+
 void test_getCustomIncidentStatusWithoutOption(void)
 {
 	loadTestDBCustomIncidentStatusInfo();
