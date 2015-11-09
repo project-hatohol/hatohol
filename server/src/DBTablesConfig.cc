@@ -2185,6 +2185,114 @@ string SeverityRankQueryOption::getCondition(void) const
 }
 
 // ---------------------------------------------------------------------------
+// CustomIncidentStatusesQueryOption
+// ---------------------------------------------------------------------------
+
+struct CustomIncidentStatusesQueryOption::Impl {
+	static const string conditionTemplate;
+
+	CustomIncidentStatusesQueryOption *option;
+	string                            code;
+	string                            label;
+
+	Impl(CustomIncidentStatusesQueryOption *_option)
+	: option(_option)
+	{
+	}
+
+	static string makeConditionTemplate(void);
+};
+
+const string CustomIncidentStatusesQueryOption::Impl::conditionTemplate
+  = makeConditionTemplate();
+
+string CustomIncidentStatusesQueryOption::Impl::makeConditionTemplate(void)
+{
+	string cond;
+
+	// code;
+	const ColumnDef &colDefCode =
+	  COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[IDX_CUSTUM_INCIDENT_STATUS_CODE];
+	cond += StringUtils::sprintf(
+	  "((%s IS NULL) OR (%s=%%s))",
+	  colDefCode.columnName, colDefCode.columnName);
+	cond += " AND ";
+
+	// label;
+	const ColumnDef &colDefLabel =
+	  COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[IDX_CUSTUM_INCIDENT_STATUS_LABEL];
+	cond += StringUtils::sprintf(
+	  "((%s IS NULL) OR (%s=%%s))",
+	  colDefLabel.columnName, colDefLabel.columnName);
+	cond += " AND ";
+	return cond;
+}
+
+CustomIncidentStatusesQueryOption::CustomIncidentStatusesQueryOption(
+  const UserIdType &userId)
+: DataQueryOption(userId), m_impl(new Impl(this))
+{
+}
+
+CustomIncidentStatusesQueryOption::CustomIncidentStatusesQueryOption(
+  DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext), m_impl(new Impl(this))
+{
+}
+
+CustomIncidentStatusesQueryOption::~CustomIncidentStatusesQueryOption()
+{
+}
+
+void CustomIncidentStatusesQueryOption::setTargetCode(const string &code)
+{
+	m_impl->code = code;
+}
+
+const string CustomIncidentStatusesQueryOption::getTargetCode(void)
+{
+	return m_impl->code;
+}
+
+void CustomIncidentStatusesQueryOption::setTargetLabel(const string &label)
+{
+	m_impl->label = label;
+}
+
+const string CustomIncidentStatusesQueryOption::getTargetLabel(void)
+{
+	return m_impl->label;
+}
+
+string CustomIncidentStatusesQueryOption::getCondition(void) const
+{
+	string condition = DataQueryOption::getCondition();
+
+	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
+	               "SeverityRank condition template is empty.");
+
+	if (!m_impl->code.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string codeCondition = StringUtils::sprintf(
+		  "%s=%s",
+		  COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[IDX_CUSTUM_INCIDENT_STATUS_CODE].columnName,
+		  rhs(m_impl->code.c_str()));
+		addCondition(condition, codeCondition);
+	}
+
+	if (!m_impl->label.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string labelCondition = StringUtils::sprintf(
+		  "%s=%s",
+		  COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[IDX_CUSTUM_INCIDENT_STATUS_LABEL].columnName,
+		  rhs(m_impl->label.c_str()));
+		addCondition(condition, labelCondition);
+	}
+
+	return condition;
+}
+
+// ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
 DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)

@@ -145,6 +145,24 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
+class CustomIncidentStatusesQueryOption : public DataQueryOption {
+public:
+	CustomIncidentStatusesQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	CustomIncidentStatusesQueryOption(DataQueryContext *dataQueryContext);
+	virtual ~CustomIncidentStatusesQueryOption();
+
+	void setTargetCode(const std::string &code);
+	const std::string getTargetCode(void);
+	void setTargetLabel(const std::string &label);
+	const std::string getTargetLabel(void);
+
+	virtual std::string getCondition(void) const override;
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
+};
+
 class DBTablesConfig : public DBTables {
 public:
 	static int CONFIG_DB_VERSION;
