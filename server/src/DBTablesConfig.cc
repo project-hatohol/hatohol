@@ -40,7 +40,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 static const char *TABLE_NAME_SEVERITY_RANKS = "severity_ranks";
-static const char *TABLE_NAME_CUSTUM_INCIDENT_STATUSES = "custom_incident_statuses";
+static const char *TABLE_NAME_CUSTOM_INCIDENT_STATUSES = "custom_incident_statuses";
 
 int DBTablesConfig::CONFIG_DB_VERSION = 19;
 
@@ -647,7 +647,7 @@ static const DBAgent::TableProfile tableProfileSeverityRanks =
 			    NUM_IDX_SEVERITY_RANKS,
 			    indexDefsSeverityRanks);
 
-static const ColumnDef COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[] = {
+static const ColumnDef COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[] = {
 {
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_INT,               // type
@@ -679,14 +679,14 @@ static const ColumnDef COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[] = {
 };
 
 enum {
-	IDX_CUSTUM_INCIDENT_STATUS_ID,
-	IDX_CUSTUM_INCIDENT_STATUS_CODE,
-	IDX_CUSTUM_INCIDENT_STATUS_LABEL,
-	NUM_IDX_CUSTUM_INCIDENT_STATUSES,
+	IDX_CUSTOM_INCIDENT_STATUS_ID,
+	IDX_CUSTOM_INCIDENT_STATUS_CODE,
+	IDX_CUSTOM_INCIDENT_STATUS_LABEL,
+	NUM_IDX_CUSTOM_INCIDENT_STATUSES,
 };
 
 static const int columnIndexesCustomIncidentStatusUniqId[] = {
-  IDX_CUSTUM_INCIDENT_STATUS_CODE, DBAgent::IndexDef::END,
+  IDX_CUSTOM_INCIDENT_STATUS_CODE, DBAgent::IndexDef::END,
 };
 
 static const DBAgent::IndexDef indexDefsCustomIncidentStatusCodes[] = {
@@ -695,9 +695,9 @@ static const DBAgent::IndexDef indexDefsCustomIncidentStatusCodes[] = {
 };
 
 static const DBAgent::TableProfile tableProfileCustomIncidentStatus =
-  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_CUSTUM_INCIDENT_STATUSES,
-			    COLUMN_DEF_CUSTUM_INCIDENT_STATUSES,
-			    NUM_IDX_CUSTUM_INCIDENT_STATUSES,
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_CUSTOM_INCIDENT_STATUSES,
+			    COLUMN_DEF_CUSTOM_INCIDENT_STATUSES,
+			    NUM_IDX_CUSTOM_INCIDENT_STATUSES,
 			    indexDefsCustomIncidentStatusCodes);
 
 struct DBTablesConfig::Impl
@@ -1902,13 +1902,13 @@ HatoholError DBTablesConfig::updateCustomIncidentStatus(
 	DBAgent::UpdateArg arg(tableProfileCustomIncidentStatus);
 
 	const char *customIncidentStatusIdColumnName =
-	  COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[IDX_CUSTUM_INCIDENT_STATUS_ID].columnName;
+	  COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%" FMT_CUSTOM_INCIDENT_STATUS_ID,
 	                                     customIncidentStatusIdColumnName,
 	                                     customIncidentStatus.id);
-	arg.add(IDX_CUSTUM_INCIDENT_STATUS_ID, customIncidentStatus.id);
-	arg.add(IDX_CUSTUM_INCIDENT_STATUS_CODE, customIncidentStatus.code);
-	arg.add(IDX_CUSTUM_INCIDENT_STATUS_LABEL, customIncidentStatus.label);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_ID, customIncidentStatus.id);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_CODE, customIncidentStatus.code);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_LABEL, customIncidentStatus.label);
 
 	getDBAgent().runTransaction(arg);
 	return err;
@@ -1919,9 +1919,9 @@ void DBTablesConfig::getCustomIncidentStatuses(
   const CustomIncidentStatusesQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileCustomIncidentStatus);
-	arg.add(IDX_CUSTUM_INCIDENT_STATUS_ID);
-	arg.add(IDX_CUSTUM_INCIDENT_STATUS_CODE);
-	arg.add(IDX_CUSTUM_INCIDENT_STATUS_LABEL);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_ID);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_CODE);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_LABEL);
 	arg.condition = option.getCondition();
 
 	getDBAgent().runTransaction(arg);
@@ -2239,7 +2239,7 @@ string CustomIncidentStatusesQueryOption::Impl::makeConditionTemplate(void)
 
 	// code;
 	const ColumnDef &colDefCode =
-	  COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[IDX_CUSTUM_INCIDENT_STATUS_CODE];
+	  COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_CODE];
 	cond += StringUtils::sprintf(
 	  "((%s IS NULL) OR (%s=%%s))",
 	  colDefCode.columnName, colDefCode.columnName);
@@ -2247,7 +2247,7 @@ string CustomIncidentStatusesQueryOption::Impl::makeConditionTemplate(void)
 
 	// label;
 	const ColumnDef &colDefLabel =
-	  COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[IDX_CUSTUM_INCIDENT_STATUS_LABEL];
+	  COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_LABEL];
 	cond += StringUtils::sprintf(
 	  "((%s IS NULL) OR (%s=%%s))",
 	  colDefLabel.columnName, colDefLabel.columnName);
@@ -2302,7 +2302,7 @@ string CustomIncidentStatusesQueryOption::getCondition(void) const
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		string codeCondition = StringUtils::sprintf(
 		  "%s=%s",
-		  COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[IDX_CUSTUM_INCIDENT_STATUS_CODE].columnName,
+		  COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_CODE].columnName,
 		  rhs(m_impl->code.c_str()));
 		addCondition(condition, codeCondition);
 	}
@@ -2311,7 +2311,7 @@ string CustomIncidentStatusesQueryOption::getCondition(void) const
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		string labelCondition = StringUtils::sprintf(
 		  "%s=%s",
-		  COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[IDX_CUSTUM_INCIDENT_STATUS_LABEL].columnName,
+		  COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_LABEL].columnName,
 		  rhs(m_impl->label.c_str()));
 		addCondition(condition, labelCondition);
 	}
