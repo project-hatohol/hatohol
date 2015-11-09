@@ -79,6 +79,12 @@ constexpr const static SeverityRankIdType INVALID_SEVERITY_RANK_ID = -1;
 constexpr const static SeverityRankStatusType INVALID_SEVERITY_STATUS_TYPE = -1;
 constexpr const static int ALL_SEVERITY_RANK_AS_IMPORTANT = -1;
 
+struct CustomIncidentStatus {
+	CustomIncidentStatusIdType id;
+	std::string                code;
+	std::string                label;
+};
+
 class ServerQueryOption : public DataQueryOption {
 public:
 	ServerQueryOption(const UserIdType &userId = INVALID_USER_ID);
