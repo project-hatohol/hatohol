@@ -53,8 +53,9 @@ var EventsView = function(userProfile, options) {
     setupTimeRangeFilter();
   }
 
-  var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
-                        gettext('Notification')];
+  var status_choices = [gettext('OK'), gettext('Problem')];
+  var type_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
+                      gettext('Notification')];
   var severity_choices = [
     gettext('Not classified'), gettext('Information'), gettext('Warning'),
     gettext('Average'), gettext('High'), gettext('Disaster')];
@@ -76,9 +77,13 @@ var EventsView = function(userProfile, options) {
       header: gettext("Event ID"),
       body: renderTableDataEventId,
     },
-    "status": {
+    "type": {
       header: gettext("Status"),
-      body: renderTableDataEventStatus,
+      body: renderTableDataEventType,
+    },
+    "status": {
+      header: gettext("Current trigger status"),
+      body: renderTableDataTriggerStatus,
     },
     "severity": {
       header: gettext("Severity"),
@@ -212,8 +217,8 @@ var EventsView = function(userProfile, options) {
     if ($("#select-incident").val())
       query.incidentStatuses = $("#select-incident").val();
 
-    if ($("#select-status").val())
-      query.type = $("#select-status").val();
+    if ($("#select-type").val())
+      query.type = $("#select-type").val();
 
     if ($("#select-severity").val())
       query.minimumSeverity =  $("#select-severity").val();
@@ -309,8 +314,8 @@ var EventsView = function(userProfile, options) {
 
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
-    if ("status" in query)
-      $("#select-status").val(query.status);
+    if ("type" in query)
+      $("#select-type").val(query.type);
   }
 
   function setupTreatmentMenu() {
@@ -551,7 +556,7 @@ var EventsView = function(userProfile, options) {
       $("#end-time").attr("disabled", "disabled");
       $("#select-incident").attr("disabled", "disabled");
       $("#select-severity").attr("disabled", "disabled");
-      $("#select-status").attr("disabled", "disabled");
+      $("#select-type").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
       $("#select-filter").attr("disabled", "disabled");
@@ -561,7 +566,7 @@ var EventsView = function(userProfile, options) {
       $("#end-time").removeAttr("disabled");
       $("#select-incident").removeAttr("disabled");
       $("#select-severity").removeAttr("disabled");
-      $("#select-status").removeAttr("disabled");
+      $("#select-type").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
@@ -645,11 +650,11 @@ var EventsView = function(userProfile, options) {
   }
 
   function getSeverityClass(event) {
-    var status = event["type"];
+    var type = event["type"];
     var severity = event["severity"];
     var severityClass = "severity";
 
-    if (status == hatohol.EVENT_TYPE_BAD)
+    if (type == hatohol.EVENT_TYPE_BAD)
       return "severity" + escapeHTML(severity);
     else
       return "";
@@ -732,8 +737,16 @@ var EventsView = function(userProfile, options) {
       escapeHTML(description) + "</td>";
   }
 
-  function renderTableDataEventStatus(event, server) {
-    var status = event["type"];
+  function renderTableDataEventType(event, server) {
+    var type = event["type"];
+    var typeClass = "event-type" + type;
+
+    return "<td class='" + getSeverityClass(event) + " " + typeClass + "'>" +
+      type_choices[Number(type)] + "</td>";
+  }
+
+  function renderTableDataTriggerStatus(event, server) {
+    var status = event["status"];
     var statusClass = "status" + status;
 
     return "<td class='" + getSeverityClass(event) + " " + statusClass + "'>" +
