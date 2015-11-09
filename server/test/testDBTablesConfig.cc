@@ -1367,6 +1367,15 @@ static void _assertSeverityRankInfo(
 }
 #define assertSeverityRankInfo(E,A) cut_trace(_assertSeverityRankInfo(E,A))
 
+static void _assertCustomIncidentStatus(
+  const CustomIncidentStatus &expect, const CustomIncidentStatus &actual)
+{
+	cppcut_assert_equal(expect.id, actual.id);
+	cppcut_assert_equal(expect.code, actual.code);
+	cppcut_assert_equal(expect.label, actual.label);
+}
+#define assertCustomIncidentStatus(E,A) cut_trace(_assertCustomIncidentStatus(E,A))
+
 void test_createTableSeverityRanks(void)
 {
 	const string tableName = "severity_ranks";
@@ -1687,5 +1696,26 @@ void test_createTableCustomIncidentStatuses(void)
 	string statement = "select * from " + tableName;
 	string expectedOut = ""; // currently no data
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
+}
+
+void test_getCustomIncidentStatusWithoutOption(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	std::vector<CustomIncidentStatus> customIncidentStatusVect;
+	CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
+	dbConfig.getCustomIncidentStatuses(customIncidentStatusVect, option);
+	{
+		size_t i = 0;
+		for (auto customIncidentStatus : customIncidentStatusVect) {
+			// ignore id assertion. Because id is auto increment.
+			customIncidentStatus.id = 0;
+			assertCustomIncidentStatus(testCustomIncidentStatus[i],
+						   customIncidentStatus);
+			i++;
+		}
+	}
 }
 } // namespace testDBTablesConfig
