@@ -415,7 +415,7 @@ HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
     'events.auto-reload.interval': "60",
     'events.num-rows-per-page': "300",
     'events.columns':
-      "incidentStatus,status,severity,time," +
+      "incidentStatus,type,severity,time," +
       "monitoringServerName,hostName,description",
     'events.sort.type': "time",
     'events.sort.order': "" + hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
