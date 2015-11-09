@@ -43,9 +43,11 @@ const UserRoleIdSet EMPTY_USER_ROLE_ID_SET;
 // 1.0 -> 1.1
 //   * NUM_OPPRVLG:23 -> 29
 //   * Included GET SYSTEM_INFO & SYSTEM_OPERATION privileges migration
+// 1.1 -> 1.2
+//   * NUM_OPPRVLG:29 -> 32
 
 const int DBTablesUser::USER_DB_VERSION =
-  DBTables::Version::getPackedVer(0, 1, 1);
+  DBTables::Version::getPackedVer(0, 1, 2);
 
 const char *DBTablesUser::TABLE_NAME_USERS = "users";
 const char *DBTablesUser::TABLE_NAME_ACCESS_LIST = "access_list";
@@ -253,6 +255,10 @@ static bool updateDB(
 	}
 	if (oldVer <= DBTables::Version::getPackedVer(0, 1, 1)) {
 		old_NUM_OPPRVLG = static_cast<OperationPrivilegeType>(23);
+		updateAdminPrivilege(dbAgent, old_NUM_OPPRVLG);
+	}
+	if (oldVer <= DBTables::Version::getPackedVer(0, 1, 2)) {
+		old_NUM_OPPRVLG = static_cast<OperationPrivilegeType>(29);
 		updateAdminPrivilege(dbAgent, old_NUM_OPPRVLG);
 	}
 	return true;
