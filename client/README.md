@@ -59,7 +59,7 @@ The following shows examples to install Required Packages.
     $ mysql -u root -p
     Enter password:(input password)
 
-    mysql> CREATE DATABASE hatohol_client;
+    mysql> CREATE DATABASE hatohol_client DEFAULT CHARACTER SET utf8;
     mysql> GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';
 
 ### Create the database and the tables
