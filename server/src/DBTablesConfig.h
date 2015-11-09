@@ -322,6 +322,14 @@ public:
 	HatoholError deleteSeverityRanks(
           const std::list<SeverityRankIdType> &idList, const OperationPrivilege &privilege);
 
+	HatoholError upsertCustomIncidentStatus(
+	  CustomIncidentStatus &CustomIncidentStatus, const OperationPrivilege &privilege);
+	HatoholError updateCustomIncidentStatus(
+	  CustomIncidentStatus &customIncidentStatus, const OperationPrivilege &privilege);
+	HatoholError deleteCustomIncidentStatus(
+	  const std::list<CustomIncidentStatusIdType> &idList,
+	  const OperationPrivilege &privilege);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 	static void tableInitializerSystem(DBAgent &dbAgent, void *data);
@@ -360,6 +368,16 @@ protected:
 	HatoholError checkPrivilegeForSeverityRankUpdate(
 	  const OperationPrivilege &privilege,
 	  const SeverityRankInfo &severityRankInfo);
+
+	HatoholError checkPrivilegeForCustomIncidentStatusAdd(
+	  const OperationPrivilege &privilege,
+	  const CustomIncidentStatus &customIncidentStatus);
+	HatoholError checkPrivilegeForCustomIncidentStatusUpdate(
+	  const OperationPrivilege &privilege,
+	  const CustomIncidentStatus &customIncidentStatus);
+	HatoholError checkPrivilegeForCustomIncidentStatusDelete(
+	  const OperationPrivilege &privilege,
+	  const std::list<CustomIncidentStatusIdType> &idList);
 
 private:
 	struct Impl;

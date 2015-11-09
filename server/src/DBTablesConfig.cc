@@ -1869,6 +1869,120 @@ HatoholError DBTablesConfig::deleteSeverityRanks(
 	return HTERR_OK;
 }
 
+HatoholError DBTablesConfig::upsertCustomIncidentStatus(
+  CustomIncidentStatus &customIncidentStatus,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err =
+	  checkPrivilegeForCustomIncidentStatusAdd(privilege, customIncidentStatus);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::InsertArg arg(tableProfileCustomIncidentStatus);
+
+	arg.add(customIncidentStatus.id);
+	arg.add(customIncidentStatus.code);
+	arg.add(customIncidentStatus.label);
+	arg.upsertOnDuplicate = true;
+
+	getDBAgent().runTransaction(arg, &customIncidentStatus.id);
+	return err;
+}
+
+HatoholError DBTablesConfig::updateCustomIncidentStatus(
+  CustomIncidentStatus &customIncidentStatus,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err =
+	  checkPrivilegeForCustomIncidentStatusUpdate(privilege,
+						      customIncidentStatus);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::UpdateArg arg(tableProfileCustomIncidentStatus);
+
+	const char *customIncidentStatusIdColumnName =
+	  COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[IDX_CUSTUM_INCIDENT_STATUS_ID].columnName;
+	arg.condition = StringUtils::sprintf("%s=%" FMT_CUSTOM_INCIDENT_STATUS_ID,
+	                                     customIncidentStatusIdColumnName,
+	                                     customIncidentStatus.id);
+	arg.add(IDX_CUSTUM_INCIDENT_STATUS_ID, customIncidentStatus.id);
+	arg.add(IDX_CUSTUM_INCIDENT_STATUS_CODE, customIncidentStatus.code);
+	arg.add(IDX_CUSTUM_INCIDENT_STATUS_LABEL, customIncidentStatus.label);
+
+	getDBAgent().runTransaction(arg);
+	return err;
+}
+
+static string makeCustomIncidentStatusIdListCondition(
+  const std::list<CustomIncidentStatusIdType> &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID, id);
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForCustomIncidentStatusDelete(
+  const std::list<CustomIncidentStatusIdType> &idList,
+  const OperationPrivilege &privilege)
+{
+	string condition = makeCustomIncidentStatusIdListCondition(idList);
+
+	return condition;
+}
+
+HatoholError DBTablesConfig::deleteCustomIncidentStatus(
+  const std::list<CustomIncidentStatusIdType> &idList,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err =
+		checkPrivilegeForCustomIncidentStatusDelete(privilege, idList);
+	if (err != HTERR_OK)
+		return err;
+
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileSeverityRanks),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition =
+		makeConditionForCustomIncidentStatusDelete(idList, privilege);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+
+	return HTERR_OK;
+}
+
 // ---------------------------------------------------------------------------
 // SeverityRankQueryOption
 // ---------------------------------------------------------------------------
@@ -2317,6 +2431,39 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankUpdate(
 	if (!privilege.has(OPPRVLG_UPDATE_SEVERITY_RANK))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForCustomIncidentStatusAdd(
+  const OperationPrivilege &privilege,
+  const CustomIncidentStatus &customIncidentStatus)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForCustomIncidentStatusUpdate(
+  const OperationPrivilege &privilege,
+  const CustomIncidentStatus &customIncidentStatus)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForCustomIncidentStatusDelete(
+  const OperationPrivilege &privilege,
+  const std::list<CustomIncidentStatusIdType> &idList)
+{
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;
