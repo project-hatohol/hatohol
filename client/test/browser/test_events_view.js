@@ -156,7 +156,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     var expected = "";
 
-    expected += '<td class="severity1 status1">Problem</td>';
+    expected += '<td class="severity1 event-type1">Problem</td>';
     expected += '<td class="severity1">Information</td>';
 
     if (params) {
@@ -199,7 +199,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     var expected = "";
 
-    expected += '<td class="severity1 status1">Problem</td>';
+    expected += '<td class="severity1 event-type1">Problem</td>';
     expected += '<td class="severity1">Information</td>';
     if (params) {
       expected += '<td class="severity1"><a href="' + escapeHTML(params.eventURL) +
@@ -309,7 +309,7 @@ describe('EventsView', function() {
     var eventURL =
       "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332";
     var expected =
-      '<td class=" status0">OK</td>' +
+      '<td class=" event-type0">OK</td>' +
       '<td class="">Information</td>' +
       '<td class=""><a href="' + escapeHTML(eventURL) +
       '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
@@ -342,7 +342,7 @@ describe('EventsView', function() {
   it('Customize columns', function() {
     var view = new EventsView(getOperator(), testOptions);
     var configJson =
-      '{"events.columns":"duration,severity,status,description,' +
+      '{"events.columns":"duration,severity,type,description,' +
       'hostName,time,monitoringServerName"}';
     respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)),
 	    configJson);
