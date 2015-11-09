@@ -304,7 +304,6 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
     var promises = $.map(self.removedFilters, function(val, id) {
       var deferred = new $.Deferred;
 
-      deferreds.push(deferred);
       new HatoholConnector({
         pathPrefix: "",
         url: "/event-filters/" + id,
