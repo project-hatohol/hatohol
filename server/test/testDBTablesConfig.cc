@@ -1676,4 +1676,16 @@ void test_deleteSeverityRankInfoWithoutPrivilege(void)
 	assertHatoholError(HTERR_NO_PRIVILEGE,
 			   dbConfig.deleteSeverityRanks(idList, privilege));
 }
+
+void test_createTableCustomIncidentStatuses(void)
+{
+	const string tableName = "custom_incident_statuses";
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	assertCreateTable(&dbConfig.getDBAgent(), tableName);
+
+	// check content
+	string statement = "select * from " + tableName;
+	string expectedOut = ""; // currently no data
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
+}
 } // namespace testDBTablesConfig
