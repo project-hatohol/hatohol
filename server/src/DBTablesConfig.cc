@@ -1914,6 +1914,33 @@ HatoholError DBTablesConfig::updateCustomIncidentStatus(
 	return err;
 }
 
+void DBTablesConfig::getCustomIncidentStatus(
+  std::vector<CustomIncidentStatus> &customIncidentStatusVect,
+  const CustomIncidentStatusesQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileCustomIncidentStatus);
+	arg.add(IDX_CUSTUM_INCIDENT_STATUS_ID);
+	arg.add(IDX_CUSTUM_INCIDENT_STATUS_CODE);
+	arg.add(IDX_CUSTUM_INCIDENT_STATUS_LABEL);
+	arg.condition = option.getCondition();
+
+	getDBAgent().runTransaction(arg);
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	customIncidentStatusVect.reserve(grpList.size());
+	for (auto itemGrp : grpList) {
+		ItemGroupStream itemGroupStream(itemGrp);
+		CustomIncidentStatus customIncidentStatus;
+
+		itemGroupStream >> customIncidentStatus.id;
+		itemGroupStream >> customIncidentStatus.code;
+		itemGroupStream >> customIncidentStatus.label;
+
+		customIncidentStatusVect.push_back(customIncidentStatus);
+	}
+}
+
 static string makeCustomIncidentStatusIdListCondition(
   const std::list<CustomIncidentStatusIdType> &idList)
 {
