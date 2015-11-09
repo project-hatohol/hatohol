@@ -30,6 +30,8 @@ from hatohol import haplib
 from hatohol import zabbixapi
 from hatohol import standardhap
 
+logger = haplib.logger
+GET_EVENT_PER_ONCE = 1000
 
 class PreviousHostsInfo:
     def __init__(self):
@@ -104,26 +106,44 @@ class ZabbixAPIConductor:
                           last_info=self.__trigger_last_info,
                           fetch_id=fetch_id)
 
-    def update_events(self, last_info=None, count=None, direction="ASC",
+    def update_events(self, last_info=None, count=GET_EVENT_PER_ONCE, direction="ASC",
                       fetch_id=None):
+        if count > GET_EVENT_PER_ONCE:
+            logger.error("Received a bad request which want to get number or \
+                          events that burdening the Zabbix API.")
+            return
+
+        last_event_id = self.__api.get_end_id(False)
+        event_from_ids = list()
+        event_till_ids = list()
         if last_info is None:
             last_info = self.get_cached_event_last_info()
-
-        event_id_from = None
-        if direction == "ASC":
-            if isinstance(last_info, unicode) or isinstance(last_info, str):
+            if len(last_info):
                 last_info = int(last_info)
-            if isinstance(last_info, int):
-                event_id_from = last_info + 1
-            event_id_till = None
-            if count is not None:
-                event_id_till = event_id_from + count
-        # The following elif sentence is used from only fetchEvents
-        elif direction == "DESC":
-            event_id_till = last_info
-            event_id_from = event_id_till - count
+            # If Hatohol server does not have last_info, set 1 to last_info.
+            elif isinstance(last_info, str) or isinstance(last_info, unicode):
+                last_info = 0
+            while True:
+                event_from_id = last_info + 1
+                event_till_id = last_info + count
+                event_from_ids.append(event_from_id)
+                event_till_ids.append(event_till_id)
+                if event_till_id >= last_event_id: break
+                last_info = event_till_id
+        # The following sentences is used from only fetchEvents
+        else:
+            if direction == "ASC":
+                event_from_ids.append(last_info+1)
+                event_till_ids.append(from_id_list+count)
+            elif direction == "DESC":
+                event_from_ids.append(last_info-count)
+                event_till_ids.append(last_info)
 
-        events = self.__api.get_events(event_id_from, event_id_till)
+        events = list()
+        for index in range(len(event_from_ids)):
+            events = events + self.__api.get_events(event_from_ids[index],
+                                                    event_till_ids[index])
+
         if len(events) == 0:
             return
 
