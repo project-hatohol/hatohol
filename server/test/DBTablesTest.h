@@ -279,4 +279,6 @@ void loadTestDBHostgroupMember(void);
 void loadTestDBLastInfo(void);
 void loadTestDBSeverityRankInfo(void);
 
+void loadTestDBCustomIncidentStatusInfo(void);
+
 #endif // DBClientTest_h

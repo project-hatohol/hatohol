@@ -2494,3 +2494,12 @@ void loadTestDBSeverityRankInfo(void)
 	for (auto severityRankInfo : testSeverityRankInfoDef)
 		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
 }
+
+void loadTestDBCustomIncidentStatusInfo(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	for (auto customIncidentStatus : testCustomIncidentStatus)
+		dbConfig.upsertCustomIncidentStatus(customIncidentStatus, privilege);
+}
