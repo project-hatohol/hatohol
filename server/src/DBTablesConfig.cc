@@ -2338,6 +2338,8 @@ DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)
 		&tableProfileIncidentTrackers,
 	}, {
 		&tableProfileSeverityRanks,
+	}, {
+		&tableProfileCustomIncidentStatus,
 	}
 	};
 
