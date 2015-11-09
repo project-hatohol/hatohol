@@ -344,7 +344,7 @@ public:
 	  CustomIncidentStatus &CustomIncidentStatus, const OperationPrivilege &privilege);
 	HatoholError updateCustomIncidentStatus(
 	  CustomIncidentStatus &customIncidentStatus, const OperationPrivilege &privilege);
-	void getCustomIncidentStatus(
+	void getCustomIncidentStatuses(
 	  std::vector<CustomIncidentStatus> &customIncidentStatusVect,
 	  const CustomIncidentStatusesQueryOption &option);
 	HatoholError deleteCustomIncidentStatus(

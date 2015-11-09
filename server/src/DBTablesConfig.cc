@@ -1914,7 +1914,7 @@ HatoholError DBTablesConfig::updateCustomIncidentStatus(
 	return err;
 }
 
-void DBTablesConfig::getCustomIncidentStatus(
+void DBTablesConfig::getCustomIncidentStatuses(
   std::vector<CustomIncidentStatus> &customIncidentStatusVect,
   const CustomIncidentStatusesQueryOption &option)
 {
