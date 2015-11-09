@@ -40,6 +40,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 static const char *TABLE_NAME_SEVERITY_RANKS = "severity_ranks";
+static const char *TABLE_NAME_CUSTUM_INCIDENT_STATUSES = "custom_incident_statuses";
 
 int DBTablesConfig::CONFIG_DB_VERSION = 18;
 
@@ -645,6 +646,59 @@ static const DBAgent::TableProfile tableProfileSeverityRanks =
 			    COLUMN_DEF_SEVERITY_RANKS,
 			    NUM_IDX_SEVERITY_RANKS,
 			    indexDefsSeverityRanks);
+
+static const ColumnDef COLUMN_DEF_CUSTUM_INCIDENT_STATUSES[] = {
+{
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	"code",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"label",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_CUSTUM_INCIDENT_STATUS_ID,
+	IDX_CUSTUM_INCIDENT_STATUS_CODE,
+	IDX_CUSTUM_INCIDENT_STATUS_LABEL,
+	NUM_IDX_CUSTUM_INCIDENT_STATUSES,
+};
+
+static const int columnIndexesCustomIncidentStatusUniqId[] = {
+  IDX_CUSTUM_INCIDENT_STATUS_CODE, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsCustomIncidentStatusCodes[] = {
+  {"CustomIncidentStatusCodeUniqId", (const int *)columnIndexesCustomIncidentStatusUniqId, true},
+  {NULL}
+};
+
+static const DBAgent::TableProfile tableProfileCustomIncidentStatus =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_CUSTUM_INCIDENT_STATUSES,
+			    COLUMN_DEF_CUSTUM_INCIDENT_STATUSES,
+			    NUM_IDX_CUSTUM_INCIDENT_STATUSES,
+			    indexDefsCustomIncidentStatusCodes);
 
 struct DBTablesConfig::Impl
 {
