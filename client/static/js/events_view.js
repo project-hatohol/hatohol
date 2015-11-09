@@ -291,10 +291,8 @@ var EventsView = function(userProfile, options) {
     }
     self.startConnection(getQuery(options), updateCore);
     var summaryShown = $("#event-table-area").hasClass("col-md-10");
-    if (summaryShown) {
+    if (summaryShown)
       self.startConnection(getSummaryQuery(), updateSummary);
-      getSummaryQuery();
-    }
     $(document.body).scrollTop(0);
   }
 
