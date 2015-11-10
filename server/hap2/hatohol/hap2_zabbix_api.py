@@ -31,7 +31,7 @@ from hatohol import zabbixapi
 from hatohol import standardhap
 
 logger = haplib.logger
-GET_EVENT_PER_ONCE = 1000
+MAX_NUMBER_OF_EVENTS_FROM_ZABBIX = 1000
 
 class PreviousHostsInfo:
     def __init__(self):
@@ -106,9 +106,9 @@ class ZabbixAPIConductor:
                           last_info=self.__trigger_last_info,
                           fetch_id=fetch_id)
 
-    def update_events(self, last_info=None, count=GET_EVENT_PER_ONCE, direction="ASC",
-                      fetch_id=None):
-        if count > GET_EVENT_PER_ONCE:
+    def update_events(self, last_info=None, direction="ASC", fetch_id=None,
+                      count=MAX_NUMBER_OF_EVENTS_FROM_ZABBIX):
+        if count > MAX_NUMBER_OF_EVENTS_FROM_ZABBIX:
             logger.error("Received a bad request which want to get number or \
                           events that burdening the Zabbix API.")
             return
