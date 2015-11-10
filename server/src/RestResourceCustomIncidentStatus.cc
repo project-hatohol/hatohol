@@ -113,6 +113,7 @@ static HatoholError parseCustomIncidentStatusParameter(
 void RestResourceCustomIncidentStatus::handlePost(void)
 {
 	CustomIncidentStatus customIncidentStatus;
+	CustomIncidentStatus::initialize(customIncidentStatus);
 	customIncidentStatus.id = AUTO_INCREMENT_VALUE;
 	HatoholError err = parseCustomIncidentStatusParameter(customIncidentStatus,
 							      m_query);
@@ -148,6 +149,7 @@ void RestResourceCustomIncidentStatus::handlePut(void)
 	}
 
 	CustomIncidentStatus customIncidentStatus;
+	CustomIncidentStatus::initialize(customIncidentStatus);
 	customIncidentStatus.id = customIncidentStatusId;
 
 	std::vector<CustomIncidentStatus> customIncidentStatuses;
