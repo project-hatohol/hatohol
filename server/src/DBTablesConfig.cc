@@ -42,7 +42,7 @@ static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 static const char *TABLE_NAME_SEVERITY_RANKS = "severity_ranks";
 static const char *TABLE_NAME_CUSTOM_INCIDENT_STATUSES = "custom_incident_statuses";
 
-int DBTablesConfig::CONFIG_DB_VERSION = 19;
+int DBTablesConfig::CONFIG_DB_VERSION = 18;
 
 const ServerIdSet EMPTY_SERVER_ID_SET;
 const ServerIdSet EMPTY_INCIDENT_TRACKER_ID_SET;
@@ -800,9 +800,6 @@ static bool updateDB(
 		addColumnsArg.columnIndexes.push_back(
 			IDX_SEVERITY_RANK_AS_IMPORTANT);
 		dbAgent.addColumns(addColumnsArg);
-	}
-	if (oldVer < 19) {
-		dbAgent.createTable(tableProfileCustomIncidentStatus);
 	}
 	return true;
 }
