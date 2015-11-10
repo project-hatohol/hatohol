@@ -40,7 +40,8 @@ RESULTS = {
                            "state": "0"}],
     "event.get": [{"eventid":"1", "objectid":"1",
                    "clock":"0","value":"0", "ns":"111111111",
-                   "hosts":[{"hostid":"1","name":"test_host"}]}]
+                   "hosts":[{"hostid":"1","name":"test_host"}]}],
+    "event.get.expand": [{"eventid":"1"}]
 }
 
 class urllib2:
@@ -49,6 +50,9 @@ class urllib2:
         self.method = request["method"]
         if str(request["method"]) == "trigger.get":
             if request["params"].get(u"expandDescription"):
+                self.method += ".expand"
+        if str(request["method"]) == "event.get":
+            if request["params"].get(u"limit"):
                 self.method += ".expand"
         return
 

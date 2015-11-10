@@ -129,6 +129,12 @@ class TestZabbixApi(unittest.TestCase):
 
         self.assertEquals(exact, result)
 
+    def test_get_end_id(self):
+        result = self.api.get_end_id(False)
+        exact = 1
+
+        self.assertEquals(exact, result)
+
     def test_check_response(self):
         res_dict = {"error": None}
         self.assertFalse(zabbixapi.check_response(res_dict))
