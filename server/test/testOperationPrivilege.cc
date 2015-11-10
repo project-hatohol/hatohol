@@ -163,7 +163,7 @@ void test_makeFlag(void)
 		OperationPrivilegeType type =
 		  static_cast<OperationPrivilegeType>(i);
 		cppcut_assert_equal(
-		  (OperationPrivilegeFlag)(1 << i),
+		  (OperationPrivilegeFlag)(1ULL << i),
 		  OperationPrivilege::makeFlag(type));
 	}
 }
