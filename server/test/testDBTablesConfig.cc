@@ -1806,4 +1806,39 @@ void test_getCustomIncidentStatusWithLabelOption(void)
 	}
 }
 
+void test_deleteCustomIncidentStatus(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	CustomIncidentStatus customIncidentStatus;
+	constexpr CustomIncidentStatusIdType targetId = 2;
+	constexpr CustomIncidentStatusIdType actualId = targetId + 1;
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	const string statement =
+	  StringUtils::sprintf(
+	    "SELECT * FROM custom_incident_statuses WHERE id = %" FMT_CUSTOM_INCIDENT_STATUS_ID,
+	    actualId);
+	// ignore id assertion. Because id is auto incremnt
+	const string expect =
+	  StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s",
+			       actualId,
+			       testCustomIncidentStatus[targetId].code.c_str(),
+			       testCustomIncidentStatus[targetId].label.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+
+	std::list<CustomIncidentStatusIdType> idList = {actualId};
+	HatoholError err = dbConfig.deleteCustomIncidentStatus(idList, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	const string afterDeleteStatement =
+	  StringUtils::sprintf(
+	    "SELECT * FROM custom_incident_statuses WHERE id = %" FMT_CUSTOM_INCIDENT_STATUS_ID,
+	    actualId);
+	const string afterDeleteExpect = "";
+	assertDBContent(&dbConfig.getDBAgent(),
+	                afterDeleteStatement, afterDeleteExpect);
+}
+
 } // namespace testDBTablesConfig
