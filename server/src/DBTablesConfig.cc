@@ -2218,6 +2218,7 @@ struct CustomIncidentStatusesQueryOption::Impl {
 	CustomIncidentStatusesQueryOption *option;
 	string                            code;
 	string                            label;
+	std::list<CustomIncidentStatusIdType> idList;
 
 	Impl(CustomIncidentStatusesQueryOption *_option)
 	: option(_option)
@@ -2261,9 +2262,25 @@ const string CustomIncidentStatusesQueryOption::getTargetLabel(void)
 	return m_impl->label;
 }
 
+void CustomIncidentStatusesQueryOption::setTargetIdList(
+  list<CustomIncidentStatusIdType> idList) {
+	m_impl->idList = idList;
+}
+
+const list<CustomIncidentStatusIdType>
+CustomIncidentStatusesQueryOption::getTargetIdList(void) {
+	return m_impl->idList;
+}
+
 string CustomIncidentStatusesQueryOption::getCondition(void) const
 {
 	string condition = DataQueryOption::getCondition();
+
+	// filter by ID list
+	if (!m_impl->idList.empty()) {
+		addCondition(condition,
+		             makeCustomIncidentStatusIdListCondition(m_impl->idList));
+	}
 
 	if (!m_impl->code.empty()) {
 		DBTermCStringProvider rhs(*getDBTermCodec());

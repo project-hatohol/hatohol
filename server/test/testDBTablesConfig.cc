@@ -1831,6 +1831,27 @@ void test_getCustomIncidentStatusWithLabelOption(void)
 	}
 }
 
+void test_getCustomIncidentStatusWithIdListOption(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	std::vector<CustomIncidentStatus> customIncidentStatusVect;
+	CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
+	constexpr CustomIncidentStatusIdType targetId = 7;
+	option.setTargetIdList({targetId});
+	dbConfig.getCustomIncidentStatuses(customIncidentStatusVect, option);
+	cppcut_assert_equal((size_t)1, customIncidentStatusVect.size());
+	for (auto customIncidentStatus : customIncidentStatusVect) {
+		// ignore id assertion. Because id is auto increment.
+		customIncidentStatus.id = 0;
+		constexpr CustomIncidentStatusIdType actualId = targetId - 1;
+		assertCustomIncidentStatus(testCustomIncidentStatus[actualId],
+					   customIncidentStatus);
+	}
+}
+
 void test_deleteCustomIncidentStatus(void)
 {
 	loadTestDBCustomIncidentStatusInfo();
