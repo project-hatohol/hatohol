@@ -2223,34 +2223,7 @@ struct CustomIncidentStatusesQueryOption::Impl {
 	: option(_option)
 	{
 	}
-
-	static string makeConditionTemplate(void);
 };
-
-const string CustomIncidentStatusesQueryOption::Impl::conditionTemplate
-  = makeConditionTemplate();
-
-string CustomIncidentStatusesQueryOption::Impl::makeConditionTemplate(void)
-{
-	string cond;
-
-	// code;
-	const ColumnDef &colDefCode =
-	  COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_CODE];
-	cond += StringUtils::sprintf(
-	  "((%s IS NULL) OR (%s=%%s))",
-	  colDefCode.columnName, colDefCode.columnName);
-	cond += " AND ";
-
-	// label;
-	const ColumnDef &colDefLabel =
-	  COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_LABEL];
-	cond += StringUtils::sprintf(
-	  "((%s IS NULL) OR (%s=%%s))",
-	  colDefLabel.columnName, colDefLabel.columnName);
-	cond += " AND ";
-	return cond;
-}
 
 CustomIncidentStatusesQueryOption::CustomIncidentStatusesQueryOption(
   const UserIdType &userId)
@@ -2291,9 +2264,6 @@ const string CustomIncidentStatusesQueryOption::getTargetLabel(void)
 string CustomIncidentStatusesQueryOption::getCondition(void) const
 {
 	string condition = DataQueryOption::getCondition();
-
-	HATOHOL_ASSERT(!m_impl->conditionTemplate.empty(),
-	               "SeverityRank condition template is empty.");
 
 	if (!m_impl->code.empty()) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
