@@ -328,6 +328,19 @@ public:
 	                              const SeverityRankQueryOption &option);
 	HatoholError deleteSeverityRanks(std::list<SeverityRankIdType> &idList,
 	                                 const OperationPrivilege privilege);
+	// CustomIncidentStatus
+	HatoholError upsertCustomIncidentStatus(
+	  CustomIncidentStatus &customIncidentStatus,
+	  const OperationPrivilege privilege);
+	HatoholError updateCustomIncidentStatus(
+	  CustomIncidentStatus &customIncidentStatus,
+	  const OperationPrivilege privilege);
+	HatoholError getCustomIncidentStatuses(
+	  std::vector<CustomIncidentStatus> &customIncidentStatusVect,
+	  const CustomIncidentStatusesQueryOption &option);
+	HatoholError deleteCustomIncidentStatuses(
+	  std::list<CustomIncidentStatusIdType> &idList,
+	  const OperationPrivilege privilege);
 
 protected:
 	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);

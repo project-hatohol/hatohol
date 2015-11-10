@@ -1031,6 +1031,40 @@ HatoholError UnifiedDataStore::deleteSeverityRanks(
 	return cache.getConfig().deleteSeverityRanks(idList, privilege);
 }
 
+HatoholError UnifiedDataStore::upsertCustomIncidentStatus(
+  CustomIncidentStatus &customIncidentStatus, const OperationPrivilege privilege)
+{
+	ThreadLocalDBCache cache;
+	return cache.getConfig().upsertCustomIncidentStatus(customIncidentStatus,
+							    privilege);
+}
+
+HatoholError UnifiedDataStore::updateCustomIncidentStatus(
+  CustomIncidentStatus &customIncidentStatus, const OperationPrivilege privilege)
+{
+	ThreadLocalDBCache cache;
+	return cache.getConfig().updateCustomIncidentStatus(customIncidentStatus,
+							    privilege);
+}
+
+HatoholError UnifiedDataStore::getCustomIncidentStatuses(
+  std::vector<CustomIncidentStatus> &customIncidentStatusVect,
+  const CustomIncidentStatusesQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	cache.getConfig().getCustomIncidentStatuses(customIncidentStatusVect,
+						    option);
+
+	return HTERR_OK;
+}
+
+HatoholError UnifiedDataStore::deleteCustomIncidentStatuses(
+  list<CustomIncidentStatusIdType> &idList, const OperationPrivilege privilege)
+{
+	ThreadLocalDBCache cache;
+	return cache.getConfig().deleteCustomIncidentStatus(idList, privilege);
+}
+
 void UnifiedDataStore::startArmIncidentTrackerIfNeeded(
   const IncidentTrackerIdType &trackerId)
 {
