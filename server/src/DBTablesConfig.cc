@@ -1942,7 +1942,7 @@ static string makeCustomIncidentStatusIdListCondition(
   const std::list<CustomIncidentStatusIdType> &idList)
 {
 	string condition;
-	const ColumnDef &colId = COLUMN_DEF_SEVERITY_RANKS[IDX_SEVERITY_RANK_ID];
+	const ColumnDef &colId = COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_ID];
 	SeparatorInjector commaInjector(",");
 	condition = StringUtils::sprintf("%s in (", colId.columnName);
 	for (auto id : idList) {
