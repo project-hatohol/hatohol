@@ -30,6 +30,8 @@ from hatohol import haplib
 from hatohol import zabbixapi
 from hatohol import standardhap
 
+logger = haplib.logger
+MAX_NUMBER_OF_EVENTS_FROM_ZABBIX = 1000
 
 class PreviousHostsInfo:
     def __init__(self):
@@ -104,26 +106,48 @@ class ZabbixAPIConductor:
                           last_info=self.__trigger_last_info,
                           fetch_id=fetch_id)
 
-    def update_events(self, last_info=None, count=None, direction="ASC",
-                      fetch_id=None):
-        if last_info is None:
-            last_info = self.get_cached_event_last_info()
+    def update_events_poll(self):
+        last_event_id = self.__api.get_end_id(False)
+        event_ids = list()
+        last_info = self.get_cached_event_last_info()
+        if len(last_info):
+            last_info = int(last_info)
+        # If Hatohol server does not have last_info, set 0 to last_info.
+        elif isinstance(last_info, str) or isinstance(last_info, unicode):
+            last_info = 0
 
-        event_id_from = None
+        while True:
+            event_id_from = last_info + 1
+            event_id_till = last_info + MAX_NUMBER_OF_EVENTS_FROM_ZABBIX
+            event_ids.append([event_id_from, event_id_till])
+            if event_id_till >= last_event_id: break
+            last_info = event_id_till
+
+        events = list()
+        for event_from_id, event_till_id in event_ids:
+            events = events + self.__api.get_events(event_from_id,
+                                                    event_till_id)
+
+        if len(events) == 0:
+            return
+
+        self.put_events(events)
+
+    def update_events_fetch(self, last_info, count, direction, fetch_id):
+        if count > MAX_NUMBER_OF_EVENTS_FROM_ZABBIX:
+            logger.error("Received a bad request which wants to get number or \
+                          events that burdening the Zabbix API.")
+            raise
+
         if direction == "ASC":
-            if isinstance(last_info, unicode) or isinstance(last_info, str):
-                last_info = int(last_info)
-            if isinstance(last_info, int):
-                event_id_from = last_info + 1
-            event_id_till = None
-            if count is not None:
-                event_id_till = event_id_from + count
-        # The following elif sentence is used from only fetchEvents
+            event_id_from = last_info + 1
+            event_id_till = last_info + count
         elif direction == "DESC":
+            event_id_from = last_info - count + 1
             event_id_till = last_info
-            event_id_from = event_id_till - count
 
         events = self.__api.get_events(event_id_from, event_id_till)
+
         if len(events) == 0:
             return
 
@@ -141,7 +165,7 @@ class Hap2ZabbixAPIPoller(haplib.BasePoller, ZabbixAPIConductor):
         self.update_hosts_and_host_group_membership()
         self.update_host_groups()
         self.update_triggers()
-        self.update_events()
+        self.update_events_poll()
 
 class Hap2ZabbixAPIMain(haplib.BaseMainPlugin, ZabbixAPIConductor):
     def __init__(self, *args, **kwargs):
@@ -167,8 +191,8 @@ class Hap2ZabbixAPIMain(haplib.BaseMainPlugin, ZabbixAPIConductor):
     def hap_fetch_events(self, params, request_id):
         self.make_sure_token()
         self.get_sender().response("SUCCESS", request_id)
-        self.update_events(int(params["lastInfo"]), params["count"],
-                           params["direction"], params["fetchId"])
+        self.update_events_fetch(int(params["lastInfo"]), params["count"],
+                                 params["direction"], params["fetchId"])
 
 
 class Hap2ZabbixAPI(standardhap.StandardHap):
