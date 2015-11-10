@@ -1866,6 +1866,13 @@ HatoholError DBTablesConfig::deleteSeverityRanks(
 	return HTERR_OK;
 }
 
+void CustomIncidentStatus::initialize(CustomIncidentStatus &customIncidentStatus)
+{
+	customIncidentStatus.id = INVALID_CUSTOM_INCIDENT_STATUS_ID;
+	customIncidentStatus.code = "__INITIAL_CODE";
+	customIncidentStatus.label = "";
+}
+
 HatoholError DBTablesConfig::upsertCustomIncidentStatus(
   CustomIncidentStatus &customIncidentStatus,
   const OperationPrivilege &privilege)
