@@ -363,6 +363,110 @@ var EventsView = function(userProfile, options) {
     }
   }
 
+  function resetIncidentFilterCandidates(filterConfig) {
+    var conf = filterConfig;
+    var candidates = [
+      { value: "NONE",        label: gettext("NONE") },
+      { value: "HOLD",        label: gettext("HOLD") },
+      { value: "IN PROGRESS", label: gettext("IN PROGRESS") },
+      { value: "DONE",        label: pgettext("Incident", "DONE") }
+    ];
+    var option;
+    var selectedCandidates = {};
+
+    $.map(conf.incident.selected, function(selected) {
+      selectedCandidates[selected] = true;
+    });
+
+    $("#select-incident").empty();
+    option = $("<option/>", {
+      text: "---------"
+    }).appendTo("#select-incident");
+
+    $.map(candidates, function(candidate) {
+      var option;
+
+      if (!conf.incident.enable || selectedCandidates[candidate.value]) {
+        option = $("<option/>", {
+          text: candidate.label,
+          value: candidate.value
+        }).appendTo("#select-incident");
+      }
+    });
+  }
+
+  function resetTypeFilterCandidates(filterConfig) {
+    var conf = filterConfig;
+    var candidates = [
+      { value: "0", label: gettext("OK") },
+      { value: "1", label: gettext("Problem") },
+      { value: "2", label: gettext("Unknown") },
+      { value: "3", label: gettext("Notification") }
+    ];
+    var option;
+    var selectedTypes = {};
+
+    $.map(conf.type.selected, function(selected) {
+      selectedTypes[selected] = true;
+    });
+
+    $("#select-status").empty();
+    option = $("<option/>", {
+      text: "---------"
+    }).appendTo("#select-status");
+
+    $.map(candidates, function(candidate) {
+      var option;
+
+      if (!conf.type.enable || selectedTypes[candidate.value]) {
+        option = $("<option/>", {
+          text: candidate.label,
+          value: candidate.value
+        }).appendTo("#select-status");
+      }
+    });
+  }
+
+  function resetSeverityFilterCandidates(filterConfig) {
+    var conf = filterConfig;
+    var candidates = [
+      { value: "0", label: gettext("Not classified") },
+      { value: "1", label: gettext("Information") },
+      { value: "2", label: gettext("Warning") },
+      { value: "3", label: gettext("Average") },
+      { value: "4", label: gettext("High") },
+      { value: "5", label: gettext("Disaster") }
+    ];
+    var option;
+    var selectedCandidates = {};
+
+    $.map(conf.severity.selected, function(selected) {
+      selectedCandidates[selected] = true;
+    });
+
+    $("#select-severity").empty();
+
+    $.map(candidates, function(candidate) {
+      var option;
+
+      if (!conf.severity.enable || selectedCandidates[candidate.value]) {
+        option = $("<option/>", {
+          text: candidate.label,
+          value: candidate.value
+        }).appendTo("#select-severity");
+      }
+    });
+  }
+
+  function setupFilterCandidates() {
+    var filterId = $("#select-filter").val();
+    var conf = self.userConfig.getFilterConfig(filterId);
+    conf = conf || self.userConfig.getDefaultFilterConfig();
+    resetIncidentFilterCandidates(conf);
+    resetTypeFilterCandidates(conf);
+    resetSeverityFilterCandidates(conf);
+  }
+
   function setupCallbacks() {
     $('#select-summary-filter').change(function() {
       load();
@@ -384,6 +488,10 @@ var EventsView = function(userProfile, options) {
 
     $('button.btn-apply-all-filter').click(function() {
       load({ applyFilter: true });
+    });
+
+    $("#select-filter").change(function() {
+      setupFilterCandidates();
     });
   }
 
