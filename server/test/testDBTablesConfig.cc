@@ -1698,6 +1698,26 @@ void test_createTableCustomIncidentStatuses(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
 
+void test_upsertCustomIncidentStatus(void)
+{
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	CustomIncidentStatus customIncidentStatus;
+	customIncidentStatus.id = AUTO_INCREMENT_VALUE;
+	customIncidentStatus.code = "IN PROGRESS";
+	customIncidentStatus.label = "In progress (edit)";
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbConfig.upsertCustomIncidentStatus(customIncidentStatus, privilege);
+	const string statement =
+		"SELECT * FROM custom_incident_statuses WHERE id = 1";
+	const string expect =
+	  StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s",
+			       customIncidentStatus.id,
+			       customIncidentStatus.code.c_str(),
+			       customIncidentStatus.label.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+}
+
 void test_upsertCustomIncidentStatusUpdate(void)
 {
 	loadTestDBCustomIncidentStatusInfo();
@@ -1743,4 +1763,47 @@ void test_getCustomIncidentStatusWithoutOption(void)
 		}
 	}
 }
+
+void test_getCustomIncidentStatusWithCodeOption(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	std::vector<CustomIncidentStatus> customIncidentStatusVect;
+	CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
+	option.setTargetCode("NONE");
+	constexpr CustomIncidentStatusIdType targetId = 4;
+	dbConfig.getCustomIncidentStatuses(customIncidentStatusVect, option);
+	cppcut_assert_equal((size_t)1, customIncidentStatusVect.size());
+	for (auto customIncidentStatus : customIncidentStatusVect) {
+		// ignore id assertion. Because id is auto increment.
+		customIncidentStatus.id = 0;
+		constexpr CustomIncidentStatusIdType actualId = targetId - 1;
+		assertCustomIncidentStatus(testCustomIncidentStatus[actualId],
+					   customIncidentStatus);
+	}
+}
+
+void test_getCustomIncidentStatusWithLabelOption(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	std::vector<CustomIncidentStatus> customIncidentStatusVect;
+	CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
+	option.setTargetLabel("User defined 01");
+	constexpr CustomIncidentStatusIdType targetId = 5;
+	dbConfig.getCustomIncidentStatuses(customIncidentStatusVect, option);
+	cppcut_assert_equal((size_t)1, customIncidentStatusVect.size());
+	for (auto customIncidentStatus : customIncidentStatusVect) {
+		// ignore id assertion. Because id is auto increment.
+		customIncidentStatus.id = 0;
+		constexpr CustomIncidentStatusIdType actualId = targetId - 1;
+		assertCustomIncidentStatus(testCustomIncidentStatus[actualId],
+					   customIncidentStatus);
+	}
+}
+
 } // namespace testDBTablesConfig
