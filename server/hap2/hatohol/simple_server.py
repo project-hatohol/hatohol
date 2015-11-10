@@ -26,6 +26,7 @@ import argparse
 import logging
 import json
 import sys
+import signal
 
 logger = haplib.logger
 
@@ -73,10 +74,22 @@ class SimpleServer:
                                           self.__handler_map.keys())
         self.__receiver.daemonize()
 
+    def __terminate_children(self):
+        for proc in filter(bool, (self.__dispatcher, self.__receiver)):
+            proc.terminate()
+
+    def __enable_handling_terminate_signal(self):
+        def handler(signum, frame):
+            logger.warning("Got SIGTERM")
+            raise SystemExit()
+        signal.signal(signal.SIGTERM, handler)
+
     def __call__(self):
         try:
+            self.__enable_handling_terminate_signal()
             self.__call_main()
         except:
+            self.__terminate_children()
             raises = (KeyboardInterrupt, AssertionError, SystemExit)
             exctype, value = hap.handle_exception(raises=raises)
 
