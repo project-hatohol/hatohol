@@ -36,6 +36,8 @@ class ZabbixAPIConductor(unittest.TestCase):
     def setUpClass(cls):
         def null_func(*args, **kwargs):
             pass
+        def return_empty_string(*args, **kwargs):
+            return ""
         hap2_zabbix_api.ZabbixAPIConductor.get_component_code = null_func
         hap2_zabbix_api.ZabbixAPIConductor.get_sender = null_func
         cls.conductor = hap2_zabbix_api.ZabbixAPIConductor()
@@ -49,7 +51,7 @@ class ZabbixAPIConductor(unittest.TestCase):
         cls.conductor.put_triggers = null_func
         cls.conductor.put_events = null_func
         cls.conductor.get_last_info = null_func
-        cls.conductor.get_cached_event_last_info = null_func
+        cls.conductor.get_cached_event_last_info = return_empty_string
 
     def test_reset(self):
         self.conductor.reset()
@@ -108,11 +110,16 @@ class ZabbixAPIConductor(unittest.TestCase):
         testutils.assertNotRaises(self.conductor.update_triggers,
                                "test_ids", "test_id")
 
-    def test_update_events(self):
-        testutils.assertNotRaises(self.conductor.update_events)
+    def test_update_events_poll(self):
+        testutils.assertNotRaises(self.conductor.update_events_poll)
 
-    def test_update_events_request(self):
-        testutils.assertNotRaises(self.conductor.update_events, last_info=1)
+    def test_update_events_fetch_asc(self):
+        testutils.assertNotRaises(self.conductor.update_events_fetch,
+                                  last_info=1, count=1, direction="ASC", fetch_id=1)
+
+    def test_update_events_fetch_desc(self):
+        testutils.assertNotRaises(self.conductor.update_events_fetch,
+                                  last_info=1, count=1, direction="DESC", fetch_id=1)
 
     def test_update_hosts_and_host_group_membership(self):
         testutils.assertNotRaises(self.conductor.update_hosts_and_host_group_membership)
@@ -244,3 +251,8 @@ class APIForTest:
                         "hostName": "exampleName"}]
 
         return test_events
+
+    def get_end_id(self, is_first):
+        test_event_id = 1
+
+        return test_event_id
