@@ -1985,7 +1985,7 @@ HatoholError DBTablesConfig::deleteCustomIncidentStatus(
 		uint64_t numAffectedRows;
 
 		TrxProc (void)
-		: arg(tableProfileSeverityRanks),
+		: arg(tableProfileCustomIncidentStatus),
 		  numAffectedRows(0)
 		{
 		}
