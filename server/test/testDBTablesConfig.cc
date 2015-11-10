@@ -1743,6 +1743,31 @@ void test_upsertCustomIncidentStatusUpdate(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
 }
 
+void test_updateCustomIncidentStatus(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	CustomIncidentStatus customIncidentStatus;
+	constexpr int targetId = 2;
+	constexpr int actualId = targetId + 1;
+	customIncidentStatus.id = actualId;
+	customIncidentStatus.code = "HOLD";
+	customIncidentStatus.label = "Hold (edit)";
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbConfig.updateCustomIncidentStatus(customIncidentStatus, privilege);
+	const string statement =
+		"SELECT * FROM custom_incident_statuses WHERE id = " +
+		StringUtils::toString(static_cast<int>(actualId));
+	const string expect =
+	  StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s",
+			       actualId,
+			       customIncidentStatus.code.c_str(),
+			       customIncidentStatus.label.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+}
+
 void test_getCustomIncidentStatusWithoutOption(void)
 {
 	loadTestDBCustomIncidentStatusInfo();
