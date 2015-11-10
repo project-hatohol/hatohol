@@ -1947,7 +1947,7 @@ static string makeCustomIncidentStatusIdListCondition(
 	condition = StringUtils::sprintf("%s in (", colId.columnName);
 	for (auto id : idList) {
 		commaInjector(condition);
-		condition += StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID, id);
+		condition += StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID, id);
 	}
 
 	condition += ")";
