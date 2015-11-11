@@ -361,6 +361,41 @@ var EventsView = function(userProfile, options) {
     }
   }
 
+  function resetEventPropertyFilter(filterConfig, type, addEmptyItem) {
+    var conf = filterConfig;
+    var candidates = eventPropertyChoices[type];
+    var option;
+    var selectedCandidates = {};
+    var useAllItems = (!conf[type].enable || conf[type].selected.length <= 0);
+    var currentId = $("#select-" + type).val();
+
+    $.map(conf[type].selected, function(selected) {
+      selectedCandidates[selected] = true;
+    });
+
+    $("#select-" + type).empty();
+
+    if (addEmptyItem) {
+      option = $("<option/>", {
+        text: "---------",
+        value: "",
+      }).appendTo("#select-" + type);
+    }
+
+    $.map(candidates, function(candidate) {
+      var option;
+
+      if (useAllItems || selectedCandidates[candidate.value]) {
+        option = $("<option/>", {
+          text: candidate.label,
+          value: candidate.value
+        }).appendTo("#select-" + type);
+      }
+    });
+
+    $("#select-" + type).val(currentId);
+  }
+
   function setupFilterValues(servers, query) {
     var serverId = $("#select-server").val();
     var filterId = $("#select-filter").val();
@@ -375,9 +410,9 @@ var EventsView = function(userProfile, options) {
 
     self.setupHostFilters(servers, query);
 
-    resetEventPropertyFilterCandidates(filterConfig, "incident", true);
-    resetEventPropertyFilterCandidates(filterConfig, "type", true);
-    resetEventPropertyFilterCandidates(filterConfig, "severity", false);
+    resetEventPropertyFilter(filterConfig, "incident", true);
+    resetEventPropertyFilter(filterConfig, "type", true);
+    resetEventPropertyFilter(filterConfig, "severity", false);
 
     hideUnselectableFilterCandidates(filterConfig, "server");
     if (serverId) {
@@ -433,41 +468,6 @@ var EventsView = function(userProfile, options) {
       $("#IncidentTypeHatoholImportantEventProgress").hide();
       fixupEventsTableHeight();
     }
-  }
-
-  function resetEventPropertyFilterCandidates(filterConfig, type, addEmptyItem) {
-    var conf = filterConfig;
-    var candidates = eventPropertyChoices[type];
-    var option;
-    var selectedCandidates = {};
-    var useAllItems = (!conf[type].enable || conf[type].selected.length <= 0);
-    var currentId = $("#select-" + type).val();
-
-    $.map(conf[type].selected, function(selected) {
-      selectedCandidates[selected] = true;
-    });
-
-    $("#select-" + type).empty();
-
-    if (addEmptyItem) {
-      option = $("<option/>", {
-        text: "---------",
-        value: "",
-      }).appendTo("#select-" + type);
-    }
-
-    $.map(candidates, function(candidate) {
-      var option;
-
-      if (useAllItems || selectedCandidates[candidate.value]) {
-        option = $("<option/>", {
-          text: candidate.label,
-          value: candidate.value
-        }).appendTo("#select-" + type);
-      }
-    });
-
-    $("#select-" + type).val(currentId);
   }
 
   function setupCallbacks() {
