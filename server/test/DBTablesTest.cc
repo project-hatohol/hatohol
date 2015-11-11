@@ -1556,6 +1556,60 @@ const SeverityRankInfo testSeverityRankInfoDef[] = {
 };
 const size_t NumTestSeverityRankInfoDef = ARRAY_SIZE(testSeverityRankInfoDef);
 
+const CustomIncidentStatus testCustomIncidentStatus[] = {
+{
+	AUTO_INCREMENT_VALUE,     // id
+	"DONE",                   // code
+	"Done",                   // label
+},
+{
+	AUTO_INCREMENT_VALUE,     // id
+	"IN PROGRESS",            // code
+	"In progress",            // label
+},
+{
+	AUTO_INCREMENT_VALUE,     // id
+	"HOLD",                   // code
+	"Hold",                   // label
+},
+{
+	AUTO_INCREMENT_VALUE,     // id
+	"NONE",                   // code
+	"None",                   // label
+},
+{
+	AUTO_INCREMENT_VALUE,     // id
+	"USER01",                 // code
+	"User defined 01",        // label
+},
+{
+	AUTO_INCREMENT_VALUE,     // id
+	"USER02",                 // code
+	"User defined 02",        // label
+},
+{
+	AUTO_INCREMENT_VALUE,     // id
+	"USER03",                 // code
+	"User defined 03",        // label
+},
+{
+	AUTO_INCREMENT_VALUE,     // id
+	"USER04",                 // code
+	"User defined 04",        // label
+},
+{
+	AUTO_INCREMENT_VALUE,     // id
+	"USER05",                 // code
+	"User defined 05",        // label
+},
+{
+	AUTO_INCREMENT_VALUE,     // id
+	"USER06",                 // code
+	"User defined 06",        // label
+},
+};
+const size_t NumTestCustomIncidentStatus = ARRAY_SIZE(testCustomIncidentStatus);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
@@ -2439,4 +2493,13 @@ void loadTestDBSeverityRankInfo(void)
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (auto severityRankInfo : testSeverityRankInfoDef)
 		dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
+}
+
+void loadTestDBCustomIncidentStatusInfo(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesConfig &dbConfig = cache.getConfig();
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	for (auto customIncidentStatus : testCustomIncidentStatus)
+		dbConfig.upsertCustomIncidentStatus(customIncidentStatus, privilege);
 }

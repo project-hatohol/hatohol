@@ -1367,6 +1367,15 @@ static void _assertSeverityRankInfo(
 }
 #define assertSeverityRankInfo(E,A) cut_trace(_assertSeverityRankInfo(E,A))
 
+static void _assertCustomIncidentStatus(
+  const CustomIncidentStatus &expect, const CustomIncidentStatus &actual)
+{
+	cppcut_assert_equal(expect.id, actual.id);
+	cppcut_assert_equal(expect.code, actual.code);
+	cppcut_assert_equal(expect.label, actual.label);
+}
+#define assertCustomIncidentStatus(E,A) cut_trace(_assertCustomIncidentStatus(E,A))
+
 void test_createTableSeverityRanks(void)
 {
 	const string tableName = "severity_ranks";
@@ -1676,4 +1685,206 @@ void test_deleteSeverityRankInfoWithoutPrivilege(void)
 	assertHatoholError(HTERR_NO_PRIVILEGE,
 			   dbConfig.deleteSeverityRanks(idList, privilege));
 }
+
+void test_createTableCustomIncidentStatuses(void)
+{
+	const string tableName = "custom_incident_statuses";
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	assertCreateTable(&dbConfig.getDBAgent(), tableName);
+
+	// check content
+	string statement = "select * from " + tableName;
+	string expectedOut = ""; // currently no data
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
+}
+
+void test_upsertCustomIncidentStatus(void)
+{
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	CustomIncidentStatus customIncidentStatus;
+	customIncidentStatus.id = AUTO_INCREMENT_VALUE;
+	customIncidentStatus.code = "IN PROGRESS";
+	customIncidentStatus.label = "In progress (edit)";
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbConfig.upsertCustomIncidentStatus(customIncidentStatus, privilege);
+	const string statement =
+		"SELECT * FROM custom_incident_statuses WHERE id = 1";
+	const string expect =
+	  StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s",
+			       customIncidentStatus.id,
+			       customIncidentStatus.code.c_str(),
+			       customIncidentStatus.label.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+}
+
+void test_upsertCustomIncidentStatusUpdate(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	CustomIncidentStatus customIncidentStatus;
+	constexpr int targetId = 1;
+	constexpr int actualId = targetId + 1;
+	customIncidentStatus.id = actualId;
+	customIncidentStatus.code = "IN PROGRESS";
+	customIncidentStatus.label = "In progress (edit)";
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbConfig.upsertCustomIncidentStatus(customIncidentStatus, privilege);
+	const string statement =
+		"SELECT * FROM custom_incident_statuses WHERE id = " +
+		StringUtils::toString(static_cast<int>(actualId));
+	const string expect =
+	  StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s",
+			       actualId,
+			       customIncidentStatus.code.c_str(),
+			       customIncidentStatus.label.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+}
+
+void test_updateCustomIncidentStatus(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	CustomIncidentStatus customIncidentStatus;
+	constexpr int targetId = 2;
+	constexpr int actualId = targetId + 1;
+	customIncidentStatus.id = actualId;
+	customIncidentStatus.code = "HOLD";
+	customIncidentStatus.label = "Hold (edit)";
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	dbConfig.updateCustomIncidentStatus(customIncidentStatus, privilege);
+	const string statement =
+		"SELECT * FROM custom_incident_statuses WHERE id = " +
+		StringUtils::toString(static_cast<int>(actualId));
+	const string expect =
+	  StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s",
+			       actualId,
+			       customIncidentStatus.code.c_str(),
+			       customIncidentStatus.label.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+}
+
+void test_getCustomIncidentStatusWithoutOption(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	std::vector<CustomIncidentStatus> customIncidentStatusVect;
+	CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
+	dbConfig.getCustomIncidentStatuses(customIncidentStatusVect, option);
+	{
+		size_t i = 0;
+		for (auto customIncidentStatus : customIncidentStatusVect) {
+			// ignore id assertion. Because id is auto increment.
+			customIncidentStatus.id = 0;
+			assertCustomIncidentStatus(testCustomIncidentStatus[i],
+						   customIncidentStatus);
+			i++;
+		}
+	}
+}
+
+void test_getCustomIncidentStatusWithCodeOption(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	std::vector<CustomIncidentStatus> customIncidentStatusVect;
+	CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
+	option.setTargetCode("NONE");
+	constexpr CustomIncidentStatusIdType targetId = 4;
+	dbConfig.getCustomIncidentStatuses(customIncidentStatusVect, option);
+	cppcut_assert_equal((size_t)1, customIncidentStatusVect.size());
+	for (auto customIncidentStatus : customIncidentStatusVect) {
+		// ignore id assertion. Because id is auto increment.
+		customIncidentStatus.id = 0;
+		constexpr CustomIncidentStatusIdType actualId = targetId - 1;
+		assertCustomIncidentStatus(testCustomIncidentStatus[actualId],
+					   customIncidentStatus);
+	}
+}
+
+void test_getCustomIncidentStatusWithLabelOption(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	std::vector<CustomIncidentStatus> customIncidentStatusVect;
+	CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
+	option.setTargetLabel("User defined 01");
+	constexpr CustomIncidentStatusIdType targetId = 5;
+	dbConfig.getCustomIncidentStatuses(customIncidentStatusVect, option);
+	cppcut_assert_equal((size_t)1, customIncidentStatusVect.size());
+	for (auto customIncidentStatus : customIncidentStatusVect) {
+		// ignore id assertion. Because id is auto increment.
+		customIncidentStatus.id = 0;
+		constexpr CustomIncidentStatusIdType actualId = targetId - 1;
+		assertCustomIncidentStatus(testCustomIncidentStatus[actualId],
+					   customIncidentStatus);
+	}
+}
+
+void test_getCustomIncidentStatusWithIdListOption(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+
+	std::vector<CustomIncidentStatus> customIncidentStatusVect;
+	CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
+	constexpr CustomIncidentStatusIdType targetId = 7;
+	option.setTargetIdList({targetId});
+	dbConfig.getCustomIncidentStatuses(customIncidentStatusVect, option);
+	cppcut_assert_equal((size_t)1, customIncidentStatusVect.size());
+	for (auto customIncidentStatus : customIncidentStatusVect) {
+		// ignore id assertion. Because id is auto increment.
+		customIncidentStatus.id = 0;
+		constexpr CustomIncidentStatusIdType actualId = targetId - 1;
+		assertCustomIncidentStatus(testCustomIncidentStatus[actualId],
+					   customIncidentStatus);
+	}
+}
+
+void test_deleteCustomIncidentStatus(void)
+{
+	loadTestDBCustomIncidentStatusInfo();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	CustomIncidentStatus customIncidentStatus;
+	constexpr CustomIncidentStatusIdType targetId = 2;
+	constexpr CustomIncidentStatusIdType actualId = targetId + 1;
+
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	const string statement =
+	  StringUtils::sprintf(
+	    "SELECT * FROM custom_incident_statuses WHERE id = %" FMT_CUSTOM_INCIDENT_STATUS_ID,
+	    actualId);
+	// ignore id assertion. Because id is auto incremnt
+	const string expect =
+	  StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s",
+			       actualId,
+			       testCustomIncidentStatus[targetId].code.c_str(),
+			       testCustomIncidentStatus[targetId].label.c_str());
+	assertDBContent(&dbConfig.getDBAgent(), statement, expect);
+
+	std::list<CustomIncidentStatusIdType> idList = {actualId};
+	HatoholError err = dbConfig.deleteCustomIncidentStatus(idList, privilege);
+	assertHatoholError(HTERR_OK, err);
+
+	const string afterDeleteStatement =
+	  StringUtils::sprintf(
+	    "SELECT * FROM custom_incident_statuses WHERE id = %" FMT_CUSTOM_INCIDENT_STATUS_ID,
+	    actualId);
+	const string afterDeleteExpect = "";
+	assertDBContent(&dbConfig.getDBAgent(),
+	                afterDeleteStatement, afterDeleteExpect);
+}
+
 } // namespace testDBTablesConfig

@@ -110,6 +110,9 @@ extern const size_t NumTestLastInfoDef;
 extern const SeverityRankInfo testSeverityRankInfoDef[];
 extern const size_t NumTestSeverityRankInfoDef;
 
+extern const CustomIncidentStatus testCustomIncidentStatus[];
+extern const size_t NumTestCustomIncidentStatus;
+
 /**
  * get the test trigger data indexes whose serverId and hostId are
  * matched with the specified.
@@ -275,5 +278,7 @@ void loadTestDBHostgroupMember(void);
 
 void loadTestDBLastInfo(void);
 void loadTestDBSeverityRankInfo(void);
+
+void loadTestDBCustomIncidentStatusInfo(void);
 
 #endif // DBClientTest_h
