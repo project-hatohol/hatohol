@@ -190,7 +190,7 @@ var EventsView = function(userProfile, options) {
       if (filter.id == defaultSummaryFilterId)
         option.attr("selected", true)
     });
-    setupFilterCandidates();
+    setupFilterValues();
 
     // summary
     if (config.config["events.show-sidebar"] == "false") {
@@ -375,6 +375,10 @@ var EventsView = function(userProfile, options) {
 
     self.setupHostFilters(servers, query);
 
+    resetEventPropertyFilterCandidates(filterConfig, "incident", true);
+    resetEventPropertyFilterCandidates(filterConfig, "type", true);
+    resetEventPropertyFilterCandidates(filterConfig, "severity", false);
+
     hideUnselectableFilterCandidates(filterConfig, "server");
     if (serverId) {
       hideUnselectableFilterCandidates(filterConfig, "hostgroup", serverId);
@@ -431,12 +435,13 @@ var EventsView = function(userProfile, options) {
     }
   }
 
-  function resetFilterCandidates(filterConfig, type, addEmptyItem) {
+  function resetEventPropertyFilterCandidates(filterConfig, type, addEmptyItem) {
     var conf = filterConfig;
     var candidates = eventPropertyChoices[type];
     var option;
     var selectedCandidates = {};
     var useAllItems = (!conf[type].enable || conf[type].selected.length <= 0);
+    var currentId = $("#select-" + type).val();
 
     $.map(conf[type].selected, function(selected) {
       selectedCandidates[selected] = true;
@@ -461,15 +466,8 @@ var EventsView = function(userProfile, options) {
         }).appendTo("#select-" + type);
       }
     });
-  }
 
-  function setupFilterCandidates() {
-    var filterId = $("#select-filter").val();
-    var conf = self.userConfig.getFilterConfig(filterId);
-    conf = conf || self.userConfig.getDefaultFilterConfig();
-    resetFilterCandidates(conf, "incident", true);
-    resetFilterCandidates(conf, "type", true);
-    resetFilterCandidates(conf, "severity", false);
+    $("#select-" + type).val(currentId);
   }
 
   function setupCallbacks() {
@@ -496,7 +494,7 @@ var EventsView = function(userProfile, options) {
     });
 
     $("#select-filter").change(function() {
-      setupFilterCandidates();
+      setupFilterValues();
     });
   }
 
