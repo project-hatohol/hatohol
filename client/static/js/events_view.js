@@ -422,10 +422,10 @@ var EventsView = function(userProfile, options) {
       selectedTypes[selected] = true;
     });
 
-    $("#select-status").empty();
+    $("#select-type").empty();
     option = $("<option/>", {
       text: "---------"
-    }).appendTo("#select-status");
+    }).appendTo("#select-type");
 
     $.map(candidates, function(candidate) {
       var option;
@@ -434,7 +434,7 @@ var EventsView = function(userProfile, options) {
         option = $("<option/>", {
           text: candidate.label,
           value: candidate.value
-        }).appendTo("#select-status");
+        }).appendTo("#select-type");
       }
     });
   }
