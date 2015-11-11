@@ -385,80 +385,32 @@ var EventsView = function(userProfile, options) {
     }
   }
 
-  function resetIncidentFilterCandidates(filterConfig) {
+  function resetFilterCandidates(filterConfig, type, addEmptyItem) {
     var conf = filterConfig;
-    var candidates = eventPropertyChoices.incident;
+    var candidates = eventPropertyChoices[type];
     var option;
     var selectedCandidates = {};
 
-    $.map(conf.incident.selected, function(selected) {
+    $.map(conf[type].selected, function(selected) {
       selectedCandidates[selected] = true;
     });
 
-    $("#select-incident").empty();
-    option = $("<option/>", {
-      text: "---------"
-    }).appendTo("#select-incident");
+    $("#select-" + type).empty();
+
+    if (addEmptyItem) {
+      option = $("<option/>", {
+        text: "---------"
+      }).appendTo("#select-" + type);
+    }
 
     $.map(candidates, function(candidate) {
       var option;
 
-      if (!conf.incident.enable || selectedCandidates[candidate.value]) {
+      if (!conf[type].enable || selectedCandidates[candidate.value]) {
         option = $("<option/>", {
           text: candidate.label,
           value: candidate.value
-        }).appendTo("#select-incident");
-      }
-    });
-  }
-
-  function resetTypeFilterCandidates(filterConfig) {
-    var conf = filterConfig;
-    var candidates = eventPropertyChoices.type;
-    var option;
-    var selectedTypes = {};
-
-    $.map(conf.type.selected, function(selected) {
-      selectedTypes[selected] = true;
-    });
-
-    $("#select-type").empty();
-    option = $("<option/>", {
-      text: "---------"
-    }).appendTo("#select-type");
-
-    $.map(candidates, function(candidate) {
-      var option;
-
-      if (!conf.type.enable || selectedTypes[candidate.value]) {
-        option = $("<option/>", {
-          text: candidate.label,
-          value: candidate.value
-        }).appendTo("#select-type");
-      }
-    });
-  }
-
-  function resetSeverityFilterCandidates(filterConfig) {
-    var conf = filterConfig;
-    var candidates = eventPropertyChoices.severity;
-    var option;
-    var selectedCandidates = {};
-
-    $.map(conf.severity.selected, function(selected) {
-      selectedCandidates[selected] = true;
-    });
-
-    $("#select-severity").empty();
-
-    $.map(candidates, function(candidate) {
-      var option;
-
-      if (!conf.severity.enable || selectedCandidates[candidate.value]) {
-        option = $("<option/>", {
-          text: candidate.label,
-          value: candidate.value
-        }).appendTo("#select-severity");
+        }).appendTo("#select-" + type);
       }
     });
   }
@@ -467,9 +419,9 @@ var EventsView = function(userProfile, options) {
     var filterId = $("#select-filter").val();
     var conf = self.userConfig.getFilterConfig(filterId);
     conf = conf || self.userConfig.getDefaultFilterConfig();
-    resetIncidentFilterCandidates(conf);
-    resetTypeFilterCandidates(conf);
-    resetSeverityFilterCandidates(conf);
+    resetFilterCandidates(conf, "incident", true);
+    resetFilterCandidates(conf, "type", true);
+    resetFilterCandidates(conf, "severity", false);
   }
 
   function setupCallbacks() {
