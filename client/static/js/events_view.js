@@ -337,7 +337,7 @@ var EventsView = function(userProfile, options) {
     $("#select-host").val("");
   }
 
-  function hideUnselectableFilterCandidates(filterConfig, type, serverId) {
+  function removeUnselectableFilterCandidates(filterConfig, type, serverId) {
     var conf = filterConfig;
     var useAll = (!conf[type].enable || conf[type].selected.length <= 0);
     var selected = {};
@@ -424,10 +424,10 @@ var EventsView = function(userProfile, options) {
     resetEventPropertyFilter(filterConfig, "type", true);
     resetEventPropertyFilter(filterConfig, "severity", false);
 
-    hideUnselectableFilterCandidates(filterConfig, "server");
+    removeUnselectableFilterCandidates(filterConfig, "server");
     if (serverId) {
-      hideUnselectableFilterCandidates(filterConfig, "hostgroup", serverId);
-      hideUnselectableFilterCandidates(filterConfig, "host", serverId);
+      removeUnselectableFilterCandidates(filterConfig, "hostgroup", serverId);
+      removeUnselectableFilterCandidates(filterConfig, "host", serverId);
     }
 
     if ("minimumSeverity" in query)
