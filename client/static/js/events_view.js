@@ -53,7 +53,7 @@ var EventsView = function(userProfile, options) {
     setupTimeRangeFilter();
   }
 
-  var filterCandidates = {
+  var eventPropertyChoices = {
     incident: [
       { value: "NONE",        label: pgettext("Incident", "NONE") },
       { value: "HOLD",        label: pgettext("Incident", "HOLD") },
@@ -150,7 +150,7 @@ var EventsView = function(userProfile, options) {
   function start() {
     self.userConfig = new HatoholEventsViewConfig({
       columnDefinitions: columnDefinitions,
-      filterCandidates: filterCandidates,
+      filterCandidates: eventPropertyChoices,
       loadedCallback: function(config) {
         applyConfig(config);
 
@@ -390,7 +390,7 @@ var EventsView = function(userProfile, options) {
 
   function resetIncidentFilterCandidates(filterConfig) {
     var conf = filterConfig;
-    var candidates = filterCandidates.incident;
+    var candidates = eventPropertyChoices.incident;
     var option;
     var selectedCandidates = {};
 
@@ -417,7 +417,7 @@ var EventsView = function(userProfile, options) {
 
   function resetTypeFilterCandidates(filterConfig) {
     var conf = filterConfig;
-    var candidates = filterCandidates.type;
+    var candidates = eventPropertyChoices.type;
     var option;
     var selectedTypes = {};
 
@@ -444,7 +444,7 @@ var EventsView = function(userProfile, options) {
 
   function resetSeverityFilterCandidates(filterConfig) {
     var conf = filterConfig;
-    var candidates = filterCandidates.severity;
+    var candidates = eventPropertyChoices.severity;
     var option;
     var selectedCandidates = {};
 
@@ -871,14 +871,14 @@ var EventsView = function(userProfile, options) {
     var statusClass = "status" + status;
 
     return "<td class='" + getSeverityClass(event) + " " + statusClass + "'>" +
-      filterCandidates.type[Number(status)].label + "</td>";
+      eventPropertyChoices.type[Number(status)].label + "</td>";
   }
 
   function renderTableDataEventSeverity(event, server) {
     var severity = event["severity"];
 
     return "<td class='" + getSeverityClass(event) + "'>" +
-      filterCandidates.severity[Number(severity)].label + "</td>";
+      eventPropertyChoices.severity[Number(severity)].label + "</td>";
   }
 
   function renderTableDataEventDuration(event, server) {
@@ -1152,7 +1152,7 @@ var EventsView = function(userProfile, options) {
     for (var idx = 0; idx < preDefinedSeverityArray.length; ++idx) {
       pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
     }
-    var candidates = filterCandidates.severity;
+    var candidates = eventPropertyChoices.severity;
     var dataSet = [
       { label: candidates[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY],
