@@ -17,6 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+#include <SeparatorInjector.h>
 #include "RestResourceCustomIncidentStatus.h"
 #include "DBTablesConfig.h"
 #include "UnifiedDataStore.h"
@@ -24,6 +25,27 @@
 
 using namespace std;
 using namespace mlpl;
+
+struct RESTAPIError {
+	StringList errors;
+	void addError(const char *format,
+		      ...) __attribute__((__format__ (__printf__, 2, 3)))
+	{
+	       va_list ap;
+	       va_start(ap, format);
+	       using namespace mlpl::StringUtils;
+	       errors.push_back(vsprintf(format, ap));
+	       va_end(ap);
+	}
+
+	bool hasErrors(void) {
+		return !errors.empty();
+	}
+
+	const StringList &getErrors(void) {
+		return errors;
+	}
+};
 
 typedef FaceRestResourceHandlerArg0FactoryTemplate<RestResourceCustomIncidentStatus>
   RestResourceCustomIncidentStatusFactory;
@@ -89,11 +111,11 @@ void RestResourceCustomIncidentStatus::handleGet(void)
 	replyJSONData(agent);
 }
 
-#define PARSE_STRING_VALUE(STRUCT,PROPERTY,ALLOW_EMPTY)			      \
+#define PARSE_STRING_VALUE(STRUCT,PROPERTY,ALLOW_EMPTY, ERROBJ)		\
 {									      \
 	char *value = (char *)g_hash_table_lookup(query, #PROPERTY);	      \
 	if (!value && !ALLOW_EMPTY)					      \
-		return HatoholError(HTERR_NOT_FOUND_PARAMETER, #PROPERTY);    \
+		ERROBJ.addError("'%s' is required.", #PROPERTY);	      \
 	if (value)							      \
 		STRUCT.PROPERTY = value;				      \
 }
@@ -104,8 +126,19 @@ static HatoholError parseCustomIncidentStatusParameter(
 {
 	const bool allowEmpty = forUpdate;
 
-	PARSE_STRING_VALUE(customIncidentStatus, code, allowEmpty);
-	PARSE_STRING_VALUE(customIncidentStatus, label, allowEmpty);
+	RESTAPIError errObj;
+	PARSE_STRING_VALUE(customIncidentStatus, code, allowEmpty, errObj);
+	PARSE_STRING_VALUE(customIncidentStatus, label, allowEmpty, errObj);
+
+	if (errObj.hasErrors()) {
+		SeparatorInjector spaceInjector(" ");
+		string errorMessage;
+		for (auto msg : errObj.getErrors()) {
+			spaceInjector(errorMessage);
+			errorMessage += msg;
+		}
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, errorMessage);
+	}
 
 	return HatoholError(HTERR_OK);
 }
