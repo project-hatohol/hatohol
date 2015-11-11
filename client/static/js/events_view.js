@@ -78,9 +78,6 @@ var EventsView = function(userProfile, options) {
       { value: "4", label: gettext("High") },
       { value: "5", label: gettext("Disaster") },
     ],
-    server: [],
-    hostgroup: [],
-    host: [],
   };
 
   var columnDefinitions = {
@@ -150,7 +147,11 @@ var EventsView = function(userProfile, options) {
   function start() {
     self.userConfig = new HatoholEventsViewConfig({
       columnDefinitions: columnDefinitions,
-      filterCandidates: eventPropertyChoices,
+      filterCandidates: $.extend(eventPropertyChoices, {
+        server: [],
+        hostgroup: [],
+        host: [],
+      }),
       loadedCallback: function(config) {
         applyConfig(config);
 
