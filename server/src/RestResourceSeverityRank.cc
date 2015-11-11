@@ -187,7 +187,7 @@ void RestResourceSeverityRank::handlePut(void)
 	cache.getConfig().getSeverityRanks(severityRanks, option);
 	if (severityRanks.empty()) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
-		            "id: %" FMT_INCIDENT_TRACKER_ID, severityRankInfo.id);
+		            "id: %" FMT_SEVERITY_RANK_ID, severityRankInfo.id);
 		return;
 	}
 	severityRankInfo = *severityRanks.begin();
