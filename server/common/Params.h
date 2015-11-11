@@ -135,6 +135,9 @@ static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
 // Special Severity Rank IDs =================================================
 static const SeverityRankIdType ALL_SEVERITY_RANKS = -1;
 
+// Special Custom IncidentStatus IDs ==========================================
+static const CustomIncidentStatusIdType ALL_CUSTOM_INCIDENT_STATUSES = -1;
+
 // Special Trigger IDs ========================================================
 #define SPECIAL_TRIGGER_ID_PREFIX "__"
 static const TriggerIdType ALL_TRIGGERS                    = "*";
