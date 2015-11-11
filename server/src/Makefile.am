@@ -65,6 +65,7 @@ libhatohol_la_SOURCES = \
 	ResidentProtocol.h \
 	ResidentCommunicator.cc ResidentCommunicator.h \
 	RestResourceAction.cc RestResourceAction.h \
+	RestResourceCustomIncidentStatus.cc RestResourceCustomIncidentStatus.h \
 	RestResourceHost.cc RestResourceHost.h \
 	RestResourceHostUtils.cc RestResourceHostUtils.h \
 	RestResourceIncidentTracker.cc RestResourceIncidentTracker.h \

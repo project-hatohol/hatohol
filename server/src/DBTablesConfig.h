@@ -83,7 +83,11 @@ struct CustomIncidentStatus {
 	CustomIncidentStatusIdType id;
 	std::string                code;
 	std::string                label;
+
+	static void initialize(CustomIncidentStatus &customIncidentStatus);
 };
+
+constexpr const static CustomIncidentStatusIdType INVALID_CUSTOM_INCIDENT_STATUS_ID = -1;
 
 class ServerQueryOption : public DataQueryOption {
 public:
