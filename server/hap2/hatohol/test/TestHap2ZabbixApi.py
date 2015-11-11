@@ -174,12 +174,15 @@ class Hap2ZabbixAPIPoller(unittest.TestCase):
         cls.poller._ZabbixAPIConductor__api =  APIForTest()
         def null_func(self, *args, **kwargs):
             pass
+        def return_empty_string(*args, **kwargs):
+            return ""
         cls.poller.put_hosts = null_func
         cls.poller.put_host_groups =  null_func
         cls.poller.put_host_group_membership = null_func
         cls.poller.put_triggers = null_func
         cls.poller.put_events = null_func
         cls.poller.get_last_info = null_func
+        cls.poller.get_cached_event_last_info = return_empty_string
 
     def test_poll(self):
         testutils.assertNotRaises(self.poller.poll)
