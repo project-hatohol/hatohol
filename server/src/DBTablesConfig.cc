@@ -2132,7 +2132,8 @@ const string SeverityRankQueryOption::getTargetColor(void)
 	return m_impl->color;
 }
 
-void SeverityRankQueryOption::setTargetIdList(const list<SeverityRankIdType> &idList) {
+void SeverityRankQueryOption::setTargetIdList(const list<SeverityRankIdType> &idList)
+{
 	m_impl->idList = idList;
 }
 
@@ -2263,7 +2264,8 @@ const string CustomIncidentStatusesQueryOption::getTargetLabel(void)
 }
 
 void CustomIncidentStatusesQueryOption::setTargetIdList(
-  const list<CustomIncidentStatusIdType> &idList) {
+  const list<CustomIncidentStatusIdType> &idList)
+{
 	m_impl->idList = idList;
 }
 
