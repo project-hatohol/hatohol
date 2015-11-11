@@ -391,6 +391,7 @@ var EventsView = function(userProfile, options) {
     var candidates = eventPropertyChoices[type];
     var option;
     var selectedCandidates = {};
+    var useAllItems = (!conf[type].enable || conf[type].selected.length <= 0);
 
     $.map(conf[type].selected, function(selected) {
       selectedCandidates[selected] = true;
@@ -408,7 +409,7 @@ var EventsView = function(userProfile, options) {
     $.map(candidates, function(candidate) {
       var option;
 
-      if (!conf[type].enable || selectedCandidates[candidate.value]) {
+      if (useAllItems || selectedCandidates[candidate.value]) {
         option = $("<option/>", {
           text: candidate.label,
           value: candidate.value
