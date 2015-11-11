@@ -2268,7 +2268,7 @@ void CustomIncidentStatusesQueryOption::setTargetIdList(
 }
 
 const list<CustomIncidentStatusIdType>
-CustomIncidentStatusesQueryOption::getTargetIdList(void) {
+&CustomIncidentStatusesQueryOption::getTargetIdList(void) {
 	return m_impl->idList;
 }
 

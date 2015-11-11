@@ -156,7 +156,7 @@ public:
 	void setTargetLabel(const std::string &label);
 	const std::string getTargetLabel(void);
 	void setTargetIdList(std::list<CustomIncidentStatusIdType> idList);
-	const std::list<CustomIncidentStatusIdType> getTargetIdList(void);
+	const std::list<CustomIncidentStatusIdType> &getTargetIdList(void);
 
 	virtual std::string getCondition(void) const override;
 
