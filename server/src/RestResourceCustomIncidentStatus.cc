@@ -192,7 +192,7 @@ void RestResourceCustomIncidentStatus::handlePut(void)
 	cache.getConfig().getCustomIncidentStatuses(customIncidentStatuses, option);
 	if (customIncidentStatuses.empty()) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
-		            "id: %" FMT_INCIDENT_TRACKER_ID,
+		            "id: %" FMT_CUSTOM_INCIDENT_STATUS_ID,
 			    customIncidentStatus.id);
 		return;
 	}
