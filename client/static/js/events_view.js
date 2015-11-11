@@ -53,16 +53,35 @@ var EventsView = function(userProfile, options) {
     setupTimeRangeFilter();
   }
 
-  var status_choices = [gettext('OK'), gettext('Problem')];
-  var type_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
-                      gettext('Notification')];
-  var severity_choices = [
-    gettext('Not classified'), gettext('Information'), gettext('Warning'),
-    gettext('Average'), gettext('High'), gettext('Disaster')];
-  var incident_choices = [pgettext('Incident', 'NONE'),
-                          pgettext('Incident', 'IN PROGRESS'),
-                          pgettext('Incident', 'HOLD'),
-                          pgettext('Incident', 'DONE')];
+  var filterCandidates = {
+    incident: [
+      { value: "NONE",        label: pgettext("Incident", "NONE") },
+      { value: "HOLD",        label: pgettext("Incident", "HOLD") },
+      { value: "IN PROGRESS", label: pgettext("Incident", "IN PROGRESS") },
+      { value: "DONE",        label: pgettext("Incident", "DONE") },
+    ],
+    status: [
+      { value: "0", label: gettext('OK') },
+      { value: "1", label: gettext('Problem') },
+    ],
+    type: [
+      { value: "0", label: gettext("OK") },
+      { value: "1", label: gettext("Problem") },
+      { value: "2", label: gettext("Unknown") },
+      { value: "3", label: gettext("Notification") },
+    ],
+    severity: [
+      { value: "0", label: gettext("Not classified") },
+      { value: "1", label: gettext("Information") },
+      { value: "2", label: gettext("Warning") },
+      { value: "3", label: gettext("Average") },
+      { value: "4", label: gettext("High") },
+      { value: "5", label: gettext("Disaster") },
+    ],
+    server: [],
+    hostgroup: [],
+    host: [],
+  };
 
   var columnDefinitions = {
     "monitoringServerName": {
@@ -131,19 +150,20 @@ var EventsView = function(userProfile, options) {
   function start() {
     self.userConfig = new HatoholEventsViewConfig({
       columnDefinitions: columnDefinitions,
-	loadedCallback: function(config) {
-	  applyConfig(config);
+      filterCandidates: filterCandidates,
+      loadedCallback: function(config) {
+        applyConfig(config);
 
-	  updatePager();
-	  setupFilterValues();
-	  setupCallbacks();
+        updatePager();
+        setupFilterValues();
+        setupCallbacks();
 
-	  load();
-	},
-	savedCallback: function(config) {
-	  applyConfig(config);
-	  load();
-	},
+        load();
+      },
+      savedCallback: function(config) {
+        applyConfig(config);
+        load();
+      },
     });
   }
 
@@ -370,12 +390,7 @@ var EventsView = function(userProfile, options) {
 
   function resetIncidentFilterCandidates(filterConfig) {
     var conf = filterConfig;
-    var candidates = [
-      { value: "NONE",        label: gettext("NONE") },
-      { value: "HOLD",        label: gettext("HOLD") },
-      { value: "IN PROGRESS", label: gettext("IN PROGRESS") },
-      { value: "DONE",        label: pgettext("Incident", "DONE") }
-    ];
+    var candidates = filterCandidates.incident;
     var option;
     var selectedCandidates = {};
 
@@ -402,12 +417,7 @@ var EventsView = function(userProfile, options) {
 
   function resetTypeFilterCandidates(filterConfig) {
     var conf = filterConfig;
-    var candidates = [
-      { value: "0", label: gettext("OK") },
-      { value: "1", label: gettext("Problem") },
-      { value: "2", label: gettext("Unknown") },
-      { value: "3", label: gettext("Notification") }
-    ];
+    var candidates = filterCandidates.type;
     var option;
     var selectedTypes = {};
 
@@ -434,14 +444,7 @@ var EventsView = function(userProfile, options) {
 
   function resetSeverityFilterCandidates(filterConfig) {
     var conf = filterConfig;
-    var candidates = [
-      { value: "0", label: gettext("Not classified") },
-      { value: "1", label: gettext("Information") },
-      { value: "2", label: gettext("Warning") },
-      { value: "3", label: gettext("Average") },
-      { value: "4", label: gettext("High") },
-      { value: "5", label: gettext("Disaster") }
-    ];
+    var candidates = filterCandidates.severity;
     var option;
     var selectedCandidates = {};
 
@@ -868,14 +871,14 @@ var EventsView = function(userProfile, options) {
     var statusClass = "status" + status;
 
     return "<td class='" + getSeverityClass(event) + " " + statusClass + "'>" +
-      status_choices[Number(status)] + "</td>";
+      filterCandidates.type[Number(status)].label + "</td>";
   }
 
   function renderTableDataEventSeverity(event, server) {
     var severity = event["severity"];
 
     return "<td class='" + getSeverityClass(event) + "'>" +
-      severity_choices[Number(severity)] + "</td>";
+      filterCandidates.severity[Number(severity)].label + "</td>";
   }
 
   function renderTableDataEventDuration(event, server) {
@@ -1149,23 +1152,24 @@ var EventsView = function(userProfile, options) {
     for (var idx = 0; idx < preDefinedSeverityArray.length; ++idx) {
       pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
     }
+    var candidates = filterCandidates.severity;
     var dataSet = [
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_EMERGENCY] },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_CRITIAL],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_CRITICAL] },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_ERROR)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_ERROR)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_ERROR],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_ERROR] },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_WARNING)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_WARNING)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_WARNING],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_WARNING] },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_INFO)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_INFO)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_INFO],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_INFO] },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)],
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_UNKNOWN],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_UNKNOWN] },
     ];
