@@ -706,6 +706,15 @@ std::string makeSeverityRankInfoOutput(const SeverityRankInfo &severityRankInfo)
 		 severityRankInfo.asImportant);
 }
 
+std::string makeCustomIncidentStatusOutput(const CustomIncidentStatus &customIncidentStatus)
+{
+	return StringUtils::sprintf(
+		 "%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s\n",
+		 customIncidentStatus.id,
+		 customIncidentStatus.code.c_str(),
+		 customIncidentStatus.label.c_str());
+}
+
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)
