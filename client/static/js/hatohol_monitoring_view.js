@@ -68,7 +68,7 @@ HatoholMonitoringView.prototype.setFilterCandidates =
   function(target, candidates)
 {
   var x;
-  var html = "<option>---------</option>";
+  var html = "<option value=''>---------</option>";
 
   target.empty().append(html);
 

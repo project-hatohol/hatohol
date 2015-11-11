@@ -327,7 +327,46 @@ var EventsView = function(userProfile, options) {
     $(document.body).scrollTop(0);
   }
 
+  function hideUnselectableFilterCandidates(filterConfig, type, serverId) {
+    var conf = filterConfig;
+    var useAll = (!conf[type].enable || conf[type].selected.length <= 0);
+    var selected = {};
+    var shouldShow = function(serverId, id, selected, exclude) {
+      var unifiedId = id;
+      if (serverId)
+        unifiedId = "" + serverId + "," + id;
+      if (!id)
+        return true;
+      if (!exclude && selected[unifiedId])
+        return true;
+      if (exclude && !selected[unifiedId])
+        return true;
+      return false;
+    }
+    var elementId = "#select-" + type;
+
+    if (type == "hostgroup")
+      elementId = "#select-host-group";
+
+    if (conf[type].enable) {
+      $.map(conf[type].selected, function(id) {
+        selected[id] = true;
+      });
+      $(elementId + " option").map(function() {
+        var id = $(this).val();
+        var exclude = conf[type].exclude;
+        if (!useAll && !shouldShow(serverId, id, selected, exclude))
+          $(this).remove();
+      });
+    }
+  }
+
   function setupFilterValues(servers, query) {
+    var serverId = $("#select-server").val();
+    var filterId = $("#select-filter").val();
+    var filterConfig = self.userConfig.getFilterConfig(filterId);
+    filterConfig = filterConfig || self.userConfig.getDefaultFilterConfig();
+
     if (!servers && self.rawData && self.rawData.servers)
       servers = self.rawData.servers;
 
@@ -335,6 +374,12 @@ var EventsView = function(userProfile, options) {
       query = self.lastQuickFilter ? self.lastQuickFilter : self.baseQuery;
 
     self.setupHostFilters(servers, query);
+
+    hideUnselectableFilterCandidates(filterConfig, "server");
+    if (serverId) {
+      hideUnselectableFilterCandidates(filterConfig, "hostgroup", serverId);
+      hideUnselectableFilterCandidates(filterConfig, "host", serverId);
+    }
 
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
