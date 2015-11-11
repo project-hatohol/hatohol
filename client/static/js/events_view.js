@@ -400,7 +400,8 @@ var EventsView = function(userProfile, options) {
 
     if (addEmptyItem) {
       option = $("<option/>", {
-        text: "---------"
+        text: "---------",
+        value: "",
       }).appendTo("#select-" + type);
     }
 
