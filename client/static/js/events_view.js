@@ -864,7 +864,7 @@ var EventsView = function(userProfile, options) {
     var typeClass = "event-type" + type;
 
     return "<td class='" + getSeverityClass(event) + " " + typeClass + "'>" +
-      type_choices[Number(type)] + "</td>";
+      eventPropertyChoices.type[Number(type)].label + "</td>";
   }
 
   function renderTableDataTriggerStatus(event, server) {
@@ -872,7 +872,7 @@ var EventsView = function(userProfile, options) {
     var statusClass = "status" + status;
 
     return "<td class='" + getSeverityClass(event) + " " + statusClass + "'>" +
-      eventPropertyChoices.type[Number(status)].label + "</td>";
+      eventPropertyChoices.status[Number(status)].label + "</td>";
   }
 
   function renderTableDataEventSeverity(event, server) {
