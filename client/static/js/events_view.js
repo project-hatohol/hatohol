@@ -191,6 +191,7 @@ var EventsView = function(userProfile, options) {
         option.attr("selected", true)
     });
     setupFilterValues();
+    resetQuickFilter();
 
     // summary
     if (config.config["events.show-sidebar"] == "false") {
@@ -325,6 +326,15 @@ var EventsView = function(userProfile, options) {
     if (summaryShown)
       self.startConnection(getSummaryQuery(), updateSummary);
     $(document.body).scrollTop(0);
+  }
+
+  function resetQuickFilter() {
+    $("#select-incident").val("");
+    $("#select-type").val("");
+    $("#select-severity").val("");
+    $("#select-server").val("");
+    $("#select-host-group").val("");
+    $("#select-host").val("");
   }
 
   function hideUnselectableFilterCandidates(filterConfig, type, serverId) {
@@ -495,6 +505,7 @@ var EventsView = function(userProfile, options) {
 
     $("#select-filter").change(function() {
       setupFilterValues();
+      resetQuickFilter();
     });
   }
 
