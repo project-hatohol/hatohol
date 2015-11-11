@@ -190,6 +190,7 @@ var EventsView = function(userProfile, options) {
       if (filter.id == defaultSummaryFilterId)
         option.attr("selected", true)
     });
+    setupFilterCandidates();
 
     // summary
     if (config.config["events.show-sidebar"] == "false") {
