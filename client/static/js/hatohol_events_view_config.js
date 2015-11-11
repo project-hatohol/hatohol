@@ -514,7 +514,11 @@ HatoholEventsViewConfig.prototype.setCurrentFilterConfig = function(filter) {
   $("#filter-name-entry").val(filter.name);
   $("#period-filter-setting").val(filter.days);
 
-  // collect candidate servers/hostgroups/hosts
+  // rebuild candidates of servers/hostgroups/hosts
+  candidates.server = [];
+  candidates.hostgroup = [];
+  candidates.host = [];
+
   for (serverKey in self.servers) {
     candidates.server.push({
       value: serverKey,

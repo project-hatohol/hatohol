@@ -147,11 +147,7 @@ var EventsView = function(userProfile, options) {
   function start() {
     self.userConfig = new HatoholEventsViewConfig({
       columnDefinitions: columnDefinitions,
-      filterCandidates: $.extend(eventPropertyChoices, {
-        server: [],
-        hostgroup: [],
-        host: [],
-      }),
+      filterCandidates: eventPropertyChoices,
       loadedCallback: function(config) {
         applyConfig(config);
 
