@@ -83,7 +83,7 @@ describe('HatoholMonitoringView', function() {
     ];
     var target = $('<select>');
     var setCandidates = HatoholMonitoringView.prototype.setFilterCandidates;
-    var expected = '<option>---------</option>';
+    var expected = '<option value="">---------</option>';
     var i;
     for (i = 0; i < candidates.length; i++) {
       expected += '<option value="' + candidates[i].value + '">' +
@@ -97,7 +97,7 @@ describe('HatoholMonitoringView', function() {
     var candidates = [ 'apple', 'orange', 'lemon' ];
     var target = $('<select>');
     var setCandidates = HatoholMonitoringView.prototype.setFilterCandidates;
-    var expected = '<option>---------</option>';
+    var expected = '<option value="">---------</option>';
     var i;
     for (i = 0; i < candidates.length; i++)
       expected += '<option>' + candidates[i] + '</option>';
@@ -109,7 +109,7 @@ describe('HatoholMonitoringView', function() {
     var target = $('<select>');
     var setCandidates = HatoholMonitoringView.prototype.setFilterCandidates;
     setCandidates(target);
-    var expected = '<option>---------</option>';
+    var expected = '<option value="">---------</option>';
     expect(target.html()).to.be(expected);
   });
 
