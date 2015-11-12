@@ -119,7 +119,7 @@ class ZabbixAPIConductor:
         while True:
             event_id_from = last_info + 1
             event_id_till = last_info + MAX_NUMBER_OF_EVENTS_FROM_ZABBIX
-            event_ids.append([event_id_from, event_id_till])
+            event_ids.append((event_id_from, event_id_till))
             if event_id_till >= last_event_id: break
             last_info = event_id_till
 
