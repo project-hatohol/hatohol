@@ -81,9 +81,9 @@ class ZabbixAPI:
             return
 
         items = list()
-        for item in res_dict["result"]:
+        def proc(item):
             if item["lastclock"] == "0":
-                continue
+                return
             self.expand_item_brief(item)
 
             time = Utils.translate_unix_time_to_hatohol_time(item["lastclock"],
@@ -96,6 +96,7 @@ class ZabbixAPI:
                           "itemGroupName": get_item_groups(item["applications"]),
                           "unit": item["units"]})
 
+        self.__iterate_in_try_block(res_dict["result"], proc)
         return items
 
     def expand_item_brief(self, item):
