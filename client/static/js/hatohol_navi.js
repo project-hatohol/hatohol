@@ -62,10 +62,12 @@ var HatoholNavi = function(userProfile, currentPage) {
         {
           title: gettext("Incident tracking"),
           href:  "ajax_incident_settings",
-          flags: (1 << hatohol.OPPRVLG_CREATE_INCIDENT_SETTING) |
-            (1 << hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING) |
-            (1 << hatohol.OPPRVLG_DELETE_INCIDENT_SETTING) |
-            (1 << hatohol.OPPRVLG_GET_ALL_INCIDENT_SETTINGS)
+          flags: [
+            hatohol.OPPRVLG_CREATE_INCIDENT_SETTING,
+            hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING,
+            hatohol.OPPRVLG_DELETE_INCIDENT_SETTING,
+            hatohol.OPPRVLG_GET_ALL_INCIDENT_SETTINGS,
+          ]
         },
         {
           title: gettext("Log search systems"),
@@ -74,18 +76,22 @@ var HatoholNavi = function(userProfile, currentPage) {
         {
           title: gettext("Users"),
           href:  "ajax_users",
-          flags: (1 << hatohol.OPPRVLG_CREATE_USER) |
-            (1 << hatohol.OPPRVLG_UPDATE_USER) |
-            (1 << hatohol.OPPRVLG_DELETE_USER) |
-            (1 << hatohol.OPPRVLG_GET_ALL_USERS)
+          flags: [
+            hatohol.OPPRVLG_CREATE_USER,
+            hatohol.OPPRVLG_UPDATE_USER,
+            hatohol.OPPRVLG_DELETE_USER,
+            hatohol.OPPRVLG_GET_ALL_USERS,
+          ]
         },
         {
           title: gettext("Severity Ranks"),
           href:  "ajax_severity_ranks",
-          flags: (1 << hatohol.OPPRVLG_CREATE_SEVERITY_RANK) |
-            (1 << hatohol.OPPRVLG_UPDATE_SEVERITY_RANK) |
-            (1 << hatohol.OPPRVLG_DELETE_SEVERITY_RANK) |
-            (1 << hatohol.OPPRVLG_GET_ALL_SEVERITY_RANK)
+          flags: [
+            hatohol.OPPRVLG_CREATE_SEVERITY_RANK,
+            hatohol.OPPRVLG_UPDATE_SEVERITY_RANK,
+            hatohol.OPPRVLG_DELETE_SEVERITY_RANK,
+            hatohol.OPPRVLG_GET_ALL_SEVERITY_RANK,
+          ]
         },
       ]
     },
