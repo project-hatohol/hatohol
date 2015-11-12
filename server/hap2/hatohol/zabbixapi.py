@@ -39,6 +39,15 @@ class ZabbixAPI:
                                               monitoring_server_info.password)
         self.api_version = self.get_api_version()
 
+    @staticmethod
+    def iterate_in_try_block(seq, func, *args, **kwargs):
+        for s in seq:
+            try:
+                func(s, *args, **kwargs)
+            except:
+                logger.warning("Failed to process element: %s" % s)
+                hap.handle_exception()
+
     def get_auth_token(self, user_name, user_passwd):
         params = {'user': user_name, 'password': user_passwd}
         res_dict = self.get_response_dict("user.authenticate", params)
@@ -190,24 +199,22 @@ class ZabbixAPI:
             return
 
         triggers = list()
-        for trigger in res_dict["result"]:
-            try:
-                description = [ed["description"] for ed in
-                               expanded_descriptions["result"]
-                               if ed["triggerid"] == trigger["triggerid"]][0]
-                time = Utils.translate_unix_time_to_hatohol_time(trigger["lastchange"])
-                triggers.append({"triggerId": trigger["triggerid"],
-                                 "status": TRIGGER_STATUS[trigger["state"]],
-                                 "severity": TRIGGER_SEVERITY[trigger["priority"]],
-                                 "lastChangeTime": time,
-                                 "hostId": trigger["hosts"][0]["hostid"],
-                                 "hostName": trigger["hosts"][0]["name"],
-                                 "brief": trigger["description"],
-                                 "extendedInfo": description})
-            except KeyError:
-                logger.warning("Get a imperfect trigger: %s" % trigger)
-                hap.handle_exception()
+        def proc(trigger):
+            description = [ed["description"] for ed in
+                           expanded_descriptions["result"]
+                           if ed["triggerid"] == trigger["triggerid"]][0]
+            lastchange = trigger["lastchange"]
+            time = Utils.translate_unix_time_to_hatohol_time(lastchange)
+            triggers.append({"triggerId": trigger["triggerid"],
+                             "status": TRIGGER_STATUS[trigger["state"]],
+                             "severity": TRIGGER_SEVERITY[trigger["priority"]],
+                             "lastChangeTime": time,
+                             "hostId": trigger["hosts"][0]["hostid"],
+                             "hostName": trigger["hosts"][0]["name"],
+                             "brief": trigger["description"],
+                             "extendedInfo": description})
 
+        ZabbixAPI.iterate_in_try_block(res_dict["result"], proc)
         return triggers
 
     def get_trigger_expand_description(self, last_change_since=None,
