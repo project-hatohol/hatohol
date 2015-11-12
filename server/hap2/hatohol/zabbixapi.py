@@ -199,10 +199,15 @@ class ZabbixAPI:
             return
 
         triggers = list()
+        def find_description(triggerid):
+            for ex_descr in expanded_descriptions["result"]:
+                if ex_descr["triggerid"] == triggerid:
+                    return ex_descr["description"]
+            logger.warning("Not found description: triggerid: %s" % triggerid)
+            return ""
+
         def proc(trigger):
-            description = [ed["description"] for ed in
-                           expanded_descriptions["result"]
-                           if ed["triggerid"] == trigger["triggerid"]][0]
+            description = find_description(trigger["triggerid"])
             lastchange = trigger["lastchange"]
             time = Utils.translate_unix_time_to_hatohol_time(lastchange)
             triggers.append({"triggerId": trigger["triggerid"],
