@@ -84,7 +84,8 @@ class TestZabbixApi(unittest.TestCase):
     def test_get_triggers(self):
         result = self.api.get_triggers()
         exact = [{"triggerId": u"1", "status": "OK", "severity": "ERROR",
-                  "lastChangeTime": "19700101000000", "hostId": u"1", "hostName": u"test_host",
+                  "lastChangeTime": "19700101000000.000000000",
+                  "hostId": u"1", "hostName": u"test_host",
                   "brief": u"test_description",
                   "extendedInfo": u"test_expand_description"}]
 

@@ -363,9 +363,32 @@ class Utils(unittest.TestCase):
 
     def test_translate_unix_time_to_hatohol_time(self):
         result = haplib.Utils.translate_unix_time_to_hatohol_time(0)
-        self.assertEquals(result, "19700101000000")
-        result = haplib.Utils.translate_unix_time_to_hatohol_time(0.123456)
-        self.assertEquals(result, "19700101000000.123456")
+        self.assertEquals(result, "19700101000000.000000000")
+        result = haplib.Utils.translate_unix_time_to_hatohol_time("0")
+        self.assertEquals(result, "19700101000000.000000000")
+        result = haplib.Utils.translate_unix_time_to_hatohol_time(0, 123456789)
+        self.assertEquals(result, "19700101000000.123456789")
+        result = haplib.Utils.translate_unix_time_to_hatohol_time(0, 123456)
+        self.assertEquals(result, "19700101000000.000123456")
+        result = haplib.Utils.translate_unix_time_to_hatohol_time("0", "123456789")
+        self.assertEquals(result, "19700101000000.123456789")
+
+        result = haplib.Utils.translate_unix_time_to_hatohol_time("0", "999999999")
+        self.assertEquals(result, "19700101000000.999999999")
+
+    def test_translate_unix_time_to_hatohol_time_with_errors(self):
+        self.assertRaises(
+            ValueError,
+            haplib.Utils.translate_unix_time_to_hatohol_time, 0, -1)
+
+        self.assertRaises(
+            ValueError,
+            haplib.Utils.translate_unix_time_to_hatohol_time, 0, 10000000000)
+
+        self.assertRaises(
+            ValueError,
+            haplib.Utils.translate_unix_time_to_hatohol_time, 0, "")
+
 
     def test_translate_hatohol_time_to_unix_time(self):
         result = haplib.Utils.translate_hatohol_time_to_unix_time("19700101000000.123456789")
