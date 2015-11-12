@@ -114,7 +114,7 @@ class ZabbixAPIConductor:
         if len(last_info):
             last_info = int(last_info)
         # If Hatohol server does not have last_info, set 0 to last_info.
-        elif isinstance(last_info, str) or isinstance(last_info, unicode):
+        else:
             last_info = 0
 
         while True:
