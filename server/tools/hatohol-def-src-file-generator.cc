@@ -93,6 +93,11 @@ static string toString(const int value)
 	return StringUtils::sprintf("%d", value);
 }
 
+static string toString(const uint64_t value)
+{
+	return StringUtils::sprintf("%lu", value);
+}
+
 static string toString(const string &value)
 {
 	return StringUtils::sprintf("'%s'", value.c_str());
