@@ -118,7 +118,7 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-const static OperationPrivilegeFlag ALL_PRIVILEGES = 
-  OperationPrivilege::makeFlag(NUM_OPPRVLG) - 1;
+const static OperationPrivilegeFlag ALL_PRIVILEGES =
+  OperationPrivilege::makeFlag(NUM_OPPRVLG) - 1ULL;
 
 #endif // OperationPrivilege_h
