@@ -32,7 +32,7 @@ from hatohol import standardhap
 
 logger = haplib.logger
 MAX_NUMBER_OF_EVENTS_FROM_ZABBIX = 1000
-MAX_NUMBER_OF_EVENTS_FROM_HAPI2 = 1000
+MAX_NUMBER_OF_EVENTS_OF_HAPI2 = 1000
 
 class PreviousHostsInfo:
     def __init__(self):
@@ -185,15 +185,16 @@ class Hap2ZabbixAPIMain(haplib.BaseMainPlugin, ZabbixAPIConductor):
         self.update_triggers(params.get("hostIds"), params["fetchId"])
 
     def hap_fetch_events(self, params, request_id):
-        if params["count"] > MAX_NUMBER_OF_EVENTS_FROM_HAPI2:
-            error_msg = "Count exceeds the limit of the HAPI2.0 specification."
+        count = params["count"]
+        if count > MAX_NUMBER_OF_EVENTS_OF_HAPI2:
+            error_msg = "%d count exceeds the limit of the HAPI2.0 specification." % count
             logger.error(error_msg)
             self.hap_return_error(error_msg, request_id)
             return
 
         self.make_sure_token()
         self.get_sender().response("SUCCESS", request_id)
-        self.update_events_fetch(int(params["lastInfo"]), params["count"],
+        self.update_events_fetch(int(params["lastInfo"]), count,
                                  params["direction"], params["fetchId"])
 
 
