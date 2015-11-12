@@ -502,31 +502,7 @@ HatoholEventsViewConfig.prototype.resetFilterList = function() {
 HatoholEventsViewConfig.prototype.setCurrentFilterConfig = function(filter) {
   var self = this;
 
-  var candidates = {
-    incident: [
-      { value: "NONE",        label: gettext("NONE") },
-      { value: "HOLD",        label: gettext("HOLD") },
-      { value: "IN PROGRESS", label: gettext("IN PROGRESS") },
-      { value: "DONE",        label: pgettext("Incident", "DONE") },
-    ],
-    type: [
-      { value: "0", label: gettext("OK") },
-      { value: "1", label: gettext("Problem") },
-      { value: "2", label: gettext("Unknown") },
-      { value: "3", label: gettext("Notification") },
-    ],
-    severity: [
-      { value: "0", label: gettext("Not classified") },
-      { value: "1", label: gettext("Information") },
-      { value: "2", label: gettext("Warning") },
-      { value: "3", label: gettext("Average") },
-      { value: "4", label: gettext("High") },
-      { value: "5", label: gettext("Disaster") },
-    ],
-    server: [],
-    hostgroup: [],
-    host: [],
-  };
+  var candidates = self.options.filterCandidates;
   var serverKey, groupKey, hostKey;
 
   filter = filter || {};
@@ -538,7 +514,11 @@ HatoholEventsViewConfig.prototype.setCurrentFilterConfig = function(filter) {
   $("#filter-name-entry").val(filter.name);
   $("#period-filter-setting").val(filter.days);
 
-  // collect candidate servers/hostgroups/hosts
+  // rebuild candidates of servers/hostgroups/hosts
+  candidates.server = [];
+  candidates.hostgroup = [];
+  candidates.host = [];
+
   for (serverKey in self.servers) {
     candidates.server.push({
       value: serverKey,
