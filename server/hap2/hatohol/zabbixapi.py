@@ -40,7 +40,7 @@ class ZabbixAPI:
         self.api_version = self.get_api_version()
 
     @staticmethod
-    def iterate_in_try_block(seq, func, *args, **kwargs):
+    def __iterate_in_try_block(seq, func, *args, **kwargs):
         for s in seq:
             try:
                 func(s, *args, **kwargs)
@@ -214,7 +214,7 @@ class ZabbixAPI:
                              "brief": trigger["description"],
                              "extendedInfo": description})
 
-        ZabbixAPI.iterate_in_try_block(res_dict["result"], proc)
+        self.__iterate_in_try_block(res_dict["result"], proc)
         return triggers
 
     def get_trigger_expand_description(self, last_change_since=None,
