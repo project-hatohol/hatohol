@@ -255,7 +255,7 @@ class APIForTest:
 
         return test_events
 
-    def get_end_id(self, is_first):
+    def get_event_end_id(self, is_first):
         test_event_id = 1
 
         return test_event_id

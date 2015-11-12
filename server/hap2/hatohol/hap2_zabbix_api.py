@@ -108,7 +108,7 @@ class ZabbixAPIConductor:
                           fetch_id=fetch_id)
 
     def update_events_poll(self):
-        last_event_id = self.__api.get_end_id(False)
+        last_event_id = self.__api.get_event_end_id()
         event_ids = list()
         last_info = self.get_cached_event_last_info()
         if len(last_info):

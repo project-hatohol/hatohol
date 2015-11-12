@@ -282,7 +282,7 @@ class ZabbixAPI:
         return events
 
 
-    def get_end_id(self, is_first):
+    def get_event_end_id(self, is_first=False):
         params = {"output": "shorten", "sortfield": "eventid", "limit": 1}
         if is_first:
             params["sortorder"] = "ASC"
