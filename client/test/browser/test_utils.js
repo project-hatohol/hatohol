@@ -728,6 +728,13 @@ describe('flag', function() {
     for (i = 0; i < 54; i ++)
 	expect(hasFlag(Math.pow(2, i), 33)).to.be(i == 33);
   });
+
+  it('addFlag', function() {
+    var flagNum = 48;
+    var baseFlags = Math.pow(2, 10);
+    var expected = baseFlags + Math.pow(2, flagNum);
+    expect(addFlag(baseFlags, flagNum)).to.be(expected);
+  });
 });
 
 describe('flags', function() {

@@ -375,6 +375,12 @@ function hasFlag(flags, flagNumber) {
   }
 }
 
+function addFlag(flags, flagNumber) {
+  if (!hasFlag(flags, flagNumber))
+    flags += Math.pow(2, flagNumber);
+  return flags;
+}
+
 function hasFlags(flags, flagNumbers) {
   var i;
   for (i = 0; i < flagNumbers.length; i++)
