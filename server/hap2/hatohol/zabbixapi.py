@@ -190,7 +190,7 @@ class ZabbixAPI:
             return
 
         triggers = list()
-        for num, trigger in enumerate(res_dict["result"]):
+        for trigger in res_dict["result"]:
             try:
                 description = [ed["description"] for ed in
                                expanded_descriptions["result"]
