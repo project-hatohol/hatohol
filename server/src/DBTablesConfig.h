@@ -132,7 +132,7 @@ public:
 	const TriggerSeverityType getTargetStatus(void);
 	void setTargetColor(const std::string &color);
 	const std::string getTargetColor(void);
-	void setTargetIdList(std::list<SeverityRankIdType> idList);
+	void setTargetIdList(const std::list<SeverityRankIdType> &idList);
 	const std::list<SeverityRankIdType> getTargetIdList(void);
 	void setTargetLabel(const std::string &label);
 	const std::string getTargetLabel(void);
@@ -159,7 +159,7 @@ public:
 	const std::string getTargetCode(void);
 	void setTargetLabel(const std::string &label);
 	const std::string getTargetLabel(void);
-	void setTargetIdList(std::list<CustomIncidentStatusIdType> idList);
+	void setTargetIdList(const std::list<CustomIncidentStatusIdType> &idList);
 	const std::list<CustomIncidentStatusIdType> &getTargetIdList(void);
 
 	virtual std::string getCondition(void) const override;
