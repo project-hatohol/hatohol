@@ -123,10 +123,11 @@ class ZabbixAPI:
             return
 
         histories = list()
-        for history in res_dict["result"]:
+        def proc(history):
             time = Utils.translate_unix_time_to_hatohol_time(history["clock"],
                                                              history["ns"])
             histories.append({"value": history["value"], "time": time})
+        self.__iterate_in_try_block(res_dict["result"], proc)
 
         return histories
 
