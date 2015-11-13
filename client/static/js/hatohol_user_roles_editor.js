@@ -514,6 +514,21 @@ HatoholUserRoleEditor.prototype.hatoholPrivileges = [
     message: gettext("Get all severity rank"),
     category: gettext("Severity rank")
   },
+  {
+    flag: hatohol.OPPRVLG_CREATE_CUSTOM_INCIDENT_STATUS,
+    message: gettext("Create custom incident status"),
+    category: gettext("Custom incident status")
+  },
+  {
+    flag: hatohol.OPPRVLG_UPDATE_CUSTOM_INCIDENT_STATUS,
+    message: gettext("Update custom incident status"),
+    category: gettext("Custom incident status")
+  },
+  {
+    flag: hatohol.OPPRVLG_DELETE_SEVERITY_RANK,
+    message: gettext("Delete custom incident status"),
+    category: gettext("Custom incident status")
+  },
 ];
 
 HatoholUserRoleEditor.prototype.createMainElement = function() {
