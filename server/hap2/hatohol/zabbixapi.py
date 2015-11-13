@@ -175,10 +175,11 @@ class ZabbixAPI:
             return
 
         host_groups = list()
-        for host_group in res_dict["result"]:
+        def proc(host_group):
             host_groups.append({"groupId": host_group["groupid"],
                                 "groupName": host_group["name"]})
 
+        self.__iterate_in_try_block(res_dict["result"], proc)
         return host_groups
 
     def get_triggers(self, requestSince=None, host_ids=None):
@@ -265,25 +266,22 @@ class ZabbixAPI:
             return
 
         events = list()
-        for event in res_dict["result"]:
-            try:
-                trigger = self.get_select_trigger(event["objectid"])
-                time = Utils.translate_unix_time_to_hatohol_time(event["clock"],
-                                                                 event["ns"])
-                events.append({"eventId": event["eventid"],
-                               "time": time,
-                               "type": EVENT_TYPE[event["value"]],
-                               "triggerId": trigger["triggerid"],
-                               "status": TRIGGER_STATUS[trigger["state"]],
-                               "severity": TRIGGER_SEVERITY[trigger["priority"]],
-                               "hostId": event["hosts"][0]["hostid"],
-                               "hostName": event["hosts"][0]["name"],
-                               "brief": trigger["description"],
-                               "extendedInfo": ""})
-            except KeyError:
-                logger.warning("Get a imperfect event: %s" % event)
-                hap.handle_exception()
+        def proc(event):
+            trigger = self.get_select_trigger(event["objectid"])
+            time = Utils.translate_unix_time_to_hatohol_time(event["clock"],
+                                                             event["ns"])
+            events.append({"eventId": event["eventid"],
+                           "time": time,
+                           "type": EVENT_TYPE[event["value"]],
+                           "triggerId": trigger["triggerid"],
+                           "status": TRIGGER_STATUS[trigger["state"]],
+                           "severity": TRIGGER_SEVERITY[trigger["priority"]],
+                           "hostId": event["hosts"][0]["hostid"],
+                           "hostName": event["hosts"][0]["name"],
+                           "brief": trigger["description"],
+                           "extendedInfo": ""})
 
+        self.__iterate_in_try_block(res_dict["result"], proc)
         return events
 
     def get_response_dict(self, method_name, params, auth_token=None):
