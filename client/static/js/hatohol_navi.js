@@ -20,6 +20,7 @@
 var HatoholNavi = function(userProfile, currentPage) {
   var self = this;
   var i, j, title, klass;
+  var item, children, child, dropDown;
   var menuItems = [
     {
       title: gettext("Dashboard"),
@@ -109,19 +110,23 @@ var HatoholNavi = function(userProfile, currentPage) {
       ]
     },
   ];
-  var matchResults;
 
-  if (currentPage) {
-    this.currentPage = currentPage;
-  } else if (location.pathname.match(".*/$")) {
-    this.currentPage = menuItems[0].href;
-  } else {
-    matchResults = location.pathname.match(".*/(.+)$");
-    if (matchResults && matchResults.length > 1)
-      this.currentPage = matchResults[1];
-    else
-      this.currentPage = location.pathname;
-  }
+  var getCurrentPage = function() {
+    var matchResults;
+
+    if (currentPage) {
+      return currentPage;
+    } else if (location.pathname.match(".*/$")) {
+      return menuItems[0].href;
+    } else {
+      matchResults = location.pathname.match(".*/(.+)$");
+      if (matchResults && matchResults.length > 1)
+        return matchResults[1];
+      else
+        return location.pathname;
+    }
+    return undefined;
+  };
 
   var pageIsEnabled = function(menuItem) {
     var i;
@@ -172,7 +177,8 @@ var HatoholNavi = function(userProfile, currentPage) {
       class: klass,
     });
   };
-  var item, children, child, dropDown;
+
+  self.currentPage = getCurrentPage();
 
   for (i = 0; i < menuItems.length; ++i) {
     if (!pageIsEnabled(menuItems[i]))
