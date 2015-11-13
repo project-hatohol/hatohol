@@ -40,6 +40,7 @@ static const char *TABLE_NAME_SERVERS = "servers";
 static const char *TABLE_NAME_ARM_PLUGINS = "arm_plugins";
 static const char *TABLE_NAME_INCIDENT_TRACKERS = "incident_trackers";
 static const char *TABLE_NAME_SEVERITY_RANKS = "severity_ranks";
+static const char *TABLE_NAME_CUSTOM_INCIDENT_STATUSES = "custom_incident_statuses";
 
 int DBTablesConfig::CONFIG_DB_VERSION = 18;
 
@@ -645,6 +646,59 @@ static const DBAgent::TableProfile tableProfileSeverityRanks =
 			    COLUMN_DEF_SEVERITY_RANKS,
 			    NUM_IDX_SEVERITY_RANKS,
 			    indexDefsSeverityRanks);
+
+static const ColumnDef COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[] = {
+{
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	"code",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"label",                           // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_CUSTOM_INCIDENT_STATUS_ID,
+	IDX_CUSTOM_INCIDENT_STATUS_CODE,
+	IDX_CUSTOM_INCIDENT_STATUS_LABEL,
+	NUM_IDX_CUSTOM_INCIDENT_STATUSES,
+};
+
+static const int columnIndexesCustomIncidentStatusUniqId[] = {
+  IDX_CUSTOM_INCIDENT_STATUS_CODE, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsCustomIncidentStatusCodes[] = {
+  {"CustomIncidentStatusCodeUniqId", (const int *)columnIndexesCustomIncidentStatusUniqId, true},
+  {NULL}
+};
+
+static const DBAgent::TableProfile tableProfileCustomIncidentStatus =
+  DBAGENT_TABLEPROFILE_INIT(TABLE_NAME_CUSTOM_INCIDENT_STATUSES,
+			    COLUMN_DEF_CUSTOM_INCIDENT_STATUSES,
+			    NUM_IDX_CUSTOM_INCIDENT_STATUSES,
+			    indexDefsCustomIncidentStatusCodes);
 
 struct DBTablesConfig::Impl
 {
@@ -1812,6 +1866,154 @@ HatoholError DBTablesConfig::deleteSeverityRanks(
 	return HTERR_OK;
 }
 
+void CustomIncidentStatus::initialize(CustomIncidentStatus &customIncidentStatus)
+{
+	customIncidentStatus.id = INVALID_CUSTOM_INCIDENT_STATUS_ID;
+	customIncidentStatus.code = "__INITIAL_CODE";
+	customIncidentStatus.label = "";
+}
+
+HatoholError DBTablesConfig::upsertCustomIncidentStatus(
+  CustomIncidentStatus &customIncidentStatus,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err =
+	  checkPrivilegeForCustomIncidentStatusAdd(privilege, customIncidentStatus);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::InsertArg arg(tableProfileCustomIncidentStatus);
+
+	arg.add(customIncidentStatus.id);
+	arg.add(customIncidentStatus.code);
+	arg.add(customIncidentStatus.label);
+	arg.upsertOnDuplicate = true;
+
+	getDBAgent().runTransaction(arg, &customIncidentStatus.id);
+	return err;
+}
+
+HatoholError DBTablesConfig::updateCustomIncidentStatus(
+  CustomIncidentStatus &customIncidentStatus,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err =
+	  checkPrivilegeForCustomIncidentStatusUpdate(privilege,
+						      customIncidentStatus);
+	if (err != HTERR_OK)
+		return err;
+
+	DBAgent::UpdateArg arg(tableProfileCustomIncidentStatus);
+
+	const char *customIncidentStatusIdColumnName =
+	  COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_ID].columnName;
+	arg.condition = StringUtils::sprintf("%s=%" FMT_CUSTOM_INCIDENT_STATUS_ID,
+	                                     customIncidentStatusIdColumnName,
+	                                     customIncidentStatus.id);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_ID, customIncidentStatus.id);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_CODE, customIncidentStatus.code);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_LABEL, customIncidentStatus.label);
+
+	getDBAgent().runTransaction(arg);
+	return err;
+}
+
+void DBTablesConfig::getCustomIncidentStatuses(
+  std::vector<CustomIncidentStatus> &customIncidentStatusVect,
+  const CustomIncidentStatusesQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileCustomIncidentStatus);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_ID);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_CODE);
+	arg.add(IDX_CUSTOM_INCIDENT_STATUS_LABEL);
+	arg.condition = option.getCondition();
+
+	getDBAgent().runTransaction(arg);
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	customIncidentStatusVect.reserve(grpList.size());
+	for (auto itemGrp : grpList) {
+		ItemGroupStream itemGroupStream(itemGrp);
+		CustomIncidentStatus customIncidentStatus;
+
+		itemGroupStream >> customIncidentStatus.id;
+		itemGroupStream >> customIncidentStatus.code;
+		itemGroupStream >> customIncidentStatus.label;
+
+		customIncidentStatusVect.push_back(customIncidentStatus);
+	}
+}
+
+static string makeCustomIncidentStatusIdListCondition(
+  const std::list<CustomIncidentStatusIdType> &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID, id);
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForCustomIncidentStatusDelete(
+  const std::list<CustomIncidentStatusIdType> &idList,
+  const OperationPrivilege &privilege)
+{
+	string condition = makeCustomIncidentStatusIdListCondition(idList);
+
+	return condition;
+}
+
+HatoholError DBTablesConfig::deleteCustomIncidentStatus(
+  const std::list<CustomIncidentStatusIdType> &idList,
+  const OperationPrivilege &privilege)
+{
+	HatoholError err =
+		checkPrivilegeForCustomIncidentStatusDelete(privilege, idList);
+	if (err != HTERR_OK)
+		return err;
+
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileCustomIncidentStatus),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition =
+		makeConditionForCustomIncidentStatusDelete(idList, privilege);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+
+	return HTERR_OK;
+}
+
 // ---------------------------------------------------------------------------
 // SeverityRankQueryOption
 // ---------------------------------------------------------------------------
@@ -1937,7 +2139,8 @@ const string SeverityRankQueryOption::getTargetColor(void)
 	return m_impl->color;
 }
 
-void SeverityRankQueryOption::setTargetIdList(list<SeverityRankIdType> idList) {
+void SeverityRankQueryOption::setTargetIdList(const list<SeverityRankIdType> &idList)
+{
 	m_impl->idList = idList;
 }
 
@@ -2014,6 +2217,102 @@ string SeverityRankQueryOption::getCondition(void) const
 }
 
 // ---------------------------------------------------------------------------
+// CustomIncidentStatusesQueryOption
+// ---------------------------------------------------------------------------
+
+struct CustomIncidentStatusesQueryOption::Impl {
+	static const string conditionTemplate;
+
+	CustomIncidentStatusesQueryOption *option;
+	string                            code;
+	string                            label;
+	std::list<CustomIncidentStatusIdType> idList;
+
+	Impl(CustomIncidentStatusesQueryOption *_option)
+	: option(_option)
+	{
+	}
+};
+
+CustomIncidentStatusesQueryOption::CustomIncidentStatusesQueryOption(
+  const UserIdType &userId)
+: DataQueryOption(userId), m_impl(new Impl(this))
+{
+}
+
+CustomIncidentStatusesQueryOption::CustomIncidentStatusesQueryOption(
+  DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext), m_impl(new Impl(this))
+{
+}
+
+CustomIncidentStatusesQueryOption::~CustomIncidentStatusesQueryOption()
+{
+}
+
+void CustomIncidentStatusesQueryOption::setTargetCode(const string &code)
+{
+	m_impl->code = code;
+}
+
+const string CustomIncidentStatusesQueryOption::getTargetCode(void)
+{
+	return m_impl->code;
+}
+
+void CustomIncidentStatusesQueryOption::setTargetLabel(const string &label)
+{
+	m_impl->label = label;
+}
+
+const string CustomIncidentStatusesQueryOption::getTargetLabel(void)
+{
+	return m_impl->label;
+}
+
+void CustomIncidentStatusesQueryOption::setTargetIdList(
+  const list<CustomIncidentStatusIdType> &idList)
+{
+	m_impl->idList = idList;
+}
+
+const list<CustomIncidentStatusIdType>
+&CustomIncidentStatusesQueryOption::getTargetIdList(void) {
+	return m_impl->idList;
+}
+
+string CustomIncidentStatusesQueryOption::getCondition(void) const
+{
+	string condition = DataQueryOption::getCondition();
+
+	// filter by ID list
+	if (!m_impl->idList.empty()) {
+		addCondition(condition,
+		             makeCustomIncidentStatusIdListCondition(m_impl->idList));
+	}
+
+	if (!m_impl->code.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string codeCondition = StringUtils::sprintf(
+		  "%s=%s",
+		  COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_CODE].columnName,
+		  rhs(m_impl->code.c_str()));
+		addCondition(condition, codeCondition);
+	}
+
+	if (!m_impl->label.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string labelCondition = StringUtils::sprintf(
+		  "%s=%s",
+		  COLUMN_DEF_CUSTOM_INCIDENT_STATUSES[IDX_CUSTOM_INCIDENT_STATUS_LABEL].columnName,
+		  rhs(m_impl->label.c_str()));
+		addCondition(condition, labelCondition);
+	}
+
+	return condition;
+}
+
+// ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
 DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)
@@ -2032,6 +2331,8 @@ DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)
 		&tableProfileIncidentTrackers,
 	}, {
 		&tableProfileSeverityRanks,
+	}, {
+		&tableProfileCustomIncidentStatus,
 	}
 	};
 
@@ -2260,6 +2561,39 @@ HatoholError DBTablesConfig::checkPrivilegeForSeverityRankUpdate(
 	if (!privilege.has(OPPRVLG_UPDATE_SEVERITY_RANK))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForCustomIncidentStatusAdd(
+  const OperationPrivilege &privilege,
+  const CustomIncidentStatus &customIncidentStatus)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForCustomIncidentStatusUpdate(
+  const OperationPrivilege &privilege,
+  const CustomIncidentStatus &customIncidentStatus)
+{
+	const UserIdType userId = privilege.getUserId();
+	if (userId == INVALID_USER_ID)
+		return HTERR_INVALID_USER;
+
+	return HTERR_OK;
+}
+
+HatoholError DBTablesConfig::checkPrivilegeForCustomIncidentStatusDelete(
+  const OperationPrivilege &privilege,
+  const std::list<CustomIncidentStatusIdType> &idList)
+{
 	const UserIdType userId = privilege.getUserId();
 	if (userId == INVALID_USER_ID)
 		return HTERR_INVALID_USER;

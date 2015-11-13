@@ -53,15 +53,32 @@ var EventsView = function(userProfile, options) {
     setupTimeRangeFilter();
   }
 
-  var status_choices = [gettext('OK'), gettext('Problem'), gettext('Unknown'),
-                        gettext('Notification')];
-  var severity_choices = [
-    gettext('Not classified'), gettext('Information'), gettext('Warning'),
-    gettext('Average'), gettext('High'), gettext('Disaster')];
-  var incident_choices = [pgettext('Incident', 'NONE'),
-                          pgettext('Incident', 'IN PROGRESS'),
-                          pgettext('Incident', 'HOLD'),
-                          pgettext('Incident', 'DONE')];
+  var eventPropertyChoices = {
+    incident: [
+      { value: "NONE",        label: pgettext("Incident", "NONE") },
+      { value: "HOLD",        label: pgettext("Incident", "HOLD") },
+      { value: "IN PROGRESS", label: pgettext("Incident", "IN PROGRESS") },
+      { value: "DONE",        label: pgettext("Incident", "DONE") },
+    ],
+    status: [
+      { value: "0", label: gettext('OK') },
+      { value: "1", label: gettext('Problem') },
+    ],
+    type: [
+      { value: "0", label: gettext("OK") },
+      { value: "1", label: gettext("Problem") },
+      { value: "2", label: gettext("Unknown") },
+      { value: "3", label: gettext("Notification") },
+    ],
+    severity: [
+      { value: "0", label: gettext("Not classified") },
+      { value: "1", label: gettext("Information") },
+      { value: "2", label: gettext("Warning") },
+      { value: "3", label: gettext("Average") },
+      { value: "4", label: gettext("High") },
+      { value: "5", label: gettext("Disaster") },
+    ],
+  };
 
   var columnDefinitions = {
     "monitoringServerName": {
@@ -76,9 +93,13 @@ var EventsView = function(userProfile, options) {
       header: gettext("Event ID"),
       body: renderTableDataEventId,
     },
-    "status": {
+    "type": {
       header: gettext("Status"),
-      body: renderTableDataEventStatus,
+      body: renderTableDataEventType,
+    },
+    "status": {
+      header: gettext("Current trigger status"),
+      body: renderTableDataTriggerStatus,
     },
     "severity": {
       header: gettext("Severity"),
@@ -126,24 +147,26 @@ var EventsView = function(userProfile, options) {
   function start() {
     self.userConfig = new HatoholEventsViewConfig({
       columnDefinitions: columnDefinitions,
-	loadedCallback: function(config) {
-	  applyConfig(config);
+      filterCandidates: eventPropertyChoices,
+      loadedCallback: function(config) {
+        applyConfig(config);
 
-	  updatePager();
-	  setupFilterValues();
-	  setupCallbacks();
+        updatePager();
+        setupFilterValues();
+        setupCallbacks();
 
-	  load();
-	},
-	savedCallback: function(config) {
-	  applyConfig(config);
-	  load();
-	},
+        load();
+      },
+      savedCallback: function(config) {
+        applyConfig(config);
+        load();
+      },
     });
   }
 
   function applyConfig(config) {
     var defaultFilterId = config.getValue('events.default-filter-id');
+    var defaultSummaryFilterId = config.getValue('events.summary.default-filter-id');
     self.reloadIntervalSeconds = config.getValue('events.auto-reload.interval');
     self.baseQuery.limit = config.getValue('events.num-rows-per-page');
     self.baseQuery.sortType = config.getValue('events.sort.type');
@@ -153,13 +176,22 @@ var EventsView = function(userProfile, options) {
     // Reset filter menu
     self.lastFilterId = defaultFilterId;
     $("#select-filter").empty();
+    $("#select-summary-filter").empty();
     $.map(config.filterList, function(filter) {
       var option = $("<option/>", {
         text: filter.name,
       }).val(filter.id).appendTo("#select-filter");
       if (filter.id == defaultFilterId)
         option.attr("selected", true)
+
+      option = $("<option/>", {
+        text: filter.name,
+      }).val(filter.id).appendTo("#select-summary-filter");
+      if (filter.id == defaultSummaryFilterId)
+        option.attr("selected", true)
     });
+    setupFilterValues();
+    resetQuickFilter();
 
     // summary
     if (config.config["events.show-sidebar"] == "false") {
@@ -212,8 +244,8 @@ var EventsView = function(userProfile, options) {
     if ($("#select-incident").val())
       query.incidentStatuses = $("#select-incident").val();
 
-    if ($("#select-status").val())
-      query.type = $("#select-status").val();
+    if ($("#select-type").val())
+      query.type = $("#select-type").val();
 
     if ($("#select-severity").val())
       query.minimumSeverity =  $("#select-severity").val();
@@ -270,7 +302,7 @@ var EventsView = function(userProfile, options) {
   function getSummaryQuery() {
     var query = {}, baseFilterId, baseFilter;
 
-    baseFilterId = self.userConfig.getValue("events.summary.default-filter-id");
+    baseFilterId = $("#select-summary-filter").val();
     baseFilter = self.userConfig.getFilter(baseFilterId);
     $.extend(query, baseFilter);
 
@@ -296,7 +328,90 @@ var EventsView = function(userProfile, options) {
     $(document.body).scrollTop(0);
   }
 
+  function resetQuickFilter() {
+    $("#select-incident").val("");
+    $("#select-type").val("");
+    $("#select-severity").val("");
+    $("#select-server").val("");
+    $("#select-host-group").val("");
+    $("#select-host").val("");
+  }
+
+  function removeUnselectableFilterCandidates(filterConfig, type, serverId) {
+    var conf = filterConfig;
+    var useAll = (!conf[type].enable || conf[type].selected.length <= 0);
+    var selected = {};
+    var shouldShow = function(serverId, id, selected, exclude) {
+      var unifiedId = id;
+      if (serverId)
+        unifiedId = "" + serverId + "," + id;
+      if (!id)
+        return true;
+      if (!exclude && selected[unifiedId])
+        return true;
+      if (exclude && !selected[unifiedId])
+        return true;
+      return false;
+    }
+    var elementId = "#select-" + type;
+
+    if (type == "hostgroup")
+      elementId = "#select-host-group";
+
+    if (conf[type].enable) {
+      $.map(conf[type].selected, function(id) {
+        selected[id] = true;
+      });
+      $(elementId + " option").map(function() {
+        var id = $(this).val();
+        var exclude = conf[type].exclude;
+        if (!useAll && !shouldShow(serverId, id, selected, exclude))
+          $(this).remove();
+      });
+    }
+  }
+
+  function resetEventPropertyFilter(filterConfig, type, addEmptyItem) {
+    var conf = filterConfig;
+    var candidates = eventPropertyChoices[type];
+    var option;
+    var selectedCandidates = {};
+    var useAllItems = (!conf[type].enable || conf[type].selected.length <= 0);
+    var currentId = $("#select-" + type).val();
+
+    $.map(conf[type].selected, function(selected) {
+      selectedCandidates[selected] = true;
+    });
+
+    $("#select-" + type).empty();
+
+    if (addEmptyItem) {
+      option = $("<option/>", {
+        text: "---------",
+        value: "",
+      }).appendTo("#select-" + type);
+    }
+
+    $.map(candidates, function(candidate) {
+      var option;
+
+      if (useAllItems || selectedCandidates[candidate.value]) {
+        option = $("<option/>", {
+          text: candidate.label,
+          value: candidate.value
+        }).appendTo("#select-" + type);
+      }
+    });
+
+    $("#select-" + type).val(currentId);
+  }
+
   function setupFilterValues(servers, query) {
+    var serverId = $("#select-server").val();
+    var filterId = $("#select-filter").val();
+    var filterConfig = self.userConfig.getFilterConfig(filterId);
+    filterConfig = filterConfig || self.userConfig.getDefaultFilterConfig();
+
     if (!servers && self.rawData && self.rawData.servers)
       servers = self.rawData.servers;
 
@@ -305,10 +420,20 @@ var EventsView = function(userProfile, options) {
 
     self.setupHostFilters(servers, query);
 
+    resetEventPropertyFilter(filterConfig, "incident", true);
+    resetEventPropertyFilter(filterConfig, "type", true);
+    resetEventPropertyFilter(filterConfig, "severity", false);
+
+    removeUnselectableFilterCandidates(filterConfig, "server");
+    if (serverId) {
+      removeUnselectableFilterCandidates(filterConfig, "hostgroup", serverId);
+      removeUnselectableFilterCandidates(filterConfig, "host", serverId);
+    }
+
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
-    if ("status" in query)
-      $("#select-status").val(query.status);
+    if ("type" in query)
+      $("#select-type").val(query.type);
   }
 
   function setupTreatmentMenu() {
@@ -356,6 +481,10 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupCallbacks() {
+    $('#select-summary-filter').change(function() {
+      load();
+    });
+
     $('#select-server').change(function() {
       setupFilterValues(undefined, {});
     });
@@ -372,6 +501,11 @@ var EventsView = function(userProfile, options) {
 
     $('button.btn-apply-all-filter').click(function() {
       load({ applyFilter: true });
+    });
+
+    $("#select-filter").change(function() {
+      setupFilterValues();
+      resetQuickFilter();
     });
   }
 
@@ -549,7 +683,7 @@ var EventsView = function(userProfile, options) {
       $("#end-time").attr("disabled", "disabled");
       $("#select-incident").attr("disabled", "disabled");
       $("#select-severity").attr("disabled", "disabled");
-      $("#select-status").attr("disabled", "disabled");
+      $("#select-type").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
       $("#select-filter").attr("disabled", "disabled");
@@ -559,7 +693,7 @@ var EventsView = function(userProfile, options) {
       $("#end-time").removeAttr("disabled");
       $("#select-incident").removeAttr("disabled");
       $("#select-severity").removeAttr("disabled");
-      $("#select-status").removeAttr("disabled");
+      $("#select-type").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
@@ -643,11 +777,11 @@ var EventsView = function(userProfile, options) {
   }
 
   function getSeverityClass(event) {
-    var status = event["type"];
+    var type = event["type"];
     var severity = event["severity"];
     var severityClass = "severity";
 
-    if (status == hatohol.EVENT_TYPE_BAD)
+    if (type == hatohol.EVENT_TYPE_BAD)
       return "severity" + escapeHTML(severity);
     else
       return "";
@@ -730,19 +864,27 @@ var EventsView = function(userProfile, options) {
       escapeHTML(description) + "</td>";
   }
 
-  function renderTableDataEventStatus(event, server) {
-    var status = event["type"];
+  function renderTableDataEventType(event, server) {
+    var type = event["type"];
+    var typeClass = "event-type" + type;
+
+    return "<td class='" + getSeverityClass(event) + " " + typeClass + "'>" +
+      eventPropertyChoices.type[Number(type)].label + "</td>";
+  }
+
+  function renderTableDataTriggerStatus(event, server) {
+    var status = event["status"];
     var statusClass = "status" + status;
 
     return "<td class='" + getSeverityClass(event) + " " + statusClass + "'>" +
-      status_choices[Number(status)] + "</td>";
+      eventPropertyChoices.status[Number(status)].label + "</td>";
   }
 
   function renderTableDataEventSeverity(event, server) {
     var severity = event["severity"];
 
     return "<td class='" + getSeverityClass(event) + "'>" +
-      severity_choices[Number(severity)] + "</td>";
+      eventPropertyChoices.severity[Number(severity)].label + "</td>";
   }
 
   function renderTableDataEventDuration(event, server) {
@@ -1016,23 +1158,24 @@ var EventsView = function(userProfile, options) {
     for (var idx = 0; idx < preDefinedSeverityArray.length; ++idx) {
       pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
     }
+    var candidates = eventPropertyChoices.severity;
     var dataSet = [
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_EMERGENCY] },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_CRITIAL],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_CRITICAL] },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_ERROR)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_ERROR)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_ERROR],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_ERROR] },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_WARNING)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_WARNING)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_WARNING],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_WARNING] },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_INFO)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_INFO)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_INFO],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_INFO] },
-      { label: severity_choices[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)],
+      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_UNKNOWN],
         color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_UNKNOWN] },
     ];

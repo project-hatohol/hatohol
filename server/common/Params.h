@@ -102,6 +102,9 @@ typedef int SeverityRankIdType;
 typedef int SeverityRankStatusType;
 #define FMT_SEVERITY_RANK_Status "d"
 
+typedef int CustomIncidentStatusIdType;
+#define FMT_CUSTOM_INCIDENT_STATUS_ID "d"
+
 // Special Server IDs =========================================================
 static const ServerIdType ALL_SERVERS       = -1;
 static const ServerIdType INVALID_SERVER_ID = -2;
@@ -131,6 +134,9 @@ static const IncidentTrackerIdType ALL_INCIDENT_TRACKERS = -1;
 
 // Special Severity Rank IDs =================================================
 static const SeverityRankIdType ALL_SEVERITY_RANKS = -1;
+
+// Special Custom IncidentStatus IDs ==========================================
+static const CustomIncidentStatusIdType ALL_CUSTOM_INCIDENT_STATUSES = -1;
 
 // Special Trigger IDs ========================================================
 #define SPECIAL_TRIGGER_ID_PREFIX "__"

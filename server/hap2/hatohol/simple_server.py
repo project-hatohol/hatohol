@@ -25,6 +25,10 @@ from hatohol import transporter
 import argparse
 import logging
 import json
+import sys
+import signal
+
+logger = haplib.logger
 
 DEFAULT_TRANSPORTER = "RabbitMQHapiConnector"
 
@@ -70,27 +74,46 @@ class SimpleServer:
                                           self.__handler_map.keys())
         self.__receiver.daemonize()
 
+    def __terminate_children(self):
+        for proc in filter(bool, (self.__dispatcher, self.__receiver)):
+            proc.terminate()
+
+    def __enable_handling_terminate_signal(self):
+        def handler(signum, frame):
+            logger.warning("Got SIGTERM")
+            raise SystemExit()
+        signal.signal(signal.SIGTERM, handler)
+
     def __call__(self):
+        try:
+            self.__enable_handling_terminate_signal()
+            self.__call_main()
+        except:
+            self.__terminate_children()
+            raises = (KeyboardInterrupt, AssertionError, SystemExit)
+            exctype, value = hap.handle_exception(raises=raises)
+
+    def __call_main(self):
         while True:
             pm = self.__rpc_queue.get()
             if pm.error_code is not None:
-                logging.error(pm.get_error_message())
+                logger.error(pm.get_error_message())
                 continue
             msg = pm.message_dict
             method = msg.get("method")
             if method is None:
                 if msg.get("result") is not None:
-                    logging.info("Receive: %s" % msg)
+                    logger.info("Receive: %s" % msg)
                 else:
-                    logging.error("Unexpected message: %s" % msg)
+                    logger.error("Unexpected message: %s" % msg)
                 continue
             params = msg["params"]
-            logging.info("method: %s" % method)
+            logger.info("method: %s" % method)
             call_id = msg["id"]
             self.__handler_map[method](call_id, params)
 
     def __rpc_exchange_profile(self, call_id, params):
-        logging.info(params)
+        logger.info(params)
         # TODO: Parse content
         result = {"name": "SimpleServer",
                   "procedures": self.__handler_map.keys()}
@@ -106,25 +129,25 @@ class SimpleServer:
         self.__sender.response(result, call_id)
 
     def __rpc_put_hosts(self, call_id, params):
-        logging.info(params)
+        logger.info(params)
         # TODO: Parse content
         result = "SUCCESS"
         self.__sender.response(result, call_id)
 
     def __rpc_put_host_groups(self, call_id, params):
-        logging.info(params)
+        logger.info(params)
         # TODO: Parse content
         result = "SUCCESS"
         self.__sender.response(result, call_id)
 
     def __rpc_put_host_group_membership(self, call_id, params):
-        logging.info(params)
+        logger.info(params)
         # TODO: Parse content
         result = "SUCCESS"
         self.__sender.response(result, call_id)
 
     def __rpc_put_triggers(self, call_id, params):
-        logging.info(params)
+        logger.info(params)
         # TODO: Parse content
         result = "SUCCESS"
         self.__sender.response(result, call_id)
@@ -138,13 +161,13 @@ class SimpleServer:
         msg = "num_events: %d, fetch_id: %s, mayMoreFlag: %s, lastIfno: %s" % (
               num_events, params.get("fetchId"), params.get("mayMoreFlag"),
               last_info)
-        logging.info(msg)
+        logger.info(msg)
 
         if num_events <= NUM_MAX_SHOW_EVENTS:
-            logging.info(params)
+            logger.info(params)
         else:
             msg = "Skip to show events to suppress flooding."
-            logging.info(msg)
+            logger.info(msg)
 
         # TODO: Parse content
         if last_info is not None:
@@ -153,36 +176,34 @@ class SimpleServer:
         self.__sender.response(result, call_id)
 
     def __rpc_put_items(self, call_id, params):
-        logging.info(params)
+        logger.info(params)
         # TODO: Parse content
         result = "SUCCESS"
         self.__sender.response(result, call_id)
 
     def __rpc_put_history(self, call_id, params):
-        logging.info(params)
+        logger.info(params)
         # TODO: Parse content
         result = "SUCCESS"
         self.__sender.response(result, call_id)
 
     def __rpc_get_last_info(self, call_id, params):
-        logging.info(params)
+        logger.info(params)
         if not params in self.__last_info:
-            logging.error("Invalid parameter: '%s'" % params)
+            logger.error("Invalid parameter: '%s'" % params)
             self.__sender.error(haplib.ERR_CODE_INVALID_PARAMS, call_id)
             return
         result = self.__last_info[params]
         self.__sender.response(result, call_id)
 
     def __rpc_put_arm_info(self, call_id, params):
-        logging.info(params)
+        logger.info(params)
         # TODO: Parse content
         result = "SUCCESS"
         self.__sender.response(result, call_id)
 
 
 def basic_setup(arg_def_func=None, prog_name="Simple Server for HAPI 2.0"):
-    logging.basicConfig(level=logging.INFO)
-    logging.info(prog_name)
     parser = argparse.ArgumentParser()
     transporter_manager = transporter.Manager(DEFAULT_TRANSPORTER)
     transporter_manager.define_arguments(parser)
@@ -190,9 +211,16 @@ def basic_setup(arg_def_func=None, prog_name="Simple Server for HAPI 2.0"):
         arg_def_func(parser)
 
     args = parser.parse_args()
+    if args.log_conf is not None:
+        logging.config.fileConfig(args.log_conf)
+    else:
+        logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+        logger.setLevel(logging.INFO)
+    logger.info(prog_name)
+
     transporter_class = transporter_manager.find(args.transporter)
     if transporter_class is None:
-        logging.critical("Not found transporter: %s" % args.transporter)
+        logger.critical("Not found transporter: %s" % args.transporter)
         raise SystemExit()
     transporter_args = {"class": transporter_class}
     transporter_args.update(transporter_class.parse_arguments(args))
@@ -205,6 +233,8 @@ def basic_setup(arg_def_func=None, prog_name="Simple Server for HAPI 2.0"):
 def arg_def(parser):
     parser.add_argument("--ms-info",
                         help="A file including monitoring server info.")
+    parser.add_argument("--log-conf",
+                        help="A file for logging configuration.")
 
 if __name__ == '__main__':
     args, transporter_args = basic_setup(arg_def)

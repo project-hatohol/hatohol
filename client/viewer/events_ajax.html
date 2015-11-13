@@ -39,6 +39,7 @@
   <div class="col-sm-3 col-md-2 sidebar" id="SummarySidebar" style="display: none;">
     <ul class="nav nav-sidebar">
       <li class="active"><a href="#" class="list-group-item list-group-item-warning">{% trans "Important event(s) index" %}<span class="sr-only">(current)</span></a></li>
+      <li><select id="select-summary-filter" class="form-control"></select></li>
       <li id="IncidentTypeHatoholNotAssignedEventLabel" style="display: none;">
         <a href="#" color="black">
           {% trans "Total amount of non assigned important event(s)" %}<br><span class="badge progress-bar-info" id="numOfUnAssignedEvents">N/A</span><br>
@@ -140,11 +141,12 @@
 	    </div>
 	    <div class="filter-element">
 	      <p><label>{% trans "Status:" %}</label></p>
-	      <select id="select-status" class="form-control">
+	      <select id="select-type" class="form-control">
 		<option value="-1">---------</option>
 		<option value="0">{% trans "OK" %}</option>
 		<option value="1">{% trans "Problem" %}</option>
 		<option value="2">{% trans "Unknown" %}</option>
+		<option value="2">{% trans "Notification" %}</option>
 	      </select>
 	    </div>
 	    <div class="filter-element">

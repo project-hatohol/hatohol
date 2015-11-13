@@ -93,7 +93,7 @@ void OperationPrivilege::setFlags(const OperationPrivilegeFlag &flags)
 OperationPrivilegeFlag OperationPrivilege::makeFlag(
   const OperationPrivilegeType &type)
 {
-	return (1 << type);
+	return (1ULL << type);
 }
 
 bool OperationPrivilege::has(const OperationPrivilegeType &type) const

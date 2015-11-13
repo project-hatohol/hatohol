@@ -79,6 +79,16 @@ constexpr const static SeverityRankIdType INVALID_SEVERITY_RANK_ID = -1;
 constexpr const static SeverityRankStatusType INVALID_SEVERITY_STATUS_TYPE = -1;
 constexpr const static int ALL_SEVERITY_RANK_AS_IMPORTANT = -1;
 
+struct CustomIncidentStatus {
+	CustomIncidentStatusIdType id;
+	std::string                code;
+	std::string                label;
+
+	static void initialize(CustomIncidentStatus &customIncidentStatus);
+};
+
+constexpr const static CustomIncidentStatusIdType INVALID_CUSTOM_INCIDENT_STATUS_ID = -1;
+
 class ServerQueryOption : public DataQueryOption {
 public:
 	ServerQueryOption(const UserIdType &userId = INVALID_USER_ID);
@@ -122,7 +132,7 @@ public:
 	const TriggerSeverityType getTargetStatus(void);
 	void setTargetColor(const std::string &color);
 	const std::string getTargetColor(void);
-	void setTargetIdList(std::list<SeverityRankIdType> idList);
+	void setTargetIdList(const std::list<SeverityRankIdType> &idList);
 	const std::list<SeverityRankIdType> getTargetIdList(void);
 	void setTargetLabel(const std::string &label);
 	const std::string getTargetLabel(void);
@@ -133,6 +143,26 @@ public:
 
 protected:
 	bool hasPrivilegeCondition(std::string &condition) const;
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
+};
+
+class CustomIncidentStatusesQueryOption : public DataQueryOption {
+public:
+	CustomIncidentStatusesQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	CustomIncidentStatusesQueryOption(DataQueryContext *dataQueryContext);
+	virtual ~CustomIncidentStatusesQueryOption();
+
+	void setTargetCode(const std::string &code);
+	const std::string getTargetCode(void);
+	void setTargetLabel(const std::string &label);
+	const std::string getTargetLabel(void);
+	void setTargetIdList(const std::list<CustomIncidentStatusIdType> &idList);
+	const std::list<CustomIncidentStatusIdType> &getTargetIdList(void);
+
+	virtual std::string getCondition(void) const override;
 
 private:
 	struct Impl;
@@ -316,6 +346,17 @@ public:
 	HatoholError deleteSeverityRanks(
           const std::list<SeverityRankIdType> &idList, const OperationPrivilege &privilege);
 
+	HatoholError upsertCustomIncidentStatus(
+	  CustomIncidentStatus &CustomIncidentStatus, const OperationPrivilege &privilege);
+	HatoholError updateCustomIncidentStatus(
+	  CustomIncidentStatus &customIncidentStatus, const OperationPrivilege &privilege);
+	void getCustomIncidentStatuses(
+	  std::vector<CustomIncidentStatus> &customIncidentStatusVect,
+	  const CustomIncidentStatusesQueryOption &option);
+	HatoholError deleteCustomIncidentStatus(
+	  const std::list<CustomIncidentStatusIdType> &idList,
+	  const OperationPrivilege &privilege);
+
 protected:
 	static SetupInfo &getSetupInfo(void);
 	static void tableInitializerSystem(DBAgent &dbAgent, void *data);
@@ -354,6 +395,16 @@ protected:
 	HatoholError checkPrivilegeForSeverityRankUpdate(
 	  const OperationPrivilege &privilege,
 	  const SeverityRankInfo &severityRankInfo);
+
+	HatoholError checkPrivilegeForCustomIncidentStatusAdd(
+	  const OperationPrivilege &privilege,
+	  const CustomIncidentStatus &customIncidentStatus);
+	HatoholError checkPrivilegeForCustomIncidentStatusUpdate(
+	  const OperationPrivilege &privilege,
+	  const CustomIncidentStatus &customIncidentStatus);
+	HatoholError checkPrivilegeForCustomIncidentStatusDelete(
+	  const OperationPrivilege &privilege,
+	  const std::list<CustomIncidentStatusIdType> &idList);
 
 private:
 	struct Impl;

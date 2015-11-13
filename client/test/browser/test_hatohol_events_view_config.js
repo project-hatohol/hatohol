@@ -1,6 +1,35 @@
 describe('EventsViewConfig', function() {
   var TEST_FIXTURE_ID = 'eventsViewConfigFixture';
   var viewHTML;
+  var testFilterCandidates = {
+    incident: [
+      { value: "NONE",        label: pgettext("Incident", "NONE") },
+      { value: "HOLD",        label: pgettext("Incident", "HOLD") },
+      { value: "IN PROGRESS", label: pgettext("Incident", "IN PROGRESS") },
+      { value: "DONE",        label: pgettext("Incident", "DONE") },
+    ],
+    status: [
+      { value: "0", label: gettext('OK') },
+      { value: "1", label: gettext('Problem') },
+    ],
+    type: [
+      { value: "0", label: gettext("OK") },
+      { value: "1", label: gettext("Problem") },
+      { value: "2", label: gettext("Unknown") },
+      { value: "3", label: gettext("Notification") },
+    ],
+    severity: [
+      { value: "0", label: gettext("Not classified") },
+      { value: "1", label: gettext("Information") },
+      { value: "2", label: gettext("Warning") },
+      { value: "3", label: gettext("Average") },
+      { value: "4", label: gettext("High") },
+      { value: "5", label: gettext("Disaster") },
+    ],
+    server: [],
+    hostgroup: [],
+    host: [],
+  };
   var testColumnDefinitions = {
     "monitoringServerName": {
       header: "Monitoring Server"
@@ -145,6 +174,7 @@ describe('EventsViewConfig', function() {
     var loaded = false;
     var config = new HatoholEventsViewConfig({
       columnDefinitions: testColumnDefinitions,
+      filterCandidates: $.extend({}, testFilterCandidates),
       loadedCallback: function(config) {
 	loaded = true;
       },
@@ -158,6 +188,7 @@ describe('EventsViewConfig', function() {
   it('getCurrentFilterConfig with empty data', function() {
     var config = new HatoholEventsViewConfig({
       columnDefinitions: testColumnDefinitions,
+      filterCandidates: $.extend({}, testFilterCandidates),
     });
     config.setServers(getDummyServerInfo());
     config.reset();
@@ -198,6 +229,7 @@ describe('EventsViewConfig', function() {
   it('set and get current filter', function() {
     var config = new HatoholEventsViewConfig({
       columnDefinitions: testColumnDefinitions,
+      filterCandidates: $.extend({}, testFilterCandidates),
     });
     var expected = {
       name: "Sample Filter",

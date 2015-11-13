@@ -71,6 +71,14 @@ div#controller-container
   height: 1.8em;
 }
 
+.sidebar select
+{
+  padding: 2px;
+  height: 1.8em;
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+
 #incident-tracker-editor label
 {
   width: 7em;

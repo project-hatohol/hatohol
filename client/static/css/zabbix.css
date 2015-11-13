@@ -20,6 +20,9 @@
 td.status1   { color: #AA0000; }
 td.status0   { color: #00AA00; }
 
+td.event-type1   { color: #AA0000; }
+td.event-type0   { color: #00AA00; }
+
 td.severity5 { background-color: #FF0000; }
 td.severity4 { background-color: #FF8888; }
 td.severity3 { background-color: #DDAAAA; }

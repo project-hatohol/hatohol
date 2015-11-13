@@ -77,15 +77,12 @@ class ZabbixAPI:
                 continue
             self.expand_item_brief(item)
 
-            if int(item["lastns"]) == 0:
-                ns = 0
-            else:
-                ns = Utils.translate_int_to_decimal(int(item["lastns"]))
-
+            time = Utils.translate_unix_time_to_hatohol_time(item["lastclock"],
+                                                             item["lastns"])
             items.append({"itemId": item["itemid"],
                           "hostId": item["hostid"],
                           "brief": item["name"],
-                          "lastValueTime": Utils.translate_unix_time_to_hatohol_time(int(item["lastclock"]) + ns),
+                          "lastValueTime": time,
                           "lastValue": item["lastvalue"],
                           "itemGroupName": get_item_groups(item["applications"]),
                           "unit": item["units"]})
@@ -117,13 +114,9 @@ class ZabbixAPI:
 
         histories = list()
         for history in res_dict["result"]:
-            if int(history["ns"]) == 0:
-                ns = 0
-            else:
-                ns = Utils.translate_int_to_decimal(int(history["ns"]))
-
-            histories.append({"value": history["value"],
-                              "time": Utils.translate_unix_time_to_hatohol_time(int(history["clock"]) + ns)})
+            time = Utils.translate_unix_time_to_hatohol_time(history["clock"],
+                                                             history["ns"])
+            histories.append({"value": history["value"], "time": time})
 
         return histories
 
@@ -197,15 +190,16 @@ class ZabbixAPI:
             return
 
         triggers = list()
-        for num, trigger in enumerate(res_dict["result"]):
+        for trigger in res_dict["result"]:
             try:
                 description = [ed["description"] for ed in
                                expanded_descriptions["result"]
                                if ed["triggerid"] == trigger["triggerid"]][0]
+                time = Utils.translate_unix_time_to_hatohol_time(trigger["lastchange"])
                 triggers.append({"triggerId": trigger["triggerid"],
                                  "status": TRIGGER_STATUS[trigger["state"]],
                                  "severity": TRIGGER_SEVERITY[trigger["priority"]],
-                                 "lastChangeTime": Utils.translate_unix_time_to_hatohol_time(int(trigger["lastchange"])),
+                                 "lastChangeTime": time,
                                  "hostId": trigger["hosts"][0]["hostid"],
                                  "hostName": trigger["hosts"][0]["name"],
                                  "brief": trigger["description"],
@@ -259,14 +253,11 @@ class ZabbixAPI:
         events = list()
         for event in res_dict["result"]:
             try:
-                if int(event["ns"]) == 0:
-                    ns = 0
-                else:
-                    ns = Utils.translate_int_to_decimal(int(event["ns"]))
-
                 trigger = self.get_select_trigger(event["objectid"])
+                time = Utils.translate_unix_time_to_hatohol_time(event["clock"],
+                                                                 event["ns"])
                 events.append({"eventId": event["eventid"],
-                               "time": Utils.translate_unix_time_to_hatohol_time(int(event["clock"]) + ns),
+                               "time": time,
                                "type": EVENT_TYPE[event["value"]],
                                "triggerId": trigger["triggerid"],
                                "status": TRIGGER_STATUS[trigger["state"]],
