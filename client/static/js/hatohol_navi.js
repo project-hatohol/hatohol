@@ -19,7 +19,7 @@
 
 var HatoholNavi = function(userProfile, currentPage) {
   var self = this;
-  var i, title, klass;
+  var i, j, title, klass;
   var menuItems = [
     {
       title: gettext("Dashboard"),
