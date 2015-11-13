@@ -272,6 +272,23 @@ class ZabbixAPI:
 
         return events
 
+
+    def get_event_end_id(self, is_first=False):
+        params = {"output": "shorten", "sortfield": "eventid", "limit": 1}
+        if is_first:
+            params["sortorder"] = "ASC"
+        else:
+            params["sortorder"] = "DESC"
+
+        res_dict = self.get_response_dict("event.get", params, self.auth_token)["result"]
+
+        self.result = check_response(res_dict)
+        if not self.result:
+            return
+
+        return int(res_dict[0]["eventid"])
+
+
     def get_response_dict(self, method_name, params, auth_token=None):
         HEADER = {"Content-Type": "application/json-rpc"}
         post = json.dumps({"jsonrpc": "2.0", "method": method_name,
