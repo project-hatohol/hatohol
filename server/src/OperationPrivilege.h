@@ -75,6 +75,11 @@ enum OperationPrivilegeType
 	OPPRVLG_DELETE_SEVERITY_RANK,  // can delete SeverityRank
 	OPPRVLG_GET_ALL_SEVERITY_RANK, // can get all SeverityRank
 
+	// CustomIncidentStatus action
+	OPPRVLG_CREATE_CUSTOM_INCIDENT_STATUS,  // can create CustomIncidentStatus
+	OPPRVLG_UPDATE_CUSTOM_INCIDENT_STATUS,  // can update CustomIncidentStatus
+	OPPRVLG_DELETE_CUSTOM_INCIDENT_STATUS,  // can delete CustomIncidentStatus
+
 	NUM_OPPRVLG,
 };
 
@@ -113,7 +118,7 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-const static OperationPrivilegeFlag ALL_PRIVILEGES = 
-  OperationPrivilege::makeFlag(NUM_OPPRVLG) - 1;
+const static OperationPrivilegeFlag ALL_PRIVILEGES =
+  OperationPrivilege::makeFlag(NUM_OPPRVLG) - 1ULL;
 
 #endif // OperationPrivilege_h

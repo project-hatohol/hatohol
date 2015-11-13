@@ -54,7 +54,8 @@ static void _assertCustomIncidentStatuses(
 {
 	startFaceRest();
 	RequestArg arg(path, callbackName);
-	arg.userId = 2; // FIXME
+	// FIXME: We don't define GET_ALL privileges for customIncidentStatus.
+	arg.userId = 2;
 	OperationPrivilege privilege(arg.userId);
 	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);
@@ -152,7 +153,7 @@ void test_addCustomIncidentStatus(void)
 	  = NumTestCustomIncidentStatus + 1;
 	CustomIncidentStatus customIncidentStatus;
 	StringMap params;
-	UserIdType userId = 2; // FIXME
+	UserIdType userId = findUserWith(OPPRVLG_CREATE_CUSTOM_INCIDENT_STATUS);
 	createTestCustomIncidentStatus(customIncidentStatus);
 	createPostData(customIncidentStatus, params);
 
@@ -163,7 +164,7 @@ void test_addCustomIncidentStatus(void)
 
 void test_updateCustomIncidentStatus(void)
 {
-	UserIdType userId = 2; // FIXME
+	UserIdType userId = findUserWith(OPPRVLG_UPDATE_CUSTOM_INCIDENT_STATUS);
 	const CustomIncidentStatusIdType targetId = 2;
 	CustomIncidentStatus customIncidentStatus
 	  = testCustomIncidentStatus[targetId - 1];
