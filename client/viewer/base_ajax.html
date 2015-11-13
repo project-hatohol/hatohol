@@ -129,6 +129,13 @@
     <script type="text/javascript">
       var userProfile;
       var params = deparam();
+
+      hatohol.enabledPages = {
+        {% for page in enabled_pages %}
+          "{{ page }}": true,
+        {% endfor %}
+      };
+
       if (!params || (params.start != "false")) {
         userProfile = new HatoholUserProfile();
         userProfile.addOnLoadCb(function(user) {
