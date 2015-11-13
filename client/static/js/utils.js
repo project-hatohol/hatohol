@@ -351,6 +351,44 @@ function formatItemPrevValue(item) {
   return formatItemValue(item["prevValue"], item["unit"]);
 }
 
+function hasFlag(flags, flagNumber) {
+  var upperBoundary = Math.pow(2, 31);
+  var upperFlags, lowerFlags;
+
+  // The result of "&" operator is 32bit singed integer on JavaScript.
+  // (http://ecma-international.org/ecma-262/5.1/#sec-11.10)
+  // So we have to treat upper bits separately.
+  // But this function can't treat over 52bits correctly because
+  // "Number" of JavaScript is double, not integer.
+  // (http://ecma-international.org/ecma-262/5.1/#sec-4.3.199
+
+  if (flags < upperBoundary && flagNumber < 31) {
+    return !!(flags & (1 << flagNumber));
+  } else {
+    upperFlags = Math.floor(flags / upperBoundary);
+    if (flagNumber > 30) {
+      return !!(upperFlags & (1 << (flagNumber - 31)));
+    } else {
+      lowerFlags = flags - upperBoundary * upperFlags;
+      return !!(lowerFlags & (1 << flagNumber));
+    }
+  }
+}
+
+function addFlag(flags, flagNumber) {
+  if (!hasFlag(flags, flagNumber))
+    flags += Math.pow(2, flagNumber);
+  return flags;
+}
+
+function hasFlags(flags, flagNumbers) {
+  var i;
+  for (i = 0; i < flagNumbers.length; i++)
+    if (!hasFlag(flags, flagNumbers[i]))
+      return false;
+  return true;
+}
+
 (function(global) {
   function Namespace(str) {
     var spaces = str.split('.');

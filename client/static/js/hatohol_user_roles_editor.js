@@ -298,7 +298,7 @@ var HatoholUserRoleEditor = function(params) {
     for (i = 0; i < privileges.length; ++i) {
       var checked = $("#privilegeFlagId" + i).is(":checked");
       if (checked)
-        flags |= (1 << privileges[i].flag);
+        flags = addFlag(flags, privileges[i].flag);
     }
     return flags;
   }
@@ -537,7 +537,7 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
   '<table class="table table-condensed table-striped table-hover">' +
   '<tbody>';
   for (i = 0; i < privileges.length; ++i) {
-    var checked = (flags & (1 << privileges[i].flag)) ? "checked" : "";
+    var checked = hasFlag(flags, privileges[i].flag) ? "checked" : "";
     html +=
     '<tr>' +
     '<td><input type="checkbox" class="privilegeCheckbox editUserRoleProp" '+

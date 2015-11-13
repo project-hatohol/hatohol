@@ -703,4 +703,49 @@ describe('plugin', function() {
   });
 });
 
+describe('flag', function() {
+  it('hasFlag under 31bit', function() {
+    var i;
+    for (i = 0; i < 54; i ++) {
+	expect(hasFlag(Math.pow(2, i), 30)).to.be(i == 30);
+    }
+  });
+
+  it('hasFlag 31bit', function() {
+    var i;
+    for (i = 0; i < 54; i ++)
+	expect(hasFlag(Math.pow(2, i), 31)).to.be(i == 31);
+  });
+
+  it('hasFlag 32bit', function() {
+    var i;
+    for (i = 0; i < 54; i ++)
+	expect(hasFlag(Math.pow(2, i), 32)).to.be(i == 32);
+  });
+
+  it('hasFlag over 32bit', function() {
+    var i;
+    for (i = 0; i < 54; i ++)
+	expect(hasFlag(Math.pow(2, i), 33)).to.be(i == 33);
+  });
+
+  it('addFlag', function() {
+    var flagNum = 48;
+    var baseFlags = Math.pow(2, 10);
+    var expected = baseFlags + Math.pow(2, flagNum);
+    expect(addFlag(baseFlags, flagNum)).to.be(expected);
+  });
+});
+
+describe('flags', function() {
+  it('hasFlags', function() {
+    var flagNum1 = 0, flagNum2 = 52;
+    var flags = Math.pow(2, flagNum1) + Math.pow(2, flagNum2);
+    expect(hasFlags(flags, [flagNum1, flagNum2])).to.be(true);
+    expect(hasFlags(flags, [flagNum1])).to.be(true);
+    expect(hasFlags(flags, [flagNum2])).to.be(true);
+    expect(hasFlags(flags, [2, 3])).to.be(false);
+  });
+});
+
 });
