@@ -126,13 +126,10 @@ class ZabbixAPIConductor:
 
         events = list()
         for event_from_id, event_till_id in event_ids:
-            events = events + self.__api.get_events(event_from_id,
-                                                    event_till_id)
-
-        if len(events) == 0:
-            return
-
-        self.put_events(events)
+            events = self.__api.get_events(event_from_id, event_till_id)
+            if len(events) == 0:
+                continue
+            self.put_events(events)
 
     def update_events_fetch(self, last_info, count, direction, fetch_id):
         if direction == "ASC":
