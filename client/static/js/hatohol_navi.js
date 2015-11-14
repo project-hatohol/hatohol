@@ -19,7 +19,8 @@
 
 var HatoholNavi = function(userProfile, currentPage) {
   var self = this;
-  var i, title, klass;
+  var i, j, title, klass;
+  var item, children, child, dropDown;
   var menuItems = [
     {
       title: gettext("Dashboard"),
@@ -100,28 +101,51 @@ var HatoholNavi = function(userProfile, currentPage) {
       children: [
         {
           title: gettext("Online Documents"),
-          href: "http://www.hatohol.org\/docs"
+          href: "http://www.hatohol.org/docs"
         },
         {
           title: gettext("Hatohol version: ") + HATOHOL_VERSION,
-          href: "#"
+          href: "#version"
         },
       ]
     },
   ];
-  var matchResults;
 
-  if (currentPage) {
-    this.currentPage = currentPage;
-  } else if (location.pathname.match(".*/$")) {
-    this.currentPage = menuItems[0].href;
-  } else {
-    matchResults = location.pathname.match(".*/(.+)$");
-    if (matchResults && matchResults.length > 1)
-      this.currentPage = matchResults[1];
-    else
-      this.currentPage = location.pathname;
-  }
+  var getCurrentPage = function() {
+    var matchResults;
+
+    if (currentPage) {
+      return currentPage;
+    } else if (location.pathname.match(".*/$")) {
+      return menuItems[0].href;
+    } else {
+      matchResults = location.pathname.match(".*/(.+)$");
+      if (matchResults && matchResults.length > 1)
+        return matchResults[1];
+      else
+        return location.pathname;
+    }
+    return undefined;
+  };
+
+  var pageIsEnabled = function(menuItem) {
+    var i;
+
+    if (!hatohol.enabledPages)
+      return true;
+    if (Object.keys(hatohol.enabledPages).length <= 0)
+      return true;
+
+    if (menuItem.children) {
+        for (i = 0; i < menuItem.children.length; i++) {
+          if (pageIsEnabled(menuItem.children[i]))
+            return true;
+        }
+        return false;
+    } else {
+        return !!hatohol.enabledPages[menuItem.href];
+    }
+  };
 
   var createMenuItem = function(menuItem) {
     if (menuItem.flags != undefined &&
@@ -153,9 +177,13 @@ var HatoholNavi = function(userProfile, currentPage) {
       class: klass,
     });
   };
-  var item, children, child, dropDown;
+
+  self.currentPage = getCurrentPage();
 
   for (i = 0; i < menuItems.length; ++i) {
+    if (!pageIsEnabled(menuItems[i]))
+      continue;
+
     item = createMenuItem(menuItems[i]);
     if (!item)
       continue;
@@ -168,6 +196,8 @@ var HatoholNavi = function(userProfile, currentPage) {
 
       children = menuItems[i].children;
       for (j = 0; j < children.length; j++) {
+        if (!pageIsEnabled(children[j]))
+          continue;
         child = createMenuItem(children[j]);
         if (child)
           dropDown.append(child);

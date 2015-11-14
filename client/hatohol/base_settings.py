@@ -196,3 +196,34 @@ LOGGING = {
 LOCALE_PATHS = (
     os.path.join(PROJECT_HOME, "conf", "locale"),
 )
+
+# The list of enabled pages. Specified pages are shown in the top navbar.
+# When the list is empty, all pages are shown.
+ENABLED_PAGES = (
+    #
+    # monitoring views
+    #
+    #"ajax_dashboard",
+    #"ajax_overview_triggers",
+    #"ajax_overview_items",
+    #"ajax_latest",
+    #"ajax_triggers",
+    #"ajax_events",
+
+    #
+    # settings views
+    #
+    #"ajax_servers",
+    #"ajax_actions",
+    #"ajax_graphs",
+    #"ajax_incident_settings",
+    #"ajax_log_search_systems",
+    #"ajax_users",
+    #"ajax_severity_ranks"
+
+    #
+    # Help menu
+    #
+    #"http://www.hatohol.org/docs"
+    #"#version"
+)

@@ -16,5 +16,6 @@ class HatoholView(TemplateView):
         context.update({
             'plugin_js_files': self.plugin_js_files,
             'project_top_path': self.request.META.get("SCRIPT_NAME", ""),
+            'enabled_pages': settings.ENABLED_PAGES,
         })
         return context
