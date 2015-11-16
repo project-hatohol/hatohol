@@ -95,7 +95,7 @@ static string toString(const int value)
 
 static string toString(const uint64_t value)
 {
-	return StringUtils::sprintf("%lu", value);
+	return StringUtils::sprintf("%" PRIu64, value);
 }
 
 static string toString(const string &value)
@@ -265,7 +265,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 
 	// Session
 	DEF_LINE(s, langType, SESSION_ID_LEN,
-	         size_t, SessionManager::SESSION_ID_LEN);
+	         int, SessionManager::SESSION_ID_LEN);
 	APPEND(s, "\n");
 
 	DEF_LINE(s, langType, ENV_NAME_SESSION_ID,
