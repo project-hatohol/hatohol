@@ -1105,7 +1105,7 @@ var EventsView = function(userProfile, options) {
     $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
   }
 
-  function setupSeverityRank() {
+  function loadSeverityRank() {
     var deferred = new $.Deferred;
     new HatoholConnector({
       url: "/severity-rank",
@@ -1208,7 +1208,7 @@ var EventsView = function(userProfile, options) {
       self.rawSummaryData = reply;
 
     setupStatictics();
-    $.when(setupSeverityRank())
+    $.when(loadSeverityRank())
       .done(function() {
         setupTableColor();
         setupPieChart();
