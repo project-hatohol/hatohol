@@ -145,23 +145,51 @@ var EventsView = function(userProfile, options) {
   // Private functions
   //
   function start() {
+    $.when(loadUserConfig(), loadSeverityRank()).done(function() {
+      load();
+    }).fail(function() {
+      hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
+      load(); // Ensure to work with the default config
+    });
+  }
+
+  function loadUserConfig() {
+    var deferred = new $.Deferred;
     self.userConfig = new HatoholEventsViewConfig({
       columnDefinitions: columnDefinitions,
       filterCandidates: eventPropertyChoices,
       loadedCallback: function(config) {
         applyConfig(config);
-
         updatePager();
         setupFilterValues();
         setupCallbacks();
-
-        load();
+        deferred.resolve();
       },
       savedCallback: function(config) {
         applyConfig(config);
         load();
       },
     });
+    return deferred.promise();
+  }
+
+  function loadSeverityRank() {
+    var deferred = new $.Deferred;
+    new HatoholConnector({
+      url: "/severity-rank",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        self.rawSeverityRankData = reply;
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
   }
 
   function applyConfig(config) {
@@ -1105,27 +1133,10 @@ var EventsView = function(userProfile, options) {
     $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
   }
 
-  function setupSeverityRank() {
-    var deferred = new $.Deferred;
-    new HatoholConnector({
-      url: "/severity-rank",
-      request: "GET",
-      replyCallback: function(reply, parser) {
-        self.rawSeverityRankData = reply;
-        deferred.resolve();
-      },
-      parseErrorCallback: function() {
-        deferred.reject();
-      },
-      connectErrorCallback: function() {
-        deferred.reject();
-      },
-    });
-    return deferred.promise();
-  }
-
   function setupTableColor() {
     var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    if (!severityRanks)
+      return;
     for (var x = 0; x < severityRanks.length; ++x) {
       $('td.severity'+x).css("background-color", severityRanks[x].color);
     }
@@ -1208,13 +1219,7 @@ var EventsView = function(userProfile, options) {
       self.rawSummaryData = reply;
 
     setupStatictics();
-    $.when(setupSeverityRank())
-      .done(function() {
-        setupTableColor();
-        setupPieChart();
-      }).fail(function() {
-        hatoholInfoMsgBox(gettext("Failed to get severity rank!"));
-      });
+    setupPieChart();
   }
 
   function updateCore(reply) {
@@ -1225,6 +1230,7 @@ var EventsView = function(userProfile, options) {
     setupFilterValues();
     setupTreatmentMenu();
     drawTableContents();
+    setupTableColor();
     updatePager();
     setLoading(false);
     if (self.currentPage == 0)
