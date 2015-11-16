@@ -95,7 +95,7 @@ static string toString(const int value)
 
 static string toString(const uint64_t value)
 {
-	return StringUtils::sprintf("%lu", value);
+	return StringUtils::sprintf("%" PRIu64, value);
 }
 
 static string toString(const string &value)
