@@ -172,6 +172,25 @@ var EventsView = function(userProfile, options) {
     return deferred.promise();
   }
 
+  function loadSeverityRank() {
+    var deferred = new $.Deferred;
+    new HatoholConnector({
+      url: "/severity-rank",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        self.rawSeverityRankData = reply;
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
+  }
+
   function applyConfig(config) {
     var defaultFilterId = config.getValue('events.default-filter-id');
     var defaultSummaryFilterId = config.getValue('events.summary.default-filter-id');
@@ -1111,25 +1130,6 @@ var EventsView = function(userProfile, options) {
         .toFixed(2);
     $("#importantEventOccurredHostsPercentage").text(importantEventOccurredHostsPercentage+"%");
     $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
-  }
-
-  function loadSeverityRank() {
-    var deferred = new $.Deferred;
-    new HatoholConnector({
-      url: "/severity-rank",
-      request: "GET",
-      replyCallback: function(reply, parser) {
-        self.rawSeverityRankData = reply;
-        deferred.resolve();
-      },
-      parseErrorCallback: function() {
-        deferred.reject();
-      },
-      connectErrorCallback: function() {
-        deferred.reject();
-      },
-    });
-    return deferred.promise();
   }
 
   function setupTableColor() {
