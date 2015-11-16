@@ -149,6 +149,7 @@ var EventsView = function(userProfile, options) {
       load();
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
+      load(); // Ensure to work with the default config
     });
   }
 
