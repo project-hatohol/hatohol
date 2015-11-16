@@ -1217,7 +1217,6 @@ var EventsView = function(userProfile, options) {
       self.rawSummaryData = reply;
 
     setupStatictics();
-    setupTableColor();
     setupPieChart();
   }
 
@@ -1229,6 +1228,7 @@ var EventsView = function(userProfile, options) {
     setupFilterValues();
     setupTreatmentMenu();
     drawTableContents();
+    setupTableColor();
     updatePager();
     setLoading(false);
     if (self.currentPage == 0)
