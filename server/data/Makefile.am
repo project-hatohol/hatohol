@@ -10,7 +10,8 @@ sql_DATA = \
 	server-type-hap2-ceilometer.sql \
 	server-type-hap2-fluentd.sql \
 	init-user.sql \
-	severity-ranks.sql
+	severity-ranks.sql \
+	custom-incident-statuses.sql
 
 sqldir = $(pkgdatadir)/sql
 
