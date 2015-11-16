@@ -94,6 +94,15 @@ var HatoholNavi = function(userProfile, currentPage) {
             hatohol.OPPRVLG_GET_ALL_SEVERITY_RANK,
           ]
         },
+        {
+          title: gettext("Custom Incident Labels"),
+          href:  "ajax_custom_incident_labels",
+          flags: [
+            hatohol.OPPRVLG_CREATE_CUSTOM_INCIDENT_STATUS,
+            hatohol.OPPRVLG_UPDATE_CUSTOM_INCIDENT_STATUS,
+            hatohol.OPPRVLG_DELETE_CUSTOM_INCIDENT_STATUS,
+          ]
+        },
       ]
     },
     {
