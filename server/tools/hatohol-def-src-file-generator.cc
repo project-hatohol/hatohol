@@ -93,14 +93,9 @@ static string toString(const int value)
 	return StringUtils::sprintf("%d", value);
 }
 
-static string toString(const size_t value)
-{
-	return StringUtils::sprintf("%zd", value);
-}
-
 static string toString(const uint64_t value)
 {
-	return StringUtils::sprintf("%" PRIu64, value);
+	return StringUtils::sprintf("%lu", value);
 }
 
 static string toString(const string &value)
