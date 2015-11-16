@@ -1,0 +1,10 @@
+INSERT custom_incident_statuses VALUES (0, 'DONE', 'Done');
+INSERT custom_incident_statuses VALUES (0, 'IN PROGRESS', 'In progress');
+INSERT custom_incident_statuses VALUES (0, 'HOLD', 'Hold');
+INSERT custom_incident_statuses VALUES (0, 'NONE', 'None');
+INSERT custom_incident_statuses VALUES (0, 'USER01', 'User defined 01');
+INSERT custom_incident_statuses VALUES (0, 'USER02', 'User defined 02');
+INSERT custom_incident_statuses VALUES (0, 'USER03', 'User defined 03');
+INSERT custom_incident_statuses VALUES (0, 'USER04', 'User defined 04');
+INSERT custom_incident_statuses VALUES (0, 'USER05', 'User defined 05');
+INSERT custom_incident_statuses VALUES (0, 'USER06', 'User defined 06');
