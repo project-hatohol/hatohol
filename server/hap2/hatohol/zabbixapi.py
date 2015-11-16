@@ -50,7 +50,7 @@ class ZabbixAPI:
 
     def get_auth_token(self, user_name, user_passwd):
         params = {'user': user_name, 'password': user_passwd}
-        res_dict = self.get_response_dict("user.authenticate", params)
+        res_dict = self.get_response_dict("user.login", params)
 
         self.result = check_response(res_dict)
         if not self.result:
