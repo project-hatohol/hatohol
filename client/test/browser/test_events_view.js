@@ -72,6 +72,16 @@ describe('EventsView', function() {
     });
   }
 
+  function severityRanksJson(severityRanks) {
+    if (!severityRanks)
+      severityRanks = [];
+    return JSON.stringify({
+      apiVersion: hatohol.FACE_REST_API_VERSION,
+      errorCode: hatohol.HTERR_OK,
+      SeverityRanks: severityRanks,
+    });
+  }
+
   function fakeAjax() {
     var requests = this.requests = [];
     this.xhr = sinon.useFakeXMLHttpRequest();
@@ -97,20 +107,27 @@ describe('EventsView', function() {
                     "[]");
   }
 
-  function respondEvents(eventsJson) {
+  function respondSeverityRank() {
     var request = this.requests[2];
+    request.respond(200, { "Content-Type": "application/json" },
+                    severityRanksJson());
+  }
+
+  function respondEvents(eventsJson) {
+    var request = this.requests[3];
     request.respond(200, { "Content-Type": "application/json" },
                     eventsJson);
   }
 
   function respondSummary(summaryJson) {
-    var request = this.requests[3];
+    var request = this.requests[4];
     request.respond(200, { "Content-Type": "application/json" },
                     summaryJson);
   }
 
   function respond(eventsJson, configJson) {
     respondUserConfig(configJson);
+    respondSeverityRank();
     respondEvents(eventsJson);
     respondSummary(JSON.stringify(dummySummary));
   }
