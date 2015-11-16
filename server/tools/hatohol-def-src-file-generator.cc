@@ -265,7 +265,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 
 	// Session
 	DEF_LINE(s, langType, SESSION_ID_LEN,
-	         size_t, SessionManager::SESSION_ID_LEN);
+	         int, SessionManager::SESSION_ID_LEN);
 	APPEND(s, "\n");
 
 	DEF_LINE(s, langType, ENV_NAME_SESSION_ID,
