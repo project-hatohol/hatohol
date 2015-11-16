@@ -1135,6 +1135,8 @@ var EventsView = function(userProfile, options) {
 
   function setupTableColor() {
     var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    if (!severityRanks)
+      return;
     for (var x = 0; x < severityRanks.length; ++x) {
       $('td.severity'+x).css("background-color", severityRanks[x].color);
     }
