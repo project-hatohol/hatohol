@@ -58,6 +58,9 @@ sql_file_list = [
     {'table_name': 'severity_ranks',
      'file_name': 'severity-ranks.sql',
      'target': 'severity-ranks'},
+    {'table_name': 'custom_incident_statuses',
+     'file_name': 'custom-incident-statuses.sql',
+     'target': 'custom-incident-statuses'},
 ]
 
 config_map = {
