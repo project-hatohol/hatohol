@@ -145,23 +145,31 @@ var EventsView = function(userProfile, options) {
   // Private functions
   //
   function start() {
+    $.when(loadUserConfig(), loadSeverityRank()).done(function() {
+      load();
+    }).fail(function() {
+      hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
+    });
+  }
+
+  function loadUserConfig() {
+    var deferred = new $.Deferred;
     self.userConfig = new HatoholEventsViewConfig({
       columnDefinitions: columnDefinitions,
       filterCandidates: eventPropertyChoices,
       loadedCallback: function(config) {
         applyConfig(config);
-
         updatePager();
         setupFilterValues();
         setupCallbacks();
-
-        load();
+        deferred.resolve();
       },
       savedCallback: function(config) {
         applyConfig(config);
         load();
       },
     });
+    return deferred.promise();
   }
 
   function applyConfig(config) {
@@ -1208,13 +1216,8 @@ var EventsView = function(userProfile, options) {
       self.rawSummaryData = reply;
 
     setupStatictics();
-    $.when(loadSeverityRank())
-      .done(function() {
-        setupTableColor();
-        setupPieChart();
-      }).fail(function() {
-        hatoholInfoMsgBox(gettext("Failed to get severity rank!"));
-      });
+    setupTableColor();
+    setupPieChart();
   }
 
   function updateCore(reply) {
