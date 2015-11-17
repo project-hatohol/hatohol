@@ -160,6 +160,11 @@ class Hap2ZabbixAPIPoller(haplib.BasePoller, ZabbixAPIConductor):
         self.update_triggers()
         self.update_events_poll()
 
+    # @override
+    def on_aborted_poll(self):
+        logger.error("Polling: aborted.")
+        super(ZabbixAPIConductor, self).reset()
+
 class Hap2ZabbixAPIMain(haplib.BaseMainPlugin, ZabbixAPIConductor):
     def __init__(self, *args, **kwargs):
         haplib.BaseMainPlugin.__init__(self)
