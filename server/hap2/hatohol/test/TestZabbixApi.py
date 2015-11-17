@@ -117,7 +117,7 @@ class TestZabbixApi(unittest.TestCase):
         self.assertEquals(expected, result)
 
     def test_get_response_dict(self):
-        result = self.api.get_response_dict("user.authenticate", "test_param",
+        result = self.api.get_response_dict("user.login", "test_param",
                                             "test_header")
         expected = {u'result': u'test_auth_token'}
 
