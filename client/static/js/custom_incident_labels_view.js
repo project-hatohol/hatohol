@@ -35,6 +35,18 @@ var CustomIncidentLabelsView = function(userProfile) {
   //
   // Main view
   //
+  function getDefaultLabel(code) {
+    var defaultLabels = {
+      "NONE":        pgettext("Incident", "NONE"),
+      "HOLD":        pgettext("Incident", "HOLD"),
+      "IN PROGRESS": pgettext("Incident", "IN PROGRESS"),
+      "DONE":        pgettext("Incident", "DONE"),
+    };
+    if (defaultLabels[code])
+      return defaultLabels[code];
+    return "";
+  }
+
   function drawTableBody(replyData) {
     var html, customIncidentStatus, customIncidentStatusId, code, label;
     html = "";
@@ -49,7 +61,8 @@ var CustomIncidentLabelsView = function(userProfile) {
       html += "<td id='custom-incident-status-code" + escapeHTML(customIncidentStatusId) + "'>" +
         escapeHTML(code) + "</td>";
       html += "<td id='custom-incident-status-label" + escapeHTML(customIncidentStatusId) + "'" +
-        " contenteditable='true'>" +
+        " contenteditable='true' " +
+        " data-placeholder='" + getDefaultLabel(code) + "'>" +
         escapeHTML(label) + "</td>";
       html += "</tr>";
     }
@@ -134,6 +147,10 @@ var CustomIncidentLabelsView = function(userProfile) {
 
     drawTableContents(rawData);
     setupApplyButton(rawData);
+
+    // I don't know why but the following elements are unexpectedlly inserted
+    // on Firefox.
+    $('#table td br[type="_moz"]').remove();
   }
 
   function load() {
