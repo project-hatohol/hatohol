@@ -391,11 +391,11 @@ void test_procedureHandlerPutItems(void)
 		" \"params\":{\"items\":[{\"itemId\":\"1\", \"hostId\":\"1\","
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"},"
 		" {\"itemId\":\"2\", \"hostId\":\"1\","
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175531\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
+		" \"itemGroupName\":[\"example name\", \"example2\"], \"unit\":\"example unit\"}],"
 		" \"fetchId\":\"1\"}, \"id\":83241245}";
 	JSONParser parser(json);
 	gate->setEstablished(true);
@@ -466,11 +466,11 @@ void test_procedureHandlerPutItemsInvalidJSON(void)
 		" \"params\":{\"items\":[{\"itemId\":\"1\", "
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"},"
 		" {\"itemId\":\"2\", \"hostId\":\"1\","
 		" \"lastValueTime\":\"20150410175531\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"}],"
 		" \"fetchId\":\"1\"}, \"id\":83241245}";
 	JSONParser parser(json);
 	gate->setEstablished(true);
@@ -1617,11 +1617,11 @@ void test_fetchItemsCallback(void)
 		" \"params\":{\"items\":[{\"itemId\":\"1\", \"hostId\":\"1\","
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"},"
 		" {\"itemId\":\"2\", \"hostId\":\"1\","
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175531\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
+		" \"itemGroupName\":[\"example name\", \"example2\"], \"unit\":\"example unit\"}],"
 		" \"fetchId\":\"%s\"}, \"id\":%" PRId64 "}",
 		fetchId.c_str(), id);
 	sendMessage(putItemsJSON);
