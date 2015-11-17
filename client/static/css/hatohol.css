@@ -210,6 +210,11 @@ select.default-filter-selector {
     width: 200px;
 }
 
+td[contenteditable=true]:empty::before {
+  content: attr(data-placeholder);
+  color: #888888;
+}
+
 /* no scirpt */
 div#noscript-background
 {
