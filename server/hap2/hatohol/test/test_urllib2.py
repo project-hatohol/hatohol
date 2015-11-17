@@ -22,7 +22,7 @@
 import json
 
 RESULTS = {
-    "user.authenticate": "test_auth_token",
+    "user.login": "test_auth_token",
     "apiinfo.version": "2.2.7",
     "item.get": [{"itemid": "1", "hostid": "1",
         "name": "test_name","units": "B","value_type":"3",
