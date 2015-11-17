@@ -52,7 +52,7 @@ class SimpleServer:
         self.__rpc_queue = hap.MultiprocessingJoinableQueue()
         self.__dispatcher = haplib.Dispatcher(self.__rpc_queue)
         self.__dispatcher.daemonize()
-        self.__last_info = {"event": None, "trigger": None}
+        self.__last_info = {"event": "", "trigger": ""}
 
         self.__handler_map = {
             "exchangeProfile": self.__rpc_exchange_profile,
