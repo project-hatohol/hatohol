@@ -171,7 +171,17 @@ TBD
 
     # mkdir -p /usr/local/var/run
 
-(1) Setup database of MySQL
+(1.0.a) Setup MySQL's storage engine
+
+Hatohol uses a rollback feature of the database. So InnoDB is recommended for the storage engine.
+It can be set by setting my.conf such as
+
+    [mysqld]
+    default-storage-engine=InnoDB
+
+To enable the above lines, you need to restart MySQL sesrver.
+
+(1.0.b) Setup database for Hatohol
 
 To setup database used by hatohol server, you need to execute helper command `hatohol-db-initiator`.
 
