@@ -35,7 +35,7 @@ var SeverityRanksView = function(userProfile) {
   //
   // Main view
   //
-  var severity_choices = [
+  var severityChoices = [
     gettext("Not classified"),
     gettext("Information"),
     gettext("Warning"),
@@ -56,11 +56,11 @@ var SeverityRanksView = function(userProfile) {
       color = severityRank["color"];
       label = severityRank["label"];
       asImportant = severityRank["asImportant"];
-      defaultLabel = severity_choices[x];
+      defaultLabel = severityChoices[x];
 
       html += "<tr>";
       html += "<td id='severity-rank-status" + escapeHTML(status) +"'>" +
-        severity_choices[Number(status)] + "</td>";
+        severityChoices[Number(status)] + "</td>";
       html += "<td id='severity-rank-color" + escapeHTML(status) + "'" +
         " style='background-color: " + escapeHTML(color) + "'>" +
         escapeHTML(color) + "</td>";
