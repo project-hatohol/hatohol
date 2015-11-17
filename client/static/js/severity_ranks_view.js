@@ -56,7 +56,7 @@ var SeverityRanksView = function(userProfile) {
       color = severityRank["color"];
       label = severityRank["label"];
       asImportant = severityRank["asImportant"];
-      defaultLabel = severityChoices[x];
+      defaultLabel = severityChoices[status];
 
       html += "<tr>";
       html += "<td id='severity-rank-status" + escapeHTML(status) +"'>" +

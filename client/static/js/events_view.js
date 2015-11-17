@@ -29,6 +29,7 @@ var EventsView = function(userProfile, options) {
   self.rawData = {};
   self.rawSummaryData = {};
   self.rawSeverityRankData = {};
+  self.severityRanksMap = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -179,7 +180,15 @@ var EventsView = function(userProfile, options) {
       url: "/severity-rank",
       request: "GET",
       replyCallback: function(reply, parser) {
+        var i, severityRanks;
         self.rawSeverityRankData = reply;
+        self.severityRanksMap = {};
+        severityRanks = self.rawSeverityRankData["SeverityRanks"];
+        if (severityRanks) {
+          for (i = 0; i < severityRanks.length; i++) {
+            self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
+          }
+        }
         deferred.resolve();
       },
       parseErrorCallback: function() {
@@ -911,12 +920,11 @@ var EventsView = function(userProfile, options) {
   function getSeverityLabel(event) {
     var severity = event["severity"];
     var defaultLabel = eventPropertyChoices.severity[Number(severity)].label;
-    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
-    if (!severityRanks || severityRanks.length < severity)
+    if (!self.severityRanksMap || !self.severityRanksMap[severity])
       return defaultLabel;
-    if (!severityRanks[severity].label)
+    if (!self.severityRanksMap[severity].label)
       return defaultLabel;
-    return severityRanks[severity].label;
+    return self.severityRanksMap[severity].label;
   }
 
   function renderTableDataEventSeverity(event, server) {
@@ -1146,10 +1154,13 @@ var EventsView = function(userProfile, options) {
 
   function setupTableColor() {
     var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    var severity, color;
     if (!severityRanks)
       return;
     for (var x = 0; x < severityRanks.length; ++x) {
-      $('td.severity'+x).css("background-color", severityRanks[x].color);
+      severity = severityRanks[x].status;
+      color = severityRanks[x].color;
+      $('td.severity' + severity).css("background-color", color);
     }
   }
 
