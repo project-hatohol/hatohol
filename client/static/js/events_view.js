@@ -908,11 +908,22 @@ var EventsView = function(userProfile, options) {
       eventPropertyChoices.status[Number(status)].label + "</td>";
   }
 
+  function getSeverityLabel(event) {
+    var severity = event["severity"];
+    var defaultLabel = eventPropertyChoices.severity[Number(severity)].label;
+    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    if (!severityRanks || severityRanks.length < severity)
+      return defaultLabel;
+    if (!severityRanks[severity].label)
+      return defaultLabel;
+    return severityRanks[severity].label;
+  }
+
   function renderTableDataEventSeverity(event, server) {
     var severity = event["severity"];
 
     return "<td class='" + getSeverityClass(event) + "'>" +
-      eventPropertyChoices.severity[Number(severity)].label + "</td>";
+      getSeverityLabel(event) + "</td>";
   }
 
   function renderTableDataEventDuration(event, server) {
