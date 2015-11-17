@@ -388,14 +388,24 @@ void test_procedureHandlerPutItems(void)
 	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
 	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
-		" \"params\":{\"items\":[{\"itemId\":\"1\", \"hostId\":\"1\","
+		" \"params\":{\"items\":["
+		// 1st item
+		"{\"itemId\":\"1\", \"hostId\":\"1\","
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"},"
+		// 2nd item
 		" {\"itemId\":\"2\", \"hostId\":\"1\","
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175531\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
+		" \"itemGroupName\":[\"example name\", \"example2\"], \"unit\":\"example unit\"},"
+		// 3rd item
+		" {\"itemId\":\"3\", \"hostId\":\"1\","
+		" \"brief\":\"example wiht empty itemGroupName array\","
+		" \"lastValueTime\":\"20151117095531\","
+		" \"lastValue\":\"Alpha Beta Gamma\","
+		" \"itemGroupName\":[], \"unit\":\"Kelvin\"}],"
+		// others
 		" \"fetchId\":\"1\"}, \"id\":83241245}";
 	JSONParser parser(json);
 	gate->setEstablished(true);
@@ -411,7 +421,7 @@ void test_procedureHandlerPutItems(void)
 	option.setTargetServerId(monitoringServerInfo.id);
 	dbMonitoring.getItemInfoList(itemInfoList, option);
 	ItemInfoList expectedItemInfoList;
-	ItemInfo item1, item2;
+	ItemInfo item1, item2, item3;
 	timespec timeStamp;
 	string lastValueTime;
 
@@ -445,6 +455,21 @@ void test_procedureHandlerPutItems(void)
 	item2.unit           = "example unit";
 	expectedItemInfoList.push_back(item2);
 
+	lastValueTime = "20151117095531";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item3.serverId       = 302;
+	item3.id             = "3";
+	item3.globalHostId   = 10;
+	item3.hostIdInServer = "1";
+	item3.brief          = "example wiht empty itemGroupName array";
+	item3.lastValueTime  = timeStamp;
+	item3.lastValue      = "Alpha Beta Gamma";
+	item3.itemGroupName  = "";
+	item3.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	item3.delay          = 0;
+	item3.unit           = "Kelvin";
+	expectedItemInfoList.push_back(item3);
+
 	string actualOutput;
 	for (auto itemInfo : itemInfoList) {
 		actualOutput += makeItemOutput(itemInfo);
@@ -466,11 +491,11 @@ void test_procedureHandlerPutItemsInvalidJSON(void)
 		" \"params\":{\"items\":[{\"itemId\":\"1\", "
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"},"
 		" {\"itemId\":\"2\", \"hostId\":\"1\","
 		" \"lastValueTime\":\"20150410175531\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"}],"
 		" \"fetchId\":\"1\"}, \"id\":83241245}";
 	JSONParser parser(json);
 	gate->setEstablished(true);
@@ -1617,11 +1642,11 @@ void test_fetchItemsCallback(void)
 		" \"params\":{\"items\":[{\"itemId\":\"1\", \"hostId\":\"1\","
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"},"
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"},"
 		" {\"itemId\":\"2\", \"hostId\":\"1\","
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175531\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":\"example name\", \"unit\":\"example unit\"}],"
+		" \"itemGroupName\":[\"example name\", \"example2\"], \"unit\":\"example unit\"}],"
 		" \"fetchId\":\"%s\"}, \"id\":%" PRId64 "}",
 		fetchId.c_str(), id);
 	sendMessage(putItemsJSON);
