@@ -182,7 +182,7 @@ var SeverityRanksView = function(userProfile) {
     setupApplyButton(rawData);
     setupColorPickers(rawData);
 
-    // I don't know why but the following elements are unexpectedlly inserted
+    // I don't know why but the following elements are unexpectedly inserted
     // on Firefox.
     $('#table td br[type="_moz"]').remove();
   }
