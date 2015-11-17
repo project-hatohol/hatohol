@@ -60,4 +60,6 @@ urlpatterns = patterns(
         HatoholView.as_view(template_name='viewer/history_ajax.html')),
     url(r'^ajax_severity_ranks$',
         HatoholView.as_view(template_name='viewer/severity_ranks_ajax.html')),
+    url(r'^ajax_custom_incident_labels$',
+        HatoholView.as_view(template_name='viewer/custom_incident_labels_ajax.html')),
 )
