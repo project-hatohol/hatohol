@@ -9,6 +9,7 @@ PID_FILE_DIR="@localstatedir@/run"
 PLUGIN_DIR="@libexecdir@/hatohol/hap2"
 PLUGIN_PATH=""
 PID_FILE="${PID_FILE_DIR}/hatohol-arm-plugin-${HAPI_MONITORING_SERVER_ID}"
+HAP2_LOG_CONF="@sysconfdir@/@PACKAGE_NAME@/hap2-logging.conf"
 PLUGIN_OPTIONS=""
 
 prepare_plugin_options() {
@@ -31,6 +32,8 @@ prepare_plugin_options() {
     if test -n "$HAPI_AMQP_VHOST"; then
         PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --amqp-vhost=$HAPI_AMQP_VHOST"
     fi
+
+    PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --log-conf=$HAP2_LOG_CONF"
 }
 
 check_pid_file() {
