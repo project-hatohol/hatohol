@@ -32,6 +32,7 @@ var EventsView = function(userProfile, options) {
   self.severityRanksMap = {};
   self.rawCustomIncidentStatusData = {};
   self.customIncidentStatusesMap = {};
+  self.defaultIncidentStatusesMap = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -82,6 +83,7 @@ var EventsView = function(userProfile, options) {
       { value: "5", label: gettext("Disaster") },
     ],
   };
+  setupDefaultIncidentStatusMap();
 
   var columnDefinitions = {
     "monitoringServerName": {
@@ -745,6 +747,19 @@ var EventsView = function(userProfile, options) {
     });
   }
 
+  function setupDefaultIncidentStatusMap() {
+    var i, defaultIncidentStatuses;
+    self.defaultIncidentStatusesMap = {};
+    defaultIncidentStatuses =
+      eventPropertyChoices.incident;
+    if (defaultIncidentStatuses) {
+      for (i = 0; i < defaultIncidentStatuses.length; i++) {
+        self.defaultIncidentStatusesMap[defaultIncidentStatuses[i].value] =
+          defaultIncidentStatuses[i];
+      }
+    }
+  }
+
   function setLoading(loading) {
     if (loading) {
       $("#begin-time").attr("disabled", "disabled");
@@ -958,6 +973,16 @@ var EventsView = function(userProfile, options) {
     return self.severityRanksMap[severity].label;
   }
 
+  function getCustomIncidentStatusLabel(event) {
+    var incident = event["incident"];
+    var defaultLabel = "";
+    if (!self.customIncidentStatusesMap || !self.customIncidentStatusesMap[incident.status])
+      return defaultLabel;
+    if (self.defaultIncidentStatusesMap[incident.status].label && !self.customIncidentStatusesMap[incident.status].label)
+      return self.defaultIncidentStatusesMap[incident.status].label;
+    return self.customIncidentStatusesMap[incident.status].label;
+  }
+
   function renderTableDataEventSeverity(event, server) {
     var severity = event["severity"];
 
@@ -987,11 +1012,11 @@ var EventsView = function(userProfile, options) {
       return html + "</td>";
 
     if (!incident.localtion)
-      return html + pgettext("Incident", escapeHTML(incident.status)) + "</td>";
+      return html + getCustomIncidentStatusLabel(event) + "</td>";
 
     html += "<a href='" + escapeHTML(incident.location)
       + "' target='_blank'>";
-    html += pgettext("Incident", escapeHTML(incident.status)) + "</a>";
+    html += getCustomIncidentStatusLabel(event) + "</a>";
     html += "</td>";
 
     return html;
