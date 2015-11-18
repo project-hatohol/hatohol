@@ -31,6 +31,7 @@ var EventsView = function(userProfile, options) {
   self.rawSeverityRankData = {};
   self.severityRanksMap = {};
   self.rawCustomIncidentStatusData = {};
+  self.customIncidentStatusesMap = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -208,7 +209,17 @@ var EventsView = function(userProfile, options) {
       url: "/custom-incident-status",
       request: "GET",
       replyCallback: function(reply, parser) {
+        var i, customIncidentStatuses;
         self.rawCustomIncidentStatusData = reply;
+        self.customIncidentStatusesMap = {};
+        customIncidentStatuses =
+          self.rawCustomIncidentStatusData["CustomIncidentStatuses"];
+        if (customIncidentStatuses) {
+          for (i = 0; i < customIncidentStatuses.length; i++) {
+            self.customIncidentStatusesMap[customIncidentStatuses[i].code] =
+              customIncidentStatuses[i];
+          }
+        }
         deferred.resolve();
       },
       parseErrorCallback: function() {
