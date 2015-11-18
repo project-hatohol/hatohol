@@ -324,16 +324,11 @@
 	      </button>
 
 	      <!-- Period filter config -->
-	      <div class="panel panel-default">
-		<div class="panel-body">
-		  <label for="period-filter-setting">{% trans "The period to show (recent days)" %}</label>
-		  <span style="float: right;">
-		    <input id="period-filter-setting" type="text" class="form-control">
-		      <label for="period-filter-setting" class="unit">{% trans "days" %}</label>
-		  </span>
-		</div>
+	      <div id="period-filter-container">
+		<label for="period-filter-setting">{% trans "The period to show (recent days)" %}</label>
+		<input id="period-filter-setting" type="text" class="form-control">
+		<label for="period-filter-setting" class="unit">{% trans "days" %}</label>
 	      </div>
-
 
 	      <!-- Incident filter config -->
 	      <p>
