@@ -35,7 +35,7 @@ var SeverityRanksView = function(userProfile) {
   //
   // Main view
   //
-  var severity_choices = [
+  var severityChoices = [
     gettext("Not classified"),
     gettext("Information"),
     gettext("Warning"),
@@ -46,6 +46,7 @@ var SeverityRanksView = function(userProfile) {
 
   function drawTableBody(replyData) {
     var html, severityRank, severityRankId, status, color, label, asImportant;
+    var defaultLabel;
     html = "";
 
     for (var x = 0; x < replyData["SeverityRanks"].length; ++x) {
@@ -55,15 +56,17 @@ var SeverityRanksView = function(userProfile) {
       color = severityRank["color"];
       label = severityRank["label"];
       asImportant = severityRank["asImportant"];
+      defaultLabel = severityChoices[status];
 
       html += "<tr>";
       html += "<td id='severity-rank-status" + escapeHTML(status) +"'>" +
-        severity_choices[Number(status)] + "</td>";
+        severityChoices[Number(status)] + "</td>";
       html += "<td id='severity-rank-color" + escapeHTML(status) + "'" +
         " style='background-color: " + escapeHTML(color) + "'>" +
         escapeHTML(color) + "</td>";
       html += "<td id='severity-rank-label" + escapeHTML(status) +"'" +
-        "contenteditable='true' style='display: none;'>" + escapeHTML(label) + "</td>";
+        "contenteditable='true' data-placeholder='" + defaultLabel + "'>" +
+	 escapeHTML(label) + "</td>";
       html += "<td class='delete-selector'>";
       html += "<input type='checkbox' id='severity-rank-checkbox" +
         escapeHTML(status) +"'";
@@ -178,6 +181,10 @@ var SeverityRanksView = function(userProfile) {
     drawTableContents(rawData);
     setupApplyButton(rawData);
     setupColorPickers(rawData);
+
+    // I don't know why but the following elements are unexpectedly inserted
+    // on Firefox.
+    $('#table td br[type="_moz"]').remove();
   }
 
   function load() {

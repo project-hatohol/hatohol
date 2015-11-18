@@ -29,6 +29,7 @@ var EventsView = function(userProfile, options) {
   self.rawData = {};
   self.rawSummaryData = {};
   self.rawSeverityRankData = {};
+  self.severityRanksMap = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -179,7 +180,15 @@ var EventsView = function(userProfile, options) {
       url: "/severity-rank",
       request: "GET",
       replyCallback: function(reply, parser) {
+        var i, severityRanks;
         self.rawSeverityRankData = reply;
+        self.severityRanksMap = {};
+        severityRanks = self.rawSeverityRankData["SeverityRanks"];
+        if (severityRanks) {
+          for (i = 0; i < severityRanks.length; i++) {
+            self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
+          }
+        }
         deferred.resolve();
       },
       parseErrorCallback: function() {
@@ -908,11 +917,21 @@ var EventsView = function(userProfile, options) {
       eventPropertyChoices.status[Number(status)].label + "</td>";
   }
 
+  function getSeverityLabel(event) {
+    var severity = event["severity"];
+    var defaultLabel = eventPropertyChoices.severity[Number(severity)].label;
+    if (!self.severityRanksMap || !self.severityRanksMap[severity])
+      return defaultLabel;
+    if (!self.severityRanksMap[severity].label)
+      return defaultLabel;
+    return self.severityRanksMap[severity].label;
+  }
+
   function renderTableDataEventSeverity(event, server) {
     var severity = event["severity"];
 
     return "<td class='" + getSeverityClass(event) + "'>" +
-      eventPropertyChoices.severity[Number(severity)].label + "</td>";
+      getSeverityLabel(event) + "</td>";
   }
 
   function renderTableDataEventDuration(event, server) {
@@ -1135,10 +1154,13 @@ var EventsView = function(userProfile, options) {
 
   function setupTableColor() {
     var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    var severity, color;
     if (!severityRanks)
       return;
     for (var x = 0; x < severityRanks.length; ++x) {
-      $('td.severity'+x).css("background-color", severityRanks[x].color);
+      severity = severityRanks[x].status;
+      color = severityRanks[x].color;
+      $('td.severity' + severity).css("background-color", color);
     }
   }
 
@@ -1160,12 +1182,14 @@ var EventsView = function(userProfile, options) {
 
       severityStatMap[severity] = times;
     }
-    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
-    var severityRankColorMap = {};
-    for (var ix = 0; ix < severityRanks.length; ++ix) {
-      severityRankColorMap[Number(severityRanks[ix].status)] =
-        severityRanks[ix].color;
-    }
+    var getColor = function(status) {
+      var defaultColors = [
+        "#BCBCBC", "#CCE2CC", "#FDFD96", "#DDAAAA", "#FF8888", "#FF0000",
+      ];
+      if (self.severityRanksMap && self.severityRanksMap[status])
+	return self.severityRanksMap[status].color;
+      return defaultColors[status];
+    };
     for (var idx = 0; idx < preDefinedSeverityArray.length; ++idx) {
       pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
     }
@@ -1173,22 +1197,22 @@ var EventsView = function(userProfile, options) {
     var dataSet = [
       { label: candidates[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY],
-        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_EMERGENCY] },
+        color: getColor(hatohol.TRIGGER_SEVERITY_EMERGENCY) },
       { label: candidates[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_CRITIAL],
-        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_CRITICAL] },
+        color: getColor(hatohol.TRIGGER_SEVERITY_CRITICAL) },
       { label: candidates[Number(hatohol.TRIGGER_SEVERITY_ERROR)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_ERROR],
-        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_ERROR] },
+        color: getColor(hatohol.TRIGGER_SEVERITY_ERROR) },
       { label: candidates[Number(hatohol.TRIGGER_SEVERITY_WARNING)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_WARNING],
-        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_WARNING] },
+        color: getColor(hatohol.TRIGGER_SEVERITY_WARNING) },
       { label: candidates[Number(hatohol.TRIGGER_SEVERITY_INFO)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_INFO],
-        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_INFO] },
+        color: getColor(hatohol.TRIGGER_SEVERITY_INFO) },
       { label: candidates[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)].label,
         data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_UNKNOWN],
-        color: severityRankColorMap[hatohol.TRIGGER_SEVERITY_UNKNOWN] },
+        color: getColor(hatohol.TRIGGER_SEVERITY_UNKNOWN) },
     ];
 
     var options = {
