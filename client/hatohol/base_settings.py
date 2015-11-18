@@ -220,6 +220,7 @@ ENABLED_PAGES = (
     #"ajax_log_search_systems",
     #"ajax_users",
     #"ajax_severity_ranks"
+    #"ajax_custom_incident_labels"
 
     #
     # Help menu
