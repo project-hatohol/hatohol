@@ -1118,6 +1118,35 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			    const HostInfoCache &hostInfoCache,
 			    JSONRPCError &errObj)
 {
+	/**
+	 * Get olny the first element from itemGroupName array.
+	 *
+	 * NOTE: This is tentative implementation. We will have to handle
+	 *       all of the given item group names.
+	 *
+	 * @param name
+	 * The first item group name. If the array is empty, an empty string
+	 * is assigned.
+	 * @return true if successful. Otherwise false.
+	 */
+	auto getItemGroupName = [&](string &name) {
+		CHECK_MANDATORY_ARRAY_EXISTENCE("itemGroupName", errObj);
+		parser.startObject("itemGroupName");
+		size_t num = parser.countElements();
+		if (num == 0)
+			name.clear();
+		else
+			parser.read(0, name);
+		// TODO: Don't ignore 2nd and the later itemGroupName.
+		if (num > 1) {
+			MLPL_WARN("Ignore 2nd and later itemGroups. This is "
+			          "a limitation of the current version of "
+			          "Hatohol (#1721).");
+		}
+		parser.endObject();
+		return true;
+	};
+
 	CHECK_MANDATORY_ARRAY_EXISTENCE("items", errObj);
 	parser.startObject("items");
 	size_t num = parser.countElements();
@@ -1138,7 +1167,8 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		PARSE_AS_MANDATORY("brief", itemInfo.brief, errObj);
 		parseTimeStamp(parser, "lastValueTime", itemInfo.lastValueTime, errObj);
 		PARSE_AS_MANDATORY("lastValue", itemInfo.lastValue, errObj);
-		PARSE_AS_MANDATORY("itemGroupName", itemInfo.itemGroupName, errObj);
+		if (!getItemGroupName(itemInfo.itemGroupName))
+			return false;
 		PARSE_AS_MANDATORY("unit", itemInfo.unit, errObj);
 		parser.endElement();
 		HostInfoCache::Element cacheElem;
