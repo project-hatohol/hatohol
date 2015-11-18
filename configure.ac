@@ -175,6 +175,7 @@ if test "$with_qpid" = "yes"; then
   AC_DEFINE(WITH_QPID, [1], [Define to 1 if qpid is enabled.])
 fi
 AM_CONDITIONAL(WITH_QPID, test "$with_qpid" = "yes")
+AC_SUBST(with_qpid)
 
 AC_LANG_POP([C++])
 
