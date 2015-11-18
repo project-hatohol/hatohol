@@ -30,6 +30,7 @@ var EventsView = function(userProfile, options) {
   self.rawSummaryData = {};
   self.rawSeverityRankData = {};
   self.severityRanksMap = {};
+  self.rawCustomIncidentStatusData = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -146,7 +147,7 @@ var EventsView = function(userProfile, options) {
   // Private functions
   //
   function start() {
-    $.when(loadUserConfig(), loadSeverityRank()).done(function() {
+    $.when(loadUserConfig(), loadSeverityRank(), loadCustomIncidentStatus()).done(function() {
       load();
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
@@ -189,6 +190,25 @@ var EventsView = function(userProfile, options) {
             self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
           }
         }
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
+  }
+
+  function loadCustomIncidentStatus() {
+    var deferred = new $.Deferred;
+    new HatoholConnector({
+      url: "/custom-incident-status",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        self.rawCustomIncidentStatusData = reply;
         deferred.resolve();
       },
       parseErrorCallback: function() {
