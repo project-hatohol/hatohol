@@ -476,6 +476,36 @@ var EventsView = function(userProfile, options) {
     $("#select-" + type).val(currentId);
   }
 
+  function setIncidentStatusFilter(selector, addEmptyItem) {
+    var candidates = self.customIncidentStatusesMap;
+    var option;
+    var x;
+    var selectedCandidates = {};
+    var currentId = $(selector).val();
+
+    $(selector).empty();
+
+    if (addEmptyItem) {
+      option = $("<option/>", {
+        text: "--------------------",
+        value: "",
+      }).appendTo(selector);
+    }
+
+    $.map(candidates, function(aCandidate) {
+      var option;
+
+      if (aCandidate) {
+        option = $("<option/>", {
+          text: aCandidate.code,
+          value: aCandidate.code
+        }).appendTo(selector);
+      }
+    });
+
+    $(selector).val(currentId);
+  }
+
   function setupFilterValues(servers, query) {
     var serverId = $("#select-server").val();
     var filterId = $("#select-filter").val();
@@ -490,9 +520,11 @@ var EventsView = function(userProfile, options) {
 
     self.setupHostFilters(servers, query);
 
-    resetEventPropertyFilter(filterConfig, "incident", true);
     resetEventPropertyFilter(filterConfig, "type", true);
     resetEventPropertyFilter(filterConfig, "severity", false);
+    setIncidentStatusFilter("#select-incident", true);
+    setIncidentStatusFilter("#change-incident", true);
+    setupChangeIncidentMenu();
 
     removeUnselectableFilterCandidates(filterConfig, "server");
     if (serverId) {
