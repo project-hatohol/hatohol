@@ -86,6 +86,24 @@ void data_updateStatus(void)
 	gcut_add_datum("DONE",
 	               "status", G_TYPE_STRING, "DONE",
 		       NULL);
+	gcut_add_datum("USER01",
+	               "status", G_TYPE_STRING, "USER01",
+		       NULL);
+	gcut_add_datum("USER02",
+	               "status", G_TYPE_STRING, "USER02",
+		       NULL);
+	gcut_add_datum("USER03",
+	               "status", G_TYPE_STRING, "USER03",
+		       NULL);
+	gcut_add_datum("USER04",
+	               "status", G_TYPE_STRING, "USER04",
+		       NULL);
+	gcut_add_datum("USER05",
+	               "status", G_TYPE_STRING, "USER05",
+		       NULL);
+	gcut_add_datum("USER06",
+	               "status", G_TYPE_STRING, "USER06",
+		       NULL);
 }
 
 void test_updateStatus(gconstpointer data)

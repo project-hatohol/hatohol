@@ -222,7 +222,7 @@ enum class Status {
 	HOLD,
 	IN_PROGRESS,
 	DONE,
-	USER_DEFINED_BEGIN
+	USER_DEFINED
 };
 
 struct StatusDef {
@@ -236,6 +236,12 @@ static const StatusDef definedStatuses[] = {
 	{ Status::HOLD,        "H", "HOLD" },
 	{ Status::IN_PROGRESS, "P", "IN PROGRESS" },
 	{ Status::DONE,        "*", "DONE" },
+	{ Status::USER_DEFINED, "", "USER01" },
+	{ Status::USER_DEFINED, "", "USER02" },
+	{ Status::USER_DEFINED, "", "USER03" },
+	{ Status::USER_DEFINED, "", "USER04" },
+	{ Status::USER_DEFINED, "", "USER05" },
+	{ Status::USER_DEFINED, "", "USER06" },
 };
 
 struct IncidentInfo {
