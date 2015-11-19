@@ -476,7 +476,7 @@ var EventsView = function(userProfile, options) {
     $("#select-" + type).val(currentId);
   }
 
-  function setIncidentStatusFilter(selector, addEmptyItem) {
+  function setupIncidentStatusSelectCandidates(selector, addEmptyItem) {
     var defaultCandidates = self.defaultIncidentStatusesMap;
     var candidates = self.customIncidentStatusesMap;
     var option;
@@ -530,8 +530,8 @@ var EventsView = function(userProfile, options) {
 
     resetEventPropertyFilter(filterConfig, "type", true);
     resetEventPropertyFilter(filterConfig, "severity", false);
-    setIncidentStatusFilter("#select-incident", true);
-    setIncidentStatusFilter("#change-incident", true);
+    setupIncidentStatusSelectCandidates("#select-incident", true);
+    setupIncidentStatusSelectCandidates("#change-incident", true);
     setupChangeIncidentMenu();
 
     removeUnselectableFilterCandidates(filterConfig, "server");
