@@ -1615,21 +1615,21 @@ msgstr "全ての重要度設定の取得"
 
 #: static/js/hatohol_user_roles_editor.js:519
 msgid "Create custom incident status"
-msgstr "インシデント管理設定の作成"
+msgstr "対応表示設定の作成"
 
 #: static/js/hatohol_user_roles_editor.js:520
 #: static/js/hatohol_user_roles_editor.js:525
 #: static/js/hatohol_user_roles_editor.js:530
 msgid "Custom incident status"
-msgstr "対応設定"
+msgstr "対応表示設定"
 
 #: static/js/hatohol_user_roles_editor.js:524
 msgid "Update custom incident status"
-msgstr "インシデント管理設定の更新"
+msgstr "対応表示設定の更新"
 
 #: static/js/hatohol_user_roles_editor.js:529
 msgid "Delete custom incident status"
-msgstr "インシデント管理設定の削除"
+msgstr "対応表示設定の削除"
 
 #: static/js/hatohol_user_roles_editor.js:542
 msgid "User role name"
