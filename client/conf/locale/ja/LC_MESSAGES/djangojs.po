@@ -287,7 +287,7 @@ msgstr "ステータス"
 
 #: static/js/events_view.js:106
 msgid "Current trigger status"
-msgstr ""
+msgstr "現在のトリガーの状態"
 
 #: static/js/events_view.js:110 static/js/hatohol_add_action_dialog.js:719
 msgid "Severity"
@@ -322,7 +322,6 @@ msgid "% Done"
 msgstr "進捗率"
 
 #: static/js/events_view.js:156
-#, fuzzy
 msgid "Failed to get the configuration!"
 msgstr "重要度設定の取得に失敗しました。"
 
@@ -1202,7 +1201,7 @@ msgstr "重要度設定"
 
 #: static/js/hatohol_navi.js:98
 msgid "Custom Incident Labels"
-msgstr ""
+msgstr "対応表示設定"
 
 #: static/js/hatohol_navi.js:109
 msgid "Help"
@@ -1615,7 +1614,6 @@ msgid "Get all severity rank"
 msgstr "全ての重要度設定の取得"
 
 #: static/js/hatohol_user_roles_editor.js:519
-#, fuzzy
 msgid "Create custom incident status"
 msgstr "インシデント管理設定の作成"
 
@@ -1623,15 +1621,13 @@ msgstr "インシデント管理設定の作成"
 #: static/js/hatohol_user_roles_editor.js:525
 #: static/js/hatohol_user_roles_editor.js:530
 msgid "Custom incident status"
-msgstr ""
+msgstr "対応設定"
 
 #: static/js/hatohol_user_roles_editor.js:524
-#, fuzzy
 msgid "Update custom incident status"
 msgstr "インシデント管理設定の更新"
 
 #: static/js/hatohol_user_roles_editor.js:529
-#, fuzzy
 msgid "Delete custom incident status"
 msgstr "インシデント管理設定の削除"
 

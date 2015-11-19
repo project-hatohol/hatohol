@@ -109,7 +109,7 @@ msgstr "JavaScriptが無効になっています。JavaScriptを有効にして�
 #: viewer/custom_incident_labels_ajax.html:24
 #: viewer/custom_incident_labels_ajax.html:29
 msgid "Custom Incident Labels"
-msgstr ""
+msgstr "対応表示設定"
 
 #: viewer/custom_incident_labels_ajax.html:31 viewer/history_ajax.html:98
 #: viewer/severity_ranks_ajax.html:31
@@ -118,12 +118,11 @@ msgstr "保存"
 
 #: viewer/custom_incident_labels_ajax.html:35
 msgid "Code"
-msgstr ""
+msgstr "対応コード"
 
 #: viewer/custom_incident_labels_ajax.html:36
-#, fuzzy
 msgid "Display Label"
-msgstr "表示ラベル"
+msgstr "表示名"
 
 #: viewer/dashboard_ajax.html:24 viewer/dashboard_ajax.html.py:29
 msgid "Dashboard"
@@ -302,9 +301,8 @@ msgid "Unknown"
 msgstr "不明"
 
 #: viewer/events_ajax.html:149
-#, fuzzy
 msgid "Notification"
-msgstr "確認"
+msgstr "通知"
 
 #: viewer/events_ajax.html:153 viewer/overview_items_ajax.html:33
 #: viewer/overview_triggers_ajax.html:32 viewer/triggers_ajax.html:32
