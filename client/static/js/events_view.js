@@ -30,6 +30,9 @@ var EventsView = function(userProfile, options) {
   self.rawSummaryData = {};
   self.rawSeverityRankData = {};
   self.severityRanksMap = {};
+  self.rawCustomIncidentStatusData = {};
+  self.customIncidentStatusesMap = {};
+  self.defaultIncidentStatusesMap = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -80,6 +83,7 @@ var EventsView = function(userProfile, options) {
       { value: "5", label: gettext("Disaster") },
     ],
   };
+  setupDefaultIncidentStatusMap();
 
   var columnDefinitions = {
     "monitoringServerName": {
@@ -146,7 +150,7 @@ var EventsView = function(userProfile, options) {
   // Private functions
   //
   function start() {
-    $.when(loadUserConfig(), loadSeverityRank()).done(function() {
+    $.when(loadUserConfig(), loadSeverityRank(), loadCustomIncidentStatus()).done(function() {
       load();
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
@@ -187,6 +191,35 @@ var EventsView = function(userProfile, options) {
         if (severityRanks) {
           for (i = 0; i < severityRanks.length; i++) {
             self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
+          }
+        }
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
+  }
+
+  function loadCustomIncidentStatus() {
+    var deferred = new $.Deferred;
+    new HatoholConnector({
+      url: "/custom-incident-status",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        var i, customIncidentStatuses;
+        self.rawCustomIncidentStatusData = reply;
+        self.customIncidentStatusesMap = {};
+        customIncidentStatuses =
+          self.rawCustomIncidentStatusData["CustomIncidentStatuses"];
+        if (customIncidentStatuses) {
+          for (i = 0; i < customIncidentStatuses.length; i++) {
+            self.customIncidentStatusesMap[customIncidentStatuses[i].code] =
+              customIncidentStatuses[i];
           }
         }
         deferred.resolve();
@@ -443,6 +476,44 @@ var EventsView = function(userProfile, options) {
     $("#select-" + type).val(currentId);
   }
 
+  function setupIncidentStatusSelectCandidates(selector, addEmptyItem) {
+    var defaultCandidates = self.defaultIncidentStatusesMap;
+    var candidates = self.customIncidentStatusesMap;
+    var option;
+    var x;
+    var selectedCandidates = {};
+    var currentId = $(selector).val();
+
+    $(selector).empty();
+
+    if (addEmptyItem) {
+      option = $("<option/>", {
+        text: "---------",
+        value: "",
+      }).appendTo(selector);
+    }
+
+    $.map(candidates, function(aCandidate) {
+      var option;
+      var label = null;
+
+      if (aCandidate.label !== "") {
+        label = aCandidate.label;
+      } else if ( aCandidate.label == "" && defaultCandidates[aCandidate.code]) {
+        label = defaultCandidates[aCandidate.code].label;
+      }
+
+      if (label && aCandidate) {
+        option = $("<option/>", {
+          text: label,
+          value: aCandidate.code
+        }).appendTo(selector);
+      }
+    });
+
+    $(selector).val(currentId);
+  }
+
   function setupFilterValues(servers, query) {
     var serverId = $("#select-server").val();
     var filterId = $("#select-filter").val();
@@ -457,9 +528,11 @@ var EventsView = function(userProfile, options) {
 
     self.setupHostFilters(servers, query);
 
-    resetEventPropertyFilter(filterConfig, "incident", true);
     resetEventPropertyFilter(filterConfig, "type", true);
     resetEventPropertyFilter(filterConfig, "severity", false);
+    setupIncidentStatusSelectCandidates("#select-incident", true);
+    setupIncidentStatusSelectCandidates("#change-incident", true);
+    setupChangeIncidentMenu();
 
     removeUnselectableFilterCandidates(filterConfig, "server");
     if (serverId) {
@@ -714,6 +787,19 @@ var EventsView = function(userProfile, options) {
     });
   }
 
+  function setupDefaultIncidentStatusMap() {
+    var i, defaultIncidentStatuses;
+    self.defaultIncidentStatusesMap = {};
+    defaultIncidentStatuses =
+      eventPropertyChoices.incident;
+    if (defaultIncidentStatuses) {
+      for (i = 0; i < defaultIncidentStatuses.length; i++) {
+        self.defaultIncidentStatusesMap[defaultIncidentStatuses[i].value] =
+          defaultIncidentStatuses[i];
+      }
+    }
+  }
+
   function setLoading(loading) {
     if (loading) {
       $("#begin-time").attr("disabled", "disabled");
@@ -927,6 +1013,16 @@ var EventsView = function(userProfile, options) {
     return self.severityRanksMap[severity].label;
   }
 
+  function getCustomIncidentStatusLabel(event) {
+    var incident = event["incident"];
+    var defaultLabel = "";
+    if (!self.customIncidentStatusesMap || !self.customIncidentStatusesMap[incident.status])
+      return defaultLabel;
+    if (self.defaultIncidentStatusesMap[incident.status].label && !self.customIncidentStatusesMap[incident.status].label)
+      return self.defaultIncidentStatusesMap[incident.status].label;
+    return self.customIncidentStatusesMap[incident.status].label;
+  }
+
   function renderTableDataEventSeverity(event, server) {
     var severity = event["severity"];
 
@@ -956,11 +1052,11 @@ var EventsView = function(userProfile, options) {
       return html + "</td>";
 
     if (!incident.localtion)
-      return html + pgettext("Incident", escapeHTML(incident.status)) + "</td>";
+      return html + getCustomIncidentStatusLabel(event) + "</td>";
 
     html += "<a href='" + escapeHTML(incident.location)
       + "' target='_blank'>";
-    html += pgettext("Incident", escapeHTML(incident.status)) + "</a>";
+    html += getCustomIncidentStatusLabel(event) + "</a>";
     html += "</td>";
 
     return html;
