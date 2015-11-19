@@ -42,6 +42,32 @@ describe('EventsView', function() {
     "apiVersion":4,
     "errorCode":0
   }
+  var dummyIncidentStatuses = {
+    "apiVersion": 4,
+    "errorCode": 0,
+    "CustomIncidentStatuses": [
+      {
+        "id": 1,
+        "code": "NONE",
+        "label": ""
+      },
+      {
+        "id": 2,
+        "code": "IN PROGRESS",
+        "label": ""
+      },
+      {
+        "id": 3,
+        "code": "HOLD",
+        "label": ""
+      },
+      {
+        "id": 4,
+        "code": "DONE",
+        "label": ""
+      },
+    ]
+  };
   var testOptions = {
     disableTimeRangeFilter: true,
   };
@@ -125,11 +151,18 @@ describe('EventsView', function() {
                     summaryJson);
   }
 
+  function respondIncidentStatuses(incidentStatusesJson) {
+    var request = this.requests[5];
+    request.respond(200, { "Content-Type": "application/json" },
+                    incidentStatusesJson);
+  }
+
   function respond(eventsJson, configJson) {
     respondUserConfig(configJson);
     respondSeverityRank();
     respondEvents(eventsJson);
     respondSummary(JSON.stringify(dummySummary));
+    respondIncidentStatuses(JSON.stringify(dummyIncidentStatuses));
   }
 
   function getDummyServerInfo(type){
