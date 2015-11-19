@@ -82,6 +82,17 @@ var HatoholEventsViewConfig = function(options) {
     $("#auto-reload-interval-slider").slider("value", value);
   });
 
+  $.map(self.multiselectFilterTypes, function(selector) {
+    $("#enable-" + selector + "-filter-selector").change(function() {
+      var enabled = $(this).prop("checked");
+      if (enabled) {
+	$(this).parent().next(".panel").show();
+      } else {
+	$(this).parent().next(".panel").hide();
+      }
+    }).change();
+  });
+
   for (key in options.columnDefinitions) {
     $("<option/>", {
       text: options.columnDefinitions[key].header,
@@ -546,6 +557,7 @@ HatoholEventsViewConfig.prototype.setCurrentFilterConfig = function(filter) {
 
   $.map(self.multiselectFilterTypes, function(type) {
     resetSelector(type, candidates[type], filter[type]);
+    $("#enable-" + type + "-filter-selector").change();
   });
 
   function buildComplexId(serverId, id) {

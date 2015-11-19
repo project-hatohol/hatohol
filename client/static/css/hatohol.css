@@ -152,6 +152,10 @@ button#filter-name-list-delete-button {
     margin-bottom: 6px;
 }
 
+div#period-filter-container {
+    margin-bottom: 12px;
+}
+
 input#period-filter-setting {
     width: 4em;
     display: inline-block;
