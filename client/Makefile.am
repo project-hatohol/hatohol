@@ -41,6 +41,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/css.external/bootstrap-theme.min.css \
 	static/css.external/jquery-ui-slider-pips.css \
 	static/css.external/jquery.datetimepicker.css \
+	static/css.external/spectrum.css \
 	static/fonts/glyphicons-halflings-regular.eot \
 	static/fonts/glyphicons-halflings-regular.svg \
 	static/fonts/glyphicons-halflings-regular.ttf \
@@ -57,6 +58,8 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/jquery.flot.js \
 	static/js.external/jquery.flot.time.js \
 	static/js.external/jquery.flot.selection.js \
+	static/js.external/jquery.flot.pie.js \
+	static/js.external/jquery.flot.resize.js \
 	static/js.external/jquery-deparam.js \
 	static/js.external/jquery-deparam.min.js \
 	static/js.external/multiselect.js \
