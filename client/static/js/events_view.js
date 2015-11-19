@@ -503,9 +503,9 @@ var EventsView = function(userProfile, options) {
         label = defaultCandidates[aCandidate.code].label;
       }
 
-      if (aCandidate) {
+      if (label && aCandidate) {
         option = $("<option/>", {
-          text: label ? label : aCandidate.code,
+          text: label,
           value: aCandidate.code
         }).appendTo(selector);
       }
