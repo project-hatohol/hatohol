@@ -477,6 +477,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function setIncidentStatusFilter(selector, addEmptyItem) {
+    var defaultCandidates = self.defaultIncidentStatusesMap;
     var candidates = self.customIncidentStatusesMap;
     var option;
     var x;
@@ -494,10 +495,17 @@ var EventsView = function(userProfile, options) {
 
     $.map(candidates, function(aCandidate) {
       var option;
+      var label = null;
+
+      if (aCandidate.label !== "") {
+        label = aCandidate.label;
+      } else if ( aCandidate.label == "" && defaultCandidates[aCandidate.code]) {
+        label = defaultCandidates[aCandidate.code].label;
+      }
 
       if (aCandidate) {
         option = $("<option/>", {
-          text: aCandidate.code,
+          text: label ? label : aCandidate.code,
           value: aCandidate.code
         }).appendTo(selector);
       }
