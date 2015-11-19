@@ -222,7 +222,6 @@ enum class Status {
 	HOLD,
 	IN_PROGRESS,
 	DONE,
-	USER_DEFINED_BEGIN,
 	USER_DEFINED
 };
 
