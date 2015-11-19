@@ -10,6 +10,10 @@ hatohol_hap2_SCRIPTS = \
 hatohol_hap2_DATA = \
 	hap2-control-functions.sh
 
+pkgsysconf_DATA = \
+	hap2-logging.conf
+pkgsysconfdir = $(sysconfdir)/$(PACKAGE)
+
 noinst_SCRIPTS = \
 	setup_common.py \
 	setup_zabbixapi.py \
