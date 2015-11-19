@@ -320,6 +320,7 @@ rm -rf %{buildroot}
 %{python_sitelib}/hatohol/transporters/__init__.pyc
 %{python_sitelib}/hatohol/transporters/__init__.pyo
 %{_libexecdir}/hatohol/hap2/hap2-control-functions.sh
+%{_sysconfdir}/hatohol/hap2-logging.conf
 
 %files hap2-rabbitmq-connector
 %{python_sitelib}/hatohol/rabbitmqconnector.py
