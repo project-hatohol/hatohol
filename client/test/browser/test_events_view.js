@@ -139,30 +139,30 @@ describe('EventsView', function() {
                     severityRanksJson());
   }
 
-  function respondEvents(eventsJson) {
+  function respondIncidentStatuses(incidentStatusesJson) {
     var request = this.requests[3];
+    request.respond(200, { "Content-Type": "application/json" },
+                    incidentStatusesJson);
+  }
+
+  function respondEvents(eventsJson) {
+    var request = this.requests[4];
     request.respond(200, { "Content-Type": "application/json" },
                     eventsJson);
   }
 
   function respondSummary(summaryJson) {
-    var request = this.requests[4];
-    request.respond(200, { "Content-Type": "application/json" },
-                    summaryJson);
-  }
-
-  function respondIncidentStatuses(incidentStatusesJson) {
     var request = this.requests[5];
     request.respond(200, { "Content-Type": "application/json" },
-                    incidentStatusesJson);
+                    summaryJson);
   }
 
   function respond(eventsJson, configJson) {
     respondUserConfig(configJson);
     respondSeverityRank();
+    respondIncidentStatuses(JSON.stringify(dummyIncidentStatuses));
     respondEvents(eventsJson);
     respondSummary(JSON.stringify(dummySummary));
-    respondIncidentStatuses(JSON.stringify(dummyIncidentStatuses));
   }
 
   function getDummyServerInfo(type){
