@@ -118,7 +118,7 @@ msgstr "保存"
 
 #: viewer/custom_incident_labels_ajax.html:35
 msgid "Code"
-msgstr "対応コード"
+msgstr "コード"
 
 #: viewer/custom_incident_labels_ajax.html:36
 msgid "Label"
