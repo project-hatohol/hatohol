@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-19 03:34-0600\n"
+"POT-Creation-Date: 2015-11-19 19:48-0600\n"
 "PO-Revision-Date: 2015-11-05 14:23+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -1200,8 +1200,8 @@ msgid "Severity Ranks"
 msgstr "重要度設定"
 
 #: static/js/hatohol_navi.js:98
-msgid "Custom Incident Labels"
-msgstr "対応表示設定"
+msgid "Incident Labels"
+msgstr "重要度表示設定"
 
 #: static/js/hatohol_navi.js:109
 msgid "Help"

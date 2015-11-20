@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-19 03:34-0600\n"
+"POT-Creation-Date: 2015-11-19 19:48-0600\n"
 "PO-Revision-Date: 2015-10-30 17:36+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -108,8 +108,8 @@ msgstr "JavaScriptが無効になっています。JavaScriptを有効にして�
 
 #: viewer/custom_incident_labels_ajax.html:24
 #: viewer/custom_incident_labels_ajax.html:29
-msgid "Custom Incident Labels"
-msgstr "対応表示設定"
+msgid "Incident Labels"
+msgstr "重要度表示設定"
 
 #: viewer/custom_incident_labels_ajax.html:31 viewer/history_ajax.html:98
 #: viewer/severity_ranks_ajax.html:31
@@ -121,8 +121,8 @@ msgid "Code"
 msgstr "対応コード"
 
 #: viewer/custom_incident_labels_ajax.html:36
-msgid "Display Label"
-msgstr "表示名"
+msgid "Label"
+msgstr "ラベル"
 
 #: viewer/dashboard_ajax.html:24 viewer/dashboard_ajax.html.py:29
 msgid "Dashboard"
@@ -693,6 +693,12 @@ msgstr "ユーザー種別"
 #: viewer/users_ajax.html:62
 msgid "Accessible monitoring servers / hostgroups"
 msgstr "アクセス可能な監視サーバー / ホストグループ"
+
+#~ msgid "Custom Incident Labels"
+#~ msgstr "対応表示設定"
+
+#~ msgid "Display Label"
+#~ msgstr "表示名"
 
 #~ msgid "Search period"
 #~ msgstr "検索期間"
