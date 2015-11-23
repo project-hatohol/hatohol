@@ -489,6 +489,9 @@ static HatoholError parseServerParameter(
 			  HatoholArmPluginGate::PassivePluginQuasiPath;
 #endif
 		}
+		if (passiveMode && svInfo.type == MONITORING_SYSTEM_HAPI2) {
+			armPluginInfo.path.clear();
+		}
 	}
 
 	// brokerUrl
