@@ -46,13 +46,17 @@ struct IncidentSenderHatohol::Impl
 	{
 	}
 
-	bool isKnownStatus(const string &status) {
+	bool isKnownStatus(const string &status)
+	{
 		for (size_t i = 0; i < ARRAY_SIZE(systemDefinedStatuses); i++) {
-			if (status == systemDefinedStatuses[i]) {
+			if (status == systemDefinedStatuses[i])
 				return true;
-			}
 		}
-		return false;
+
+		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+		std::map<string, CustomIncidentStatus> customStatuses =
+		  dataStore->getCustomIncidentStatusesCache();
+		return customStatuses.find(status) != customStatuses.end();
 	}
 
 	HatoholError validate(const IncidentInfo &incident)
