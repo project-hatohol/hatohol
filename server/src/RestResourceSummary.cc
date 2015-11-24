@@ -20,6 +20,7 @@
 #include "RestResourceSummary.h"
 #include "RestResourceHostUtils.h"
 #include "UnifiedDataStore.h"
+#include "IncidentSenderHatohol.h"
 
 typedef FaceRestResourceHandlerSimpleFactoryTemplate<RestResourceSummary>
   RestResourceSummaryFactory;
@@ -96,15 +97,15 @@ void RestResourceSummary::handlerSummary(void)
 
 	EventsQueryOption assignedEventOption(option);
 	std::set<std::string> assignedStatusSet, unAssignedStatusSet;
-	assignedStatusSet.insert(definedStatuses[static_cast<int>(Status::IN_PROGRESS)].label.c_str());
-	assignedStatusSet.insert(definedStatuses[static_cast<int>(Status::DONE)].label.c_str());
+	assignedStatusSet.insert(IncidentSenderHatohol::STATUS_IN_PROGRESS.c_str());
+	assignedStatusSet.insert(IncidentSenderHatohol::STATUS_DONE.c_str());
 	assignedEventOption.setIncidentStatuses(assignedStatusSet);
 	int64_t numOfAssignedEvents =
 	  dataStore->getNumberOfEvents(assignedEventOption);
 
 	EventsQueryOption unAssignedEventOption(option);
-	unAssignedStatusSet.insert(definedStatuses[static_cast<int>(Status::NONE)].label.c_str());
-	unAssignedStatusSet.insert(definedStatuses[static_cast<int>(Status::HOLD)].label.c_str());
+	unAssignedStatusSet.insert(IncidentSenderHatohol::STATUS_NONE.c_str());
+	unAssignedStatusSet.insert(IncidentSenderHatohol::STATUS_HOLD.c_str());
 	unAssignedEventOption.setIncidentStatuses(unAssignedStatusSet);
 	int64_t numOfUnAssignedEvents =
 	  dataStore->getNumberOfEvents(unAssignedEventOption);

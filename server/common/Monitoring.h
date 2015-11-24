@@ -217,27 +217,6 @@ typedef std::list<MonitoringServerStatus> MonitoringServerStatusList;
 typedef MonitoringServerStatusList::iterator MonitoringServerStatusListIterator;
 typedef MonitoringServerStatusList::const_iterator MonitoringServerStatusListConstIterator;
 
-enum class Status {
-	NONE,
-	HOLD,
-	IN_PROGRESS,
-	DONE,
-	USER_DEFINED_BEGIN
-};
-
-struct StatusDef {
-	Status status;
-	std::string indicator;
-	std::string label;
-};
-
-static const StatusDef definedStatuses[] = {
-	{ Status::NONE,        "",  "NONE" },
-	{ Status::HOLD,        "H", "HOLD" },
-	{ Status::IN_PROGRESS, "P", "IN PROGRESS" },
-	{ Status::DONE,        "*", "DONE" },
-};
-
 struct IncidentInfo {
 	typedef enum {
 		STATUS_UNKNOWN,

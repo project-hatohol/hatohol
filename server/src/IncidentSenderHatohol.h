@@ -25,6 +25,11 @@
 class IncidentSenderHatohol : public IncidentSender
 {
 public:
+	static const std::string STATUS_NONE;
+	static const std::string STATUS_HOLD;
+	static const std::string STATUS_IN_PROGRESS;
+	static const std::string STATUS_DONE;
+
 	IncidentSenderHatohol(const IncidentTrackerInfo &tracker);
 	virtual ~IncidentSenderHatohol();
 

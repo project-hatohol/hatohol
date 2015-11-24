@@ -24,6 +24,18 @@
 using namespace std;
 using namespace mlpl;
 
+const string IncidentSenderHatohol::STATUS_NONE("NONE");
+const string IncidentSenderHatohol::STATUS_HOLD("HOLD");
+const string IncidentSenderHatohol::STATUS_IN_PROGRESS("IN PROGRESS");
+const string IncidentSenderHatohol::STATUS_DONE("DONE");
+
+static const string definedStatuses[] = {
+	IncidentSenderHatohol::STATUS_NONE,
+	IncidentSenderHatohol::STATUS_HOLD,
+	IncidentSenderHatohol::STATUS_IN_PROGRESS,
+	IncidentSenderHatohol::STATUS_DONE,
+};
+
 struct IncidentSenderHatohol::Impl
 {
 	Impl(IncidentSenderHatohol &sender)
@@ -36,7 +48,7 @@ struct IncidentSenderHatohol::Impl
 
 	bool isKnownStatus(const string &status) {
 		for (size_t i = 0; i < ARRAY_SIZE(definedStatuses); i++) {
-			if (status == definedStatuses[i].label) {
+			if (status == definedStatuses[i]) {
 				return true;
 			}
 		}
@@ -73,7 +85,7 @@ struct IncidentSenderHatohol::Impl
 		incidentInfo.triggerId = eventInfo.triggerId;
 		incidentInfo.identifier = StringUtils::toString(eventInfo.unifiedId);
 		incidentInfo.location = "";
-		incidentInfo.status = definedStatuses[0].label;
+		incidentInfo.status = STATUS_NONE;
 		incidentInfo.priority = "";
 		incidentInfo.assignee = "";
 		incidentInfo.doneRatio = 0;
