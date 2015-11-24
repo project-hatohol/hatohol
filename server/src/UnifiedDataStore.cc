@@ -315,12 +315,25 @@ struct UnifiedDataStore::Impl
 		isStarted = false;
 	}
 
+	void updateCustomIncidentStatusMap(void)
+	{
+		customIncidentStatusMap.clear();
+
+		CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
+		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+		std::vector<CustomIncidentStatus> customStatuses;
+		dataStore->getCustomIncidentStatuses(customStatuses, option);
+		for (auto &customStatus: customStatuses)
+			customIncidentStatusMap[customStatus.code] = customStatus;
+	}
+
 	ReadWriteLock            serverIdDataStoreMapLock;
 	ServerIdDataStoreMap     serverIdDataStoreMap;
 	DataStoreManager         dataStoreManager;
 	Mutex                    armIncidentTrackerMapMutex;
 	ArmIncidentTrackerMap    armIncidentTrackerMap;
 	bool                     isStarted;
+	map<string, CustomIncidentStatus> customIncidentStatusMap;
 };
 
 UnifiedDataStore *UnifiedDataStore::Impl::instance = NULL;
@@ -1035,16 +1048,24 @@ HatoholError UnifiedDataStore::upsertCustomIncidentStatus(
   CustomIncidentStatus &customIncidentStatus, const OperationPrivilege privilege)
 {
 	ThreadLocalDBCache cache;
-	return cache.getConfig().upsertCustomIncidentStatus(customIncidentStatus,
-							    privilege);
+	DBTablesConfig &dbConfig = cache.getConfig();
+	HatoholError err = dbConfig.upsertCustomIncidentStatus(customIncidentStatus,
+							       privilege);
+	if (err == HTERR_OK)
+		m_impl->updateCustomIncidentStatusMap();
+	return err;
 }
 
 HatoholError UnifiedDataStore::updateCustomIncidentStatus(
   CustomIncidentStatus &customIncidentStatus, const OperationPrivilege privilege)
 {
 	ThreadLocalDBCache cache;
-	return cache.getConfig().updateCustomIncidentStatus(customIncidentStatus,
-							    privilege);
+	DBTablesConfig &dbConfig = cache.getConfig();
+	HatoholError err = dbConfig.updateCustomIncidentStatus(customIncidentStatus,
+							       privilege);
+	if (err == HTERR_OK)
+		m_impl->updateCustomIncidentStatusMap();
+	return err;
 }
 
 HatoholError UnifiedDataStore::getCustomIncidentStatuses(
@@ -1052,9 +1073,8 @@ HatoholError UnifiedDataStore::getCustomIncidentStatuses(
   const CustomIncidentStatusesQueryOption &option)
 {
 	ThreadLocalDBCache cache;
-	cache.getConfig().getCustomIncidentStatuses(customIncidentStatusVect,
-						    option);
-
+	DBTablesConfig &dbConfig = cache.getConfig();
+	dbConfig.getCustomIncidentStatuses(customIncidentStatusVect, option);
 	return HTERR_OK;
 }
 
@@ -1062,7 +1082,18 @@ HatoholError UnifiedDataStore::deleteCustomIncidentStatuses(
   list<CustomIncidentStatusIdType> &idList, const OperationPrivilege privilege)
 {
 	ThreadLocalDBCache cache;
-	return cache.getConfig().deleteCustomIncidentStatus(idList, privilege);
+	DBTablesConfig &dbConfig = cache.getConfig();
+	HatoholError err = dbConfig.deleteCustomIncidentStatus(idList, privilege);
+	m_impl->updateCustomIncidentStatusMap();
+	return err;
+}
+
+std::map<std::string, CustomIncidentStatus> &
+UnifiedDataStore::getCustomIncidentStatusesCache(void)
+{
+	if (m_impl->customIncidentStatusMap.empty())
+		m_impl->updateCustomIncidentStatusMap();
+	return m_impl->customIncidentStatusMap;
 }
 
 void UnifiedDataStore::startArmIncidentTrackerIfNeeded(
