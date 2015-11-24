@@ -22,6 +22,7 @@
 #include <Hatohol.h>
 #include <IncidentSenderHatohol.h>
 #include <ThreadLocalDBCache.h>
+#include <UnifiedDataStore.h>
 #include "DBTablesTest.h"
 #include "Helpers.h"
 
@@ -32,6 +33,7 @@ namespace testIncidentSenderHatohol {
 
 void cut_setup(void)
 {
+	UnifiedDataStore::getInstance()->reset();
 	hatoholInit();
 	setupTestDB();
 	loadTestDBTablesConfig();
@@ -39,6 +41,7 @@ void cut_setup(void)
 
 void cut_teardown(void)
 {
+	UnifiedDataStore::getInstance()->reset();
 }
 
 static void assertDBNotChanged(void)
@@ -146,6 +149,51 @@ void test_updateUnknownStatus(void)
 	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[4];
 	IncidentInfo incidentInfo = testIncidentInfo[2];
 	incidentInfo.status = "Unknown status";
+	IncidentSenderHatohol sender(tracker);
+	HatoholError err = sender.send(incidentInfo, "");
+
+	cppcut_assert_equal(HTERR_INVALID_PARAMETER, err.getCode());
+	assertDBNotChanged();
+}
+
+void data_userDefinedStatus(void)
+{
+	for (size_t i = 0; i < NumTestCustomIncidentStatus; i++) {
+		const CustomIncidentStatus &status = testCustomIncidentStatus[i];
+		gcut_add_datum(status.code.c_str(),
+			       "code", G_TYPE_STRING, status.code.c_str(),
+			       NULL);
+	}
+}
+
+void test_userDefinedStatus(gconstpointer data)
+{
+	loadTestDBIncidents();
+	loadTestDBCustomIncidentStatusInfo();
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[4];
+	IncidentInfo incidentInfo = testIncidentInfo[2];
+	incidentInfo.status = gcut_data_get_string(data, "code");;
+	IncidentSenderHatohol sender(tracker);
+	HatoholError err = sender.send(incidentInfo, "");
+
+	string expected(
+	  string("^5\\|2\\|2\\|3\\|123\\|\\|") +
+	  string(incidentInfo.status) +
+	  string ("\\|\\|1412957360\\|0\\|\\d+\\|\\d+\\|\\|0\\|123$"));
+	DBHatohol dbHatohol;
+	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incidents"
+				" where tracker_id=5 AND identifier='123';");
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
+void test_unregisteredStatus(void)
+{
+	loadTestDBIncidents();
+	const IncidentTrackerInfo &tracker = testIncidentTrackerInfo[4];
+	IncidentInfo incidentInfo = testIncidentInfo[2];
+	incidentInfo.status = "USER01";
 	IncidentSenderHatohol sender(tracker);
 	HatoholError err = sender.send(incidentInfo, "");
 

@@ -354,6 +354,7 @@ UnifiedDataStore::~UnifiedDataStore()
 void UnifiedDataStore::reset(void)
 {
 	stop();
+	m_impl->customIncidentStatusMap.clear();
 }
 
 UnifiedDataStore *UnifiedDataStore::getInstance(void)
