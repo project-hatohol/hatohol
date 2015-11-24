@@ -34,6 +34,15 @@ struct IncidentSenderHatohol::Impl
 	{
 	}
 
+	bool isKnownStatus(const string &status) {
+		for (size_t i = 0; i < ARRAY_SIZE(definedStatuses); i++) {
+			if (status == definedStatuses[i].label) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	HatoholError validate(const IncidentInfo &incident)
 	{
 		const IncidentTrackerInfo &tracker
@@ -45,14 +54,7 @@ struct IncidentSenderHatohol::Impl
 			return HatoholError(HTERR_INVALID_PARAMETER, message);
 		}
 
-		bool knownStatus = false;
-		for (size_t i = 0; i < ARRAY_SIZE(definedStatuses); i++) {
-			if (incident.status == definedStatuses[i].label) {
-				knownStatus = true;
-				break;
-			}
-		}
-		if (!knownStatus) {
+		if (!isKnownStatus(incident.status)) {
 			string message(StringUtils::sprintf(
 			  "Unknown status: %s", incident.status.c_str()));
 			return HatoholError(HTERR_INVALID_PARAMETER, message);
