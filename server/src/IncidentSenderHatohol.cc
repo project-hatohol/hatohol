@@ -29,7 +29,7 @@ const string IncidentSenderHatohol::STATUS_HOLD("HOLD");
 const string IncidentSenderHatohol::STATUS_IN_PROGRESS("IN PROGRESS");
 const string IncidentSenderHatohol::STATUS_DONE("DONE");
 
-static const string definedStatuses[] = {
+static const string systemDefinedStatuses[] = {
 	IncidentSenderHatohol::STATUS_NONE,
 	IncidentSenderHatohol::STATUS_HOLD,
 	IncidentSenderHatohol::STATUS_IN_PROGRESS,
@@ -47,8 +47,8 @@ struct IncidentSenderHatohol::Impl
 	}
 
 	bool isKnownStatus(const string &status) {
-		for (size_t i = 0; i < ARRAY_SIZE(definedStatuses); i++) {
-			if (status == definedStatuses[i]) {
+		for (size_t i = 0; i < ARRAY_SIZE(systemDefinedStatuses); i++) {
+			if (status == systemDefinedStatuses[i]) {
 				return true;
 			}
 		}
