@@ -682,7 +682,7 @@ bool AMQPConnection::publish(const AMQPMessage &message)
 				      no_mandatory,
 				      no_immediate,
 				      &props,
-				      amqp_bytes_malloc_dup(body_bytes));
+				      body_bytes);
 
 	if (response != AMQP_STATUS_OK) {
 		m_impl->logErrorResponse("publish a message", response);
