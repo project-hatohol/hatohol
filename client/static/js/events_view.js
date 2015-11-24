@@ -1220,19 +1220,18 @@ var EventsView = function(userProfile, options) {
 
   function setupStatictics() {
     // Assign/UnAssign events statistics
-    var numOfUnAssignedEvents = self.rawSummaryData["numOfUnAssignedEvents"];
+    var numOfImportantEvents = self.rawSummaryData["numOfImportantEvents"];
+    var numOfUnAssignedEvents = self.rawSummaryData["numOfUnAssignedImportantEvents"];
+    var numOfAssignedEvents = numOfImportantEvents - numOfUnAssignedEvents;
     $("#numOfUnAssignedEvents").text(numOfUnAssignedEvents);
-    var numOfAssignedEvents = self.rawSummaryData["numOfAssignedEvents"];
-    var totalNumOfAssignEvents = numOfUnAssignedEvents + numOfAssignedEvents;
     var unAssignedEventsPercentage = 0;
-    if (totalNumOfAssignEvents > 0)
+    if (numOfImportantEvents > 0)
       unAssignedEventsPercentage =
-        (numOfUnAssignedEvents / totalNumOfAssignEvents * 100).toFixed(2);
+        (numOfUnAssignedEvents / numOfImportantEvents * 100).toFixed(2);
     $("#unAssignedEventsPercentage").text(unAssignedEventsPercentage + "%");
     $("#unAssignedEventsPercentage").css("width", unAssignedEventsPercentage+"%");
 
     // Important/NotImportant events statistics
-    var numOfImportantEvents = self.rawSummaryData["numOfImportantEvents"];
     $("#numOfImportantEvents").text(numOfImportantEvents);
     var numOfImportantEventOccurredHosts =
           self.rawSummaryData["numOfImportantEventOccurredHosts"];
