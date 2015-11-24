@@ -95,17 +95,11 @@ void RestResourceSummary::handlerSummary(void)
 	int64_t numOfAllHosts =
 	  dataStore->getNumberOfHosts(hostsOption);
 
-	EventsQueryOption assignedEventOption(option);
-	std::set<std::string> assignedStatusSet, unAssignedStatusSet;
-	assignedStatusSet.insert(IncidentSenderHatohol::STATUS_IN_PROGRESS.c_str());
-	assignedStatusSet.insert(IncidentSenderHatohol::STATUS_DONE.c_str());
-	assignedEventOption.setIncidentStatuses(assignedStatusSet);
-	int64_t numOfAssignedEvents =
-	  dataStore->getNumberOfEvents(assignedEventOption);
-
 	EventsQueryOption unAssignedEventOption(option);
+	std::set<std::string> unAssignedStatusSet;
 	unAssignedStatusSet.insert(IncidentSenderHatohol::STATUS_NONE.c_str());
 	unAssignedStatusSet.insert(IncidentSenderHatohol::STATUS_HOLD.c_str());
+	unAssignedEventOption.setTriggerSeverities(importantStatusSet);
 	unAssignedEventOption.setIncidentStatuses(unAssignedStatusSet);
 	int64_t numOfUnAssignedEvents =
 	  dataStore->getNumberOfEvents(unAssignedEventOption);
@@ -118,8 +112,7 @@ void RestResourceSummary::handlerSummary(void)
 	reply.add("numOfNotImportantEvents", numOfNotImportantEvents);
 	reply.add("numOfAllHosts",
 		  numOfAllHosts);
-	reply.add("numOfAssignedEvents", numOfAssignedEvents);
-	reply.add("numOfUnAssignedEvents", numOfUnAssignedEvents);
+	reply.add("numOfUnAssignedImportantEvents", numOfUnAssignedEvents);
 	reply.startArray("statistics");
 	for (auto &statistics : severityStatisticsVect) {
 		reply.startObject();
