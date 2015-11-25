@@ -41,7 +41,7 @@ class PreviousHostsInfo:
         self.host_group_membership = list()
 
 
-class ZabbixAPIConductor:
+class ZabbixAPIConductor(object):
     def __init__(self):
         self.__api = None
         self.__previous_hosts_info = PreviousHostsInfo()
@@ -163,7 +163,7 @@ class Hap2ZabbixAPIPoller(haplib.BasePoller, ZabbixAPIConductor):
     # @override
     def on_aborted_poll(self):
         logger.error("Polling: aborted.")
-        super(ZabbixAPIConductor, self).reset()
+        ZabbixAPIConductor.reset(self)
 
 class Hap2ZabbixAPIMain(haplib.BaseMainPlugin, ZabbixAPIConductor):
     def __init__(self, *args, **kwargs):
