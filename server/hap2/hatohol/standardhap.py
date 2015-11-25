@@ -18,7 +18,6 @@
   <http://www.gnu.org/licenses/>.
 """
 
-import multiprocessing
 import argparse
 from logging import getLogger
 import time
