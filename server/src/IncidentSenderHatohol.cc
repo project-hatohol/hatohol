@@ -48,8 +48,8 @@ struct IncidentSenderHatohol::Impl
 
 	bool isKnownStatus(const string &status)
 	{
-		for (size_t i = 0; i < ARRAY_SIZE(systemDefinedStatuses); i++) {
-			if (status == systemDefinedStatuses[i])
+		for (auto &definedStatus: systemDefinedStatuses) {
+			if (status == definedStatus)
 				return true;
 		}
 
