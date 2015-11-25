@@ -1018,7 +1018,7 @@ var EventsView = function(userProfile, options) {
     var defaultLabel = "";
     if (!self.customIncidentStatusesMap || !self.customIncidentStatusesMap[incident.status])
       return defaultLabel;
-    if (self.defaultIncidentStatusesMap[incident.status].label && !self.customIncidentStatusesMap[incident.status].label)
+    if (self.defaultIncidentStatusesMap[incident.status] && self.defaultIncidentStatusesMap[incident.status].label && !self.customIncidentStatusesMap[incident.status].label)
       return self.defaultIncidentStatusesMap[incident.status].label;
     return self.customIncidentStatusesMap[incident.status].label;
   }
