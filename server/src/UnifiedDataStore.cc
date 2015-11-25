@@ -317,6 +317,10 @@ struct UnifiedDataStore::Impl
 
 	void updateCustomIncidentStatusMap(void)
 	{
+		customIncidentStatusMapLock.writeLock();
+		Reaper<ReadWriteLock> unlocker(&customIncidentStatusMapLock,
+		                               ReadWriteLock::unlock);
+
 		customIncidentStatusMap.clear();
 
 		CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
@@ -327,12 +331,28 @@ struct UnifiedDataStore::Impl
 			customIncidentStatusMap[customStatus.code] = customStatus;
 	}
 
+	void getCustomIncidentStatusMap(map<std::string, CustomIncidentStatus> &map)
+	{
+		customIncidentStatusMapLock.readLock();
+		Reaper<ReadWriteLock> unlocker(&customIncidentStatusMapLock,
+		                               ReadWriteLock::unlock);
+
+		if (customIncidentStatusMap.empty()) {
+			customIncidentStatusMapLock.unlock();
+			updateCustomIncidentStatusMap();
+			customIncidentStatusMapLock.readLock();
+		}
+
+		map = customIncidentStatusMap;
+	}
+
 	ReadWriteLock            serverIdDataStoreMapLock;
 	ServerIdDataStoreMap     serverIdDataStoreMap;
 	DataStoreManager         dataStoreManager;
 	Mutex                    armIncidentTrackerMapMutex;
 	ArmIncidentTrackerMap    armIncidentTrackerMap;
 	bool                     isStarted;
+	ReadWriteLock            customIncidentStatusMapLock;
 	map<string, CustomIncidentStatus> customIncidentStatusMap;
 };
 
@@ -1089,12 +1109,10 @@ HatoholError UnifiedDataStore::deleteCustomIncidentStatuses(
 	return err;
 }
 
-std::map<std::string, CustomIncidentStatus> &
-UnifiedDataStore::getCustomIncidentStatusesCache(void)
+void UnifiedDataStore::getCustomIncidentStatusesCache(
+  map<string, CustomIncidentStatus> &customIncidentStatusMap)
 {
-	if (m_impl->customIncidentStatusMap.empty())
-		m_impl->updateCustomIncidentStatusMap();
-	return m_impl->customIncidentStatusMap;
+	m_impl->getCustomIncidentStatusMap(customIncidentStatusMap);
 }
 
 void UnifiedDataStore::startArmIncidentTrackerIfNeeded(

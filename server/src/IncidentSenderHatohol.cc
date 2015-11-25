@@ -54,8 +54,8 @@ struct IncidentSenderHatohol::Impl
 		}
 
 		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-		std::map<string, CustomIncidentStatus> customStatuses =
-		  dataStore->getCustomIncidentStatusesCache();
+		map<string, CustomIncidentStatus> customStatuses;
+		dataStore->getCustomIncidentStatusesCache(customStatuses);
 		return customStatuses.find(status) != customStatuses.end();
 	}
 
