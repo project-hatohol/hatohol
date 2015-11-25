@@ -325,13 +325,13 @@ struct UnifiedDataStore::Impl
 
 		CustomIncidentStatusesQueryOption option(USER_ID_SYSTEM);
 		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-		std::vector<CustomIncidentStatus> customStatuses;
+		vector<CustomIncidentStatus> customStatuses;
 		dataStore->getCustomIncidentStatuses(customStatuses, option);
 		for (auto &customStatus: customStatuses)
 			customIncidentStatusMap[customStatus.code] = customStatus;
 	}
 
-	void getCustomIncidentStatusMap(map<std::string, CustomIncidentStatus> &map)
+	void getCustomIncidentStatusMap(map<string, CustomIncidentStatus> &map)
 	{
 		customIncidentStatusMapLock.readLock();
 		Reaper<ReadWriteLock> unlocker(&customIncidentStatusMapLock,
@@ -1090,7 +1090,7 @@ HatoholError UnifiedDataStore::updateCustomIncidentStatus(
 }
 
 HatoholError UnifiedDataStore::getCustomIncidentStatuses(
-  std::vector<CustomIncidentStatus> &customIncidentStatusVect,
+  vector<CustomIncidentStatus> &customIncidentStatusVect,
   const CustomIncidentStatusesQueryOption &option)
 {
 	ThreadLocalDBCache cache;
