@@ -66,6 +66,16 @@ describe('EventsView', function() {
         "code": "DONE",
         "label": ""
       },
+      {
+        "id": 7,
+        "code": "USER03",
+        "label": "Value1"
+      },
+      {
+        "id": 10,
+        "code": "USER06",
+        "label": "Value2"
+      },
     ]
   };
   var testOptions = {
@@ -425,5 +435,28 @@ describe('EventsView', function() {
       "Event IDTreatmentPriorityAssignee% Done");
     expect($('tr :eq(1)').text()).to.be(
       "12332NONEHIGHTom5%");
+  });
+
+  it('Treatment user-defined label columns', function() {
+    var view = new EventsView(getOperator(), testOptions);
+    var events = [
+      $.extend({}, dummyEventInfo[0], {
+        incident: {
+          status: "USER03",
+          priority: "HIGH",
+          assignee: "Tom",
+          doneRatio: 5,
+        }
+      })
+    ];
+    var configJson =
+      '{"events.columns":"eventId,' +
+      'incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio"}';
+    respond(eventsJson(events, getDummyServerInfo(0)),
+            configJson);
+    expect($('tr :eq(0)').text()).to.be(
+      "Event IDTreatmentPriorityAssignee% Done");
+    expect($('tr :eq(1)').text()).to.be(
+      "12332Value1HIGHTom5%");
   });
 });
