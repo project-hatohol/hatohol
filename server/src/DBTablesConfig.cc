@@ -2572,7 +2572,7 @@ HatoholError DBTablesConfig::checkPrivilegeForCustomIncidentStatusAdd(
   const OperationPrivilege &privilege,
   const CustomIncidentStatus &customIncidentStatus)
 {
-	if (!privilege.has(OPPRVLG_CREATE_CUSTOM_INCIDENT_STATUS))
+	if (!privilege.has(OPPRVLG_CREATE_INCIDENT_SETTING))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	const UserIdType userId = privilege.getUserId();
@@ -2586,7 +2586,7 @@ HatoholError DBTablesConfig::checkPrivilegeForCustomIncidentStatusUpdate(
   const OperationPrivilege &privilege,
   const CustomIncidentStatus &customIncidentStatus)
 {
-	if (!privilege.has(OPPRVLG_UPDATE_CUSTOM_INCIDENT_STATUS))
+	if (!privilege.has(OPPRVLG_UPDATE_INCIDENT_SETTING))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	const UserIdType userId = privilege.getUserId();
@@ -2600,7 +2600,7 @@ HatoholError DBTablesConfig::checkPrivilegeForCustomIncidentStatusDelete(
   const OperationPrivilege &privilege,
   const std::list<CustomIncidentStatusIdType> &idList)
 {
-	if (!privilege.has(OPPRVLG_DELETE_CUSTOM_INCIDENT_STATUS))
+	if (!privilege.has(OPPRVLG_DELETE_INCIDENT_SETTING))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
 	const UserIdType userId = privilege.getUserId();

@@ -98,9 +98,9 @@ var HatoholNavi = function(userProfile, currentPage) {
           title: gettext("Custom Incident Labels"),
           href:  "ajax_custom_incident_labels",
           flags: [
-            hatohol.OPPRVLG_CREATE_CUSTOM_INCIDENT_STATUS,
-            hatohol.OPPRVLG_UPDATE_CUSTOM_INCIDENT_STATUS,
-            hatohol.OPPRVLG_DELETE_CUSTOM_INCIDENT_STATUS,
+            hatohol.OPPRVLG_CREATE_INCIDENT_SETTING,
+            hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING,
+            hatohol.OPPRVLG_DELETE_INCIDENT_SETTING,
           ]
         },
       ]

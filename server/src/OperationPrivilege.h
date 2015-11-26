@@ -59,11 +59,11 @@ enum OperationPrivilegeType
 	OPPRVLG_UPDATE_ALL_USER_ROLE,
 	OPPRVLG_DELETE_ALL_USER_ROLE,
 
-	// IncidentTracker & IncidentSender action
-	OPPRVLG_CREATE_INCIDENT_SETTING,  // can create IncidentTracker & IncidentSender
-	OPPRVLG_UPDATE_INCIDENT_SETTING,  // can update IncidentTracker & IncidentSender
-	OPPRVLG_DELETE_INCIDENT_SETTING,  // can delete IncidentTracker & IncidentSender
-	OPPRVLG_GET_ALL_INCIDENT_SETTINGS,// can get all IncidentTracker & IncidentSender
+	// IncidentTracker, IncidentSender action, CustomIncidentStatus
+	OPPRVLG_CREATE_INCIDENT_SETTING,  // can create
+	OPPRVLG_UPDATE_INCIDENT_SETTING,  // can update
+	OPPRVLG_DELETE_INCIDENT_SETTING,  // can delete
+	OPPRVLG_GET_ALL_INCIDENT_SETTINGS,// can get all settings
 
 	// Othrer
 	OPPRVLG_GET_SYSTEM_INFO,
@@ -74,11 +74,6 @@ enum OperationPrivilegeType
 	OPPRVLG_UPDATE_SEVERITY_RANK,  // can update SeverityRank
 	OPPRVLG_DELETE_SEVERITY_RANK,  // can delete SeverityRank
 	OPPRVLG_GET_ALL_SEVERITY_RANK, // can get all SeverityRank
-
-	// CustomIncidentStatus action
-	OPPRVLG_CREATE_CUSTOM_INCIDENT_STATUS,  // can create CustomIncidentStatus
-	OPPRVLG_UPDATE_CUSTOM_INCIDENT_STATUS,  // can update CustomIncidentStatus
-	OPPRVLG_DELETE_CUSTOM_INCIDENT_STATUS,  // can delete CustomIncidentStatus
 
 	NUM_OPPRVLG,
 };
