@@ -153,7 +153,7 @@ void test_addCustomIncidentStatus(void)
 	  = NumTestCustomIncidentStatus + 1;
 	CustomIncidentStatus customIncidentStatus;
 	StringMap params;
-	UserIdType userId = findUserWith(OPPRVLG_CREATE_CUSTOM_INCIDENT_STATUS);
+	UserIdType userId = findUserWith(OPPRVLG_CREATE_INCIDENT_SETTING);
 	createTestCustomIncidentStatus(customIncidentStatus);
 	createPostData(customIncidentStatus, params);
 
@@ -164,7 +164,7 @@ void test_addCustomIncidentStatus(void)
 
 void test_updateCustomIncidentStatus(void)
 {
-	UserIdType userId = findUserWith(OPPRVLG_UPDATE_CUSTOM_INCIDENT_STATUS);
+	UserIdType userId = findUserWith(OPPRVLG_UPDATE_INCIDENT_SETTING);
 	const CustomIncidentStatusIdType targetId = 2;
 	CustomIncidentStatus customIncidentStatus
 	  = testCustomIncidentStatus[targetId - 1];

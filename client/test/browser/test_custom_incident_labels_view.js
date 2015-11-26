@@ -153,7 +153,7 @@ describe('CustomIncidentLabelsView', function() {
     var operator = {
       "userId": 1,
       "name": "admin",
-      "flags": 1 << hatohol.OPPRVLG_UPDATE_CUSTOM_INCIDENT_STATUS
+      "flags": 1 << hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING
     };
 
     var userProfile = new HatoholUserProfile(operator);
