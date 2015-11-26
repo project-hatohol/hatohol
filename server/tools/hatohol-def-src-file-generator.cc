@@ -254,7 +254,6 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, OPPRVLG_CREATE_SEVERITY_RANK);
 	ADD_LINE(s, langType, OPPRVLG_UPDATE_SEVERITY_RANK);
 	ADD_LINE(s, langType, OPPRVLG_DELETE_SEVERITY_RANK);
-	ADD_LINE(s, langType, OPPRVLG_GET_ALL_SEVERITY_RANK);
 
 	ADD_LINE(s, langType, NUM_OPPRVLG);
 	APPEND(s, "\n");

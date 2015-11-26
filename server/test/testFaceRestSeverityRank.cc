@@ -54,7 +54,7 @@ static void _assertSeverityRanks(
 {
 	startFaceRest();
 	RequestArg arg(path, callbackName);
-	arg.userId = findUserWith(OPPRVLG_GET_ALL_SEVERITY_RANK);
+	arg.userId = 1;
 	OperationPrivilege privilege(arg.userId);
 	g_parser = getResponseAsJSONParser(arg);
 	assertErrorCode(g_parser);

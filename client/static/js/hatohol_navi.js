@@ -91,7 +91,6 @@ var HatoholNavi = function(userProfile, currentPage) {
             hatohol.OPPRVLG_CREATE_SEVERITY_RANK,
             hatohol.OPPRVLG_UPDATE_SEVERITY_RANK,
             hatohol.OPPRVLG_DELETE_SEVERITY_RANK,
-            hatohol.OPPRVLG_GET_ALL_SEVERITY_RANK,
           ]
         },
         {
