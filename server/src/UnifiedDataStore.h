@@ -341,6 +341,8 @@ public:
 	HatoholError deleteCustomIncidentStatuses(
 	  std::list<CustomIncidentStatusIdType> &idList,
 	  const OperationPrivilege privilege);
+	void getCustomIncidentStatusesCache(
+	  std::map<std::string, CustomIncidentStatus> &customIncidentStatusMap);
 
 protected:
 	void fetchItems(const ServerIdType &targetServerId = ALL_SERVERS);
