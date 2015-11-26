@@ -1013,7 +1013,7 @@ var EventsView = function(userProfile, options) {
     return self.severityRanksMap[severity].label;
   }
 
-  function getCustomIncidentStatusLabel(event) {
+  function getIncidentStatusLabel(event) {
     var incident = event["incident"];
     var defaultLabel = "";
     if (!self.customIncidentStatusesMap || !self.customIncidentStatusesMap[incident.status])
@@ -1054,11 +1054,11 @@ var EventsView = function(userProfile, options) {
       return html + "</td>";
 
     if (!incident.localtion)
-      return html + getCustomIncidentStatusLabel(event) + "</td>";
+      return html + getIncidentStatusLabel(event) + "</td>";
 
     html += "<a href='" + escapeHTML(incident.location)
       + "' target='_blank'>";
-    html += getCustomIncidentStatusLabel(event) + "</a>";
+    html += getIncidentStatusLabel(event) + "</a>";
     html += "</td>";
 
     return html;
