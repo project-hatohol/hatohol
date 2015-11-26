@@ -73,7 +73,6 @@ enum OperationPrivilegeType
 	OPPRVLG_CREATE_SEVERITY_RANK,  // can create SeverityRank
 	OPPRVLG_UPDATE_SEVERITY_RANK,  // can update SeverityRank
 	OPPRVLG_DELETE_SEVERITY_RANK,  // can delete SeverityRank
-	OPPRVLG_GET_ALL_SEVERITY_RANK, // can get all SeverityRank
 
 	NUM_OPPRVLG,
 };
