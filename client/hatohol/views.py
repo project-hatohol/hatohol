@@ -23,6 +23,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.forms import ModelForm
 from django.core.exceptions import ValidationError
+from django.utils.encoding import smart_text
 
 from hatohol.models import LogSearchSystem, Graph, EventFilter
 from hatohol import hatoholserver
@@ -133,7 +134,8 @@ def json_settings_handler(request, id, model_class, view_path):
         return http.HttpResponseForbidden(content_type=content_type)
 
     if request.method == 'POST':
-        model = model_class(user_id=user_id, settings_json=request.body)
+        unicode_body = smart_text(request.body, encoding=request.encoding)
+        model = model_class(user_id=user_id, settings_json=unicode_body)
         try:
             model.full_clean()
         except ValidationError as e:
@@ -152,10 +154,11 @@ def json_settings_handler(request, id, model_class, view_path):
             return http.HttpResponseBadRequest(to_json(message),
                                                content_type=content_type)
         try:
+            unicode_body = smart_text(request.body, encoding=request.encoding)
             model = model_class.objects.get(id=id)
             if model.user_id != user_id:
                 return http.HttpResponseForbidden(content_type=content_type)
-            model.settings_json = request.body
+            model.settings_json = unicode_body
             model.full_clean()
             model.save()
             return http.HttpResponse(to_json(model),

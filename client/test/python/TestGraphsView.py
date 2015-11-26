@@ -38,6 +38,7 @@ class TestGraphsView(unittest.TestCase):
     def _request(self, method, id=None, body=None, POST=None, PUT=None):
         request = HttpRequest()
         request.method = method
+        request.encoding = "UTF-8"
         self._setSessionId(request)
         if PUT:
             request.META['CONTENT_TYPE'] = "application/json"
