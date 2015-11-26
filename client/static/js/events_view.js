@@ -1013,14 +1013,18 @@ var EventsView = function(userProfile, options) {
     return self.severityRanksMap[severity].label;
   }
 
-  function getCustomIncidentStatusLabel(event) {
+  function getIncidentStatusLabel(event) {
     var incident = event["incident"];
     var defaultLabel = "";
-    if (!self.customIncidentStatusesMap || !self.customIncidentStatusesMap[incident.status])
-      return defaultLabel;
-    if (self.defaultIncidentStatusesMap[incident.status].label && !self.customIncidentStatusesMap[incident.status].label)
+    if (self.customIncidentStatusesMap[incident.status] &&
+        self.customIncidentStatusesMap[incident.status].label)
+      return self.customIncidentStatusesMap[incident.status].label;
+
+    if (self.defaultIncidentStatusesMap[incident.status] &&
+        self.defaultIncidentStatusesMap[incident.status].label)
       return self.defaultIncidentStatusesMap[incident.status].label;
-    return self.customIncidentStatusesMap[incident.status].label;
+
+    return defaultLabel;
   }
 
   function renderTableDataEventSeverity(event, server) {
@@ -1052,11 +1056,11 @@ var EventsView = function(userProfile, options) {
       return html + "</td>";
 
     if (!incident.localtion)
-      return html + getCustomIncidentStatusLabel(event) + "</td>";
+      return html + getIncidentStatusLabel(event) + "</td>";
 
     html += "<a href='" + escapeHTML(incident.location)
       + "' target='_blank'>";
-    html += getCustomIncidentStatusLabel(event) + "</a>";
+    html += getIncidentStatusLabel(event) + "</a>";
     html += "</td>";
 
     return html;
