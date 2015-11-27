@@ -46,7 +46,6 @@ var EventsView = function(userProfile, options) {
   self.lastQuickFilter = {};
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
-  self.abbreviateDescription = false;
   self.abbreviateDescriptionLength = 30;
 
   setupEventsTable();
@@ -625,7 +624,6 @@ var EventsView = function(userProfile, options) {
 
     $("#toggle-abbreviating-event-descriptions").attr("checked", false);
     $("#toggle-abbreviating-event-descriptions").change(function() {
-      self.abbreviateDescription = $(this).is(":checked");
       load();
     });
   }
@@ -908,7 +906,7 @@ var EventsView = function(userProfile, options) {
     } catch(e) {
     }
 
-    if (self.abbreviateDescription) {
+    if ($("#toggle-abbreviating-event-descriptions").is(":checked")) {
       return name ? abbreviateDescription(name) : abbreviateDescription(event["brief"]);
     } else {
       return name ? name : event["brief"];
