@@ -43,6 +43,23 @@ RestResourceSummary::RestResourceSummary(
 {
 }
 
+static void getImportantSeveritySet(
+  const DataQueryContextPtr &dataQueryContextPtr,
+  set<TriggerSeverityType> &severitySet)
+{
+	SeverityRankQueryOption severityRankOption(dataQueryContextPtr);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	SeverityRankInfoVect importantSeverityRanks;
+	severityRankOption.setTargetAsImportant(static_cast<int>(true));
+	dataStore->getSeverityRanks(importantSeverityRanks, severityRankOption);
+
+	for (auto &severityRank : importantSeverityRanks) {
+		TriggerSeverityType severity =
+		  static_cast<TriggerSeverityType>(severityRank.status);
+		severitySet.insert(severity);
+	}
+}
+
 static void setAssignedIncidentStatusCondition(
   EventsQueryOption &option, const EventsQueryOption &userFilter)
 {
@@ -82,13 +99,8 @@ void RestResourceSummary::handlerSummary(void)
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 
-	EventsQueryOption option(m_dataQueryContextPtr);
-	SeverityRankQueryOption severityRankOption(m_dataQueryContextPtr);
-
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	SeverityRankInfoVect importantSeverityRanks;
-	severityRankOption.setTargetAsImportant(static_cast<int>(true));
-	dataStore->getSeverityRanks(importantSeverityRanks, severityRankOption);
+	EventsQueryOption option(m_dataQueryContextPtr);
 	bool isCountOnly = false;
 	HatoholError err =
 	  RestResourceHostUtils::parseEventParameter(option, m_query, isCountOnly);
@@ -97,12 +109,11 @@ void RestResourceSummary::handlerSummary(void)
 		return;
 	}
 
+	std::set<TriggerSeverityType> importantSeveritySet;
+	getImportantSeveritySet(m_dataQueryContextPtr, importantSeveritySet);
+
 	EventsQueryOption importantEventOption(option);
-	std::set<TriggerSeverityType> importantStatusSet;
-	for (auto &severityRank : importantSeverityRanks) {
-		importantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
-	}
-	importantEventOption.setTriggerSeverities(importantStatusSet);
+	importantEventOption.setTriggerSeverities(importantSeveritySet);
 	int64_t numOfImportantEvents =
 	  dataStore->getNumberOfEvents(importantEventOption);
 	int64_t numOfImportantEventOccurredHosts =
@@ -121,7 +132,7 @@ void RestResourceSummary::handlerSummary(void)
 	  dataStore->getNumberOfHosts(hostsOption);
 
 	EventsQueryOption assignedEventOption(option);
-	assignedEventOption.setTriggerSeverities(importantStatusSet);
+	assignedEventOption.setTriggerSeverities(importantSeveritySet);
 	setAssignedIncidentStatusCondition(assignedEventOption, option);
 	int64_t numOfAssignedEvents =
 	  dataStore->getNumberOfEvents(assignedEventOption);
