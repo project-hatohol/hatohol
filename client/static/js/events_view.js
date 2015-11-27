@@ -624,7 +624,7 @@ var EventsView = function(userProfile, options) {
     });
 
     $("#toggle-abbreviating-event-descriptions").change(function() {
-      self.abbreviateDescription = !self.abbreviateDescription;
+      self.abbreviateDescription = $(this).is(":checked");
       load();
     });
   }
