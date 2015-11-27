@@ -318,6 +318,11 @@ h2.hatohol-graph {
     margin-bottom: -3px;
 }
 
+.abbreviate-checkbox {
+    margin-top: -3px !important;
+    margin-left: 15px !important;
+}
+
 .calendar-group {
     margin-top: -15px;
 }
