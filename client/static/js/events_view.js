@@ -46,6 +46,8 @@ var EventsView = function(userProfile, options) {
   self.lastQuickFilter = {};
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
+  self.abbreviateDescription = false;
+  self.abbreviateDescriptionLength = 30;
 
   setupEventsTable();
   setupToggleFilter();
@@ -622,6 +624,8 @@ var EventsView = function(userProfile, options) {
     });
 
     $("#toggle-abbreviating-event-descriptions").change(function() {
+      self.abbreviateDescription = !self.abbreviateDescription;
+      load();
     });
   }
 
@@ -887,6 +891,10 @@ var EventsView = function(userProfile, options) {
     return  hostId == "__SELF_MONITOR";
   }
 
+  function abbreviateDescription(description) {
+    return description.substr(0, self.abbreviateDescriptionLength) + " ...";
+  }
+
   function getEventDescription(event) {
     var extendedInfo, name;
 
@@ -895,8 +903,13 @@ var EventsView = function(userProfile, options) {
       name = extendedInfo["expandedDescription"];
     } catch(e) {
     }
-    return name ? name : event["brief"];
-  }
+    if (self.abbreviateDescription) {
+      return name ? abbreviateDescription(name) : abbreviateDescription(event["brief"]);
+    }
+    else {
+      return name ? name : event["brief"];
+    }
+  };
 
   function getIncident(event) {
     if (!self.rawData["haveIncident"])
