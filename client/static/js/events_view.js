@@ -623,6 +623,7 @@ var EventsView = function(userProfile, options) {
       resetQuickFilter();
     });
 
+    $("#toggle-abbreviating-event-descriptions").attr("checked", false);
     $("#toggle-abbreviating-event-descriptions").change(function() {
       self.abbreviateDescription = $(this).is(":checked");
       load();
