@@ -124,7 +124,7 @@ var CustomIncidentLabelsView = function(userProfile) {
   }
 
   function setupApplyButton(reply) {
-    if (!userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_CUSTOM_INCIDENT_STATUS))
+    if (!userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_INCIDENT_SETTING))
       return;
 
     $("#save-custom-incident-labels").show();

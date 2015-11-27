@@ -88,7 +88,7 @@ void test_summary(void)
 
 	startFaceRest();
 	RequestArg arg("/summary");
-	arg.userId = findUserWith(OPPRVLG_GET_ALL_SEVERITY_RANK);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	JSONParser *parser = parserPtr.get();
 	assertErrorCode(parser);
