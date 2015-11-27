@@ -120,7 +120,7 @@ void test_summaryWithSeveritiesFilter(void)
 	loadUnAssignedIncidentInfo();
 
 	startFaceRest();
-	RequestArg arg("/summary/important-event?severities=0%21");
+	RequestArg arg("/summary/important-event?severities=0%2C1");
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	JSONParser *parser = parserPtr.get();
