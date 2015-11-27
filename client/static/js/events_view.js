@@ -486,6 +486,9 @@ var EventsView = function(userProfile, options) {
 
     $(selector).empty();
 
+    if (Object.keys(candidates).length == 0)
+      candidates = defaultCandidates;
+
     if (addEmptyItem) {
       option = $("<option/>", {
         text: "---------",
