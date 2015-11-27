@@ -86,11 +86,9 @@ void RestResourceSummary::handlerSummary(void)
 	SeverityRankQueryOption severityRankOption(m_dataQueryContextPtr);
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	SeverityRankInfoVect importantSeverityRanks, notImportantSeverityRanks;
+	SeverityRankInfoVect importantSeverityRanks;
 	severityRankOption.setTargetAsImportant(static_cast<int>(true));
 	dataStore->getSeverityRanks(importantSeverityRanks, severityRankOption);
-	severityRankOption.setTargetAsImportant(static_cast<int>(false));
-	dataStore->getSeverityRanks(notImportantSeverityRanks, severityRankOption);
 	bool isCountOnly = false;
 	HatoholError err =
 	  RestResourceHostUtils::parseEventParameter(option, m_query, isCountOnly);
@@ -100,7 +98,7 @@ void RestResourceSummary::handlerSummary(void)
 	}
 
 	EventsQueryOption importantEventOption(option);
-	std::set<TriggerSeverityType> importantStatusSet, notImportantStatusSet;
+	std::set<TriggerSeverityType> importantStatusSet;
 	for (auto &severityRank : importantSeverityRanks) {
 		importantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
 	}
@@ -118,13 +116,6 @@ void RestResourceSummary::handlerSummary(void)
 		return;
 	}
 
-	EventsQueryOption notImportantEventOption(option);
-	for (auto &severityRank : notImportantSeverityRanks) {
-		notImportantStatusSet.insert(static_cast<TriggerSeverityType>(severityRank.status));
-	}
-	notImportantEventOption.setTriggerSeverities(notImportantStatusSet);
-	int64_t numOfNotImportantEvents =
-	  dataStore->getNumberOfEvents(notImportantEventOption);
 	HostsQueryOption hostsOption(m_dataQueryContextPtr);
 	int64_t numOfAllHosts =
 	  dataStore->getNumberOfHosts(hostsOption);
@@ -140,7 +131,6 @@ void RestResourceSummary::handlerSummary(void)
 	reply.add("numOfImportantEvents", numOfImportantEvents);
 	reply.add("numOfImportantEventOccurredHosts",
 		  numOfImportantEventOccurredHosts);
-	reply.add("numOfNotImportantEvents", numOfNotImportantEvents);
 	reply.add("numOfAllHosts",
 		  numOfAllHosts);
 	reply.add("numOfAssignedImportantEvents", numOfAssignedEvents);

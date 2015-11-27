@@ -94,7 +94,6 @@ void test_summary(void)
 	assertErrorCode(parser);
 	assertValueInParser(parser, "numOfImportantEvents", 1);
 	assertValueInParser(parser, "numOfImportantEventOccurredHosts", 1);
-	assertValueInParser(parser, "numOfNotImportantEvents", 6);
 	assertValueInParser(parser, "numOfAllHosts", 16);
 	assertValueInParser(parser, "numOfAssignedImportantEvents", 0);
 	assertStartObject(parser, "statistics");
