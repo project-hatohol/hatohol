@@ -60,6 +60,30 @@ static void getImportantSeveritySet(
 	}
 }
 
+static void setSeverityCondition(
+  EventsQueryOption &option,
+  const set<TriggerSeverityType> &importantSeveritySet,
+  const EventsQueryOption &userFilter)
+{
+	const set<TriggerSeverityType> &baseSeverities =
+	  userFilter.getTriggerSeverities();
+
+	if (baseSeverities.empty()) {
+		option.setTriggerSeverities(importantSeveritySet);
+		return;
+	}
+
+	set<TriggerSeverityType> severitySet;
+	for (auto &severity: importantSeveritySet) {
+		if (baseSeverities.find(severity) == baseSeverities.end()) {
+			// The user doesn't want to include it.
+			continue;
+		}
+		severitySet.insert(severity);
+	}
+	option.setTriggerSeverities(severitySet);
+}
+
 static void setAssignedIncidentStatusCondition(
   EventsQueryOption &option, const EventsQueryOption &userFilter)
 {
@@ -99,7 +123,6 @@ void RestResourceSummary::handlerSummary(void)
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventsQueryOption userFilter(m_dataQueryContextPtr);
 	bool isCountOnly = false;
 	HatoholError err =
@@ -111,9 +134,10 @@ void RestResourceSummary::handlerSummary(void)
 
 	std::set<TriggerSeverityType> importantSeveritySet;
 	getImportantSeveritySet(m_dataQueryContextPtr, importantSeveritySet);
+	setSeverityCondition(userFilter, importantSeveritySet, userFilter);
 
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventsQueryOption importantEventOption(userFilter);
-	importantEventOption.setTriggerSeverities(importantSeveritySet);
 	int64_t numOfImportantEvents =
 	  dataStore->getNumberOfEvents(importantEventOption);
 	int64_t numOfImportantEventOccurredHosts =
@@ -132,7 +156,6 @@ void RestResourceSummary::handlerSummary(void)
 	  dataStore->getNumberOfHosts(hostsOption);
 
 	EventsQueryOption assignedEventOption(userFilter);
-	assignedEventOption.setTriggerSeverities(importantSeveritySet);
 	setAssignedIncidentStatusCondition(assignedEventOption, userFilter);
 	int64_t numOfAssignedEvents =
 	  dataStore->getNumberOfEvents(assignedEventOption);
