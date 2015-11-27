@@ -906,10 +906,10 @@ var EventsView = function(userProfile, options) {
       name = extendedInfo["expandedDescription"];
     } catch(e) {
     }
+
     if (self.abbreviateDescription) {
       return name ? abbreviateDescription(name) : abbreviateDescription(event["brief"]);
-    }
-    else {
+    } else {
       return name ? name : event["brief"];
     }
   };
