@@ -892,7 +892,10 @@ var EventsView = function(userProfile, options) {
   }
 
   function abbreviateDescription(description) {
-    return description.substr(0, self.abbreviateDescriptionLength) + " ...";
+    if (description.length > self.abbreviateDescriptionLength)
+      return description.substr(0, self.abbreviateDescriptionLength) + " ...";
+    else
+      return description;
   }
 
   function getEventDescription(event) {
