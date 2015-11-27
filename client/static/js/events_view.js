@@ -376,7 +376,7 @@ var EventsView = function(userProfile, options) {
     baseFilter = self.userConfig.getFilter(baseFilterId);
     $.extend(query, baseFilter);
 
-    return 'summary?' + $.param(query);
+    return 'summary/important-event?' + $.param(query);
   }
 
   function load(options) {

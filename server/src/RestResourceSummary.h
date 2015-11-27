@@ -27,12 +27,12 @@ struct RestResourceSummary : public RestResourceMemberHandler
 public:
 	typedef void (RestResourceSummary::*HandlerFunc)(void);
 
-	static const char *pathForSummary;
+	static const char *pathForImportantEventSummary;
 
 	static void registerFactories(FaceRest *faceRest);
 
 	RestResourceSummary(FaceRest *faceRest, HandlerFunc handler);
-	void handlerSummary(void);
+	void handlerImportantEventSummary(void);
 };
 
 #endif // RestResourceSummary_h

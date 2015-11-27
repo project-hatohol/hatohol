@@ -27,14 +27,15 @@ using namespace std;
 typedef FaceRestResourceHandlerSimpleFactoryTemplate<RestResourceSummary>
   RestResourceSummaryFactory;
 
-const char *RestResourceSummary::pathForSummary = "/summary";
+const char *RestResourceSummary::pathForImportantEventSummary
+  = "/summary/important-event";
 
 void RestResourceSummary::registerFactories(FaceRest *faceRest)
 {
 	faceRest->addResourceHandlerFactory(
-	  pathForSummary,
+	  pathForImportantEventSummary,
 	  new RestResourceSummaryFactory(
-	        faceRest, &RestResourceSummary::handlerSummary));
+	        faceRest, &RestResourceSummary::handlerImportantEventSummary));
 }
 
 RestResourceSummary::RestResourceSummary(
@@ -116,7 +117,7 @@ static void setAssignedIncidentStatusCondition(
 	option.setIncidentStatuses(assignedStatusSet);
 }
 
-void RestResourceSummary::handlerSummary(void)
+void RestResourceSummary::handlerImportantEventSummary(void)
 {
 	if (!httpMethodIs("GET")) {
 		MLPL_ERR("Unknown method: %s\n", m_message->method);
