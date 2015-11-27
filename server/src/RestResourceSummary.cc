@@ -100,10 +100,10 @@ void RestResourceSummary::handlerSummary(void)
 	}
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	EventsQueryOption option(m_dataQueryContextPtr);
+	EventsQueryOption userFilter(m_dataQueryContextPtr);
 	bool isCountOnly = false;
 	HatoholError err =
-	  RestResourceHostUtils::parseEventParameter(option, m_query, isCountOnly);
+	  RestResourceHostUtils::parseEventParameter(userFilter, m_query, isCountOnly);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
@@ -112,7 +112,7 @@ void RestResourceSummary::handlerSummary(void)
 	std::set<TriggerSeverityType> importantSeveritySet;
 	getImportantSeveritySet(m_dataQueryContextPtr, importantSeveritySet);
 
-	EventsQueryOption importantEventOption(option);
+	EventsQueryOption importantEventOption(userFilter);
 	importantEventOption.setTriggerSeverities(importantSeveritySet);
 	int64_t numOfImportantEvents =
 	  dataStore->getNumberOfEvents(importantEventOption);
@@ -131,9 +131,9 @@ void RestResourceSummary::handlerSummary(void)
 	int64_t numOfAllHosts =
 	  dataStore->getNumberOfHosts(hostsOption);
 
-	EventsQueryOption assignedEventOption(option);
+	EventsQueryOption assignedEventOption(userFilter);
 	assignedEventOption.setTriggerSeverities(importantSeveritySet);
-	setAssignedIncidentStatusCondition(assignedEventOption, option);
+	setAssignedIncidentStatusCondition(assignedEventOption, userFilter);
 	int64_t numOfAssignedEvents =
 	  dataStore->getNumberOfEvents(assignedEventOption);
 
