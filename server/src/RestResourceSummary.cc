@@ -30,6 +30,21 @@ typedef FaceRestResourceHandlerSimpleFactoryTemplate<RestResourceSummary>
 const char *RestResourceSummary::pathForImportantEventSummary
   = "/summary/important-event";
 
+struct ImportantEventStatistics
+{
+	int64_t numOfImportantEvents;
+	int64_t numOfImportantEventOccurredHosts;
+	int64_t numOfAssignedEvents;
+	vector<DBTablesMonitoring::EventSeverityStatistics> severityStatisticsVect;
+
+	ImportantEventStatistics()
+	: numOfImportantEvents(0),
+	  numOfImportantEventOccurredHosts(0),
+	  numOfAssignedEvents(0)
+	{
+	}
+};
+
 void RestResourceSummary::registerFactories(FaceRest *faceRest)
 {
 	faceRest->addResourceHandlerFactory(
@@ -61,7 +76,7 @@ static void getImportantSeveritySet(
 	}
 }
 
-static void setSeverityCondition(
+static bool setSeverityCondition(
   EventsQueryOption &option,
   const set<TriggerSeverityType> &importantSeveritySet,
   const EventsQueryOption &userFilter)
@@ -71,7 +86,7 @@ static void setSeverityCondition(
 
 	if (baseSeverities.empty()) {
 		option.setTriggerSeverities(importantSeveritySet);
-		return;
+		return !importantSeveritySet.empty();
 	}
 
 	set<TriggerSeverityType> severitySet;
@@ -83,9 +98,11 @@ static void setSeverityCondition(
 		severitySet.insert(severity);
 	}
 	option.setTriggerSeverities(severitySet);
+
+	return !severitySet.empty();
 }
 
-static void setAssignedIncidentStatusCondition(
+static bool setAssignedIncidentStatusCondition(
   EventsQueryOption &option, const EventsQueryOption &userFilter)
 {
 	const set<string> &baseStatuses = userFilter.getIncidentStatuses();
@@ -115,6 +132,35 @@ static void setAssignedIncidentStatusCondition(
 	}
 
 	option.setIncidentStatuses(assignedStatusSet);
+
+	return !assignedStatusSet.empty();
+}
+
+HatoholError getImportantEventStatistics(ImportantEventStatistics &statistics,
+					 const EventsQueryOption &userFilter)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	EventsQueryOption importantEventOption(userFilter);
+	statistics.numOfImportantEvents =
+	  dataStore->getNumberOfEvents(importantEventOption);
+	statistics.numOfImportantEventOccurredHosts =
+	  dataStore->getNumberOfHostsWithSpecifiedEvents(importantEventOption);
+	HatoholError err =
+	  dataStore->getEventSeverityStatistics(
+	    statistics.severityStatisticsVect,
+	    importantEventOption);
+	if (err != HTERR_OK)
+		return err;
+
+	EventsQueryOption assignedEventOption(userFilter);
+	bool hasIncidentStatusCondition =
+	  setAssignedIncidentStatusCondition(assignedEventOption, userFilter);
+	if (hasIncidentStatusCondition) {
+		statistics.numOfAssignedEvents =
+		  dataStore->getNumberOfEvents(assignedEventOption);
+	}
+
+	return err;
 }
 
 void RestResourceSummary::handlerImportantEventSummary(void)
@@ -133,47 +179,38 @@ void RestResourceSummary::handlerImportantEventSummary(void)
 		return;
 	}
 
-	std::set<TriggerSeverityType> importantSeveritySet;
+	set<TriggerSeverityType> importantSeveritySet;
 	getImportantSeveritySet(m_dataQueryContextPtr, importantSeveritySet);
-	setSeverityCondition(userFilter, importantSeveritySet, userFilter);
+	bool hasSeverityCondition =
+	  setSeverityCondition(userFilter, importantSeveritySet, userFilter);
 
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	EventsQueryOption importantEventOption(userFilter);
-	int64_t numOfImportantEvents =
-	  dataStore->getNumberOfEvents(importantEventOption);
-	int64_t numOfImportantEventOccurredHosts =
-	  dataStore->getNumberOfHostsWithSpecifiedEvents(importantEventOption);
-	std::vector<DBTablesMonitoring::EventSeverityStatistics> severityStatisticsVect;
-	err =
-	  dataStore->getEventSeverityStatistics(severityStatisticsVect,
-	                                        importantEventOption);
-	if (err != HTERR_OK) {
-		replyError(err);
-		return;
+	ImportantEventStatistics statistics;
+	if (hasSeverityCondition) {
+		err = getImportantEventStatistics(statistics, userFilter);
+		if (err != HTERR_OK) {
+			replyError(err);
+			return;
+		}
 	}
 
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostsQueryOption hostsOption(m_dataQueryContextPtr);
 	int64_t numOfAllHosts =
 	  dataStore->getNumberOfHosts(hostsOption);
 
-	EventsQueryOption assignedEventOption(userFilter);
-	setAssignedIncidentStatusCondition(assignedEventOption, userFilter);
-	int64_t numOfAssignedEvents =
-	  dataStore->getNumberOfEvents(assignedEventOption);
-
 	JSONBuilder reply;
 	reply.startObject();
-	reply.add("numOfImportantEvents", numOfImportantEvents);
+	reply.add("numOfImportantEvents", statistics.numOfImportantEvents);
 	reply.add("numOfImportantEventOccurredHosts",
-		  numOfImportantEventOccurredHosts);
+		  statistics.numOfImportantEventOccurredHosts);
 	reply.add("numOfAllHosts",
 		  numOfAllHosts);
-	reply.add("numOfAssignedImportantEvents", numOfAssignedEvents);
+	reply.add("numOfAssignedImportantEvents", statistics.numOfAssignedEvents);
 	reply.startArray("statistics");
-	for (auto &statistics : severityStatisticsVect) {
+	for (auto &element : statistics.severityStatisticsVect) {
 		reply.startObject();
-		reply.add("severity", statistics.severity);
-		reply.add("times", statistics.num);
+		reply.add("severity", element.severity);
+		reply.add("times", element.num);
 		reply.endObject();
 	}
 	reply.endArray(); // statistics
