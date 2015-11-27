@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -236,14 +236,19 @@ const std::string &HatoholError::getCodeName(void) const
 
 const std::string &HatoholError::getMessage(void) const
 {
-	if (errorMessages.find(m_code) != errorMessages.end())
-		return errorMessages[m_code];
-	return StringUtils::EMPTY_STRING;
+	return getMessage(m_code);
 }
 
 const string &HatoholError::getOptionMessage(void) const
 {
 	return m_optMessage;
+}
+
+const string &HatoholError::getMessage(const HatoholErrorCode &errorCode)
+{
+	if (errorMessages.find(errorCode) != errorMessages.end())
+		return errorMessages[errorCode];
+	return StringUtils::EMPTY_STRING;
 }
 
 bool HatoholError::operator==(const HatoholErrorCode &rhs) const
