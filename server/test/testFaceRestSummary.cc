@@ -96,7 +96,7 @@ void test_summary(void)
 	assertValueInParser(parser, "numOfImportantEventOccurredHosts", 1);
 	assertValueInParser(parser, "numOfNotImportantEvents", 6);
 	assertValueInParser(parser, "numOfAllHosts", 16);
-	assertValueInParser(parser, "numOfUnAssignedImportantEvents", 1);
+	assertValueInParser(parser, "numOfAssignedImportantEvents", 0);
 	assertStartObject(parser, "statistics");
 	{
 		size_t i = 0;

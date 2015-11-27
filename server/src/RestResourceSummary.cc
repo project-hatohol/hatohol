@@ -22,6 +22,8 @@
 #include "UnifiedDataStore.h"
 #include "IncidentSenderHatohol.h"
 
+using namespace std;
+
 typedef FaceRestResourceHandlerSimpleFactoryTemplate<RestResourceSummary>
   RestResourceSummaryFactory;
 
@@ -39,6 +41,38 @@ RestResourceSummary::RestResourceSummary(
   FaceRest *faceRest, HandlerFunc handler)
 : RestResourceMemberHandler(faceRest, static_cast<RestMemberHandler>(handler))
 {
+}
+
+static void setAssignedIncidentStatusCondition(
+  EventsQueryOption &option, const EventsQueryOption &userFilter)
+{
+	const set<string> &baseStatuses = userFilter.getIncidentStatuses();
+	set<string> assignedStatusSet;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	map<string, CustomIncidentStatus> customIncidentStatusMap;
+	dataStore->getCustomIncidentStatusesCache(customIncidentStatusMap);
+
+	// Make sure to exist system-defined statuses
+	CustomIncidentStatus dummy;
+	customIncidentStatusMap[IncidentSenderHatohol::STATUS_IN_PROGRESS] = dummy;
+	customIncidentStatusMap[IncidentSenderHatohol::STATUS_DONE] = dummy;
+
+	// Remove system-defined statues that shouldn't be treated as "Assigned".
+	customIncidentStatusMap.erase(IncidentSenderHatohol::STATUS_NONE);
+	customIncidentStatusMap.erase(IncidentSenderHatohol::STATUS_HOLD);
+
+	for (auto &pair: customIncidentStatusMap) {
+		const string &status = pair.first;
+		if (!baseStatuses.empty() &&
+		    baseStatuses.find(status) == baseStatuses.end())
+		{
+			// The user doesn't want to include it.
+			continue;
+		}
+		assignedStatusSet.insert(status.c_str());
+	}
+
+	option.setIncidentStatuses(assignedStatusSet);
 }
 
 void RestResourceSummary::handlerSummary(void)
@@ -95,14 +129,11 @@ void RestResourceSummary::handlerSummary(void)
 	int64_t numOfAllHosts =
 	  dataStore->getNumberOfHosts(hostsOption);
 
-	EventsQueryOption unAssignedEventOption(option);
-	std::set<std::string> unAssignedStatusSet;
-	unAssignedStatusSet.insert(IncidentSenderHatohol::STATUS_NONE.c_str());
-	unAssignedStatusSet.insert(IncidentSenderHatohol::STATUS_HOLD.c_str());
-	unAssignedEventOption.setTriggerSeverities(importantStatusSet);
-	unAssignedEventOption.setIncidentStatuses(unAssignedStatusSet);
-	int64_t numOfUnAssignedEvents =
-	  dataStore->getNumberOfEvents(unAssignedEventOption);
+	EventsQueryOption assignedEventOption(option);
+	assignedEventOption.setTriggerSeverities(importantStatusSet);
+	setAssignedIncidentStatusCondition(assignedEventOption, option);
+	int64_t numOfAssignedEvents =
+	  dataStore->getNumberOfEvents(assignedEventOption);
 
 	JSONBuilder reply;
 	reply.startObject();
@@ -112,7 +143,7 @@ void RestResourceSummary::handlerSummary(void)
 	reply.add("numOfNotImportantEvents", numOfNotImportantEvents);
 	reply.add("numOfAllHosts",
 		  numOfAllHosts);
-	reply.add("numOfUnAssignedImportantEvents", numOfUnAssignedEvents);
+	reply.add("numOfAssignedImportantEvents", numOfAssignedEvents);
 	reply.startArray("statistics");
 	for (auto &statistics : severityStatisticsVect) {
 		reply.startObject();

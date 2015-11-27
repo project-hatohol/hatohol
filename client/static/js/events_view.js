@@ -1225,8 +1225,8 @@ var EventsView = function(userProfile, options) {
   function setupStatictics() {
     // Assign/UnAssign events statistics
     var numOfImportantEvents = self.rawSummaryData["numOfImportantEvents"];
-    var numOfUnAssignedEvents = self.rawSummaryData["numOfUnAssignedImportantEvents"];
-    var numOfAssignedEvents = numOfImportantEvents - numOfUnAssignedEvents;
+    var numOfAssignedEvents = self.rawSummaryData["numOfAssignedImportantEvents"];
+    var numOfUnAssignedEvents = numOfImportantEvents - numOfAssignedEvents;
     $("#numOfUnAssignedEvents").text(numOfUnAssignedEvents);
     var unAssignedEventsPercentage = 0;
     if (numOfImportantEvents > 0)
