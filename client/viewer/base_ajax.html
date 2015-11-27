@@ -28,11 +28,11 @@
     <meta http-equiv="Cache-Control" content="no-cache">
     <meta http-equiv="Expires" content="Thu, 01 Jan 1970 00:00:00 GMT">
     <link href="{{ STATIC_URL }}images/favicon.ico" rel="shortcut icon" type="image/x-icon">
-    <link href="{{ STATIC_URL }}css.external/bootstrap.css" rel="stylesheet" media="screen">
+    <link href="{{ STATIC_URL }}css.external/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="{{ STATIC_URL }}css/hatohol.css" rel="stylesheet" media="screen">
     <link href="{{ STATIC_URL }}css/zabbix.css" rel="stylesheet" media="screen">
     <link href="{{ STATIC_URL }}css.external/themes/ui-lightness/jquery-ui.css" rel="stylesheet" media="screen">
-    <link href="{{ STATIC_URL }}css.external/jquery-ui-slider-pips.css" rel="stylesheet" media="screen">
+    <link href="{{ STATIC_URL }}css.external/jquery-ui-slider-pips.min.css" rel="stylesheet" media="screen">
     <link href="{{ STATIC_URL }}css.external/jquery.datetimepicker.css" rel="stylesheet" media="screen">
     <link href="{{ STATIC_URL }}css.external/spectrum.css" rel="stylesheet" media="screen">
 
@@ -104,11 +104,12 @@
     // -->
     </script>
     <script src="{% url "django.views.i18n.javascript_catalog" %}"></script>
-    <script src="{{ STATIC_URL }}js.external/jquery.js"></script>
+    <script src="{{ STATIC_URL }}js.external/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}js.external/stupidtable.min.js"></script>
     <script src="{{ STATIC_URL }}js.external/jquery-ui.min.js"></script>
     <script src="{{ STATIC_URL }}js.external/jquery-deparam.min.js"></script>
     <script src="{{ STATIC_URL }}js.external/jquery.datetimepicker.js"></script>
-    <script src="{{ STATIC_URL }}js.external/bootstrap.js"></script>
+    <script src="{{ STATIC_URL }}js.external/bootstrap.min.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_def.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_message_box.js"></script>
     <script src="{{ STATIC_URL }}js/hatohol_session_manager.js"></script>
