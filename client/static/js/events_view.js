@@ -1235,7 +1235,7 @@ var EventsView = function(userProfile, options) {
     $("#unAssignedEventsPercentage").text(unAssignedEventsPercentage + "%");
     $("#unAssignedEventsPercentage").css("width", unAssignedEventsPercentage+"%");
 
-    // Important/NotImportant events statistics
+    // Important events statistics
     $("#numOfImportantEvents").text(numOfImportantEvents);
     var numOfImportantEventOccurredHosts =
           self.rawSummaryData["numOfImportantEventOccurredHosts"];
