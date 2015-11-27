@@ -620,6 +620,9 @@ var EventsView = function(userProfile, options) {
       setupFilterValues();
       resetQuickFilter();
     });
+
+    $("#toggle-abbreviating-event-descriptions").change(function() {
+    });
   }
 
   function updateIncidentStatus() {
