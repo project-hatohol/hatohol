@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -146,6 +146,8 @@ public:
 	const std::string &getCodeName(void) const;
 	const std::string &getMessage(void) const;
 	const std::string &getOptionMessage(void) const;
+
+	static const std::string &getMessage(const HatoholErrorCode &errorCode);
 
 	bool operator==(const HatoholErrorCode &rhs) const;
 	bool operator!=(const HatoholErrorCode &rhs) const;
