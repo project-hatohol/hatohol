@@ -87,16 +87,15 @@ void test_summary(void)
 	};
 
 	startFaceRest();
-	RequestArg arg("/summary");
+	RequestArg arg("/summary/important-event");
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	JSONParser *parser = parserPtr.get();
 	assertErrorCode(parser);
 	assertValueInParser(parser, "numOfImportantEvents", 1);
 	assertValueInParser(parser, "numOfImportantEventOccurredHosts", 1);
-	assertValueInParser(parser, "numOfNotImportantEvents", 6);
 	assertValueInParser(parser, "numOfAllHosts", 16);
-	assertValueInParser(parser, "numOfUnAssignedImportantEvents", 1);
+	assertValueInParser(parser, "numOfAssignedImportantEvents", 0);
 	assertStartObject(parser, "statistics");
 	{
 		size_t i = 0;
@@ -109,6 +108,29 @@ void test_summary(void)
 			++i;
 		}
 	}
+	parser->endObject();
+}
+
+void test_summaryWithSeveritiesFilter(void)
+{
+	loadTestDBSeverityRankInfo();
+	loadTestDBEvents();
+	loadTestDBIncidents();
+	loadTestDBIncidentTracker();
+	loadUnAssignedIncidentInfo();
+
+	startFaceRest();
+	RequestArg arg("/summary/important-event?severities=0%2C1");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
+	JSONParser *parser = parserPtr.get();
+	assertErrorCode(parser);
+	assertValueInParser(parser, "numOfImportantEvents", 0);
+	assertValueInParser(parser, "numOfImportantEventOccurredHosts", 0);
+	assertValueInParser(parser, "numOfAllHosts", 16);
+	assertValueInParser(parser, "numOfAssignedImportantEvents", 0);
+	assertStartObject(parser, "statistics");
+	cppcut_assert_equal(static_cast<unsigned int>(0), parser->countElements());
 	parser->endObject();
 }
 

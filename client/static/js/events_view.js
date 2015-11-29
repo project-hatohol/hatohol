@@ -377,7 +377,7 @@ var EventsView = function(userProfile, options) {
     baseFilter = self.userConfig.getFilter(baseFilterId);
     $.extend(query, baseFilter);
 
-    return 'summary?' + $.param(query);
+    return 'summary/important-event?' + $.param(query);
   }
 
   function load(options) {
@@ -1246,8 +1246,8 @@ var EventsView = function(userProfile, options) {
   function setupStatictics() {
     // Assign/UnAssign events statistics
     var numOfImportantEvents = self.rawSummaryData["numOfImportantEvents"];
-    var numOfUnAssignedEvents = self.rawSummaryData["numOfUnAssignedImportantEvents"];
-    var numOfAssignedEvents = numOfImportantEvents - numOfUnAssignedEvents;
+    var numOfAssignedEvents = self.rawSummaryData["numOfAssignedImportantEvents"];
+    var numOfUnAssignedEvents = numOfImportantEvents - numOfAssignedEvents;
     $("#numOfUnAssignedEvents").text(numOfUnAssignedEvents);
     var unAssignedEventsPercentage = 0;
     if (numOfImportantEvents > 0)
@@ -1256,7 +1256,7 @@ var EventsView = function(userProfile, options) {
     $("#unAssignedEventsPercentage").text(unAssignedEventsPercentage + "%");
     $("#unAssignedEventsPercentage").css("width", unAssignedEventsPercentage+"%");
 
-    // Important/NotImportant events statistics
+    // Important events statistics
     $("#numOfImportantEvents").text(numOfImportantEvents);
     var numOfImportantEventOccurredHosts =
           self.rawSummaryData["numOfImportantEventOccurredHosts"];
