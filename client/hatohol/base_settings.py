@@ -228,3 +228,6 @@ ENABLED_PAGES = (
     #"http://www.hatohol.org/docs"
     #"#version"
 )
+
+BRAND_NAME = "Hatohol"
+VENDOR_NAME = "Project Hatohol"

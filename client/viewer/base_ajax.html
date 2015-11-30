@@ -37,14 +37,14 @@
     <link href="{{ STATIC_URL }}css.external/spectrum.css" rel="stylesheet" media="screen">
 
     <title>
-      {% block title %}{% endblock %} - {% trans "Hatohol" %}
+      {% block title %}{% endblock %} - {{ brand_name }}
     </title>
   </head>
 
   <body style="padding-top: 60px">
 
     <div class="navbar navbar-inverse navbar-fixed-top">
-      <a class="navbar-brand">&nbsp;<i>{% trans "Hatohol" %}</i>&nbsp;</a>
+      <a class="navbar-brand">&nbsp;<i>{{ brand_name }}</i>&nbsp;</a>
       <ul class="nav navbar-nav">
       </ul>
 
@@ -130,6 +130,8 @@
       var userProfile;
       var params = deparam();
 
+      hatohol.brandName = "{{ brand_name }}";
+      hatohol.vendorName = "{{ vendor_name }}";
       hatohol.enabledPages = {
         {% for page in enabled_pages %}
           "{{ page }}": true,
@@ -154,7 +156,5 @@
 
 {% block logic %}
 {% endblock %}
-
-    <div class="copyright">Copyright &copy; 2013-2015 Project Hatohol</div>
   </body>
 </html>
