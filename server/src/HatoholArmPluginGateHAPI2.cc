@@ -666,7 +666,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 	struct UpsertLastInfoHook : public DBAgent::TransactionHooks {
 		Impl &impl;
-		const LastInfoType &type;
+		const LastInfoType type;
 		string lastInfo;
 
 		UpsertLastInfoHook(Impl &_impl, const LastInfoType &_type)
