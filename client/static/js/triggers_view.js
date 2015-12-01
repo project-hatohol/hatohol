@@ -39,6 +39,16 @@ var TriggersView = function(userProfile) {
   start();
 
   function start() {
+    $.when(loadUserConfig()).done(function() {
+      load();
+    }).fail(function() {
+      hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
+      load(); // Ensure to work with the default config
+    });
+  }
+
+  function loadUserConfig() {
+    var deferred = new $.Deferred;
     self.userConfig.get({
       itemNames:['num-triggers-per-page'],
       successCallback: function(conf) {
@@ -48,10 +58,11 @@ var TriggersView = function(userProfile) {
         updatePager();
         setupFilterValues();
         setupCallbacks();
-        load();
+        deferred.resolve();
       },
       connectErrorCallback: function(XMLHttpRequest) {
         showXHRError(XMLHttpRequest);
+        deferred.reject();
       },
     });
   }
