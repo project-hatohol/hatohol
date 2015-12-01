@@ -20,6 +20,19 @@
 /* Override jQuery's default values to overcome bootstrap's style */
 .ui-front { z-index: 2000 !important }
 
+/* Brand on navigation bar */
+.navbar-brand {
+  float: left;
+  height: 32px;
+  padding: 8px 15px;
+  font-size: 30px;
+  line-height: 32px;
+}
+
+.navbar-brand img {
+  height: 32px;
+}
+
 div.copyright {
     text-align: center;
     margin-top: 2em;
