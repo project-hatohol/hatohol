@@ -44,7 +44,11 @@
   <body style="padding-top: 60px">
 
     <div class="navbar navbar-inverse navbar-fixed-top">
-      <a class="navbar-brand">&nbsp;<i>{{ brand_name }}</i>&nbsp;</a>
+      {% if brand_logo_file %}
+        <a class="navbar-brand"><img alt="{{ brand_name }}" src="{{ STATIC_URL }}images/{{ brand_logo_file }}"></a>
+      {% else %}
+        <a class="navbar-brand">&nbsp;<i>{{ brand_name }}</i>&nbsp;</a>
+      {% endif %}
       <ul class="nav navbar-nav">
       </ul>
 
@@ -132,6 +136,7 @@
 
       hatohol.brandName = "{{ brand_name }}";
       hatohol.vendorName = "{{ vendor_name }}";
+      hatohol.brandLogoPath = "{{ brand_logo_path }}";
       hatohol.enabledPages = {
         {% for page in enabled_pages %}
           "{{ page }}": true,

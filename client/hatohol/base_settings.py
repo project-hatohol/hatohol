@@ -230,4 +230,10 @@ ENABLED_PAGES = (
 )
 
 BRAND_NAME = "Hatohol"
+
 VENDOR_NAME = "Project Hatohol"
+
+# The file name of your logo file.
+# Put it under "{{ STATIC_URL }}/images/" to show it onto navbar.
+# When the value is empty, BRAND_NAME will be shown instead.
+BRAND_LOGO_FILE = ""

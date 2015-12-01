@@ -16,6 +16,7 @@ class HatoholView(TemplateView):
         context.update({
             'brand_name' : settings.BRAND_NAME,
             'vendor_name' : settings.VENDOR_NAME,
+            'brand_logo_file' : settings.BRAND_LOGO_FILE,
             'enabled_pages': settings.ENABLED_PAGES,
             'plugin_js_files': self.plugin_js_files,
             'project_top_path': self.request.META.get("SCRIPT_NAME", ""),
