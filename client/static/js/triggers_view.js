@@ -151,6 +151,18 @@ var TriggersView = function(userProfile) {
       $("#select-status").val(query.status);
   }
 
+  function setupTableColor() {
+    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    var severity, color;
+    if (!severityRanks)
+      return;
+    for (var x = 0; x < severityRanks.length; ++x) {
+      severity = severityRanks[x].status;
+      color = severityRanks[x].color;
+      $('td.severity' + severity).css("background-color", color);
+    }
+  }
+
   function setupCallbacks() {
     $("#table").stupidtable();
     $("#table").bind('aftertablesort', function(event, data) {
@@ -253,6 +265,7 @@ var TriggersView = function(userProfile) {
     drawTableContents(rawData);
     updatePager();
     setupFilterValues();
+    setupTableColor();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
