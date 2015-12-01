@@ -15,6 +15,7 @@ nobase_dist_hatohol_client_DATA = \
 	hatohol/urls.py \
 	hatohol/__init__.py \
 	hatohol/base_settings.py \
+	hatohol/branding_settings.py \
 	hatohol/settings_devel.py hatohol/settings_product.py \
 	hatohol/django_realize.py \
 	hatohol/hatohol_def.py \
