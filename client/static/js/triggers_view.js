@@ -30,6 +30,7 @@ var TriggersView = function(userProfile) {
   self.lastQuery = undefined;
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
+  self.rawSeverityRankData = {};
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -39,7 +40,7 @@ var TriggersView = function(userProfile) {
   start();
 
   function start() {
-    $.when(loadUserConfig()).done(function() {
+    $.when(loadUserConfig(), loadSeverityRank()).done(function() {
       load();
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
@@ -65,6 +66,26 @@ var TriggersView = function(userProfile) {
         deferred.reject();
       },
     });
+  }
+
+  function loadSeverityRank() {
+    var deferred = new $.Deferred;
+    new HatoholConnector({
+      url: "/severity-rank",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        var severityRanks;
+        self.rawSeverityRankData = reply;
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
   }
 
   function showXHRError(XMLHttpRequest) {
