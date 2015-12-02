@@ -30,6 +30,7 @@ var TriggersView = function(userProfile) {
   self.lastQuery = undefined;
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
+  self.rawSeverityRankData = {};
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -39,6 +40,16 @@ var TriggersView = function(userProfile) {
   start();
 
   function start() {
+    $.when(loadUserConfig(), loadSeverityRank()).done(function() {
+      load();
+    }).fail(function() {
+      hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
+      load(); // Ensure to work with the default config
+    });
+  }
+
+  function loadUserConfig() {
+    var deferred = new $.Deferred;
     self.userConfig.get({
       itemNames:['num-triggers-per-page'],
       successCallback: function(conf) {
@@ -48,12 +59,33 @@ var TriggersView = function(userProfile) {
         updatePager();
         setupFilterValues();
         setupCallbacks();
-        load();
+        deferred.resolve();
       },
       connectErrorCallback: function(XMLHttpRequest) {
         showXHRError(XMLHttpRequest);
+        deferred.reject();
       },
     });
+  }
+
+  function loadSeverityRank() {
+    var deferred = new $.Deferred;
+    new HatoholConnector({
+      url: "/severity-rank",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        var severityRanks;
+        self.rawSeverityRankData = reply;
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
   }
 
   function showXHRError(XMLHttpRequest) {
@@ -117,6 +149,18 @@ var TriggersView = function(userProfile) {
       $("#select-severity").val(query.minimumSeverity);
     if ("status" in query)
       $("#select-status").val(query.status);
+  }
+
+  function setupTableColor() {
+    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    var severity, color;
+    if (!severityRanks)
+      return;
+    for (var x = 0; x < severityRanks.length; ++x) {
+      severity = severityRanks[x].status;
+      color = severityRanks[x].color;
+      $('td.severity' + severity).css("background-color", color);
+    }
   }
 
   function setupCallbacks() {
@@ -221,6 +265,7 @@ var TriggersView = function(userProfile) {
     drawTableContents(rawData);
     updatePager();
     setupFilterValues();
+    setupTableColor();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }

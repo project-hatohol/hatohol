@@ -79,6 +79,16 @@ describe('TriggersView', function() {
     });
   }
 
+  function severityRanksJson(severityRanks) {
+    if (!severityRanks)
+      severityRanks = [];
+    return JSON.stringify({
+      apiVersion: hatohol.FACE_REST_API_VERSION,
+      errorCode: hatohol.HTERR_OK,
+      SeverityRanks: severityRanks,
+    });
+  }
+
   function fakeAjax() {
     var requests = this.requests = [];
     this.xhr = sinon.useFakeXMLHttpRequest();
@@ -90,7 +100,8 @@ describe('TriggersView', function() {
   function respond(config, triggers) {
     var header = { "Content-Type": "application/json" };
     this.requests[0].respond(200, header, config);
-    this.requests[1].respond(200, header, triggers);
+    this.requests[1].respond(200, header, severityRanksJson());
+    this.requests[2].respond(200, header, triggers);
   }
 
   function restoreAjax() {
