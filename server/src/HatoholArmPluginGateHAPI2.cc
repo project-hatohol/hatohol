@@ -1141,7 +1141,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		if (num > 1) {
 			MLPL_WARN("Ignore 2nd and later itemGroups. This is "
 			          "a limitation of the current version of "
-			          "Hatohol (#1721).");
+			          "Hatohol (#1721).\n");
 		}
 		parser.endObject();
 		return true;
