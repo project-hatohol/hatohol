@@ -112,7 +112,7 @@ var HatoholNavi = function(userProfile, currentPage) {
           href: "http://www.hatohol.org/docs"
         },
         {
-          title: gettext("Hatohol version: ") + HATOHOL_VERSION,
+          title: hatohol.brandName + " " + gettext("version: ") + HATOHOL_VERSION,
           href: "#version"
         },
       ]

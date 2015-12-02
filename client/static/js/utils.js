@@ -402,6 +402,8 @@ function hasFlags(flags, flagNumbers) {
   }
 
   var hatohol = Namespace("hatohol");
+  hatohol.brandName = "Hatohol";
+  hatohol.vendorName = "Project Hatohol";
   hatohol.addNamespace = Namespace;
   hatohol.isIPv4 = isIPv4;
   hatohol.escapeHTML = escapeHTML;

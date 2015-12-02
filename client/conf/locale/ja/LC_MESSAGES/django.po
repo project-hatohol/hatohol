@@ -186,8 +186,8 @@ msgid "Total"
 msgstr "合計"
 
 #: viewer/events_ajax.html:24 viewer/events_ajax.html.py:36
-msgid "Hatohol Event Console"
-msgstr "Hatohol イベントコンソール"
+msgid "Event Console"
+msgstr "イベントコンソール"
 
 #: viewer/events_ajax.html:32
 msgid "Config"

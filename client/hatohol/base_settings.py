@@ -19,6 +19,7 @@
 # Django settings for hatohol project.
 import os
 import logging
+from branding_settings import *
 
 PROJECT_HOME = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
