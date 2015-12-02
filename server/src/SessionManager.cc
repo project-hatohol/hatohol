@@ -115,6 +115,7 @@ size_t SessionManager::Impl::defaultTimeout = INITIAL_TIMEOUT;
 // ---------------------------------------------------------------------------
 void SessionManager::reset(void)
 {
+	getInstance()->m_impl->clearAllSessions();
 	delete Impl::instance;
 	Impl::instance = NULL;
 
@@ -131,8 +132,6 @@ void SessionManager::reset(void)
 		MLPL_INFO("Default session timeout: %zd (sec)\n",
 		          Impl::defaultTimeout);
 	}
-
-	getInstance()->m_impl->clearAllSessions();
 }
 
 SessionManager *SessionManager::getInstance(void)
@@ -191,6 +190,7 @@ bool SessionManager::remove(const string &sessionId)
 	m_impl->rwlock.unlock();
 	if (!session)
 		return false;
+	session->cancelTimer();
 	session->unref();
 	return true;
 }
