@@ -31,6 +31,7 @@ enum TriggerStatusType {
 	TRIGGER_STATUS_OK,
 	TRIGGER_STATUS_PROBLEM,
 	TRIGGER_STATUS_UNKNOWN,
+	NUM_TRIGGER_STATUS,
 };
 
 enum TriggerSeverityType {
@@ -104,6 +105,7 @@ typedef TriggerIdInfoMap::const_iterator       TriggerIdInfoMapConstIterator;
 typedef std::list<TriggerIdType> TriggerIdList;
 
 enum EventType {
+	EVENT_TYPE_AUTO = -2,
 	EVENT_TYPE_ALL = -1,
 	EVENT_TYPE_GOOD,
 	EVENT_TYPE_BAD,
@@ -138,6 +140,7 @@ typedef std::list<EventInfo>          EventInfoList;
 typedef EventInfoList::iterator       EventInfoListIterator;
 typedef EventInfoList::const_iterator EventInfoListConstIterator;
 
+// TODO: Remove after the new SelfMonitoring replaces the old ArmUtils' one.
 static const EventIdType DISCONNECT_SERVER_EVENT_ID = "";
 
 enum ItemInfoValueType {
