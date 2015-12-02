@@ -35,6 +35,7 @@
 #include "ArmStatus.h"
 
 #define DBCONTENT_MAGIC_CURR_DATETIME "#CURR_DATETIME#"
+#define DBCONTENT_MAGIC_CURR_TIME     "#CURR_TIME#"
 #define DBCONTENT_MAGIC_NULL          "#NULL#"
 #define DBCONTENT_MAGIC_ANY           "#ANY#"
 

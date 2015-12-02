@@ -730,6 +730,8 @@ static void assertDBContentForComponets(const string &expect,
 	for (size_t i = 0; i < wordsExpect.size(); i++) {
 		if (wordsExpect[i] == DBCONTENT_MAGIC_CURR_DATETIME) {
 			assertCurrDatetime(wordsActual[i]);
+		} else if (wordsExpect[i] == DBCONTENT_MAGIC_CURR_TIME) {
+			assertCurrDatetime(atoi(wordsActual[i].c_str()));
 		} else if(wordsExpect[i] == DBCONTENT_MAGIC_ANY) {
 			// just pass
 		} else if(wordsExpect[i] == DBCONTENT_MAGIC_NULL) {
