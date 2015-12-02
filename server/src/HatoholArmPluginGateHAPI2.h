@@ -66,7 +66,6 @@ protected:
 	void updateSelfMonitoringTrigger(bool hasError,
 	                                 const HAPI2PluginCollectType &type,
 	                                 const HAPI2PluginErrorCode &errorCode);
-	virtual void onSetPluginInitialInfo(void) override;
 	virtual void onConnect(void) override;
 	virtual void onConnectFailure(void) override;
 	void setPluginAvailableTrigger(const HAPI2PluginCollectType &type,
