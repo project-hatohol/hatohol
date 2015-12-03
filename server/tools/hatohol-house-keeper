@@ -6,7 +6,7 @@ import MySQLdb
 import time
 
 
-def finish_if_require_option_is_fault(args):
+def finish_if_required_option_is_missing(args):
     if args.date and args.number:
         print 'You can not set -d (--date) and -n (--number) option together.'
         sys.exit(os.EX_USAGE)
@@ -109,5 +109,5 @@ if __name__ == '__main__':
                         help='Only the specified table is initialized.')
     args = parser.parse_args()
 
-    finish_if_require_option_is_fault(args)
+    finish_if_required_option_is_missing(args)
     start(args)
