@@ -100,8 +100,6 @@ if __name__ == '__main__':
                         help='A pasword for the database server. '
                         'If the password is not set, give \'\' '
                         'for this argument.')
-    parser.add_argument('--stat', action='store_true', default=False,
-                        help='Show number of keeping tables record.')
     parser.add_argument('--table', nargs='?', type=str,
                         help='Only the specified table is initialized.')
     subparsers = parser.add_subparsers(help='--table help')
@@ -111,6 +109,8 @@ if __name__ == '__main__':
                                help='A term of removed records. Format: YY-mm-dd')
     target_parser.add_argument('-n', '--number', type=int,
                                help='A number of removed records.')
+    target_parser.add_argument('--stat', action='store_true', default=False,
+                               help='Show number of keeping tables record.')
     args = parser.parse_args()
 
     abort_if_required_option_is_missing(args)
