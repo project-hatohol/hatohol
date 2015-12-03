@@ -22,7 +22,8 @@ def validate_datetime_argument(datestr):
         return_unix_time(datestr)
         return datestr
     except ValueError:
-        raise argparse.ArgumentTypeError(datestr + ' is not a proper date string')
+        raise argparse.ArgumentTypeError(datestr +
+                                         ' is not a proper date string')
 
 
 def show_number_of(table_name, cursor):
@@ -92,7 +93,8 @@ def start(args):
     if args.date:
         delete_unnecessary_records_by_date(args.table, args.date, db, cursor)
     if args.number:
-        delete_unncessary_records_by_number(args.table, args.number, db, cursor)
+        delete_unncessary_records_by_number(args.table, args.number,
+                                            db, cursor)
 
 
 if __name__ == '__main__':
@@ -114,7 +116,8 @@ if __name__ == '__main__':
     target_parser = subparsers.add_parser('target',
                                           help='specify target date/number')
     target_parser.add_argument('-d', '--date', type=validate_datetime_argument,
-                               help='A term of removed records. Format: YY-mm-dd')
+                               help='A term of removed records.' +
+                                    ' Format: YY-mm-dd')
     target_parser.add_argument('-n', '--number', type=int,
                                help='A number of removed records.')
     target_parser.add_argument('--stat', action='store_true', default=False,
