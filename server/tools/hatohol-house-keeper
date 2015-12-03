@@ -19,7 +19,7 @@ def abort_if_required_option_is_missing(args):
 
 def validate_datetime_argument(datestr):
     try:
-        return_unix_time(datestr)
+        make_unix_time(datestr)
         return datestr
     except ValueError:
         raise argparse.ArgumentTypeError(datestr +
@@ -40,7 +40,7 @@ def show_status(cursor):
     sys.exit(os.EX_OK)
 
 
-def return_unix_time(date):
+def make_unix_time(date):
     format = '%Y-%m-%d %H:%M:%S'
     date += ' 00:00:00'
     return int(time.mktime(time.strptime(date, format)))
@@ -56,7 +56,7 @@ def run_sql_query(db, cursor, query):
 
 def delete_unnecessary_records_by_date(table_name, date, db, cursor):
     if 'events' in table_name:
-        time_sec = return_unix_time(date)
+        time_sec = make_unix_time(date)
         query = 'DELETE FROM events WHERE time_sec < %d' % time_sec
     elif 'action_logs' in table_name:
         query = 'DELETE FROM action_logs WHERE queuing_time < %s' % date
