@@ -28,8 +28,25 @@ using namespace mlpl;
 
 namespace testDBAgent {
 
+static void initColumnDef(ColumnDef &colDef)
+{
+	colDef.columnName = NULL;
+	colDef.type = SQL_COLUMN_TYPE_INT,
+	colDef.columnLength = 11;
+	colDef.decFracLength = 0;
+	colDef.canBeNull = false;
+	colDef.keyType = SQL_KEY_NONE;
+	colDef.flags = 0;
+	colDef.defaultValue = "0";
+}
+
 class TestDBAgent : public DBAgent {
 public:
+	TestDBAgent(void)
+	{
+		for (auto &colDef : m_testColumnDefs)
+			initColumnDef(colDef);
+	}
 
 	void assertCreateTableProfile(void)
 	{
