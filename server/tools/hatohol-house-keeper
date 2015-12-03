@@ -114,7 +114,8 @@ if __name__ == '__main__':
                         help='Only the specified table is initialized.')
     subparsers = parser.add_subparsers(help='--table help')
     target_parser = subparsers.add_parser('target',
-                                          help='specify target date/number/stat')
+                                          help='specify target ' +
+                                               'date/number/stat')
     target_parser.add_argument('-d', '--date', type=validate_datetime_argument,
                                help='A term of removing records.' +
                                     ' Format: YY-mm-dd')
