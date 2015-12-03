@@ -112,15 +112,7 @@ class StandardHap:
             exctype, value = hap.handle_exception(raises=raises)
 
         self.enable_handling_sigchld(False)
-        print "FINISH\n\n\n\n\n\n\n\n"
         sys.exit(1)
-#        if self.__main_plugin is not None:
-#            self.__main_plugin.destroy()
-#            self.__main_plugin = None
-#        if self.__poller is not None:
-#            self.__poller.terminate()
-#            self.__poller = None
-
 
     def __create_poller(self, sender, dispatcher, **kwargs):
         poller = self.create_poller(sender=sender, process_id="Poller",
