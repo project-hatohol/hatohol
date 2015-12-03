@@ -17,6 +17,14 @@ def abort_if_required_option_is_missing(args):
         print 'You need to set table name using --table option.'
 
 
+def validate_datetime_argument(datestr):
+    try:
+        return_unix_time(datestr)
+        return datestr
+    except ValueError:
+        raise argparse.ArgumentTypeError(datestr + ' is not a proper date string')
+
+
 def show_number_of(table_name, cursor):
     query = 'SELECT count(*) FROM %s' % table_name
     cursor.execute(query)
@@ -105,7 +113,7 @@ if __name__ == '__main__':
     subparsers = parser.add_subparsers(help='--table help')
     target_parser = subparsers.add_parser('target',
                                           help='specify target date/number')
-    target_parser.add_argument('-d', '--date', type=str,
+    target_parser.add_argument('-d', '--date', type=validate_datetime_argument,
                                help='A term of removed records. Format: YY-mm-dd')
     target_parser.add_argument('-n', '--number', type=int,
                                help='A number of removed records.')
