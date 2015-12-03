@@ -89,10 +89,7 @@ def start(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Hatohol House Keeper')
-    parser.add_argument('-d', '--date', type=str,
-                        help='A term of removed records. Format: YY-mm-dd')
-    parser.add_argument('-n', '--number', type=int,
-                        help='A number of removed records.')
+
     parser.add_argument('--db_host', default='localhost', type=str,
                         help='A database server.')
     parser.add_argument('--db_name', type=str, required=True,
@@ -107,6 +104,13 @@ if __name__ == '__main__':
                         help='Show number of keeping tables record.')
     parser.add_argument('--table', nargs='?', type=str,
                         help='Only the specified table is initialized.')
+    subparsers = parser.add_subparsers(help='--table help')
+    target_parser = subparsers.add_parser('target',
+                                          help='specify target date/number')
+    target_parser.add_argument('-d', '--date', type=str,
+                               help='A term of removed records. Format: YY-mm-dd')
+    target_parser.add_argument('-n', '--number', type=int,
+                               help='A number of removed records.')
     args = parser.parse_args()
 
     abort_if_required_option_is_missing(args)
