@@ -107,7 +107,7 @@ if __name__ == '__main__':
     parser.add_argument('--db_user', type=str, required=True,
                         help='A user for the database server.')
     parser.add_argument('--db_password', type=str, required=True,
-                        help='A pasword for the database server. '
+                        help='A password for the database server. '
                         'If the password is not set, give \'\' '
                         'for this argument.')
     parser.add_argument('--table', nargs='?', type=str,
