@@ -40,6 +40,11 @@ def show_status(cursor):
     sys.exit(os.EX_OK)
 
 
+def make_sql_interpretable_time(date):
+    date += ' 00:00:00'
+    return date
+
+
 def make_unix_time(date):
     format = '%Y-%m-%d %H:%M:%S'
     date += ' 00:00:00'
@@ -59,7 +64,8 @@ def delete_unnecessary_records_by_date(table_name, date, db, cursor):
         time_sec = make_unix_time(date)
         query = 'DELETE FROM events WHERE time_sec < %d' % time_sec
     elif 'action_logs' in table_name:
-        query = 'DELETE FROM action_logs WHERE queuing_time < %s' % date
+        query = 'DELETE FROM action_logs WHERE queuing_time < %s' % \
+                make_sql_interpretable_time(date)
     else:
         print 'Table name is wrong!'
         return
