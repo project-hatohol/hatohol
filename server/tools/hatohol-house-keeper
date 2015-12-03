@@ -116,10 +116,10 @@ if __name__ == '__main__':
     target_parser = subparsers.add_parser('target',
                                           help='specify target date/number/stat')
     target_parser.add_argument('-d', '--date', type=validate_datetime_argument,
-                               help='A term of removed records.' +
+                               help='A term of removing records.' +
                                     ' Format: YY-mm-dd')
     target_parser.add_argument('-n', '--number', type=int,
-                               help='A number of removed records.')
+                               help='A number of removing records.')
     target_parser.add_argument('--stat', action='store_true', default=False,
                                help='Show number of keeping tables record.')
     args = parser.parse_args()
