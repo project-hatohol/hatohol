@@ -27,7 +27,7 @@ def validate_datetime_argument(datestr):
 
 
 def show_number_of(table_name, cursor):
-    query = 'SELECT count(*) FROM %s' % table_name
+    query = 'SELECT COUNT(*) FROM %s' % table_name
     cursor.execute(query)
     row = cursor.fetchone()
 
