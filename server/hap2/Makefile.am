@@ -43,7 +43,8 @@ nobase_hatohol_hap2_SCRIPTS = \
 	hatohol/hap2_zabbix_api.py \
 	hatohol/hap2_fluentd.py \
 	hatohol/hap2_ceilometer.py \
-	hatohol/hap2_nagios_ndoutils.py
+	hatohol/hap2_nagios_ndoutils.py \
+	hatohol/hap2_starter.py
 
 EXTRA_DIST = \
 	hap2-control-functions.sh.in \

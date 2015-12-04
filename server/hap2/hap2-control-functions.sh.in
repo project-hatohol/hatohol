@@ -5,7 +5,7 @@ set -e
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
-PID_FILE_DIR="@localstatedir@/run"
+PID_FILE_DIR="@localstatedir@/run/hatohol"
 PLUGIN_DIR="@libexecdir@/hatohol/hap2"
 PLUGIN_PATH=""
 PID_FILE="${PID_FILE_DIR}/hatohol-arm-plugin-${HAPI_MONITORING_SERVER_ID}"
@@ -34,11 +34,14 @@ prepare_plugin_options() {
     fi
 
     PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --log-conf=$HAP2_LOG_CONF"
+    PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --plugin-path=$PLUGIN_PATH"
+    PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --server-id=$HAPI_MONITORING_SERVER_ID"
+    PLUGIN_OPTIONS="${PLUGIN_OPTIONS} --pid-file-dir=$PID_FILE_DIR"
 }
 
 check_pid_file() {
     if test -f "$PID_FILE"; then
-        PID=`cat ${PID_FILE}`
+        PID=`tail -n +2 ${PID_FILE}`
         ALIVE=`ps $PID | grep $PLUGIN_PATH | grep -v grep | wc -l`
         if test $ALIVE -ne 0; then
             echo "The plugin process already exists!"
@@ -57,23 +60,13 @@ start_plugin() {
     check_pid_file
     prepare_plugin_options
 
-    $PLUGIN_PATH $PLUGIN_OPTIONS &
-    PID=$!
+    ${PLUGIN_DIR}/hatohol/hap2_starter.py $PLUGIN_OPTIONS &
+    RESULT=$?
 
-    sleep 1
-
-    ALIVE=`ps $PID | grep $PLUGIN_PATH | grep -v grep | wc -l`
-
-    if test $ALIVE -ne 0; then
-        if test ! -e "$PID_FILE_DIR"; then
-            mkdir -p ${PID_FILE_DIR}
-        fi
-        echo -n $PID > $PID_FILE || kill $PID; exit 1
-        echo
-        echo "Succeeded to start $PLUGIN_PATH"
-        echo "PID: $PID"
+    if test $RESULT -eq 0; then
+        echo "Succeeded to execute hap2_starter.py"
     else
-        echo "Failed to start $PLUGIN_PATH"
+        echo "Failed to execute hap2_starter.py"
     fi
 }
 
@@ -82,10 +75,15 @@ stop_plugin() {
     echo "Server ID: $HAPI_MONITORING_SERVER_ID"
 
     if test -f "$PID_FILE"; then
-        PID=`cat ${PID_FILE}`
-        echo "PID: $PID"
-        if test -n $PID; then
-            kill $PID
+        STARTER_PID=`head -n +1 ${PID_FILE}`
+        HAP_PID=`tail -n +2 ${PID_FILE}`
+        echo "STARTER_PID: $STARTER_PID"
+        echo "HAP_PID: $HAP_PID"
+        if test -n $STARTER_PID; then
+            kill $STARTER_PID
+        fi
+        if test -n $HAP_PID; then
+            kill $HAP_PID
         fi
         rm -f ${PID_FILE}
         echo "Succeeded to stop $PLUGIN_PATH"

@@ -31,11 +31,7 @@ from hatohol import transporter
 logger = getLogger(__name__)
 
 class StandardHap:
-    DEFAULT_ERROR_SLEEP_TIME = 10
-
     def __init__(self, default_transporter="RabbitMQHapiConnector"):
-        self.__error_sleep_time = self.DEFAULT_ERROR_SLEEP_TIME
-
         parser = argparse.ArgumentParser()
         hap.initialize_logger(parser)
 
@@ -109,25 +105,13 @@ class StandardHap:
 
     def __call__(self):
         args = self.__setup()
-        while True:
-            try:
-                self.__run(args)
-            except:
-                raises = (KeyboardInterrupt, AssertionError, SystemExit)
-                exctype, value = hap.handle_exception(raises=raises)
-            else:
-                break
+        try:
+            self.__run(args)
+        except:
+            raises = (KeyboardInterrupt, AssertionError, SystemExit)
+            exctype, value = hap.handle_exception(raises=raises)
 
-            self.enable_handling_sigchld(False)
-            if self.__main_plugin is not None:
-                self.__main_plugin.destroy()
-                self.__main_plugin = None
-            if self.__poller is not None:
-                self.__poller.terminate()
-                self.__poller = None
-
-            logger.info("Rerun after %d sec" % self.__error_sleep_time)
-            time.sleep(self.__error_sleep_time)
+        self.enable_handling_sigchld(False)
 
     def __create_poller(self, sender, dispatcher, **kwargs):
         poller = self.create_poller(sender=sender, process_id="Poller",
