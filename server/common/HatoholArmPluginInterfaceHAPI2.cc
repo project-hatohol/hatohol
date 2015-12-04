@@ -380,8 +380,8 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			onConnectFailure();
 			return;
 		}
-		m_consumer->start();
 		onConnect();
+		m_consumer->start();
 	}
 
 	void queueProcedureCallback(const string id,

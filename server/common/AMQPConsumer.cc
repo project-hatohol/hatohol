@@ -38,7 +38,8 @@ struct AMQPConsumer::Impl {
 	Impl()
 	: m_connection(NULL),
 	  m_handler(NULL),
-	  m_waitSem(0)
+	  m_waitSem(0),
+	  m_connChangeCallback([](...){})
 	{
 	}
 
@@ -49,6 +50,8 @@ struct AMQPConsumer::Impl {
 	AMQPConnectionPtr m_connection;
 	AMQPMessageHandler *m_handler;
 	SimpleSemaphore m_waitSem;
+	ConnectionChangeCallback m_connChangeCallback;
+
 };
 
 AMQPConsumer::AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
@@ -78,20 +81,36 @@ AMQPConnectionPtr AMQPConsumer::getConnection(void)
 	return m_impl->m_connection;
 }
 
+void AMQPConsumer::setConnectionChangeCallback(ConnectionChangeCallback cb)
+{
+	m_impl->m_connChangeCallback = cb;
+}
+
 gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 {
-	bool started = false;
+	ConnectionStatus status = CONN_INIT;
+	ConnectionStatus prevStatus = CONN_INIT;
+	auto callbackIfConnectionChanged = [&] {
+		if (status == prevStatus)
+			return;
+		m_impl->m_connChangeCallback(status);
+	};
+
 	size_t i = 0, numRetry = retryInterval.size();
-	while (!isExitRequested()) {
+	for (; !isExitRequested(); prevStatus = status) {
 		if (!m_impl->m_connection->isConnected()) {
-			started = false;
+			status = CONN_DISCONNECTED;
 			m_impl->m_connection->connect();
 		}
 
-		if (!started && m_impl->m_connection->isConnected())
-			started = m_impl->m_connection->startConsuming();
+		if (status == CONN_DISCONNECTED
+		    && m_impl->m_connection->isConnected()) {
+			if (m_impl->m_connection->startConsuming());
+				status = CONN_ESTABLISHED;
+		}
 
-		if (!started) {
+		callbackIfConnectionChanged();
+		if (status != CONN_ESTABLISHED) {
 			if (i >= numRetry) {
 				MLPL_ERR("Try to connect after every 30 sec.\n");
 				m_impl->m_waitSem.timedWait(30 * 1000);
@@ -102,6 +121,7 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 			MLPL_INFO("Try to connect after %zd sec. (%zd/%zd)\n",
 			          sleepTimeSec, i+1, numRetry);
 			i++;
+
 			continue;
 		}
 
