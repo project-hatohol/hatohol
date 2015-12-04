@@ -5,7 +5,7 @@ set -e
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
-PID_FILE_DIR="@localstatedir@/run"
+PID_FILE_DIR="@localstatedir@/run/hatohol"
 PLUGIN_DIR="@libexecdir@/hatohol/hap2"
 PLUGIN_PATH=""
 PID_FILE="${PID_FILE_DIR}/hatohol-arm-plugin-${HAPI_MONITORING_SERVER_ID}"
