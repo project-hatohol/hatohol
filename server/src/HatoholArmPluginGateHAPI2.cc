@@ -186,7 +186,16 @@ struct HatoholArmPluginGateHAPI2::Impl
 		auto check = [&](SelfMonitor &monitor,
 		                 const TriggerStatusType &prevStatus,
 		                 const TriggerStatusType &currStatus) {
-			if (monitor.getLastKnownStatus() != currStatus)
+			const TriggerStatusType &lastStatus =
+			  monitor.getLastKnownStatus();
+			bool shouldLog = false;
+			if (lastStatus == TRIGGER_STATUS_UNKNOWN) {
+				if (currStatus == TRIGGER_STATUS_PROBLEM)
+					shouldLog = true;
+			} else if (monitor.getLastKnownStatus() != currStatus)
+				shouldLog = true;
+
+			if (shouldLog)
 				log(monitor, prevStatus, currStatus);
 		};
 		const SelfMonitor::EventGenerator

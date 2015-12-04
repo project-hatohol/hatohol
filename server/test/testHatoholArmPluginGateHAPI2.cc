@@ -1041,7 +1041,7 @@ void test_procedureHandlerPutEventsInvalidJSON(void)
 	EventsQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(monitoringServerInfo.id);
 	dbMonitoring.getEventInfoList(eventInfoList, option);
-	cppcut_assert_equal(eventInfoList.size(), static_cast<size_t>(0));
+	cppcut_assert_equal(eventInfoList.size(), static_cast<size_t>(1));
 }
 
 void test_procedureHandlerPutHostParents(void)
