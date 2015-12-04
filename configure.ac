@@ -287,6 +287,7 @@ server/hap2/hatohol/Makefile
 server/data/Makefile
 server/tools/Makefile
 server/tools/hatohol-db-initiator
+server/tools/hatohol-house-keeper
 server/tools/hatohol/Makefile
 server/tools/tls/Makefile
 server/tools/tls/hatohol-ca-initialize
