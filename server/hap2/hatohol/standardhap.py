@@ -112,7 +112,6 @@ class StandardHap:
             exctype, value = hap.handle_exception(raises=raises)
 
         self.enable_handling_sigchld(False)
-        sys.exit(1)
 
     def __create_poller(self, sender, dispatcher, **kwargs):
         poller = self.create_poller(sender=sender, process_id="Poller",
