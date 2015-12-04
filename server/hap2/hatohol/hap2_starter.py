@@ -31,6 +31,8 @@ DEFAULT_ERROR_SLEEP_TIME = 10
 logger = logging.Logger("hatohol." + __name__)
 
 def create_pid_file(pid_dir, server_id, hap_pid):
+    if not os.path.isdir(pid_dir): os.makedirs(pid_dir)
+
     with open("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id), "w") as file:
         file.writelines([str(os.getpid()), "\n", str(hap_pid)])
 
