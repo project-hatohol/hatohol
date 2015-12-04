@@ -26,10 +26,9 @@ import signal
 import logging
 import argparse
 import subprocess
-from hatohol import haplib
 
 DEFAULT_ERROR_SLEEP_TIME = 10
-logger = logging.Logger(__name__)
+logger = logging.Logger("hatohol." + __name__)
 
 def create_pid_file(pid_dir, server_id, hap_pid):
     with open("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id), "w") as file:
