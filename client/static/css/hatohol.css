@@ -181,6 +181,15 @@ input#quick-host-search-entry {
     display: inline-block;
 }
 
+div#change-incident-container {
+    display: inline-block;
+}
+
+div#abbreviating-event-descriptions-container {
+    display: inline-block;
+    margin-top: 24px;
+}
+
 div.view-layout-mock {
     display: inline-block;
     vertical-align: middle;
@@ -333,7 +342,6 @@ h2.hatohol-graph {
 
 .abbreviate-checkbox {
     margin-top: -3px !important;
-    margin-left: 15px !important;
 }
 
 .calendar-group {
