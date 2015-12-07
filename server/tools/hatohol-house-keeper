@@ -100,15 +100,15 @@ if __name__ == '__main__':
                         'for this argument.')
     parser.add_argument('--table', choices=['events', 'action_logs'],
                         type=str, required=True,
-                        help='Only the specified table is initialized.')
+                        help='Only the specified table is housekeeped.')
     subparsers = parser.add_subparsers(dest='cmd', help='help')
     date_parser = subparsers.add_parser('date')
     date_parser.add_argument('--term', type=validate_datetime_argument,
-                             help='A term of removing records.' +
+                             help='A term of removed records.' +
                                   ' Format: YYYY-mm-dd')
     number_parser = subparsers.add_parser('number')
     number_parser.add_argument('-n', '--number', type=int,
-                               help='A number of removing records.')
+                               help='A number of removed records.')
     stat_parser = subparsers.add_parser('stat')
     stat_parser.add_argument('--stat', action='store_true', default=False,
                              help='Show number of keeping tables record.')
