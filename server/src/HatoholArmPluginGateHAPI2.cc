@@ -28,6 +28,7 @@
 #include <libsoup/soup.h>
 #include <Reaper.h>
 #include "ArmUtils.h"
+#include "SelfMonitor.h"
 
 using namespace std;
 using namespace mlpl;
@@ -91,36 +92,54 @@ if (JSONParser::VALUE_TYPE_ARRAY != parser.getValueType(MEMBER)) {	\
 	break;								\
 }
 
+static void updateSelfMonitor(SelfMonitorPtr monitor, const bool &hasError)
+{
+	monitor->update(hasError ? TRIGGER_STATUS_PROBLEM : TRIGGER_STATUS_OK);
+}
+
 struct HatoholArmPluginGateHAPI2::Impl
 {
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo m_serverInfo;
 
-	ArmUtils m_utils;
-	ArmUtils::ArmTrigger m_armTrigger[static_cast<size_t>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)];
 	HatoholArmPluginGateHAPI2 &m_hapi2;
 	ArmPluginInfo m_pluginInfo;
 	ArmFake m_armFake;
 	ArmStatus m_armStatus;
-	bool m_createdSelfTriggers;
 	string m_pluginProcessName;
 	string m_pluginControlScriptPath;
 	set<string> m_supportedProcedureNameSet;
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
+	SelfMonitorPtr monitorPluginInternal;
+	SelfMonitorPtr monitorParseError;
+	SelfMonitorPtr monitorGateInternal;
+	SelfMonitorPtr monitorBrokerConn;
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 &hapi2)
 	: m_serverInfo(_serverInfo),
-	  m_utils(
-	    m_serverInfo, m_armTrigger,
-	    static_cast<size_t>(HAPI2PluginCollectType::NUM_COLLECT_NG_KIND)),
 	  m_hapi2(hapi2),
 	  m_armFake(m_serverInfo),
 	  m_armStatus(),
-	  m_createdSelfTriggers(false),
-	  hostInfoCache(&_serverInfo.id)
+	  hostInfoCache(&_serverInfo.id),
+	  monitorPluginInternal(new SelfMonitor(
+	    _serverInfo.id, FAILED_HAP_INTERNAL_ERROR_TRIGGER_ID,
+	    HatoholError::getMessage(HTERR_HAP_INTERNAL_ERROR),
+	    TRIGGER_SEVERITY_CRITICAL)),
+	  monitorParseError(new SelfMonitor(
+	    _serverInfo.id, FAILED_PARSER_JSON_DATA_TRIGGER_ID,
+	    HatoholError::getMessage(HTERR_INVALID_OBJECT_PASSED_BY_HAP2),
+	    TRIGGER_SEVERITY_CRITICAL)),
+	  monitorGateInternal(new SelfMonitor(
+	    _serverInfo.id, FAILED_INTERNAL_ERROR_TRIGGER_ID,
+	    HatoholError::getMessage(HTERR_INTERNAL_ERROR),
+	    TRIGGER_SEVERITY_CRITICAL)),
+	  monitorBrokerConn(new SelfMonitor(
+	    _serverInfo.id, FAILED_CONNECT_BROKER_TRIGGER_ID,
+	    HatoholError::getMessage(HTERR_FAILED_CONNECT_BROKER),
+	    TRIGGER_SEVERITY_CRITICAL))
 	{
 		ArmPluginInfo::initialize(m_pluginInfo);
 		ThreadLocalDBCache cache;
@@ -137,6 +156,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 					       m_serverInfo.id);
 		}
 		m_hapi2.setArmPluginInfo(m_pluginInfo);
+		setupSelfMonitors();
 	}
 
 	~Impl()
@@ -155,6 +175,69 @@ struct HatoholArmPluginGateHAPI2::Impl
 			delete closure;
 		}
 		m_armStatus.setRunningStatus(false);
+	}
+
+	void setupSelfMonitors(void)
+	{
+		auto ignore = [](SelfMonitor &m, ...) {};
+		auto log = [](SelfMonitor &m, ...) {
+			 m.saveEvent();
+		};
+		auto check = [&](SelfMonitor &monitor,
+		                 const TriggerStatusType &prevStatus,
+		                 const TriggerStatusType &currStatus) {
+			if (monitor.getLastKnownStatus() != currStatus)
+				log(monitor, prevStatus, currStatus);
+		};
+		const SelfMonitor::EventGenerator
+		  mtx[NUM_TRIGGER_STATUS][NUM_TRIGGER_STATUS] = {
+			{
+				ignore, /* OK -> OK */
+				log,    /* OK -> PROBLEM */
+				ignore, /* OK -> UNKNOWN */
+			}, {
+				log,    /* PROBLEM -> OK */
+				log,    /* PROBLEM -> PROBLEM */
+				ignore, /* PROBLEM -> UNKNOWN */
+			}, {
+				check,  /* UNKNOWN -> OK */
+				check,  /* UNKNOWN -> PROBLEM */
+				ignore, /* UNKNOWN -> UNKNOWN */
+			}
+		};
+
+		auto setAllStatusComb = [&](SelfMonitorPtr m) {
+			for (int p = 0; p < NUM_TRIGGER_STATUS; p++) {
+				for (int c = 0; c < NUM_TRIGGER_STATUS; c++) {
+					m->setEventGenerator(
+					  static_cast<TriggerStatusType>(p),
+					  static_cast<TriggerStatusType>(c),
+					  mtx[p][c]);
+				}
+			}
+		};
+
+		SelfMonitorPtr monitors[] = {
+			monitorParseError,
+			monitorGateInternal,
+			monitorBrokerConn,
+		};
+		for (auto &m : monitors)
+			setAllStatusComb(m);
+
+		setupMonitorXPluginInternal();
+	}
+
+	void setupMonitorXPluginInternal(void)
+	{
+		monitorBrokerConn->addNotificationListener(monitorPluginInternal);
+		auto handler = [](SelfMonitor &monitor,
+		                  const SelfMonitor &srcMonitor,
+		                  const TriggerStatusType &prevStatus,
+		                  const TriggerStatusType &currStatus) {
+			monitor.setWorkable(currStatus == TRIGGER_STATUS_OK);
+		};
+		monitorPluginInternal->setNotificationHandler(handler);
 	}
 
 	void start(void)
@@ -208,7 +291,9 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		virtual void onGotResponse(JSONParser &parser) override
 		{
-			if (parser.isMember("error")) {
+			bool isErr = parser.isMember("error");
+			updateSelfMonitor(m_impl.monitorParseError, isErr);
+			if (isErr) {
 				string errorMessage;
 				parser.startObject("error");
 				parser.read("message", errorMessage);
@@ -216,15 +301,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 				MLPL_WARN("Received an error on calling "
 					  "exchangeProfile: %s\n",
 					  errorMessage.c_str());
-
-				m_impl.setPluginConnectStatus(
-				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
 				return;
-			} else {
-				m_impl.setPluginConnectStatus(
-				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-				  HAPI2PluginErrorCode::OK);
 			}
 
 			JSONRPCError errObj;
@@ -234,17 +311,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 			setArmInfoStatus(errObj);
 
-			if (errObj.hasErrors()) {
-				m_impl.setPluginConnectStatus(
-				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-				  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
-
+			isErr = errObj.hasErrors();
+			updateSelfMonitor(m_impl.monitorParseError, isErr);
+			if (isErr)
 				return;
-			} else {
-				m_impl.setPluginConnectStatus(
-				  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-				  HAPI2PluginErrorCode::OK);
-			}
 
 			m_impl.m_hapi2.setEstablished(true);
 		}
@@ -574,23 +644,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 		return true;
 	}
 
-	void setPluginConnectStatus(
-	  const HAPI2PluginCollectType &type,
-	  const HAPI2PluginErrorCode &errorCode)
-	{
-		TriggerStatusType status;
-		if (errorCode == HAPI2PluginErrorCode::UNAVAILABLE_HAP2 ||
-		    errorCode == HAPI2PluginErrorCode::HAP2_CONNECTION_UNAVAILABLE) {
-			status = TRIGGER_STATUS_PROBLEM;
-		} else if (errorCode == HAPI2PluginErrorCode::OK) {
-			status = TRIGGER_STATUS_OK;
-		} else {
-			status = TRIGGER_STATUS_UNKNOWN;
-		}
-		size_t typeIdx = static_cast<size_t>(type);
-		m_utils.updateTriggerStatus(typeIdx, status);
-	}
-
 	HatoholError getMonitoringServerInfo(
 	  MonitoringServerInfo &monitoringServerInfo)
 	{
@@ -751,6 +804,7 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 
 void HatoholArmPluginGateHAPI2::start(void)
 {
+	updateSelfMonitor(m_impl->monitorGateInternal, false);
 	HatoholArmPluginInterfaceHAPI2::start();
 	m_impl->start();
 	m_impl->startPlugin();
@@ -1086,10 +1140,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	JSONRPCError errObj;
 	parseLastInfoParams(parser, lastInfoType, errObj);
 
-	updateSelfMonitoringTrigger(
-	  errObj.hasErrors(),
-	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1141,7 +1192,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		if (num > 1) {
 			MLPL_WARN("Ignore 2nd and later itemGroups. This is "
 			          "a limitation of the current version of "
-			          "Hatohol (#1721).\n");
+			          "Hatohol (#1721).");
 		}
 		parser.endObject();
 		return true;
@@ -1208,10 +1259,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 	parser.endObject(); // params
 
-	updateSelfMonitoringTrigger(
-	  errObj.hasErrors(),
-	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1285,10 +1333,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitoringTrigger(
-	  errObj.hasErrors(),
-	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1375,10 +1420,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitoringTrigger(
-	  errObj.hasErrors(),
-	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1456,10 +1498,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitoringTrigger(
-	  errObj.hasErrors(),
-	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1562,10 +1601,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitoringTrigger(
-	  errObj.hasErrors(),
-	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1733,10 +1769,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitoringTrigger(
-	  errObj.hasErrors(),
-	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1877,10 +1910,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitoringTrigger(
-	  errObj.hasErrors(),
-	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -1960,10 +1990,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitoringTrigger(
-	  errObj.hasErrors(),
-	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -2033,10 +2060,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 
 	parser.endObject(); // params
 
-	updateSelfMonitoringTrigger(
-	  errObj.hasErrors(),
-	  HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-	  HAPI2PluginErrorCode::UNAVAILABLE_HAP2);
+	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
 
 	if (errObj.hasErrors()) {
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
@@ -2045,6 +2069,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	}
 
 	status.setArmInfo(armInfo);
+	updateSelfMonitor(m_impl->monitorPluginInternal,
+	                  armInfo.stat != ARM_WORK_STAT_OK);
 
 	// TODO: add failure clause
 	string result = "SUCCESS";
@@ -2060,74 +2086,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
-void HatoholArmPluginGateHAPI2::updateSelfMonitoringTrigger(
-  bool hasError,
-  const HAPI2PluginCollectType &type,
-  const HAPI2PluginErrorCode &errorCode)
-{
-	if (hasError) {
-		m_impl->setPluginConnectStatus(type, errorCode);
-	} else {
-		m_impl->setPluginConnectStatus(type, HAPI2PluginErrorCode::OK);
-	}
-}
-
-void HatoholArmPluginGateHAPI2::onSetPluginInitialInfo(void)
-{
-	if (m_impl->m_createdSelfTriggers)
-		return;
-
-	m_impl->m_utils.registerSelfMonitoringHost();
-	m_impl->m_utils.initializeArmTriggers();
-
-	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_PLUGIN_INTERNAL_ERROR,
-				  FAILED_CONNECT_BROKER_TRIGGER_ID,
-				  HTERR_INVALID_OBJECT_PASSED_BY_HAP2);
-	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_HATOHOL_INTERNAL_ERROR,
-				  FAILED_INTERNAL_ERROR_TRIGGER_ID,
-				  HTERR_INTERNAL_ERROR);
-	setPluginAvailableTrigger(HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
-				  FAILED_CONNECT_HAP2_TRIGGER_ID,
-				  HTERR_FAILED_CONNECT_HAP2);
-
-	m_impl->m_createdSelfTriggers = true;
-}
-
 void HatoholArmPluginGateHAPI2::onConnect(void)
 {
-	m_impl->setPluginConnectStatus(
-	  HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
-	  HAPI2PluginErrorCode::OK);
+	updateSelfMonitor(m_impl->monitorBrokerConn, false);
 }
 
 void HatoholArmPluginGateHAPI2::onConnectFailure(void)
 {
-	m_impl->setPluginConnectStatus(
-	  HAPI2PluginCollectType::NG_PLUGIN_CONNECT_ERROR,
-	  HAPI2PluginErrorCode::HAP2_CONNECTION_UNAVAILABLE);
-}
-
-void HatoholArmPluginGateHAPI2::setPluginAvailableTrigger(
-  const HAPI2PluginCollectType &type,
-  const TriggerIdType &triggerId,
-  const HatoholError &hatoholError)
-{
-	TriggerInfoList triggerInfoList;
-	int typeIdx = static_cast<int>(type);
-	m_impl->m_armTrigger[typeIdx].status = TRIGGER_STATUS_UNKNOWN;
-	m_impl->m_armTrigger[typeIdx].triggerId = triggerId;
-	m_impl->m_armTrigger[typeIdx].msg = hatoholError.getMessage().c_str();
-
-	ArmUtils::ArmTrigger &armTrigger = m_impl->m_armTrigger[typeIdx];
-	m_impl->m_utils.createTrigger(armTrigger, triggerInfoList);
-
-	ThreadLocalDBCache cache;
-	cache.getMonitoring().addTriggerInfoList(triggerInfoList);
-}
-
-void HatoholArmPluginGateHAPI2::setPluginConnectStatus(
-  const HAPI2PluginCollectType &type,
-  const HAPI2PluginErrorCode &errorCode)
-{
-	m_impl->setPluginConnectStatus(type, errorCode);
+	updateSelfMonitor(m_impl->monitorBrokerConn, true);
 }
