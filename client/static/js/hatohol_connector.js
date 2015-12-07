@@ -150,24 +150,9 @@ HatoholConnector.prototype.start = function(connectParams) {
   }
 
   function parseLoginResultWithError(XMLHttpRequest, textStatus, errorThrown) {
-    var response = XMLHttpRequest.responseText;
-    var data = $.parseJSON(response);
-    if (data) {
-      var parser = new HatoholLoginReplyParser(data);
-      if (parser.getStatus() != REPLY_STATUS.OK) {
-        var msg = gettext("Failed to login. ") + parser.getMessage();
-        hatoholErrorMsgBox(msg);
-        return;
-      }
-    } else {
-      var status = XMLHttpRequest.status;
-      if (!(status >= 200 && status < 300)) {
-        var errorMsg = "Error: " + textStatus + ": " + errorThrown;
-        var unknownErrorMsg = gettext("Failed to login. ") + errorMsg;
-        hatoholErrorMsgBox(unknownErrorMsg);
-        return;
-      }
-    }
+    var detail = "Error: " + textStatus + ": " + errorThrown;
+    var msg = gettext("Failed to login. ") + detail;
+    hatoholErrorMsgBox(msg);
   }
 
   function request() {
