@@ -6,17 +6,6 @@ import MySQLdb
 import time
 
 
-def abort_if_required_option_is_missing(args):
-    if args.date and args.number:
-        print 'You can not set -d (--date) and -n (--number) option together.'
-        sys.exit(os.EX_USAGE)
-    if not args.date and not args.number and not args.stat:
-        print 'You need to set -d (--date) or -n (--number) or --stat option.'
-        sys.exit(os.EX_USAGE)
-    if (args.date or args.number) and not args.table:
-        print 'You need to set table name using --table option.'
-
-
 def validate_datetime_argument(datestr):
     try:
         make_unix_time(datestr)
@@ -132,5 +121,4 @@ if __name__ == '__main__':
                              help='Show number of keeping tables record.')
     args = parser.parse_args()
 
-    abort_if_required_option_is_missing(args)
     start(args)
