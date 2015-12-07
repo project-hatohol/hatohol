@@ -10,6 +10,9 @@ def abort_if_required_option_is_missing(args):
     if args.date and args.number:
         print 'You can not set -d (--date) and -n (--number) option together.'
         sys.exit(os.EX_USAGE)
+    if args.date == None and args.number == None:
+        print 'You must set -d (--date) or -n (--number) option.'
+        sys.exit(os.EX_USAGE)
 
 
 def validate_datetime_argument(datestr):
