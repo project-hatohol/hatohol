@@ -84,11 +84,13 @@ def start(args):
 
     if args.cmd == 'stat':
         show_status(args.table, cursor)
-    if args.cmd == 'date':
-        delete_unnecessary_records_by_date(args.table, args.term, db, cursor)
-    if args.cmd == 'number':
-        delete_unncessary_records_by_number(args.table, args.number,
-                                            db, cursor)
+    if args.cmd == 'delete':
+        if args.date:
+            delete_unnecessary_records_by_date(args.table, args.date,
+                                               db, cursor)
+        if args.number:
+            delete_unncessary_records_by_number(args.table, args.number,
+                                                db, cursor)
 
 
 if __name__ == '__main__':
@@ -107,13 +109,16 @@ if __name__ == '__main__':
     parser.add_argument('--table', choices=['events', 'action_logs'],
                         type=str, required=True,
                         help='Only the specified table is housekeeped.')
-    subparsers = parser.add_subparsers(dest='cmd', help='help')
-    date_parser = subparsers.add_parser('date')
-    date_parser.add_argument('--term', type=validate_datetime_argument,
-                             help='A term of removed records.' +
-                                  ' Format: YYYY-mm-dd')
-    number_parser = subparsers.add_parser('number')
-    number_parser.add_argument('-n', '--number', type=int,
+    subparsers = parser.add_subparsers(dest='cmd',
+                                       help='delete events, action_logs' +
+                                            ' tables or counting them.')
+    delete_parser = subparsers.add_parser('delete')
+    delete_parser.add_argument('--date', type=validate_datetime_argument,
+                               default=None,
+                               help='A term of removed records.' +
+                                    ' Format: YYYY-mm-dd')
+    delete_parser.add_argument('-n', '--number', type=int,
+                               default=None,
                                help='A number of removed records.')
     stat_parser = subparsers.add_parser('stat')
     stat_parser.add_argument('--stat', action='store_true', default=False,
