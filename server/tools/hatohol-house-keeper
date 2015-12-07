@@ -23,9 +23,8 @@ def show_number_of(table_name, cursor):
     print '%s: %d' % (table_name, row[0])
 
 
-def show_status(cursor):
-    show_number_of('events', cursor)
-    show_number_of('action_logs', cursor)
+def show_status(table, cursor):
+    show_number_of(table, cursor)
     sys.exit(os.EX_OK)
 
 
@@ -84,7 +83,7 @@ def start(args):
         sys.exit(os.EX_DATAERR)
 
     if args.cmd == 'stat':
-        show_status(cursor)
+        show_status(args.table, cursor)
     if args.cmd == 'date':
         delete_unnecessary_records_by_date(args.table, args.term, db, cursor)
     if args.cmd == 'number':
