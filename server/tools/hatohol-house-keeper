@@ -94,11 +94,11 @@ def start(args):
         print 'MySQL Error [%d]: %s' % (errno, msg)
         sys.exit(os.EX_DATAERR)
 
-    if args.stat:
+    if args.cmd == 'stat':
         show_status(cursor)
-    if args.date:
-        delete_unnecessary_records_by_date(args.table, args.date, db, cursor)
-    if args.number:
+    if args.cmd == 'date':
+        delete_unnecessary_records_by_date(args.table, args.term, db, cursor)
+    if args.cmd == 'number':
         delete_unncessary_records_by_number(args.table, args.number,
                                             db, cursor)
 
@@ -116,19 +116,20 @@ if __name__ == '__main__':
                         help='A password for the database server. '
                         'If the password is not set, give \'\' '
                         'for this argument.')
-    parser.add_argument('--table', nargs='?', type=str,
+    parser.add_argument('--table', choices=['events', 'action_logs'],
+                        type=str, required=True,
                         help='Only the specified table is initialized.')
-    subparsers = parser.add_subparsers(help='--table help')
-    target_parser = subparsers.add_parser('target',
-                                          help='specify target ' +
-                                               'date/number/stat')
-    target_parser.add_argument('-d', '--date', type=validate_datetime_argument,
-                               help='A term of removing records.' +
-                                    ' Format: YY-mm-dd')
-    target_parser.add_argument('-n', '--number', type=int,
+    subparsers = parser.add_subparsers(dest='cmd', help='help')
+    date_parser = subparsers.add_parser('date')
+    date_parser.add_argument('--term', type=validate_datetime_argument,
+                             help='A term of removing records.' +
+                                  ' Format: YYYY-mm-dd')
+    number_parser = subparsers.add_parser('number')
+    number_parser.add_argument('-n', '--number', type=int,
                                help='A number of removing records.')
-    target_parser.add_argument('--stat', action='store_true', default=False,
-                               help='Show number of keeping tables record.')
+    stat_parser = subparsers.add_parser('stat')
+    stat_parser.add_argument('--stat', action='store_true', default=False,
+                             help='Show number of keeping tables record.')
     args = parser.parse_args()
 
     abort_if_required_option_is_missing(args)
