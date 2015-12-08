@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -24,12 +24,14 @@
 #include <vector>
 #include <string>
 #include <typeinfo>
+#include <functional>
 #include <inttypes.h>
 #include <glib.h>
 #include <StringUtils.h>
 #include <execinfo.h>
 #include <libsoup/soup.h>
 #include "Params.h"
+#include "Monitoring.h"
 
 #ifndef GLIB_VERSION_2_32
 #define G_SOURCE_REMOVE FALSE
@@ -271,6 +273,13 @@ public:
 	 * @return A calculated result.
 	 */
 	static uint64_t sum(const std::string &num0, const uint64_t num1);
+
+	static void foreachTriggerStatus(
+	  std::function<void(const TriggerStatusType &)> func);
+
+	static void foreachTriggerStatusDouble(
+	  std::function<void(const TriggerStatusType &,
+	                     const TriggerStatusType &)> func);
 
 protected:
 	static std::string makeDemangledStackTraceString(
