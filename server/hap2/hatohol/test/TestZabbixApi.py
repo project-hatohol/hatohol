@@ -95,14 +95,15 @@ class TestZabbixApi(unittest.TestCase):
         result = self.api.get_trigger_expand_description()
         expected = {u"result": [{u"triggerid": u"1",
                  u"description": u"test_expand_description",
-                 u"state": u"0", u"priority": u"3"}]}
+                 u"value": u"0", u"priority": u"3"}]}
 
         self.assertEquals(expected, result)
 
     def test_get_select_trigger(self):
         result = self.api.get_select_trigger("test_id")
-        expected = {u"triggerid": u"1", u"priority": u"3", u"state": u"0",
-                 u"description": u"test_expand_description"}
+        expected = {u"triggerid": u"1", u"priority": u"3", u"value": u"0",
+                    u"description": u"test_expand_description",
+                    u"hosts": [{u"hostid":u"1", u"name": u"test_host"}]}
 
         self.assertEquals(expected, result)
 

@@ -34,13 +34,15 @@ RESULTS = {
     "hostgroup.get": [{"groupid":"1", "name":"test_name"}],
     "trigger.get": [{"triggerid":"1", "priority":"3",
                      "description":"test_description", "lastchange":"0",
-                     "hosts":[{"hostid":"1","name":"test_host"}], "state":"0"}],
+                     "hosts":[{"hostid":"1","name":"test_host"}], "value":"0"}],
     "trigger.get.expand":[{"triggerid":"1", "priority": "3",
                            "description":"test_expand_description",
-                           "state": "0"}],
+                           "value": "0"}],
+    "trigger.get.select.expand":[{"triggerid":"1", "priority": "3",
+                           "description":"test_expand_description",
+                           "hosts":[{"hostid":"1","name":"test_host"}], "value": "0"}],
     "event.get": [{"eventid":"1", "objectid":"1",
-                   "clock":"0","value":"0", "ns":"111111111",
-                   "hosts":[{"hostid":"1","name":"test_host"}]}],
+                   "clock":"0","value":"0", "ns":"111111111"}],
     "event.get.expand": [{"eventid":"1"}]
 }
 
@@ -49,6 +51,8 @@ class urllib2:
         request = json.loads(post)
         self.method = request["method"]
         if str(request["method"]) == "trigger.get":
+            if request["params"].get(u"triggerids"):
+                self.method += ".select"
             if request["params"].get(u"expandDescription"):
                 self.method += ".expand"
         if str(request["method"]) == "event.get":
