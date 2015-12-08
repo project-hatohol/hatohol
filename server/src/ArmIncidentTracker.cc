@@ -91,7 +91,7 @@ ArmIncidentTracker *ArmIncidentTracker::create(
 		return new ArmRedmine(trackerInfo);
 	case INCIDENT_TRACKER_HATOHOL:
 		// TODO: should treat more appropriate way
-		MLPL_INFO("Hatohol incident tracking system selected: %d\n",
+		MLPL_DBG("Hatohol incident tracking system selected: %d\n",
 			 trackerInfo.type);
 		break;
 	default:
