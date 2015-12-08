@@ -66,7 +66,7 @@ void _assertLoginFailure(
 		query["password"] = password;
 	RequestArg arg("/login", "cbname");
 	arg.parameters = query;
-	unique_ptr<JSONParser> parserPtr(getServerResponseAsJSONParserWithFailure(arg));
+	unique_ptr<JSONParser> parserPtr(getResponseAsJSONParser(arg));
 	assertErrorCode(parserPtr.get(), expectCode);
 	if (sessionId) {
 		cppcut_assert_equal(true, parserPtr.get()->read("sessionId",
