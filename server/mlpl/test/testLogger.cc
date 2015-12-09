@@ -238,28 +238,59 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		return time(NULL) * 1000.0;
 	};
 	double expireClock = currTimeInMSec() + TIMEOUT;
-	bool found = false;
-	while (!found) {
-		bool timedOut = false;
-		int timeout = static_cast<int>(expireClock - currTimeInMSec());
-		if (timeout <= 0)
+
+	struct LoopContext {
+		int numLoop;
+		int numReadLines;
+		int remainingTime;
+		bool expired;
+		bool found;
+
+		LoopContext()
+		: numLoop(0),
+		  numReadLines(0),
+		  remainingTime(0),
+		  expired(false),
+		  found(false)
+		{}
+
+		string values(void)
+		{
+			string s;
+			s += StringUtils::sprintf(
+			  "numLoop: %d, numReadLines: %d, remainingTime: %d, ",
+			  numLoop, numReadLines, remainingTime);
+			s += StringUtils::sprintf(
+			  "expired: %d, found: %d", expired, found);
+			return s;
+		}
+	} loopCtx;
+
+	while (!loopCtx.found) {
+		loopCtx.numLoop++;
+		loopCtx.remainingTime =
+		  static_cast<int>(expireClock - currTimeInMSec());
+		if (loopCtx.remainingTime < 0)
 			break;
-		assertWaitSyslogUpdate(fd, timeout, timedOut);
-		if (timedOut)
+		assertWaitSyslogUpdate(fd, loopCtx.remainingTime,
+		                       loopCtx.expired);
+		if (loopCtx.expired)
 			break;
 
 		auto tryFindMessage = [&]() {
 			string line;
 			while (getline(syslogFileStream, line)) {
+				loopCtx.numReadLines++;
 				if (line.find(expectedMsg, 0) != string::npos)
 					return true;
 			}
 			return false;
 		};
-		found = tryFindMessage();
+		loopCtx.found = tryFindMessage();
 	}
 	close(fd);
-	cppcut_assert_equal(shouldLog, found);
+	cppcut_assert_equal(shouldLog, loopCtx.found,
+	                    cut_message("%s", loopCtx.values().c_str()));
 }
 #define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
 
