@@ -7,6 +7,14 @@ import time
 
 
 def abort_if_required_option_is_missing(args):
+    if args.cmd == "stat":
+        return
+
+    if args.cmd == "delete":
+        validate_delete_subcommand_option(args)
+
+
+def validate_delete_subcommand_option(args):
     if args.date and args.number:
         print 'You can not set -d (--date) and -n (--number) option together.'
         sys.exit(os.EX_USAGE)
