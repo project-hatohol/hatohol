@@ -186,7 +186,17 @@ static vector<ExecCommandContext *>g_execCommandCtxVect;
 
 static ActionLogExecFailureCode getFailureCodeSignalOrDumpedByRLimit(void)
 {
+	auto isCorePatternUsingPipe = [] {
+		string pattern;
+		pattern = executeCommand("cat /proc/sys/kernel/core_pattern");
+		return !pattern.empty() && pattern[0] == '|';
+	};
+
+	if (isCorePatternUsingPipe())
+		return ACTLOG_EXECFAIL_DUMPED_SIGNAL;
+
 	struct rlimit rlim;
+	errno = 0;
 	getrlimit(RLIMIT_CORE, &rlim);
 	cut_assert_errno();
 	if (rlim.rlim_cur > 0)
