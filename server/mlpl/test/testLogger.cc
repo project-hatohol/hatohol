@@ -234,11 +234,14 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	Logger::log(level, fileName, lineNumber, "%s", outMessage);
 
 	static const int TIMEOUT = 5 * 1000; // millisecond
-	int expireClock = time(NULL) * 1000 + TIMEOUT;
+	auto currTimeInMSec = [] {
+		return time(NULL) * 1000.0;
+	};
+	double expireClock = currTimeInMSec() + TIMEOUT;
 	bool found = false;
 	while (!found) {
 		bool timedOut = false;
-		int timeout = expireClock - time(NULL) * 1000;
+		int timeout = static_cast<int>(expireClock - currTimeInMSec());
 		if (timeout <= 0)
 			break;
 		assertWaitSyslogUpdate(fd, timeout, timedOut);
