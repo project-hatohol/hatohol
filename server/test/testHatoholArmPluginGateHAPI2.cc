@@ -887,6 +887,7 @@ void test_procedureHandlerPutTriggers(void)
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(monitoringServerInfo.id);
+	option.setExcludeFlags(EXCLUDE_SELF_MONITORING);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
 	string actualOutput;
 	for (auto trigger : triggerInfoList) {
@@ -931,8 +932,9 @@ void test_procedureHandlerPutTriggersInvalidJSON(void)
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(monitoringServerInfo.id);
+	option.setExcludeFlags(EXCLUDE_SELF_MONITORING);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
-	cppcut_assert_equal(triggerInfoList.size(), static_cast<size_t>(0));
+	cppcut_assert_equal(static_cast<size_t>(0), triggerInfoList.size());
 }
 
 void data_procedureHandlerPutEvents(void)

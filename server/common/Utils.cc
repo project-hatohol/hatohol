@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -479,6 +479,27 @@ uint64_t Utils::sum(const string &num0, const uint64_t num1)
 	uint64_t n;
 	conv(n, num0);
 	return n + num1;
+}
+
+void Utils::foreachTriggerStatus(function<void(const TriggerStatusType &)> func)
+{
+	for (int stat = 0; stat < NUM_TRIGGER_STATUS; stat++)
+		func(static_cast<TriggerStatusType>(stat));
+}
+
+void Utils::foreachTriggerStatusDouble(
+  function<void(const TriggerStatusType &, const TriggerStatusType &)> func)
+{
+	auto coreFunc = [&](const TriggerStatusType &a,
+	                    const TriggerStatusType &b) {
+		func(a, b);
+	};
+
+	auto innerLoop = [&](const TriggerStatusType &status) {
+		foreachTriggerStatus(bind(coreFunc, status, placeholders::_1));
+	};
+
+	foreachTriggerStatus(innerLoop);
 }
 
 // ---------------------------------------------------------------------------

@@ -51,30 +51,13 @@ static string expectedTriggerDBContent(
 	return expect;
 }
 
-static void trigerStatusForeach(function<void(const TriggerStatusType &)> f)
-{
-	for (int st = 0; st < NUM_TRIGGER_STATUS; st++)
-		f(static_cast<TriggerStatusType>(st));
-}
-
-static void trigerStatusDoubleForeach(
-  function<void(const TriggerStatusType &, const TriggerStatusType &)> f)
-{
-	trigerStatusForeach([&](const TriggerStatusType &s) {
-		for (int t = 0; t < NUM_TRIGGER_STATUS; t++) {
-			f(static_cast<TriggerStatusType>(s),
-			  static_cast<TriggerStatusType>(t));
-		}
-	});
-}
-
 static void trigerStatusUpdateDoubleForeach(
   SelfMonitor &monitor,
   function<void(const TriggerStatusType &, const TriggerStatusType &)> func1,
   function<void(const TriggerStatusType &, const TriggerStatusType &)> func2)
 {
-	trigerStatusDoubleForeach([&](const TriggerStatusType &prev,
-	                              const TriggerStatusType &curr) {
+	Utils::foreachTriggerStatusDouble([&](const TriggerStatusType &prev,
+	                                      const TriggerStatusType &curr) {
 		monitor.update(prev);
 		func1(prev, curr);
 		monitor.update(curr);
