@@ -236,7 +236,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	static const int TIMEOUT = 5 * 1000; // millisecond
 	int expireClock = time(NULL) * 1000 + TIMEOUT;
 	bool found = false;
-	for (;;) {
+	while (!found) {
 		bool timedOut = false;
 		int timeout = expireClock - time(NULL) * 1000;
 		if (timeout <= 0)
@@ -244,12 +244,16 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		assertWaitSyslogUpdate(fd, timeout, timedOut);
 		if (timedOut)
 			break;
-		string line;
-		getline(syslogFileStream, line);
-		if (line.find(expectedMsg, 0) != string::npos) {
-			found = true;
-			break;
-		}
+
+		auto tryFindMessage = [&]() {
+			string line;
+			while (getline(syslogFileStream, line)) {
+				if (line.find(expectedMsg, 0) != string::npos)
+					return true;
+			}
+			return false;
+		};
+		found = tryFindMessage();
 	}
 	close(fd);
 	cppcut_assert_equal(shouldLog, found);
