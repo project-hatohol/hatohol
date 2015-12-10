@@ -473,7 +473,10 @@ void _assertDatetime(int expectedClock, int actualClock)
 
 void _assertCurrDatetime(int clock)
 {
-	const int MAX_ALLOWD_CURR_TIME_ERROR = 5;
+	// On new TravisCI infrastructure since Dec.2015,
+	// some tests need approx. 5 sec for the completion of the DB commit.
+	// We set here the timeout value that is several times of it.
+	const int MAX_ALLOWD_CURR_TIME_ERROR = 15;
 	int currClock = (int)time(NULL);
 	cppcut_assert_equal(
 	  true, currClock >= clock,

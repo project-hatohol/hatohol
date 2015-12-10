@@ -234,25 +234,63 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 	Logger::log(level, fileName, lineNumber, "%s", outMessage);
 
 	static const int TIMEOUT = 5 * 1000; // millisecond
-	int expireClock = time(NULL) * 1000 + TIMEOUT;
-	bool found = false;
-	for (;;) {
-		bool timedOut = false;
-		int timeout = expireClock - time(NULL) * 1000;
-		if (timeout <= 0)
-			break;
-		assertWaitSyslogUpdate(fd, timeout, timedOut);
-		if (timedOut)
-			break;
-		string line;
-		getline(syslogFileStream, line);
-		if (line.find(expectedMsg, 0) != string::npos) {
-			found = true;
-			break;
+	auto currTimeInMSec = [] {
+		return time(NULL) * 1000.0;
+	};
+	double expireClock = currTimeInMSec() + TIMEOUT;
+
+	struct LoopContext {
+		int numLoop;
+		int numReadLines;
+		int remainingTime;
+		bool expired;
+		bool found;
+
+		LoopContext()
+		: numLoop(0),
+		  numReadLines(0),
+		  remainingTime(0),
+		  expired(false),
+		  found(false)
+		{}
+
+		string values(void)
+		{
+			string s;
+			s += StringUtils::sprintf(
+			  "numLoop: %d, numReadLines: %d, remainingTime: %d, ",
+			  numLoop, numReadLines, remainingTime);
+			s += StringUtils::sprintf(
+			  "expired: %d, found: %d", expired, found);
+			return s;
 		}
+	} loopCtx;
+
+	while (!loopCtx.found) {
+		loopCtx.numLoop++;
+		loopCtx.remainingTime =
+		  static_cast<int>(expireClock - currTimeInMSec());
+		if (loopCtx.remainingTime < 0)
+			break;
+		assertWaitSyslogUpdate(fd, loopCtx.remainingTime,
+		                       loopCtx.expired);
+		if (loopCtx.expired)
+			break;
+
+		auto tryFindMessage = [&]() {
+			string line;
+			while (getline(syslogFileStream, line)) {
+				loopCtx.numReadLines++;
+				if (line.find(expectedMsg, 0) != string::npos)
+					return true;
+			}
+			return false;
+		};
+		loopCtx.found = tryFindMessage();
 	}
 	close(fd);
-	cppcut_assert_equal(shouldLog, found);
+	cppcut_assert_equal(shouldLog, loopCtx.found,
+	                    cut_message("%s", loopCtx.values().c_str()));
 }
 #define assertSyslogOutput(EM,OM,EXP) cut_trace(_assertSyslogOutput(EM,OM,EXP))
 
