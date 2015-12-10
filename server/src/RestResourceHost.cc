@@ -658,8 +658,12 @@ void RestResourceHost::handlerPutIncident(void)
 	ref();
 	IncidentSenderManager &senderManager
 	  = IncidentSenderManager::getInstance();
-	senderManager.queue(incidentInfo, comment,
-			    updateIncidentCallback, this);
+	err = senderManager.queue(incidentInfo, comment,
+				  updateIncidentCallback, this);
+	if (err != HTERR_OK) {
+		unref();
+		replyError(err);
+	}
 }
 
 // TODO: Add a macro or template to simplify the definition
