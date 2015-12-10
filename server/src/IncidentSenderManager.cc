@@ -123,7 +123,7 @@ IncidentSenderManager &IncidentSenderManager::getInstance(void)
 	return Impl::instance;
 }
 
-void IncidentSenderManager::queue(
+bool IncidentSenderManager::queue(
   const IncidentTrackerIdType &trackerId, const EventInfo &eventInfo,
   IncidentSender::CreateIncidentCallback callback, void *userData)
 {
@@ -132,12 +132,13 @@ void IncidentSenderManager::queue(
 		MLPL_ERR("Failed to queue sending an incident"
 			 " for the event: %" FMT_EVENT_ID "\n",
 			 eventInfo.id.c_str());
-		return;
+		return false;
 	}
 	sender->queue(eventInfo, callback, userData);
+	return true;
 }
 
-void IncidentSenderManager::queue(
+bool IncidentSenderManager::queue(
   const IncidentInfo &incidentInfo, const string &comment,
   IncidentSender::UpdateIncidentCallback callback, void *userData)
 {
@@ -146,9 +147,10 @@ void IncidentSenderManager::queue(
 		MLPL_ERR("Can't find or create IncidentSender for: "
 			 "%" FMT_INCIDENT_TRACKER_ID "\n",
 			 incidentInfo.trackerId);
-		return;
+		return false;
 	}
 	sender->queue(incidentInfo, comment, callback, userData);
+	return true;
 }
 
 IncidentSenderManager::IncidentSenderManager(void)

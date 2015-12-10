@@ -658,8 +658,12 @@ void RestResourceHost::handlerPutIncident(void)
 	ref();
 	IncidentSenderManager &senderManager
 	  = IncidentSenderManager::getInstance();
-	senderManager.queue(incidentInfo, comment,
-			    updateIncidentCallback, this);
+	bool succeeded = senderManager.queue(incidentInfo, comment,
+					     updateIncidentCallback, this);
+	if (!succeeded) {
+		unref();
+		replyError(HTERR_FAILED_TO_SEND_INCIDENT);
+	}
 }
 
 // TODO: Add a macro or template to simplify the definition
