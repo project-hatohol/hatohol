@@ -322,7 +322,6 @@ msgid "% Done"
 msgstr "進捗率"
 
 #: static/js/events_view.js:157 static/js/triggers_view.js:46
-#, fuzzy
 msgid "Failed to get the configuration!"
 msgstr "重要度設定の取得に失敗しました。"
 
@@ -1213,9 +1212,8 @@ msgid "Online Documents"
 msgstr "オンラインドキュメント"
 
 #: static/js/hatohol_navi.js:115
-#, fuzzy
 msgid "version: "
-msgstr "Hatoholバージョン: "
+msgstr "バージョン: "
 
 #: static/js/hatohol_pager.js:243
 msgid "Nothing data in this page. Please click here and return."

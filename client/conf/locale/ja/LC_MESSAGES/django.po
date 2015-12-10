@@ -117,7 +117,6 @@ msgid "Code"
 msgstr ""
 
 #: viewer/custom_incident_labels_ajax.html:36
-#, fuzzy
 msgid "Display Label"
 msgstr "表示ラベル"
 
@@ -204,7 +203,7 @@ msgstr "イベントコンソール"
 
 #: viewer/events_ajax.html:32
 msgid "Console Settings"
-msgstr ""
+msgstr "コンソール設定"
 
 #: viewer/events_ajax.html:41
 msgid "Important event(s) index"
@@ -298,7 +297,6 @@ msgid "Unknown"
 msgstr "不明"
 
 #: viewer/events_ajax.html:149
-#, fuzzy
 msgid "Notification"
 msgstr "確認"
 
@@ -338,9 +336,8 @@ msgid "Abbreviate Event Descriptions"
 msgstr ""
 
 #: viewer/events_ajax.html:239
-#, fuzzy
 msgid "Customize Event Console"
-msgstr "イベント画面の設定"
+msgstr "イベントコンソールの設定"
 
 #: viewer/events_ajax.html:244
 msgid "View"
