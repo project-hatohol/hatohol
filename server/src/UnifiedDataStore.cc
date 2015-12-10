@@ -81,8 +81,7 @@ struct UnifiedDataStore::Impl
 		}
 	};
 
-	static UnifiedDataStore *instance;
-	static Mutex             mutex;
+	static AtomicValue<UnifiedDataStore *> instance;
 
 	AtomicValue<bool>        isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
@@ -356,8 +355,7 @@ struct UnifiedDataStore::Impl
 	map<string, CustomIncidentStatus> customIncidentStatusMap;
 };
 
-UnifiedDataStore *UnifiedDataStore::Impl::instance = NULL;
-Mutex             UnifiedDataStore::Impl::mutex;
+AtomicValue<UnifiedDataStore *> UnifiedDataStore::Impl::instance = NULL;
 
 // ---------------------------------------------------------------------------
 // Public static methods
@@ -379,14 +377,8 @@ void UnifiedDataStore::reset(void)
 
 UnifiedDataStore *UnifiedDataStore::getInstance(void)
 {
-	if (Impl::instance)
-		return Impl::instance;
-
-	Impl::mutex.lock();
-	if (!Impl::instance)
+	if (!Impl::instance.get())
 		Impl::instance = new UnifiedDataStore();
-	Impl::mutex.unlock();
-
 	return Impl::instance;
 }
 
