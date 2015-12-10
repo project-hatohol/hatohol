@@ -363,6 +363,14 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		setupAMQPConnectionInfo();
 
 		m_consumer = new AMQPConsumer(m_connectionInfo, &m_handler);
+
+		auto connCb = [&](const AMQPConsumer::ConnectionStatus &stat) {
+			if (stat == AMQPConsumer::CONN_ESTABLISHED)
+				onConnect();
+			else
+				onConnectFailure();
+		};
+		m_consumer->setConnectionChangeCallback(connCb);
 	}
 
 	string generateQueueName(const ArmPluginInfo &pluginInfo)
@@ -381,7 +389,6 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 			return;
 		}
 		m_consumer->start();
-		onConnect();
 	}
 
 	void queueProcedureCallback(const string id,

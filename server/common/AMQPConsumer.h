@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -20,6 +20,7 @@
 #ifndef AMQPConsumer_h
 #define AMQPConsumer_h
 
+#include <functional>
 #include "HatoholThreadBase.h"
 #include "AMQPConnection.h"
 
@@ -27,6 +28,14 @@ class AMQPMessageHandler;
 
 class AMQPConsumer : public HatoholThreadBase {
 public:
+	enum ConnectionStatus {
+		CONN_INIT,
+		CONN_ESTABLISHED,
+		CONN_DISCONNECTED,
+	};
+	typedef std::function<void(const ConnectionStatus &)>
+	  ConnectionChangeCallback;
+
 	AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
 		     AMQPMessageHandler *handle);
 	AMQPConsumer(AMQPConnectionPtr &connection,
@@ -34,6 +43,7 @@ public:
 	virtual ~AMQPConsumer();
 
 	AMQPConnectionPtr getConnection(void);
+	void setConnectionChangeCallback(ConnectionChangeCallback cb);
 
 protected:
 	virtual gpointer mainThread(HatoholThreadArg *arg) override;
