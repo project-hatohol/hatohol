@@ -298,7 +298,7 @@ msgstr "不明"
 
 #: viewer/events_ajax.html:149
 msgid "Notification"
-msgstr "確認"
+msgstr "通知"
 
 #: viewer/events_ajax.html:153 viewer/overview_items_ajax.html:33
 #: viewer/overview_triggers_ajax.html:32 viewer/triggers_ajax.html:32
