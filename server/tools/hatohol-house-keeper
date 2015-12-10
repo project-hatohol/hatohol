@@ -1,0 +1,140 @@
+#!/usr/bin/env python
+import sys
+import os
+import argparse
+import MySQLdb
+import time
+
+
+def abort_if_required_option_is_missing(args):
+    if args.cmd == "stat":
+        return
+
+    if args.cmd == "delete":
+        validate_delete_subcommand_option(args)
+
+
+def validate_delete_subcommand_option(args):
+    if args.date and args.number:
+        print 'You can not set -d (--date) and -n (--number) option together.'
+        sys.exit(os.EX_USAGE)
+    if args.date == None and args.number == None:
+        print 'You must set -d (--date) or -n (--number) option.'
+        sys.exit(os.EX_USAGE)
+
+
+def validate_datetime_argument(datestr):
+    try:
+        make_unix_time(datestr)
+        return datestr
+    except ValueError:
+        raise argparse.ArgumentTypeError(datestr +
+                                         ' is not a proper date string')
+
+
+def show_number_of(table_name, cursor):
+    query = 'SELECT COUNT(*) FROM %s' % table_name
+    cursor.execute(query)
+    row = cursor.fetchone()
+
+    print '%s: %d' % (table_name, row[0])
+
+
+def show_status(table, cursor):
+    show_number_of(table, cursor)
+    sys.exit(os.EX_OK)
+
+
+def make_sql_interpretable_time(date):
+    date += ' 00:00:00'
+    return date
+
+
+def make_unix_time(date):
+    format = '%Y-%m-%d %H:%M:%S'
+    date += ' 00:00:00'
+    return int(time.mktime(time.strptime(date, format)))
+
+
+def run_sql_query(db, cursor, query):
+    try:
+        cursor.execute(query)
+        db.commit()
+    except:
+        db.rollback()
+
+
+def delete_unnecessary_records_by_date(table_name, date, db, cursor):
+    if 'events' in table_name:
+        time_sec = make_unix_time(date)
+        query = 'DELETE FROM events WHERE time_sec < %d' % time_sec
+    elif 'action_logs' in table_name:
+        query = 'DELETE FROM action_logs WHERE queuing_time < "%s"' % \
+                make_sql_interpretable_time(date)
+
+    run_sql_query(db, cursor, query)
+
+
+def delete_unncessary_records_by_number(table_name, number, db, cursor):
+    if 'events' in table_name:
+        query = 'DELETE FROM events ORDER BY time_sec ASC LIMIT %d' % number
+    elif 'action_logs' in table_name:
+        query = 'DELETE FROM action_logs ORDER BY queuing_time ASC LIMIT %d' % number
+
+    run_sql_query(db, cursor, query)
+
+
+def start(args):
+    try:
+        db = MySQLdb.connect(host=args.db_host, db=args.db_name,
+                             user=args.db_user, passwd=args.db_password)
+        cursor = db.cursor()
+    except MySQLdb.Error as (errno, msg):
+        print 'MySQL Error [%d]: %s' % (errno, msg)
+        sys.exit(os.EX_DATAERR)
+
+    if args.cmd == 'stat':
+        show_status(args.table, cursor)
+    if args.cmd == 'delete':
+        if args.date:
+            delete_unnecessary_records_by_date(args.table, args.date,
+                                               db, cursor)
+        if args.number:
+            delete_unncessary_records_by_number(args.table, args.number,
+                                                db, cursor)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Hatohol House Keeper')
+
+    parser.add_argument('--db-host', default='localhost', type=str,
+                        help='A database server.')
+    parser.add_argument('--db-name', type=str, required=True,
+                        help='A database name to be cleaned.')
+    parser.add_argument('--db-user', type=str, required=True,
+                        help='A user for the database server.')
+    parser.add_argument('--db-password', type=str, required=True,
+                        help='A password for the database server. '
+                        'If the password is not set, give \'\' '
+                        'for this argument.')
+    parser.add_argument('--table', choices=['events', 'action_logs'],
+                        type=str, required=True,
+                        help='Only the specified table is housekeeped.')
+    subparsers = parser.add_subparsers(dest='cmd',
+                                       help='delete events, action_logs' +
+                                            ' tables or counting them.')
+    delete_parser = subparsers.add_parser('delete')
+    delete_parser.add_argument('--date', type=validate_datetime_argument,
+                               default=None,
+                               help='A term of removed records.' +
+                                    ' Format: YYYY-mm-dd')
+    delete_parser.add_argument('-n', '--number', type=int,
+                               default=None,
+                               help='A number of removed records.')
+    stat_parser = subparsers.add_parser('stat')
+    stat_parser.add_argument('--stat', action='store_true', default=False,
+                             help='Show number of keeping tables record.')
+    args = parser.parse_args()
+
+    abort_if_required_option_is_missing(args)
+    start(args)
