@@ -214,7 +214,7 @@ class ZabbixAPI:
             lastchange = trigger["lastchange"]
             time = Utils.translate_unix_time_to_hatohol_time(lastchange)
             triggers.append({"triggerId": trigger["triggerid"],
-                             "status": TRIGGER_STATUS[trigger["state"]],
+                             "status": TRIGGER_STATUS[trigger["value"]],
                              "severity": TRIGGER_SEVERITY[trigger["priority"]],
                              "lastChangeTime": time,
                              "hostId": trigger["hosts"][0]["hostid"],
@@ -243,8 +243,9 @@ class ZabbixAPI:
         return res_dict
 
     def get_select_trigger(self, trigger_id):
-        params = {"output": ["triggerid", "priority", "description", "state"],
-                  "triggerids": [trigger_id], "expandDescription": 1}
+        params = {"output": ["triggerid", "priority", "description", "value"],
+                  "triggerids": [trigger_id], "expandDescription": 1,
+                  "selectHosts": ["name"]}
         res_dict = self.get_response_dict("trigger.get", params,
                                           self.auth_token)
 
@@ -254,8 +255,7 @@ class ZabbixAPI:
         return res_dict["result"][0]
 
     def get_events(self, event_id_from, event_id_till=None):
-        params = {"output": "extend", "eventid_from": event_id_from,
-                  "selectHosts": ["name"]}
+        params = {"output": "extend", "eventid_from": event_id_from}
         if event_id_till is not None:
             params["eventid_till"] = event_id_till
 
@@ -274,10 +274,10 @@ class ZabbixAPI:
                            "time": time,
                            "type": EVENT_TYPE[event["value"]],
                            "triggerId": trigger["triggerid"],
-                           "status": TRIGGER_STATUS[trigger["state"]],
+                           "status": TRIGGER_STATUS[trigger["value"]],
                            "severity": TRIGGER_SEVERITY[trigger["priority"]],
-                           "hostId": event["hosts"][0]["hostid"],
-                           "hostName": event["hosts"][0]["name"],
+                           "hostId": trigger["hosts"][0]["hostid"],
+                           "hostName": trigger["hosts"][0]["name"],
                            "brief": trigger["description"],
                            "extendedInfo": ""})
 
