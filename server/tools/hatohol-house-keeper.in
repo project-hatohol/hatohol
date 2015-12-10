@@ -4,6 +4,38 @@ import os
 import argparse
 import MySQLdb
 import time
+import ConfigParser
+
+config_map = {
+    'database': 'hatohol',
+    'user': 'hatohol',
+    'password': 'hatohol',
+    'host': 'localhost'
+}
+
+
+def get_default_conf():
+    return '@expanded_sysconfdir@/hatohol/hatohol.conf'
+
+
+def init_config_map():
+    config_file = get_default_conf()
+    if not os.access(config_file, os.R_OK):
+        return
+
+    config = ConfigParser.ConfigParser()
+    config.read(config_file)
+    data = (
+        ('database', 'mysql', 'database'),
+        ('user', 'mysql', 'user'),
+        ('password', 'mysql', 'password'),
+        ('host', 'mysql', 'host'),
+    )
+    global config_map
+    for key, section, option in data:
+        if not config.has_option(section, option):
+            continue
+        config_map[key] = config.get(section, option)
 
 
 def abort_if_required_option_is_missing(args):
@@ -104,16 +136,26 @@ def start(args):
                                                 db, cursor)
 
 
+def get_default_conf_item(item_name):
+    return config_map.get(item_name)
+
+
 if __name__ == '__main__':
+    init_config_map()
+
     parser = argparse.ArgumentParser(description='Hatohol House Keeper')
 
-    parser.add_argument('--db-host', default='localhost', type=str,
+    parser.add_argument('--db-host', type=str,
+                        default=get_default_conf_item('host'),
                         help='A database server.')
-    parser.add_argument('--db-name', type=str, required=True,
+    parser.add_argument('--db-name', type=str,
+                        default=get_default_conf_item('database'),
                         help='A database name to be cleaned.')
-    parser.add_argument('--db-user', type=str, required=True,
+    parser.add_argument('--db-user', type=str,
+                        default=get_default_conf_item('user'),
                         help='A user for the database server.')
-    parser.add_argument('--db-password', type=str, required=True,
+    parser.add_argument('--db-password', type=str,
+                        default=get_default_conf_item('password'),
                         help='A password for the database server. '
                         'If the password is not set, give \'\' '
                         'for this argument.')
