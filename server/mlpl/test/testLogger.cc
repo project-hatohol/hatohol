@@ -231,7 +231,7 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		Logger::enableSyslogOutput();
 	else
 		Logger::disableSyslogOutput();
-	Logger::log(level, fileName, lineNumber, "%s", outMessage);
+	Logger::log(level, fileName, lineNumber, "%s\n", outMessage);
 
 	static const int TIMEOUT = 5 * 1000; // millisecond
 	auto currTimeInMSec = [] {
