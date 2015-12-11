@@ -29,14 +29,47 @@ class IncidentSenderManager
 public:
 	static IncidentSenderManager &getInstance(void);
 
-	void queue(const IncidentTrackerIdType &trackerId,
-		   const EventInfo &info,
-		   IncidentSender::CreateIncidentCallback callback = NULL,
-		   void *userData = NULL);
-	void queue(const IncidentInfo &incidentInfo,
-		   const std::string &comment,
-		   IncidentSender::UpdateIncidentCallback callback = NULL,
-		   void *userData = NULL);
+	/**
+	 * Queue a job to register an incident which will be tied to an event.
+	 *
+	 * @param trackerId
+	 * An ID of IncidentTracker to register an incident.
+	 * @param event
+	 * An event which will be tied to the registered incident.
+	 * @param callback
+	 * A callback function which will be called when the IncidentSender
+	 * succeed or fail to register an incident.
+	 * @param userData
+	 * A data which is passed to the callback function.
+	 *
+	 * @return A HatoholError instance.
+	 */
+	HatoholError queue(const IncidentTrackerIdType &trackerId,
+			   const EventInfo &event,
+			   IncidentSender::CreateIncidentCallback callback = NULL,
+			   void *userData = NULL);
+
+	/**
+	 * Queue a job to update an incident.
+	 *
+	 * @param incidentInfo
+	 * An IncidentInfo to update.
+	 * @param comment
+	 * A comment string to add to the incident. Note that the incident
+	 * tracker may not support adding comments.
+	 * @param callback
+	 * A callback function which will be called when the IncidentSender
+	 * succeed or fail to send an incident.
+	 * @param userData
+	 * A data which is passed to the callback function.
+	 *
+	 * @return A HatoholError instance.
+	 */
+	HatoholError queue(const IncidentInfo &incidentInfo,
+			   const std::string &comment,
+			   IncidentSender::UpdateIncidentCallback callback = NULL,
+			   void *userData = NULL);
+
 	bool isIdling(void);
 	void setOnChangedIncidentTracker(const IncidentTrackerIdType id);
 	void deleteIncidentTracker(const IncidentTrackerIdType id);
