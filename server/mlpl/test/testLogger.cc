@@ -233,6 +233,11 @@ static void _assertSyslogOutput(const char *envMessage, const char *outMessage,
 		Logger::disableSyslogOutput();
 	Logger::log(level, fileName, lineNumber, "%s\n", outMessage);
 
+	// To make it sure to flush the log written above
+	int retCode = system("sudo service rsyslog restart");
+	cppcut_assert_not_equal(-1, retCode);
+	cppcut_assert_equal(0, WEXITSTATUS(retCode));
+
 	static const int TIMEOUT = 5 * 1000; // millisecond
 	auto currTimeInMSec = [] {
 		return time(NULL) * 1000.0;
