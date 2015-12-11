@@ -99,4 +99,4 @@ class TestStandardHap(unittest.TestCase):
         hap.enable_handling_sigchld(False)
         expect_ms = haplib.MonitoringServerInfo(json.loads(EzTransporter.TEST_MONITORING_SERVER_RESULT))
         actual_ms = hap.get_received_ms_info()
-        self.assertTrue(actual_ms, expect_ms)
+        self.assertEqual(str(actual_ms), str(expect_ms))

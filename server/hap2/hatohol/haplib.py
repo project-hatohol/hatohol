@@ -268,6 +268,13 @@ class MonitoringServerInfo:
         }
         return handlers[type](self.extended_info)
 
+    def __str__(self):
+        s = str()
+        s += "%s %s %s " % (self.server_id, self.url, self.type)
+        s += "%s %s %s " % (self.nick_name, self.user_name, self.password)
+        s += "%s %s " % (self.polling_interval_sec, self.retry_interval_sec)
+        s += self.extended_info
+        return s
 
 class ParsedMessage:
     def __init__(self):
