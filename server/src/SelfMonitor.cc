@@ -191,9 +191,6 @@ void SelfMonitor::update(const TriggerStatusType &_status)
 	if (!m_impl->workable)
 		status = m_impl->unworkableVisibleStatus();
 
-	if (status != TRIGGER_STATUS_UNKNOWN)
-		m_impl->lastKnownStatus = status;
-
 	TriggerStatusType prevStatus = m_impl->triggerInfo.status;
 	m_impl->triggerInfo.status = status;
 	onUpdated(status, prevStatus);
@@ -216,6 +213,9 @@ void SelfMonitor::update(const TriggerStatusType &_status)
 			listenerIt = m_impl->listeners.erase(listenerIt);
 		}
 	}
+
+	if (status != TRIGGER_STATUS_UNKNOWN)
+		m_impl->lastKnownStatus = status;
 }
 
 TriggerStatusType SelfMonitor::getLastKnownStatus(void) const
