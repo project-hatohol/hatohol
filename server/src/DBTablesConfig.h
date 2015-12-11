@@ -272,7 +272,7 @@ public:
 	 *
 	 * @param armPluginInfo A data to be saved.
 	 *
-	 * @rerurn A HatoholError insntace.
+	 * @rerurn A HatoholError instance.
 	 */
 	HatoholError saveArmPluginInfo(ArmPluginInfo &armPluginInfo);
 
@@ -286,7 +286,7 @@ public:
 	 * OPPRVLG_CREATE_INCIDENT_SETTING to execute this function
 	 * successfully.
 	 *
-	 * @rerurn A HatoholError insntace.
+	 * @rerurn A HatoholError instance.
 	 */
 	HatoholError addIncidentTracker(
 	  IncidentTrackerInfo &incidentTrackerInfo,
@@ -301,7 +301,7 @@ public:
 	 * OPPRVLG_UPDATE_INCIDENT_SETTING to execute this function
 	 * successfully.
 	 *
-	 * @rerurn A HatoholError insntace.
+	 * @rerurn A HatoholError instance.
 	 */
 	HatoholError updateIncidentTracker(
 	  IncidentTrackerInfo &incidentTrackerInfo,
@@ -316,7 +316,7 @@ public:
 	 * OPPRVLG_DELETE_INCIDENT_SETTING to execute this function
 	 * successfully.
 	 *
-	 * @rerurn A HatoholError insntace.
+	 * @rerurn A HatoholError instance.
 	 */
 	HatoholError deleteIncidentTracker(
 	  const IncidentTrackerIdType &incidentTrackerId,

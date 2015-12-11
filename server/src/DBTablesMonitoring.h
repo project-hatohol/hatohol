@@ -297,7 +297,7 @@ public:
 	 * @param incidentInfo
 	 * An IncidentInfo to update.
 	 *
-	 * @rerurn A HatoholError insntace.
+	 * @rerurn A HatoholError instance.
 	 */
 	HatoholError updateIncidentInfo(IncidentInfo &incidentInfo);
 
