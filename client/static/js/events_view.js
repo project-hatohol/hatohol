@@ -1203,6 +1203,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function drawTableContents() {
+    $("#table").floatThead('destroy');
     $("#table thead").empty();
     $("#table thead").append(drawTableHeader());
     $("#table tbody").empty();
@@ -1220,6 +1221,12 @@ var EventsView = function(userProfile, options) {
     });
 
     setupSortColumn();
+
+    $("#table").floatThead({
+      scrollContainer: function($table) {
+	return $("event-table-content");
+      }
+    });
 
     function setupSortColumn() {
       var th = $("#column_time");

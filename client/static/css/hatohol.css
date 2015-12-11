@@ -195,6 +195,11 @@ div.view-layout-mock {
     vertical-align: middle;
 }
 
+#table th,
+.floatThead-table th {
+    background-color: #FFF;
+}
+
 table.view-layout-mock {
     border-width: 2px;
     border-color: #aaaaaa;
