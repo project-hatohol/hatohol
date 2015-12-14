@@ -23,10 +23,10 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include <cstring>
+#include <mutex>
 #include "ActorCollector.h"
 #include "DBTablesAction.h"
 #include "Logger.h"
-#include "Mutex.h"
 #include "SessionManager.h"
 #include "Reaper.h"
 #include "ChildProcessManager.h"
@@ -39,11 +39,11 @@ typedef WaitChildSet::iterator       WaitChildSetIterator;
 typedef WaitChildSet::const_iterator WaitChildSetConstIterator;
 
 struct ActorCollector::Impl {
-	static Mutex        lock;
+	static std::mutex   lock;
 	static WaitChildSet waitChildSet;
 };
 
-Mutex        ActorCollector::Impl::lock;
+mutex        ActorCollector::Impl::lock;
 WaitChildSet ActorCollector::Impl::waitChildSet;
 
 struct ActorCollector::ActorContext {
@@ -106,7 +106,7 @@ ActorInfo::~ActorInfo()
 void ActorCollector::reset(void)
 {
 	ChildProcessManager::getInstance()->reset();
-	AutoMutex autoMutex(&Impl::lock);
+	lock_guard<mutex> mutexLock(Impl::lock);
 	HATOHOL_ASSERT(Impl::waitChildSet.empty(),
 	               "waitChildSet is not empty (%zd).",
 	               Impl::waitChildSet.size());
@@ -165,7 +165,7 @@ HatoholError ActorCollector::debut(Profile &profile)
 
 void ActorCollector::addActor(ActorInfo *actorInfo)
 {
-	AutoMutex autoMutex(&Impl::lock);
+	lock_guard<mutex> mutexLock(Impl::lock);
 	pair<WaitChildSetIterator, bool> result =
 	  Impl::waitChildSet.insert
 	    (pair<pid_t, ActorInfo *>(actorInfo->pid, actorInfo));
@@ -182,7 +182,7 @@ void ActorCollector::addActor(ActorInfo *actorInfo)
 bool ActorCollector::isWatching(pid_t pid)
 {
 	bool found = false;
-	AutoMutex autoMutex(&Impl::lock);
+	lock_guard<mutex> mutexLock(Impl::lock);
 	WaitChildSetIterator it = Impl::waitChildSet.find(pid);
 	if (it != Impl::waitChildSet.end())
 		found = true;
@@ -192,7 +192,7 @@ bool ActorCollector::isWatching(pid_t pid)
 void ActorCollector::setDontLog(pid_t pid)
 {
 	bool found = false;
-	AutoMutex autoMutex(&Impl::lock);
+	lock_guard<mutex> mutexLock(Impl::lock);
 	WaitChildSetIterator it = Impl::waitChildSet.find(pid);
 	if (it != Impl::waitChildSet.end()) {
 		it->second->dontLog = true;
@@ -204,7 +204,7 @@ void ActorCollector::setDontLog(pid_t pid)
 
 size_t ActorCollector::getNumberOfWaitingActors(void)
 {
-	AutoMutex autoMutex(&Impl::lock);
+	lock_guard<mutex> mutexLock(Impl::lock);
 	size_t num = Impl::waitChildSet.size();
 	return num;
 }
@@ -267,7 +267,7 @@ void ActorCollector::postCollectedProc(ActorContext &actorCtx)
 void ActorCollector::cleanupChildInfo(const pid_t &pid)
 {
 	// Remove actorInfo from waitChildSet
-	AutoMutex autoMutex(&Impl::lock);
+	lock_guard<mutex> mutexLock(Impl::lock);
 	WaitChildSetIterator it =
 	  Impl::waitChildSet.find(pid);
 	ActorInfo *actorInfo = it->second;
