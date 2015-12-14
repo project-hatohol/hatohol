@@ -107,6 +107,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_server_bulkupload_dialog.js \
 	static/js/hatohol_server_edit_dialog_parameterized.js \
 	static/js/hatohol_dialog.js \
+	static/js/hatohol_modal.js \
 	static/js/hatohol_item_remover.js \
 	static/js/hatohol_reply_parser.js \
 	static/js/hatohol_server_selector.js \
