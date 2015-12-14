@@ -121,6 +121,14 @@ Requires: hatohol-hap2-common = %{version}
 %description hap2-nagios-ndoutils
 Nagios ndoutils plugin for hatohol arm plugins version 2.0.
 
+%package hap2-nagios-livestatus
+Summary: Nagios livestatus plugins of HAPI2.0
+Group: Applications/System
+Requires: hatohol-hap2-common = %{version}
+
+%description hap2-nagios-livestatus
+Nagios livestatus plugin for hatohol arm plugins version 2.0.
+
 %package hap2-fluentd
 Summary: Fluentd plugin of HAPI2.0
 Group: Applications/System
@@ -312,6 +320,12 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyo
+
+%files hap2-nagios-livestatus
+%{_libexecdir}/hatohol/hap2/start-stop-hap2-nagios-livestatus.sh
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.py
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.pyc
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.pyo
 
 %files hap2-fluentd
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-fluentd.sh
