@@ -40,8 +40,15 @@
 //
 var HatoholModal = function(params) {
   var self = this;
+  self.owner = false;
 
   self.modalId = params.id;
+  if ($("#" + this.modalId).length) {
+    // When the modal has already been created
+    return;
+  }
+
+  self.owner = true;
   self.modal = $('<div class="modal fade" id="' + params.id + '" tabindex="-1" role="dialog" />');
   $("body").append(self.modal);
 
@@ -83,7 +90,7 @@ HatoholModal.prototype.close = function(doneHandler) {
   modal.modal("hide");
   modal.off("hidden.bs.modal");
   modal.on("hidden.bs.modal", function(e) {
-    self.modal.remove();
+    modal.remove();
     if (doneHandler != null)
       doneHandler();
   });
@@ -92,4 +99,8 @@ HatoholModal.prototype.close = function(doneHandler) {
 HatoholModal.prototype.updateBody = function(newBody) {
   this.body.empty();
   this.body.append(newBody);
+};
+
+HatoholModal.prototype.isOwner = function() {
+  return this.owner;
 };

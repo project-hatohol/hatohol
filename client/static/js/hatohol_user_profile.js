@@ -41,8 +41,6 @@ var HatoholUserProfile = function(user) {
           self.onLoadCb[i](user);
       },
       parseErrorCallback: hatoholErrorMsgBoxForParser,
-      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-      }
     });
   }
 

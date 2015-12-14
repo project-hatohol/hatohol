@@ -210,9 +210,11 @@ HatoholConnector.prototype.start = function(connectParams) {
                                          errorThrown, this);
       return;
     }
+
     var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
                    XMLHttpRequest.statusText;
-    hatoholErrorMsgBox(errorMsg);
+    msgModal = new HatoholReconnectModal(request, errorMsg);
+    msgModal.show();
   }
 };
 
