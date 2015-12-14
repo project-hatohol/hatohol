@@ -21,7 +21,7 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include <Mutex.h>
+#include <mutex>
 #include <errno.h>
 #include "ConfigManager.h"
 #include "DBTablesConfig.h"
@@ -130,7 +130,7 @@ CommandLineOptions::CommandLineOptions(void)
 // ConfigManager::Impl
 // ---------------------------------------------------------------------------
 struct ConfigManager::Impl {
-	static Mutex          mutex;
+	static std::mutex     mutex;
 	static ConfigManager *instance;
 	string                confFilePath;
 	string                databaseDirectory;
@@ -297,7 +297,7 @@ private:
 	}
 };
 
-Mutex          ConfigManager::Impl::mutex;
+mutex          ConfigManager::Impl::mutex;
 ConfigManager *ConfigManager::Impl::instance = NULL;
 
 // ---------------------------------------------------------------------------
@@ -466,25 +466,25 @@ int ConfigManager::getMaxNumberOfRunningCommandAction(void)
 
 string ConfigManager::getActionCommandDirectory(void)
 {
-	AutoMutex autoLock(&m_impl->mutex);
+	lock_guard<mutex> lock(m_impl->mutex);
 	return m_impl->actionCommandDirectory;
 }
 
 void ConfigManager::setActionCommandDirectory(const string &dir)
 {
-	AutoMutex autoLock(&m_impl->mutex);
+	lock_guard<mutex> lock(m_impl->mutex);
 	m_impl->actionCommandDirectory = dir;
 }
 
 string ConfigManager::getResidentYardDirectory(void)
 {
-	AutoMutex autoLock(&m_impl->mutex);
+	lock_guard<mutex> lock(m_impl->mutex);
 	return m_impl->residentYardDirectory;
 }
 
 void ConfigManager::setResidentYardDirectory(const string &dir)
 {
-	AutoMutex autoLock(&m_impl->mutex);
+	lock_guard<mutex> lock(m_impl->mutex);
 	m_impl->residentYardDirectory = dir;
 }
 
