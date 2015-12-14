@@ -18,7 +18,7 @@
  */
 
 #include <map>
-#include <Mutex.h>
+#include <mutex>
 #include "Reaper.h"
 #include "IncidentSenderManager.h"
 #include "IncidentSenderRedmine.h"
@@ -32,11 +32,11 @@ struct IncidentSenderManager::Impl
 {
 	static IncidentSenderManager instance;
 	map<IncidentTrackerIdType, IncidentSender*> sendersMap;
-	Mutex sendersLock;
+	mutex sendersLock;
 
 	~Impl()
 	{
-		AutoMutex autoMutex(&sendersLock);
+		lock_guard<mutex> lock(sendersLock);
 		map<IncidentTrackerIdType, IncidentSender*>::iterator it;
 		for (it = sendersMap.begin(); it != sendersMap.end(); ++it) {
 			IncidentSender *sender = it->second;
@@ -85,7 +85,7 @@ struct IncidentSenderManager::Impl
 	IncidentSender *getSender(const IncidentTrackerIdType &id,
 				  bool autoCreate = true)
 	{
-		AutoMutex autoMutex(&sendersLock);
+		lock_guard<mutex> lock(sendersLock);
 		if (sendersMap.find(id) != sendersMap.end())
 			return sendersMap[id];
 
@@ -103,7 +103,7 @@ struct IncidentSenderManager::Impl
 
 	void deleteSender(const IncidentTrackerIdType &id)
 	{
-		AutoMutex autoMutex(&sendersLock);
+		lock_guard<mutex> lock(sendersLock);
 		map<IncidentTrackerIdType, IncidentSender*>::iterator it;
 		it = sendersMap.find(id);
 		if (it == sendersMap.end()) {
@@ -162,7 +162,7 @@ IncidentSenderManager::~IncidentSenderManager()
 
 bool IncidentSenderManager::isIdling(void)
 {
-	AutoMutex autoMutex(&m_impl->sendersLock);
+	lock_guard<mutex> lock(m_impl->sendersLock);
 
 	map<IncidentTrackerIdType, IncidentSender*>::iterator it
 	  = m_impl->sendersMap.begin();
