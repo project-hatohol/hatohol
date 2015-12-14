@@ -18,7 +18,7 @@
  */
 
 #include <stdexcept>
-#include <Mutex.h>
+#include <mutex>
 #include <AtomicValue.h>
 #include <Reaper.h>
 #include "UnifiedDataStore.h"
@@ -82,7 +82,7 @@ struct UnifiedDataStore::Impl
 	};
 
 	static UnifiedDataStore *instance;
-	static Mutex             mutex;
+	static std::mutex        mutex;
 
 	AtomicValue<bool>        isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
@@ -224,7 +224,7 @@ struct UnifiedDataStore::Impl
 	void startArmIncidentTrackerIfNeeded(
 	  const IncidentTrackerInfo &trackerInfo)
 	{
-		AutoMutex autoLock(&armIncidentTrackerMapMutex);
+		lock_guard<std::mutex> lock(armIncidentTrackerMapMutex);
 		ArmIncidentTrackerMapIterator it
 		  = armIncidentTrackerMap.find(trackerInfo.id);
 		ArmIncidentTracker *arm = NULL;
@@ -262,7 +262,7 @@ struct UnifiedDataStore::Impl
 	void stopArmIncidentTrackerIfNeeded(
 	  const IncidentTrackerIdType &trackerId)
 	{
-		AutoMutex autoLock(&armIncidentTrackerMapMutex);
+		lock_guard<std::mutex> lock(armIncidentTrackerMapMutex);
 		ArmIncidentTrackerMapIterator it
 		  = armIncidentTrackerMap.find(trackerId);
 		if (it == armIncidentTrackerMap.end())
@@ -292,7 +292,7 @@ struct UnifiedDataStore::Impl
 
 	void stopAllArmIncidentTrackers(void)
 	{
-		AutoMutex autoLock(&armIncidentTrackerMapMutex);
+		lock_guard<std::mutex> lock(armIncidentTrackerMapMutex);
 		ArmIncidentTrackerMapIterator it
 			= armIncidentTrackerMap.begin();
 		while (it != armIncidentTrackerMap.end()) {
@@ -349,7 +349,7 @@ struct UnifiedDataStore::Impl
 	ReadWriteLock            serverIdDataStoreMapLock;
 	ServerIdDataStoreMap     serverIdDataStoreMap;
 	DataStoreManager         dataStoreManager;
-	Mutex                    armIncidentTrackerMapMutex;
+	std::mutex               armIncidentTrackerMapMutex;
 	ArmIncidentTrackerMap    armIncidentTrackerMap;
 	bool                     isStarted;
 	ReadWriteLock            customIncidentStatusMapLock;
@@ -357,7 +357,7 @@ struct UnifiedDataStore::Impl
 };
 
 UnifiedDataStore *UnifiedDataStore::Impl::instance = NULL;
-Mutex             UnifiedDataStore::Impl::mutex;
+mutex             UnifiedDataStore::Impl::mutex;
 
 // ---------------------------------------------------------------------------
 // Public static methods
