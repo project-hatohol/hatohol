@@ -946,9 +946,6 @@ static AccessInfo bareTestAccessInfo[] = {
 const AccessInfo *testAccessInfo = bareTestAccessInfo;
 const size_t NumTestAccessInfo = ARRAY_SIZE(bareTestAccessInfo);
 
-static const string _HOST_VALID_STRING = StringUtils::sprintf("%d", HOST_VALID);
-static const char *HOST_VALID_STRING = _HOST_VALID_STRING.c_str();
-
 const UserRoleInfo testUserRoleInfo[] = {
 {
 	0,                            // id
