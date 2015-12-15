@@ -138,7 +138,8 @@ class Common:
             hapi_status, hapi_severity = \
               self.__parse_status_and_severity(service["state"])
 
-            hapi_time = haplib.Utils.conv_to_hapi_time(service["last_state_change"],
+            last_state_change = datetime.datetime.fromtimestamp(service["last_state_change"])
+            hapi_time = haplib.Utils.conv_to_hapi_time(last_state_change,
                                                        self.__time_offset)
             triggers.append({
                 "triggerId": service["description"],
