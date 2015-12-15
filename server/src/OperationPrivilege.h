@@ -78,11 +78,13 @@ enum OperationPrivilegeType
 };
 
 typedef uint64_t OperationPrivilegeFlag;
-const static OperationPrivilegeFlag NONE_PRIVILEGE = 0;
 #define FMT_OPPRVLG PRIu64
 
 class OperationPrivilege {
 public:
+	const static OperationPrivilegeFlag NONE_PRIVILEGE;
+	const static OperationPrivilegeFlag ALL_PRIVILEGES;
+
 	OperationPrivilege(const UserIdType &userId);
 	OperationPrivilege(const OperationPrivilegeFlag &flags = 0);
 	OperationPrivilege(const OperationPrivilege &src);
@@ -111,8 +113,5 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
-
-const static OperationPrivilegeFlag ALL_PRIVILEGES =
-  OperationPrivilege::makeFlag(NUM_OPPRVLG) - 1ULL;
 
 #endif // OperationPrivilege_h

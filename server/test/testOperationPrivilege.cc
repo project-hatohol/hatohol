@@ -98,13 +98,14 @@ void test_copyConstructorWithUserId(void)
 
 void test_getSpecifiedFlags(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
-	cppcut_assert_equal(ALL_PRIVILEGES, privilege.getFlags());
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
+	cppcut_assert_equal(OperationPrivilege::ALL_PRIVILEGES,
+			    privilege.getFlags());
 }
 
 void test_allPrivileges(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	cppcut_assert_equal(true, privilege.has(OPPRVLG_CREATE_USER));
 }
 

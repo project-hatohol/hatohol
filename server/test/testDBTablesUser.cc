@@ -327,7 +327,7 @@ void test_addUser(void)
 
 void test_addUserDuplicate(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserInfo userInfo = testUserInfo[1];
 	assertHatoholError(HTERR_USER_NAME_EXIST,
@@ -337,7 +337,7 @@ void test_addUserDuplicate(void)
 
 void test_addUserWithLongName(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	const size_t limitLength = DBTablesUser::MAX_USER_NAME_LENGTH;
 	UserInfo userInfo = testUserInfo[1];
@@ -350,11 +350,11 @@ void test_addUserWithLongName(void)
 
 void test_addUserWithInvalidFlags(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserInfo userInfo = testUserInfo[1];
 	userInfo.name = "Crasher";
-	userInfo.flags = ALL_PRIVILEGES + 1;
+	userInfo.flags = OperationPrivilege::ALL_PRIVILEGES + 1;
 	assertHatoholError(HTERR_INVALID_PRIVILEGE_FLAGS,
 	                   dbUser.addUserInfo(userInfo, privilege));
 	assertUsersInDB();
@@ -362,7 +362,7 @@ void test_addUserWithInvalidFlags(void)
 
 void test_addUserWithoutPrivilege(void)
 {
-	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	OperationPrivilegeFlag flags = OperationPrivilege::ALL_PRIVILEGES;
 	flags &= ~(1 << OPPRVLG_CREATE_USER);
 	OperationPrivilege privilege(flags);
 	DECLARE_DBTABLES_USER(dbUser);
@@ -481,7 +481,7 @@ void test_updateNonExistUser(void)
 	DECLARE_DBTABLES_USER(dbUser);
 	UserInfo userInfo = setupForUpdate();
 	userInfo.id = NumTestUserInfo + 5;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	HatoholError err = dbUser.updateUserInfo(userInfo, privilege);
 	assertHatoholError(HTERR_NOT_FOUND_TARGET_RECORD, err);
 }
@@ -539,7 +539,7 @@ void test_deleteUser(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
 	const UserIdType targetId = 2;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 
@@ -552,7 +552,7 @@ void test_deleteUser(void)
 void test_deleteMyself(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	const UserIdType targetId = privilege.getUserId();
 	HatoholError err = dbUser.deleteUserInfo(targetId, privilege);
 	assertHatoholError(HTERR_DELETE_MYSELF, err);
@@ -715,7 +715,8 @@ void test_getUserInfoListWithNonExistUser(void)
 
 void test_getUserInfoListWithMyNameAsTargetName(void)
 {
-	assertGetUserInfoListWithTargetName(ALL_PRIVILEGES, 1);
+	assertGetUserInfoListWithTargetName(
+	  OperationPrivilege::ALL_PRIVILEGES, 1);
 }
 
 void test_getUserInfoListWithMyNameAsTargetNameWithoutPrivileges(void)
@@ -729,8 +730,8 @@ void test_getUserInfoListWithOtherName(void)
 {
 	const size_t expectNumList = 1;
 	const bool searchMySelf = true;
-	assertGetUserInfoListWithTargetName(ALL_PRIVILEGES, expectNumList,
-					    !searchMySelf);
+	assertGetUserInfoListWithTargetName(
+	  OperationPrivilege::ALL_PRIVILEGES, expectNumList, !searchMySelf);
 }
 
 void test_getUserInfoListWithOtherNameWithoutPrivileges(void)
@@ -1172,7 +1173,7 @@ void test_addUserRole(void)
 
 void test_addUserRoleWithDuplicatedName(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.flags
@@ -1184,7 +1185,7 @@ void test_addUserRoleWithDuplicatedName(void)
 
 void test_addUserRoleWithDuplicatedFlags(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.name = "Unique name kea#osemrnscs+";
@@ -1195,11 +1196,11 @@ void test_addUserRoleWithDuplicatedFlags(void)
 
 void test_addUserRoleWithAllPrivilegeFlags(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.name = "Unique name kea#osemrnscs+";
-	userRoleInfo.flags = ALL_PRIVILEGES;
+	userRoleInfo.flags = OperationPrivilege::ALL_PRIVILEGES;
 	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();
@@ -1207,11 +1208,11 @@ void test_addUserRoleWithAllPrivilegeFlags(void)
 
 void test_addUserRoleWithNonePrivilegeFlags(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
 	userRoleInfo.name = "Unique name kea#osemrnscs+";
-	userRoleInfo.flags = NONE_PRIVILEGE;
+	userRoleInfo.flags = OperationPrivilege::NONE_PRIVILEGE;
 	assertHatoholError(HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();
@@ -1219,7 +1220,7 @@ void test_addUserRoleWithNonePrivilegeFlags(void)
 
 void test_addUserRoleWithLongName(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	const size_t limitLength = DBTablesUser::MAX_USER_ROLE_NAME_LENGTH;
 	UserRoleInfo userRoleInfo = testUserRoleInfo[1];
@@ -1232,12 +1233,12 @@ void test_addUserRoleWithLongName(void)
 
 void test_addUserRoleWithInvalidFlags(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo;
 	userRoleInfo.id = 0;
 	userRoleInfo.name = "Crasher";
-	userRoleInfo.flags = ALL_PRIVILEGES + 1;
+	userRoleInfo.flags = OperationPrivilege::ALL_PRIVILEGES + 1;
 	assertHatoholError(HTERR_INVALID_PRIVILEGE_FLAGS,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();
@@ -1245,11 +1246,11 @@ void test_addUserRoleWithInvalidFlags(void)
 
 void test_addUserRoleWithEmptyUserName(void)
 {
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	DECLARE_DBTABLES_USER(dbUser);
 	UserRoleInfo userRoleInfo;
 	userRoleInfo.id = 0;
-	userRoleInfo.flags = ALL_PRIVILEGES;
+	userRoleInfo.flags = OperationPrivilege::ALL_PRIVILEGES;
 	assertHatoholError(HTERR_EMPTY_USER_ROLE_NAME,
 	                   dbUser.addUserRoleInfo(userRoleInfo, privilege));
 	assertUserRolesInDB();
@@ -1257,7 +1258,7 @@ void test_addUserRoleWithEmptyUserName(void)
 
 void test_addUserRoleWithoutPrivilege(void)
 {
-	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	OperationPrivilegeFlag flags = OperationPrivilege::ALL_PRIVILEGES;
 	flags &= ~(1 << OPPRVLG_CREATE_USER_ROLE);
 	OperationPrivilege privilege(flags);
 	DECLARE_DBTABLES_USER(dbUser);
@@ -1286,13 +1287,14 @@ void test_isValidUserRoleNameWithLongName(void)
 
 void test_getUserRoleInfoList(void)
 {
-	assertGetUserRoleInfo(ALL_PRIVILEGES);
+	assertGetUserRoleInfo(OperationPrivilege::ALL_PRIVILEGES);
 }
 
 void test_getUserRoleInfoListWithTargetId(void)
 {
 	UserRoleIdType targetUserRoleId = 2;
-	assertGetUserRoleInfo(ALL_PRIVILEGES, targetUserRoleId);
+	assertGetUserRoleInfo(OperationPrivilege::ALL_PRIVILEGES,
+			      targetUserRoleId);
 }
 
 void test_getUserRoleInfoListWithNoPrivilege(void)
@@ -1317,7 +1319,7 @@ void test_updateUserRoleWithoutPrivilege(void)
 {
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate();
 	DECLARE_DBTABLES_USER(dbUser);
-	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	OperationPrivilegeFlag flags = OperationPrivilege::ALL_PRIVILEGES;
 	flags &= ~OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE);
 	OperationPrivilege privilege(flags);
 	HatoholError err = dbUser.updateUserRoleInfo(userRoleInfo, privilege);
@@ -1358,7 +1360,7 @@ void test_updateUserRoleWithAllPrivilegeFlags(void)
 {
 	size_t targetIndex = 1;
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
-	userRoleInfo.flags = ALL_PRIVILEGES;
+	userRoleInfo.flags = OperationPrivilege::ALL_PRIVILEGES;
 	DECLARE_DBTABLES_USER(dbUser);
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
@@ -1372,7 +1374,7 @@ void test_updateUserRoleWithNonePrivilegeFlags(void)
 {
 	size_t targetIndex = 1;
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
-	userRoleInfo.flags = NONE_PRIVILEGE;
+	userRoleInfo.flags = OperationPrivilege::NONE_PRIVILEGE;
 	DECLARE_DBTABLES_USER(dbUser);
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
@@ -1400,7 +1402,7 @@ void test_updateUserRoleWithInvalidFlags(void)
 {
 	size_t targetIndex = 1;
 	UserRoleInfo userRoleInfo = setupUserRoleInfoForUpdate(targetIndex);
-	userRoleInfo.flags = ALL_PRIVILEGES + 1;
+	userRoleInfo.flags = OperationPrivilege::ALL_PRIVILEGES + 1;
 	DECLARE_DBTABLES_USER(dbUser);
 	OperationPrivilege privilege(
 	  OperationPrivilege::makeFlag(OPPRVLG_UPDATE_ALL_USER_ROLE));
@@ -1414,7 +1416,7 @@ void test_deleteUserRole(void)
 {
 	DECLARE_DBTABLES_USER(dbUser);
 	const UserRoleIdType targetId = 2;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	HatoholError err = dbUser.deleteUserRoleInfo(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 

@@ -86,7 +86,7 @@ static void loadDummyHosts(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (size_t i = 0; i < ARRAY_SIZE(dummyHosts); i++)
 		dbHost.upsertServerHostDef(dummyHosts[i]);
 }
@@ -216,7 +216,7 @@ void cut_setup(void)
 
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	MonitoringServerInfo serverInfo = monitoringServerInfo;
 	ArmPluginInfo pluginInfo = armPluginInfo;
 	dbConfig.addTargetServer(&serverInfo, privilege, &pluginInfo);
@@ -1180,7 +1180,7 @@ void prepareDB(const char *amqpURL)
 
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	MonitoringServerInfo serverInfo = monitoringServerInfo;
 	ArmPluginInfo pluginInfo = armPluginInfo;
 	pluginInfo.brokerUrl = amqpURL;
@@ -2044,7 +2044,7 @@ void test_updateMonitoringServerInfo(void)
 	ArmPluginInfo pluginInfo = armPluginInfo;
 	dbConfig.getArmPluginInfo(pluginInfo, serverInfo.id);
 	serverInfo.baseURL = "http://www.example.net/zabbix/";
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	dbConfig.updateTargetServer(&serverInfo, privilege, &pluginInfo);
 
 	// delete the gate to emit updateMonitoringServerInfo notification

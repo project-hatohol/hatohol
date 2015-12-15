@@ -232,7 +232,7 @@ static void updateAdminPrivilege(DBAgent &dbAgent,
 	static const OperationPrivilegeFlag oldAdminFlags =
 		OperationPrivilege::makeFlag(old_NUM_OPPRVLG) - 1;
 	DBAgent::UpdateArg arg(tableProfileUsers);
-	arg.add(IDX_USERS_FLAGS, ALL_PRIVILEGES);
+	arg.add(IDX_USERS_FLAGS, OperationPrivilege::ALL_PRIVILEGES);
 	arg.condition = StringUtils::sprintf(
 	  "%s=%" FMT_OPPRVLG,
 	  COLUMN_DEF_USERS[IDX_USERS_FLAGS].columnName, oldAdminFlags);
@@ -979,8 +979,8 @@ HatoholError DBTablesUser::addUserRoleInfo(UserRoleInfo &userRoleInfo,
 	err = isValidFlags(userRoleInfo.flags);
 	if (err != HTERR_OK)
 		return err;
-	if (userRoleInfo.flags == ALL_PRIVILEGES ||
-	    userRoleInfo.flags == NONE_PRIVILEGE) {
+	if (userRoleInfo.flags == OperationPrivilege::ALL_PRIVILEGES ||
+	    userRoleInfo.flags == OperationPrivilege::NONE_PRIVILEGE) {
 		return HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 	}
 
@@ -1040,8 +1040,8 @@ HatoholError DBTablesUser::updateUserRoleInfo(
 	err = isValidFlags(userRoleInfo.flags);
 	if (err != HTERR_OK)
 		return err;
-	if (userRoleInfo.flags == ALL_PRIVILEGES ||
-	    userRoleInfo.flags == NONE_PRIVILEGE) {
+	if (userRoleInfo.flags == OperationPrivilege::ALL_PRIVILEGES ||
+	    userRoleInfo.flags == OperationPrivilege::NONE_PRIVILEGE) {
 		return HTERR_USER_ROLE_NAME_OR_PRIVILEGE_FLAGS_EXIST;
 	}
 

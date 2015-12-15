@@ -67,7 +67,7 @@ void _assertArmPluginInfo(
 static void addTargetServer(MonitoringServerInfo *serverInfo)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	dbConfig.addTargetServer(serverInfo, privilege);
 }
 #define assertAddServerToDB(X) \
@@ -336,7 +336,7 @@ void test_createTableServers(void)
 
 void _assertAddTargetServer(
   MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
-  OperationPrivilege privilege = ALL_PRIVILEGES)
+  OperationPrivilege privilege = OperationPrivilege::ALL_PRIVILEGES)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	HatoholError err;
@@ -361,7 +361,7 @@ void test_addTargetServer(void)
 void test_addTargetServerWithoutPrivilege(void)
 {
 	const MonitoringServerInfo *testInfo = testServerInfo;
-	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	OperationPrivilegeFlag privilege = OperationPrivilege::ALL_PRIVILEGES;
 	OperationPrivilege::removeFlag(privilege, OPPRVLG_CREATE_SERVER);
 	assertAddTargetServer(*testInfo, HTERR_NO_PRIVILEGE, privilege);
 }
@@ -556,7 +556,7 @@ void test_addTargetServerWithValidRetryInterval(gconstpointer data)
 
 void _assertUpdateTargetServer(
   MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
-  OperationPrivilege privilege = ALL_PRIVILEGES)
+  OperationPrivilege privilege = OperationPrivilege::ALL_PRIVILEGES)
 {
 	loadTestDBServer();
 
@@ -595,7 +595,7 @@ void test_updateTargetServerWithoutPrivilege(void)
 	int targetId = 2;
 	MonitoringServerInfo serverInfo = testServerInfo[0];
 	serverInfo.id = targetId;
-	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	OperationPrivilegeFlag privilege = OperationPrivilege::ALL_PRIVILEGES;
 	OperationPrivilegeFlag updateFlags =
 	 (1 << OPPRVLG_UPDATE_SERVER) | (1 << OPPRVLG_UPDATE_ALL_SERVER);
 	privilege &= ~updateFlags;
@@ -1141,7 +1141,7 @@ void test_incidentTrackerQueryOptionWithId(void)
 void _assertAddIncidentTracker(
   IncidentTrackerInfo incidentTrackerInfo,
   const HatoholErrorCode expectedErrorCode,
-  OperationPrivilege privilege = ALL_PRIVILEGES)
+  OperationPrivilege privilege = OperationPrivilege::ALL_PRIVILEGES)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	HatoholError err;
@@ -1166,7 +1166,7 @@ void test_addIncidentTracker(void)
 
 void test_addIncidentTrackerWithoutPrivilege(void)
 {
-	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	OperationPrivilegeFlag privilege = OperationPrivilege::ALL_PRIVILEGES;
 	OperationPrivilege::removeFlag(
 	  privilege, OPPRVLG_CREATE_INCIDENT_SETTING);
 	const IncidentTrackerInfo *testInfo = testIncidentTrackerInfo;
@@ -1190,7 +1190,7 @@ void test_addIncidentTrackerWithInvalieType(void)
 void _assertUpdateIncidentTracker(
   IncidentTrackerInfo incidentTrackerInfo,
   const HatoholErrorCode expectedErrorCode,
-  OperationPrivilege privilege = ALL_PRIVILEGES)
+  OperationPrivilege privilege = OperationPrivilege::ALL_PRIVILEGES)
 {
 	loadTestDBIncidentTracker();
 
@@ -1231,7 +1231,7 @@ void test_updateIncidentTrackerWithoutPrivilege(void)
 	int targetId = 2;
 	IncidentTrackerInfo incidentTrackerInfo = testIncidentTrackerInfo[0];
 	incidentTrackerInfo.id = targetId;
-	OperationPrivilegeFlag privilege = ALL_PRIVILEGES;
+	OperationPrivilegeFlag privilege = OperationPrivilege::ALL_PRIVILEGES;
 	OperationPrivilege::removeFlag(
 	  privilege, OPPRVLG_UPDATE_INCIDENT_SETTING);
 	assertUpdateIncidentTracker(
@@ -1252,7 +1252,7 @@ void test_updateIncidentTrackerWithEmptyLoction(void)
 static void addIncidentTracker(IncidentTrackerInfo *info)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	dbConfig.addIncidentTracker(*info, privilege);
 }
 #define assertAddIncidentTrackerToDB(X) \
@@ -1422,7 +1422,7 @@ void test_upsertSeverityRankInfoWithoutPrivilege(void)
 	severityRankInfo.label = "Information";
 	severityRankInfo.asImportant = false;
 
-	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	OperationPrivilegeFlag flags = OperationPrivilege::ALL_PRIVILEGES;
 	flags &= ~(1 << OPPRVLG_CREATE_SEVERITY_RANK);
 	OperationPrivilege privilege(flags);
 
@@ -1500,7 +1500,7 @@ void test_updateSeverityRankInfoWithoutPrivilege(void)
 	severityRankInfo.label = "Critical";
 	severityRankInfo.asImportant = true;
 
-	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	OperationPrivilegeFlag flags = OperationPrivilege::ALL_PRIVILEGES;
 	flags &= ~(1 << OPPRVLG_UPDATE_SEVERITY_RANK);
 	OperationPrivilege privilege(flags);
 	assertHatoholError(HTERR_NO_PRIVILEGE,
@@ -1677,7 +1677,7 @@ void test_deleteSeverityRankInfoWithoutPrivilege(void)
 	SeverityRankIdType targetId = 2;
 	SeverityRankIdType actualId = targetId + 1;
 
-	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	OperationPrivilegeFlag flags = OperationPrivilege::ALL_PRIVILEGES;
 	flags &= ~(1 << OPPRVLG_DELETE_SEVERITY_RANK);
 	OperationPrivilege privilege(flags);
 
