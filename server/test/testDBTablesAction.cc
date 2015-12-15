@@ -511,7 +511,7 @@ void test_deleteNoOwnerAction(void)
 	}
 
 	ThreadLocalDBCache cache;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	HatoholError err = cache.getUser().deleteUserInfo(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 
@@ -540,7 +540,7 @@ void test_deleteNoIncidentTrackerAction(void)
 
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 
@@ -930,7 +930,7 @@ void test_getActionListWithNoIncidentTracker(void)
 
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	HatoholError err = dbConfig.deleteIncidentTracker(targetId, privilege);
 	assertHatoholError(HTERR_OK, err);
 

@@ -217,8 +217,10 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	//
 	// OperationPrivilege
 	//
-	ADD_LINE(s, langType, ALL_PRIVILEGES);
-	ADD_LINE(s, langType, NONE_PRIVILEGE);
+	DEF_LINE(s, langType, ALL_PRIVILEGES, OperationPrivilegeFlag,
+		 OperationPrivilege::ALL_PRIVILEGES);
+	DEF_LINE(s, langType, NONE_PRIVILEGE, OperationPrivilegeFlag,
+		 OperationPrivilege::NONE_PRIVILEGE);
 
 	ADD_LINE(s, langType, OPPRVLG_CREATE_USER);
 	ADD_LINE(s, langType, OPPRVLG_UPDATE_USER);

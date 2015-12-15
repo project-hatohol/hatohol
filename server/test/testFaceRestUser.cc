@@ -259,7 +259,7 @@ void test_addUser(void)
 void test_updateUser(void)
 {
 	const UserIdType targetId = 1;
-	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	OperationPrivilegeFlag flags = OperationPrivilege::ALL_PRIVILEGES;
 	const string user = "y@r@n@i0";
 	const string password = "=(-.-)zzZZ";
 
@@ -317,7 +317,7 @@ void test_updateUserWithInvalidFlags(void)
 void test_updateUserWithoutPassword(void)
 {
 	const UserIdType targetId = 1;
-	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	OperationPrivilegeFlag flags = OperationPrivilege::ALL_PRIVILEGES;
 	const string user = "y@r@n@i0";
 	const string expectedPassword = testUserInfo[targetId - 1].password;
 
@@ -340,7 +340,7 @@ void test_updateUserWithoutPassword(void)
 void test_updateUserWithoutUserId(void)
 {
 	const UserIdType targetId = 1;
-	OperationPrivilegeFlag flags = ALL_PRIVILEGES;
+	OperationPrivilegeFlag flags = OperationPrivilege::ALL_PRIVILEGES;
 	const string user = "y@r@n@i0";
 	const string expectedPassword = testUserInfo[targetId - 1].password;
 
@@ -502,12 +502,14 @@ static void assertUserRolesMapInParser(JSONParser *parser)
 	assertStartObject(parser, "userRoles");
 
 	string flagsStr =
-	  StringUtils::sprintf("%" FMT_OPPRVLG, NONE_PRIVILEGE);
+	  StringUtils::sprintf("%" FMT_OPPRVLG,
+			       OperationPrivilege::NONE_PRIVILEGE);
 	assertStartObject(parser, flagsStr);
 	assertValueInParser(parser, "name", string("Guest"));
 	parser->endObject();
 
-	flagsStr = StringUtils::sprintf("%" FMT_OPPRVLG, ALL_PRIVILEGES);
+	flagsStr = StringUtils::sprintf("%" FMT_OPPRVLG,
+					OperationPrivilege::ALL_PRIVILEGES);
 	assertStartObject(parser, flagsStr);
 	assertValueInParser(parser, "name", string("Admin"));
 	parser->endObject();
@@ -813,7 +815,8 @@ void test_addUserRoleWithoutPrivilege(void)
 {
 	StringMap params;
 	params["name"] = "maintainer";
-	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, ALL_PRIVILEGES);
+	params["flags"] = StringUtils::sprintf(
+	  "%" FMT_OPPRVLG, OperationPrivilege::ALL_PRIVILEGES);
 	bool operatorHasPrivilege = true;
 	assertAddUserRoleWithSetup(params, HTERR_NO_PRIVILEGE,
 				   !operatorHasPrivilege);
@@ -824,7 +827,8 @@ void test_addUserRoleWithoutPrivilege(void)
 void test_addUserRoleWithoutName(void)
 {
 	StringMap params;
-	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, ALL_PRIVILEGES);
+	params["flags"] = StringUtils::sprintf(
+	  "%" FMT_OPPRVLG, OperationPrivilege::ALL_PRIVILEGES);
 	assertAddUserRoleWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
 
 	assertUserRolesInDB();
@@ -843,7 +847,8 @@ void test_addUserRoleWithEmptyUserName(void)
 {
 	StringMap params;
 	params["name"] = "";
-	params["flags"] = StringUtils::sprintf("%" FMT_OPPRVLG, ALL_PRIVILEGES);
+	params["flags"] = StringUtils::sprintf(
+	  "%" FMT_OPPRVLG, OperationPrivilege::ALL_PRIVILEGES);
 	assertAddUserRoleWithSetup(params, HTERR_EMPTY_USER_ROLE_NAME);
 
 	assertUserRolesInDB();
@@ -854,7 +859,7 @@ void test_addUserRoleWithInvalidFlags(void)
 	StringMap params;
 	params["name"] = "maintainer";
 	params["flags"] = StringUtils::sprintf(
-	  "%" FMT_OPPRVLG, ALL_PRIVILEGES + 1);
+	  "%" FMT_OPPRVLG, OperationPrivilege::ALL_PRIVILEGES + 1);
 	assertAddUserRoleWithSetup(params, HTERR_INVALID_PRIVILEGE_FLAGS);
 
 	assertUserRolesInDB();
