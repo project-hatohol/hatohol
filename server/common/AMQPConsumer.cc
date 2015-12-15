@@ -105,7 +105,7 @@ gpointer AMQPConsumer::mainThread(HatoholThreadArg *arg)
 
 		if (status == CONN_DISCONNECTED
 		    && m_impl->m_connection->isConnected()) {
-			if (m_impl->m_connection->startConsuming());
+			if (m_impl->m_connection->startConsuming())
 				status = CONN_ESTABLISHED;
 		}
 
