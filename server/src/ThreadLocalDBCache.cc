@@ -163,7 +163,7 @@ void ThreadLocalDBCache::cleanup(void)
 
 size_t ThreadLocalDBCache::getNumberOfDBClientMaps(void)
 {
-	lock_guard<mutex> mutextLock(Impl::lock);
+	lock_guard<mutex> mutexLock(Impl::lock);
 	return Impl::dbCacheLRU.list.size();
 }
 
