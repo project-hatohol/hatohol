@@ -22,6 +22,10 @@
 #include "ThreadLocalDBCache.h"
 using namespace mlpl;
 
+const OperationPrivilegeFlag OperationPrivilege::NONE_PRIVILEGE = 0;
+const OperationPrivilegeFlag OperationPrivilege::ALL_PRIVILEGES =
+  OperationPrivilege::makeFlag(NUM_OPPRVLG) - 1ULL;;
+
 struct OperationPrivilege::Impl {
 	UserIdType userId;
 	uint64_t flags;

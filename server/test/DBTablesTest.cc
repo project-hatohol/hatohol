@@ -815,7 +815,7 @@ static UserInfo bareTestUserInfo[] = {
 	0,                 // id
 	"pineapple",       // name
 	"Po+-\\|}{\":?><", // password
-	ALL_PRIVILEGES,    // flags
+	OperationPrivilege::ALL_PRIVILEGES,    // flags
 }, {
 	0,                 // id
 	"m1ffy@v@",        // name
@@ -945,9 +945,6 @@ static AccessInfo bareTestAccessInfo[] = {
 };
 const AccessInfo *testAccessInfo = bareTestAccessInfo;
 const size_t NumTestAccessInfo = ARRAY_SIZE(bareTestAccessInfo);
-
-static const string _HOST_VALID_STRING = StringUtils::sprintf("%d", HOST_VALID);
-static const char *HOST_VALID_STRING = _HOST_VALID_STRING.c_str();
 
 const UserRoleInfo testUserRoleInfo[] = {
 {
@@ -2294,7 +2291,7 @@ void loadTestDBServer(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		// We have to make a copy since addTargetServer() changes
 		// a member of MonitoringServerInfo.
@@ -2308,7 +2305,7 @@ void loadTestDBUser(void)
 	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
-	OperationPrivilege opePrivilege(ALL_PRIVILEGES);
+	OperationPrivilege opePrivilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (auto &userInfo : bareTestUserInfo) {
 		err = dbUser.addUserInfo(userInfo, opePrivilege);
 		assertHatoholError(HTERR_OK, err);
@@ -2320,7 +2317,7 @@ void loadTestDBUserRole(void)
 	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (auto userRoleInfo : testUserRoleInfo) {
 		err = dbUser.addUserRoleInfo(userRoleInfo, privilege);
 		assertHatoholError(HTERR_OK, err);
@@ -2332,7 +2329,7 @@ void loadTestDBAccessList(void)
 	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
 	HatoholError err;
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (auto &accessInfo : bareTestAccessInfo) {
 		err = dbUser.addAccessInfo(accessInfo, privilege);
 		assertHatoholError(HTERR_OK, err);
@@ -2355,7 +2352,7 @@ void loadTestDBTriggers(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestTriggerInfo; i++)
 		dbMonitoring.addTriggerInfo(&testTriggerInfo[i]);
 }
@@ -2364,7 +2361,7 @@ void loadTestDBEvents(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestEventInfo; i++) {
 		// Make a copy since EventInfo.id will be changed.
 		EventInfo evtInfo = testEventInfo[i];
@@ -2376,7 +2373,7 @@ void loadTestDBItems(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestItemInfo; i++)
 		dbMonitoring.addItemInfo(&testItemInfo[i]);
 }
@@ -2412,7 +2409,7 @@ void loadTestDBIncidentTracker(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (auto incidentTrackerInfo : testIncidentTrackerInfo)
 		dbConfig.addIncidentTracker(incidentTrackerInfo, privilege);
 }
@@ -2445,7 +2442,7 @@ void loadTestDBServerHostDef(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestServerHostDef; i++)
 		dbHost.upsertServerHostDef(testServerHostDef[i]);
 }
@@ -2454,7 +2451,7 @@ void loadTestDBVMInfo(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestVMInfo; i++)
 		dbHost.upsertVMInfo(testVMInfo[i]);
 }
@@ -2463,7 +2460,7 @@ void loadTestDBHostgroup(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestHostgroup; i++)
 		dbHost.upsertHostgroup(testHostgroup[i]);
 }
@@ -2472,7 +2469,7 @@ void loadTestDBHostgroupMember(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
-	OperationPrivilege privilege(ALL_PRIVILEGES);
+	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	for (size_t i = 0; i < NumTestHostgroupMember; i++)
 		dbHost.upsertHostgroupMember(testHostgroupMember[i]);
 }

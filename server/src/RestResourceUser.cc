@@ -140,17 +140,22 @@ void RestResourceUser::handlerUser(void)
 static void addUserRolesMap(
   FaceRest::ResourceHandler *job, JSONBuilder &agent)
 {
+	using namespace StringUtils;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	UserRoleInfoList userRoleList;
 	UserRoleQueryOption option(job->m_dataQueryContextPtr);
+	string nonePrivilege
+	  = StringUtils::toString(OperationPrivilege::NONE_PRIVILEGE);
+	string allPrivileges
+	  = StringUtils::toString(OperationPrivilege::ALL_PRIVILEGES);
 	dataStore->getUserRoleList(userRoleList, option);
 
 	agent.startObject("userRoles");
 	UserRoleInfoListIterator it = userRoleList.begin();
-	agent.startObject(StringUtils::toString(NONE_PRIVILEGE));
+	agent.startObject(nonePrivilege);
 	agent.add("name", "Guest");
 	agent.endObject();
-	agent.startObject(StringUtils::toString(ALL_PRIVILEGES));
+	agent.startObject(allPrivileges);
 	agent.add("name", "Admin");
 	agent.endObject();
 	for (; it != userRoleList.end(); ++it) {
