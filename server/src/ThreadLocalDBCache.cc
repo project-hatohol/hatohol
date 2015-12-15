@@ -19,7 +19,7 @@
 
 #include <map>
 #include <list>
-#include <Mutex.h>
+#include <mutex>
 #include "Params.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
@@ -88,14 +88,14 @@ struct ThreadLocalDBCache::Impl {
 	static size_t maxNumCacheMySQL;
 	static size_t maxNumCacheSQLite3;
 
-	static Mutex                   lock;
+	static std::mutex              lock;
 	static ThreadContextSet        ctxSet;
 	static ThreadLocalDBCacheLRU   dbCacheLRU;
 	static __thread ThreadContext *ctx;
 
 	static ThreadContext *getContext(void)
 	{
-		AutoMutex autoMutex(&lock);
+		lock_guard<mutex> mutexLock(lock);
 		if (!ctx) {
 			ctx = new ThreadContext();
 			ctxSet.insert(ctx);
@@ -119,7 +119,7 @@ struct ThreadLocalDBCache::Impl {
 
 	static void insert(DB *db)
 	{
-		AutoMutex autoMutex(&lock);
+		lock_guard<mutex> mutexLock(lock);
 		dbCacheLRU.touch(db);
 	}
 
@@ -127,7 +127,7 @@ struct ThreadLocalDBCache::Impl {
 	{
 		if (!ctx)
 			return;
-		AutoMutex autoMutex(&lock);
+		lock_guard<mutex> mutexLock(lock);
 		ThreadContextSetIterator it = ctxSet.find(ctx);
 		const bool found = (it != ctxSet.end());
 		HATOHOL_ASSERT(found, "Failed to found: ctx: %p\n", ctx);
@@ -143,7 +143,7 @@ size_t ThreadLocalDBCache::Impl::maxNumCacheMySQL
 size_t ThreadLocalDBCache::Impl::maxNumCacheSQLite3
   = DEFAULT_MAX_NUM_CACHE_SQLITE3;
 
-Mutex                   ThreadLocalDBCache::Impl::lock;
+mutex                   ThreadLocalDBCache::Impl::lock;
 ThreadContextSet        ThreadLocalDBCache::Impl::ctxSet;
 ThreadLocalDBCacheLRU              ThreadLocalDBCache::Impl::dbCacheLRU;
 __thread ThreadContext *ThreadLocalDBCache::Impl::ctx = NULL;
@@ -163,7 +163,7 @@ void ThreadLocalDBCache::cleanup(void)
 
 size_t ThreadLocalDBCache::getNumberOfDBClientMaps(void)
 {
-	AutoMutex autoMutex(&Impl::lock);
+	lock_guard<mutex> mutexLock(Impl::lock);
 	return Impl::dbCacheLRU.list.size();
 }
 

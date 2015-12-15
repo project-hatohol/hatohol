@@ -18,7 +18,7 @@
  */
 
 #include "DataStoreManager.h"
-#include <Mutex.h>
+#include <mutex>
 #include <Reaper.h>
 #include <Logger.h>
 using namespace std;
@@ -53,7 +53,7 @@ struct DataStoreManager::Impl {
 	// Elements in dataStoreMap and dataStoreVector are the same.
 	// So it's only necessary to free elements in one.
 	DataStoreMap    dataStoreMap;
-	Mutex                  mutex;
+	std::mutex             mutex;
 	DataStoreEventProcList eventProcList;
 	ReadWriteLock          eventProcListLock;
 };
@@ -89,7 +89,7 @@ bool DataStoreManager::hasDataStore(uint32_t storeId)
 
 bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 {
-	AutoMutex autoMutex(&m_impl->mutex);
+	lock_guard<mutex> lock(m_impl->mutex);
 	pair<DataStoreMapIterator, bool> result =
 	  m_impl->dataStoreMap.insert
 	    (pair<uint32_t, DataStore *>(storeId, dataStore));

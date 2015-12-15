@@ -21,7 +21,7 @@
 #define DB_h
 
 #include <memory>
-#include <Mutex.h>
+#include <mutex>
 #include <typeinfo>
 #include "Params.h"
 #include "DBAgent.h"
@@ -47,7 +47,7 @@ protected:
 		const std::type_info &dbClassType;
 		DBConnectInfo connectInfo;
 		bool          initialized;
-		mlpl::Mutex   lock;
+		std::mutex    lock;
 
 		SetupContext(const std::type_info &dbClassType);
 	};

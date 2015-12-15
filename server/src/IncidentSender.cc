@@ -22,7 +22,7 @@
 #include "LabelUtils.h"
 #include "ThreadLocalDBCache.h"
 #include "UnifiedDataStore.h"
-#include <Mutex.h>
+#include <mutex>
 #include "SimpleSemaphore.h"
 #include "Reaper.h"
 #include "AtomicValue.h"
@@ -96,14 +96,14 @@ struct IncidentSender::Impl
 {
 	IncidentSender &sender;
 	IncidentTrackerInfo incidentTrackerInfo;
-	Mutex            queueLock;
+	std::mutex          queueLock;
 	std::queue<Job*> queue;
 	AtomicValue<Job*> runningJob;
 	SimpleSemaphore jobSemaphore;
 	size_t retryLimit;
 	unsigned int retryIntervalMSec;
 	AtomicValue<bool> trackerChanged;
-	Mutex trackerLock;
+	std::mutex   trackerLock;
 	HatoholError lastResult;
 
 	Impl(IncidentSender &_sender)
@@ -229,7 +229,7 @@ void IncidentSender::setRetryInterval(const unsigned int &msec)
 
 bool IncidentSender::isIdling(void)
 {
-	AutoMutex autoMutex(&m_impl->queueLock);
+	lock_guard<mutex> lock(m_impl->queueLock);
 	if (!m_impl->queue.empty())
 		return false;
 	return !m_impl->runningJob;
@@ -237,7 +237,7 @@ bool IncidentSender::isIdling(void)
 
 const IncidentTrackerInfo IncidentSender::getIncidentTrackerInfo(void)
 {
-	AutoMutex autoMutex(&m_impl->trackerLock);
+	lock_guard<mutex> lock(m_impl->trackerLock);
 
 	if (!m_impl->trackerChanged)
 		return m_impl->incidentTrackerInfo;

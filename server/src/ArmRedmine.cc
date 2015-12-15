@@ -22,6 +22,7 @@
 #include "ThreadLocalDBCache.h"
 #include "JSONParser.h"
 #include "UnifiedDataStore.h"
+#include <mutex>
 #include <time.h>
 #include <libsoup/soup.h>
 
@@ -51,7 +52,7 @@ struct ArmRedmine::Impl
 	int m_pageLimit;
 	time_t m_lastUpdateTime;
 	time_t m_lastUpdateTimePending;
-	Mutex m_startMutex;
+	mutex m_startMutex;
 
 	Impl(const IncidentTrackerInfo &trackerInfo)
 	: m_incidentTrackerInfo(trackerInfo),
@@ -341,7 +342,7 @@ RETRY:
 
 void ArmRedmine::startIfNeeded(void)
 {
-	AutoMutex autoLock(&m_impl->m_startMutex);
+	lock_guard<mutex> lock(m_impl->m_startMutex);
 	if (isStarted())
 		return;
 	if (!m_impl->checkLastUpdateTime())

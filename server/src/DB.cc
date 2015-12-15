@@ -17,7 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include <Mutex.h>
+#include <mutex>
 #include "DB.h"
 #include "DBAgentMySQL.h"
 #include "HatoholException.h"
@@ -81,7 +81,7 @@ struct DB::Impl {
 		if (setupCtx.initialized)
 			return;
 
-		AutoMutex autoMutex(&setupCtx.lock);
+		lock_guard<mutex> lock(setupCtx.lock);
 		// NOTE: A flag 'setupCtx.initialized' is used to improve
 		// performance. Event if it isn't used, the existence check
 		// of TABLE_NAME_TABLE_VERSION is performed every time.
