@@ -164,14 +164,6 @@ var TriggersView = function(userProfile) {
   }
 
   function setupCallbacks() {
-    $("#table").stupidtable();
-    $("#table").bind('aftertablesort', function(event, data) {
-      var th = $(this).find("th");
-      th.find("i.sort").remove();
-      var icon = data.direction === "asc" ? "up" : "down";
-      th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
-    });
-
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
     $("#select-severity, #select-status").change(function() {

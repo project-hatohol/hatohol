@@ -35,14 +35,6 @@ var LogSearchSystemsView = function(userProfile) {
   //
   // Main view
   //
-  $("#table").stupidtable();
-  $("#table").bind('aftertablesort', function(event, data) {
-    var th = $(this).find("th");
-    th.find("i.sort").remove();
-    var icon = data.direction === "asc" ? "up" : "down";
-    th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
-  });
-
   $("#add-log-search-system-button").click(function() {
     new HatoholLogSearchSystemEditor({
       succeededCallback: load
