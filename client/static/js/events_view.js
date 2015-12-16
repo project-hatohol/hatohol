@@ -665,7 +665,7 @@ var EventsView = function(userProfile, options) {
 
   function updateIncidentStatus() {
     var status = $("#change-incident").val();
-    var updateIncidentIds = [], unifiedId;
+    var unifiedId;
     var incidents = $(".incident.selected");
     var promise, promises = [], errors = [];
     var errorMessage;
@@ -675,11 +675,7 @@ var EventsView = function(userProfile, options) {
 
     for (var i = 0; i < incidents.length; i++) {
       unifiedId = incidents[i].getAttribute("data-unified-id");
-      updateIncidentIds.push(unifiedId);
-    }
-
-    for (var idx = 0; idx < updateIncidentIds.length; idx++) {
-      promise = applyIncidentStatus(updateIncidentIds[idx], errors);
+      promise = applyIncidentStatus(unifiedId, errors);
       promises.push(promise);
     }
 
