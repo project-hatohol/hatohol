@@ -1,4 +1,4 @@
 (function(hatohol) {
-  var self = hatohol.registerPlugin("902d955c-d1f7-11e4-80f9-d43d7e3146fb",
-                                    "Nagios (HAPI2)");
+  var self = hatohol.registerPlugin("6f024e3e-a2cd-11e5-bfc7-d43d7e3146fb",
+                                    "Nagios LiveStatus (HAPI2)");
 }(hatohol));
