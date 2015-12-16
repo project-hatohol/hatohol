@@ -37,14 +37,6 @@ var ServersView = function(userProfile) {
   self.startConnection('server', updateCore);
   $("#update-tirgger-server-button").show();
 
-  $("#table").stupidtable();
-  $("#table").bind('aftertablesort', function(event, data) {
-    var th = $(this).find("th");
-    th.find("i.sort").remove();
-    var icon = data.direction === "asc" ? "up" : "down";
-    th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
-  });
-
   $("#add-server-button").click(function() {
     new HatoholServerEditDialogParameterized({
       operator: userProfile.user,

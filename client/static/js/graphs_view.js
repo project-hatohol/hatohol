@@ -35,14 +35,6 @@ var GraphsView = function(userProfile) {
   //
   // Main view
   //
-  $("#table").stupidtable();
-  $("#table").bind('aftertablesort', function(event, data) {
-    var th = $(this).find("th");
-    th.find("i.sort").remove();
-    var icon = data.direction === "asc" ? "up" : "down";
-    th.eq(data.column).append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
-  });
-
   $("#delete-graph-button").click(function() {
     var msg = gettext("Do you delete the selected items ?");
     hatoholNoYesMsgBox(msg, deleteGraphs);
