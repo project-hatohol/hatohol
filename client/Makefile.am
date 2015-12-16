@@ -91,6 +91,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/users_view.js \
 	static/js/hatohol_def.js \
 	static/js/hatohol_connector.js \
+	static/js/hatohol_reconnection_modal.js \
 	static/js/hatohol_graph.js \
 	static/js/hatohol_session_manager.js \
 	static/js/hatohol_item_selector.js \
