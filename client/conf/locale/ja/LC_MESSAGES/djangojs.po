@@ -348,8 +348,8 @@ msgid "Failed to update treatments"
 msgstr "対応の更新に失敗しました"
 
 #: static/js/events_view.js:687
-msgid "An unknown error is occured on changing "
-msgstr "変更中に未知のエラーが発生しました"
+msgid "An unknown error occured on changing a treatment of an event with ID: "
+msgstr "対応の変更中に未知のエラーが発生しました。イベントID: "
 
 #: static/js/events_view.js:706 static/js/hatohol_add_action_dialog.js:372
 #: static/js/hatohol_incident_trackers_editor.js:310
