@@ -235,6 +235,8 @@ extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE;
 void loadHostInfoCache(
   HostInfoCache &hostInfoCache, const ServerIdType &serverId);
 
+IncidentTrackerIdType findIncidentTrackerIdByType(IncidentTrackerType type);
+
 /**
  * Setup database for test.
  *

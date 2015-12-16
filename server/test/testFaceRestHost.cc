@@ -1210,6 +1210,70 @@ void test_putInvalidIncident(void)
 				" where unified_event_id=123");
 	string expected = makeIncidentOutput(testIncidentInfo[index]);
 	cppcut_assert_equal(expected, actual);
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_postDuplicateIncident(void)
+{
+	loadTestDBEvents();
+	loadTestDBIncidents();
+	startFaceRest();
+
+	IncidentTrackerIdType trackerId
+	  = findIncidentTrackerIdByType(INCIDENT_TRACKER_HATOHOL);
+	RequestArg arg("/incident");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "POST";
+	arg.parameters["unifiedEventId"] = "3";
+	arg.parameters["incidentTrackerId"]
+	  = StringUtils::sprintf("%" FMT_INCIDENT_TRACKER_ID, trackerId);
+
+	// check the response
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":65,"
+	  "\"errorMessage\":\"The record already exists.\","
+	  "\"optionMessages\":\"id: 3\""
+	  "}");
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	assertEqualJSONString(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incidents"
+				" where unified_event_id=3");
+	string expected = makeIncidentOutput(testIncidentInfo[0]);
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_postIncidentForUnknownEvent(void)
+{
+	startFaceRest();
+
+	IncidentTrackerIdType trackerId
+	  = findIncidentTrackerIdByType(INCIDENT_TRACKER_HATOHOL);
+	RequestArg arg("/incident");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "POST";
+	arg.parameters["unifiedEventId"] = "3";
+	arg.parameters["incidentTrackerId"]
+	  = StringUtils::sprintf("%" FMT_INCIDENT_TRACKER_ID, trackerId);
+
+	// check the response
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":10,"
+	  "\"errorMessage\":\"Not found target record.\","
+	  "\"optionMessages\":\"id: 3\""
+	  "}");
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	assertEqualJSONString(expectedResponse, arg.response);
 }
 
 void test_getIncident(void)

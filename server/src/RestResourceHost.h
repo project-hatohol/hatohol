@@ -36,7 +36,10 @@ struct RestResourceHost : public RestResourceMemberHandler
 	void handlerGetTrigger(void);
 	void handlerGetEvent(void);
 	void handlerIncident(void);
+	void handlerPostIncident(void);
 	void handlerPutIncident(void);
+	void createIncidentAsync(const UnifiedEventIdType &eventId,
+				 const IncidentTrackerIdType &trackerId);
 	void handlerGetHostgroup(void);
 	void handlerGetItem(void);
 	void replyGetItem(void);

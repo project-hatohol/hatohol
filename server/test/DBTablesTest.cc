@@ -2232,6 +2232,15 @@ void loadHostInfoCache(
 	}
 }
 
+IncidentTrackerIdType findIncidentTrackerIdByType(IncidentTrackerType type)
+{
+	for (auto &tracker : testIncidentTrackerInfo) {
+		if (tracker.type == type)
+			return tracker.id;
+	}
+	return 0;
+}
+
 // ---------------------------------------------------------------------------
 // Setup methods
 // ---------------------------------------------------------------------------
