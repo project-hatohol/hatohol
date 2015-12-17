@@ -172,11 +172,11 @@ class Common:
             last_info = self.get_cached_event_last_info()
 
         if direction == "ASC":
-            query = query.columns("time >= %s" % last_info)
+            query = query.filter("time >= %s" % last_info)
             result = query.call()
             sorted(result, key=lambda log: log["time"])
         else:
-            query = query.columns("time <= %s" % last_info)
+            query = query.filter("time <= %s" % last_info)
             result = query.call()
             sorted(result, key=lambda log: log["time"], reverse=True)
 
