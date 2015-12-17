@@ -142,7 +142,7 @@ class HapiZabbixParamGenerator(ParamGenerator):
         return hatohol_def.MONITORING_SYSTEM_HAPI_ZABBIX
 
     def get_server_type_name(self):
-        return 'Zabbix (HAPI) [experimental]'
+        return 'Zabbix (HAPI)'
 
     def get_parameters(self):
         obj = self.get_zabbix_params()
@@ -164,7 +164,7 @@ class HapiJSONParamGenerator(ParamGenerator):
         return hatohol_def.MONITORING_SYSTEM_HAPI_JSON
 
     def get_server_type_name(self):
-        return 'JSON (HAPI) [experimental]'
+        return 'JSON (HAPI)'
 
     def get_parameters(self):
         obj = []
