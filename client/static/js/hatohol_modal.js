@@ -43,7 +43,7 @@ var HatoholModal = function(params) {
   self.owner = false;
 
   self.modalId = params.id;
-  if ($("#" + this.modalId).length) {
+  if ($("#" + self.modalId).length) {
     // When the modal has already been created
     return;
   }
