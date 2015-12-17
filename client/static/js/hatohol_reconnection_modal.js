@@ -17,9 +17,14 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+var HatoholReconnectModalVars = {
+  taskList: [],
+};
+
 var HatoholReconnectModal = function(retryFunc, errorMsg) {
   var self = this;
-  var DEFAULT_RETRY_INTERVAL = 30;
+  //var DEFAULT_RETRY_INTERVAL = 30;
+  var DEFAULT_RETRY_INTERVAL = 3;
   self.timeToReconnect = DEFAULT_RETRY_INTERVAL;
 
   HatoholModal.apply(self, [{
@@ -27,6 +32,11 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
     "title": gettext("Connection Error"),
     "body": $(getBodyHTML()),
   }]);
+
+  HatoholReconnectModalVars.taskList.push(retryFunc);
+  // Only the object that created the modal first carreis out countdown.
+  if (!self.isOwner())
+    return;
 
   setTimeout(function() {self.countdown();}, 1000);
 
@@ -41,10 +51,20 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
     return s;
   };
 
+  function retryAllTasks() {
+    // Some tasks invoked in the following loop may push a task again and
+    // cause an infinite loop. So we take the current tasks here and make
+    // the new empty list in which new retry tasks are pushed.
+    var taskList = HatoholReconnectModalVars.taskList;
+    HatoholReconnectModalVars.taskList = [];
+    for (var i = 0; i < taskList.length;i++)
+        taskList[i]();
+  };
+
   self.countdown = function() {
     self.timeToReconnect -= 1;
     if (self.timeToReconnect == 0) {
-      self.close(retryFunc);
+      self.close(retryAllTasks);
     } else {
       self.updateBody($(getBodyHTML()));
       setTimeout(function() {self.countdown();}, 1000);
