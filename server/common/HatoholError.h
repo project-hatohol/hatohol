@@ -124,6 +124,10 @@ enum HatoholErrorCode
 	HTERR_FAILED_CONNECT_HAP2, // for HAPI 2.0
 	HTERR_INVALID_OBJECT_PASSED_BY_HAP2, // for HAPI 2.0
 
+	// 16.01
+	// DBClient
+	HTERR_RECORD_EXISTS,
+
 	// End of code
 	NUM_HATOHOL_ERROR_CODE
 };

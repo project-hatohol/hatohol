@@ -195,6 +195,11 @@ void HatoholError::init(void)
 		   "HAP2 connection unavailable.");
 	DEFINE_ERR(INVALID_OBJECT_PASSED_BY_HAP2,
 		   "Invalid object passed by HAP2.");
+
+	// 16.01
+	// DBClient
+	DEFINE_ERR(RECORD_EXISTS,
+		   "The record already exists.");
 }
 
 void HatoholError::defineError(const HatoholErrorCode errorCode,

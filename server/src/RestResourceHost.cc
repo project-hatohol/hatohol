@@ -524,11 +524,34 @@ void RestResourceHost::handlerGetEvent(void)
 
 void RestResourceHost::handlerIncident(void)
 {
-	if (httpMethodIs("PUT")) {
+	if (httpMethodIs("POST")) {
+		handlerPostIncident();
+	} else if (httpMethodIs("PUT")) {
 		handlerPutIncident();
 	} else {
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
+}
+
+static HatoholError parseIncidentParameter(
+  GHashTable *query, UnifiedEventIdType &eventId, IncidentTrackerIdType &trackerId)
+{
+	HatoholError err;
+	string key;
+
+	key = "unifiedEventId";
+	err = getParam<UnifiedEventIdType>(
+		query, key.c_str(), "%" FMT_UNIFIED_EVENT_ID, eventId);
+	if (err != HTERR_OK)
+		return err;
+
+	key = "incidentTrackerId";
+	err = getParam<IncidentTrackerIdType>(
+		query, key.c_str(), "%" FMT_INCIDENT_TRACKER_ID, trackerId);
+	if (err != HTERR_OK)
+		return err;
+
+	return HTERR_OK;
 }
 
 static HatoholError parseIncidentParameter(
@@ -587,10 +610,10 @@ static HatoholError parseIncidentParameter(
 	return HTERR_OK;
 }
 
-static void updateIncidentCallback(const IncidentSender &sender,
-				   const IncidentInfo &info,
-				   const IncidentSender::JobStatus &status,
-				   void *userData)
+static void sendIncidentCallback(const IncidentSender &sender,
+				 const UnifiedEventIdType &eventId,
+				 const IncidentSender::JobStatus &status,
+				 void *userData)
 {
 	RestResourceHost *job = static_cast<RestResourceHost *>(userData);
 
@@ -601,7 +624,7 @@ static void updateIncidentCallback(const IncidentSender &sender,
 		JSONBuilder agent;
 		agent.startObject();
 		job->addHatoholError(agent, HTERR_OK);
-		agent.add("unifiedEventId", info.unifiedEventId);
+		agent.add("unifiedEventId", eventId);
 		agent.endObject();
 		job->replyJSONData(agent);
 		job->unpauseResponse();
@@ -616,6 +639,80 @@ static void updateIncidentCallback(const IncidentSender &sender,
 	default:
 		break;
 	}
+}
+
+static void createIncidentCallback(const IncidentSender &sender,
+				   const EventInfo &eventInfo,
+				   const IncidentSender::JobStatus &status,
+				   void *userData)
+{
+	const UnifiedEventIdType &eventId = eventInfo.unifiedId;
+	sendIncidentCallback(sender, eventId, status, userData);
+}
+
+static void updateIncidentCallback(const IncidentSender &sender,
+				   const IncidentInfo &incidentInfo,
+				   const IncidentSender::JobStatus &status,
+				   void *userData)
+{
+	const UnifiedEventIdType &eventId = incidentInfo.unifiedEventId;
+	sendIncidentCallback(sender, eventId, status, userData);
+}
+
+void RestResourceHost::createIncidentAsync(
+  const UnifiedEventIdType &eventId, const IncidentTrackerIdType &trackerId)
+{
+	// Find the specified event in the DB
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	EventInfoList eventList;
+	IncidentInfoVect incidentVect;
+	EventsQueryOption eventsQueryOption(m_dataQueryContextPtr);
+	eventsQueryOption.setLimitOfUnifiedId(eventId);
+	eventsQueryOption.setMaximumNumber(1);
+	eventsQueryOption.setSortType(EventsQueryOption::SORT_UNIFIED_ID,
+				      DataQueryOption::SORT_DESCENDING);
+	dataStore->getEventList(eventList, eventsQueryOption, &incidentVect);
+	if (eventList.empty()) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
+			    "id: %" FMT_UNIFIED_EVENT_ID,
+			    eventId);
+		return;
+	}
+	if (incidentVect.size() > 0) {
+		IncidentInfo &incidentInfo = *incidentVect.begin();
+		if (incidentInfo.trackerId || !incidentInfo.status.empty()) {
+			REPLY_ERROR(this, HTERR_RECORD_EXISTS,
+				    "id: %" FMT_UNIFIED_EVENT_ID,
+				    eventId);
+			return;
+		}
+	}
+
+	EventInfo &eventInfo = *eventList.begin();
+
+	// Post an incident
+	IncidentSenderManager &senderManager
+	  = IncidentSenderManager::getInstance();
+	ref(); // keep myself until the callback function is called
+	HatoholError err = senderManager.queue(trackerId, eventInfo,
+					       createIncidentCallback, this);
+	if (err != HTERR_OK) {
+		unref();
+		replyError(err);
+	}
+}
+
+void RestResourceHost::handlerPostIncident(void)
+{
+	UnifiedEventIdType eventId;
+	IncidentTrackerIdType trackerId;
+	HatoholError err = parseIncidentParameter(m_query, eventId, trackerId);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	createIncidentAsync(eventId, trackerId);
 }
 
 void RestResourceHost::handlerPutIncident(void)
