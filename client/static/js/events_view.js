@@ -684,8 +684,7 @@ var EventsView = function(userProfile, options) {
         var message = parser.getMessage();
         if (!message) {
           message =
-            gettext("An unknown error is occured on changing " +
-                    "a treatment of an event with ID: ") +
+            gettext("An unknown error occured on changing treatment of an event with ID: ") +
             updateIncidentId;
         }
         if (parser.optionMessages)
