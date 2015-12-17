@@ -226,6 +226,13 @@ class Common:
 
         return (hapi_status, hapi_severity)
 
+    def __convert_to_nagios_time(self, hatohol_time):
+        nagios_time = hatohol_time
+        if "." in hatohol_time:
+            nagios_time, msec = hatohol_time.split(".")
+
+        return nagios_time
+
 
 class Hap2NagiosLivestatusPoller(haplib.BasePoller, Common):
 
