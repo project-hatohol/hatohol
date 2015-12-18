@@ -5,14 +5,15 @@ describe('HatoholModal', function() {
     modal = undefined;
   });
 
-  afterEach(function() {
+  afterEach(function(done) {
     if (modal)
-      modal.close();
+      modal.close(done);
   });
 
   it('new', function() {
     var expectedId = "hatohol-modal";
     modal = new HatoholModal({id: expectedId});
+    modal.show();
     expect(modal).not.to.be(undefined);
     expect($('#' + expectedId)).to.have.length(1);
   });
@@ -21,6 +22,7 @@ describe('HatoholModal', function() {
     var expectedId = "hatohol-modal";
     var title = "test title";
     modal = new HatoholModal({id: expectedId, title: title});
+    modal.show();
     expect(modal).not.to.be(undefined);
     expect($('#' + expectedId)).to.have.length(1);
     expect($('.modal-title').text()).to.be(title);
@@ -30,6 +32,7 @@ describe('HatoholModal', function() {
     var expectedId = "hatohol-modal";
     var footer = "test footer";
     modal = new HatoholModal({id: expectedId, footer: footer});
+    modal.show();
     expect(modal).not.to.be(undefined);
     expect($('#' + expectedId)).to.have.length(1);
     expect($('.modal-footer').text()).to.be(footer);
@@ -39,6 +42,7 @@ describe('HatoholModal', function() {
     var expectedId = "hatohol-modal";
     var body = "test body";
     modal = new HatoholModal({id: expectedId, body: body});
+    modal.show();
     expect(modal).not.to.be(undefined);
     expect($('#' + expectedId)).to.have.length(1);
     expect($('.modal-body').text()).to.be(body);
