@@ -665,11 +665,11 @@ var EventsView = function(userProfile, options) {
     }
   }
 
-  function applyIncidentStatus(updateIncidentId, errors) {
+  function applyIncidentStatus(incidentId, errors) {
     var status = $("#change-incident").val();
     var deferred = new $.Deferred;
     var url = "/incident";
-    url += "/" + updateIncidentId;
+    url += "/" + incidentId;
     new HatoholConnector({
       url: url,
       request: "PUT",
@@ -682,7 +682,7 @@ var EventsView = function(userProfile, options) {
         if (!message) {
           message =
             gettext("An unknown error occured on changing treatment of an event with ID: ") +
-            updateIncidentId;
+            incidentId;
         }
         if (parser.optionMessages)
           message += " " + parser.optionMessages;
