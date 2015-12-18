@@ -630,7 +630,7 @@ var EventsView = function(userProfile, options) {
 
   function updateIncidentStatus() {
     var status = $("#change-incident").val();
-    var unifiedId;
+    var unifiedId, trackerId;
     var incidents = $(".incident.selected");
     var promise, promises = [], errors = [];
     var errorMessage;
@@ -639,7 +639,8 @@ var EventsView = function(userProfile, options) {
       return;
 
     for (var i = 0; i < incidents.length; i++) {
-      unifiedId = incidents[i].getAttribute("data-unified-id");
+      unifiedId = parseInt(incidents[i].getAttribute("data-unified-id"));
+      trackerId = parseInt(incidents[i].getAttribute("data-tracker-id"));
       promise = applyIncidentStatus(unifiedId, errors);
       promises.push(promise);
     }
@@ -1063,9 +1064,11 @@ var EventsView = function(userProfile, options) {
   function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
     var unifiedId = event["unifiedId"];
+    var trackerId = incident["trackerId"];
 
     html += "<td class='selectable incident " + getSeverityClass(event) + "'";
-    html += "data-unified-id='" + unifiedId + "'";
+    html += " data-unified-id='" + unifiedId + "'";
+    html += " data-tracker-id='" + trackerId + "'";
     html += " style='display:none;'>";
 
     if (!incident)
