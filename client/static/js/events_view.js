@@ -761,6 +761,12 @@ var EventsView = function(userProfile, options) {
           message += " " + parser.optionMessages;
         errors.push(message);
       },
+      connectErrorCallback: function() {
+        var message =
+          gettext("Failed to connect to Hatohol server on changing treatment of an event with ID: ") +
+          eventId;
+        errors.push(message);
+      },
       completionCallback: function() {
         deferred.resolve();
       },
