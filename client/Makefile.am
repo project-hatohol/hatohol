@@ -45,7 +45,6 @@ nobase_dist_hatohol_client_DATA = \
 	static/fonts/glyphicons-halflings-regular.woff \
 	static/images/favicon.ico \
 	static/js.external/jquery.min.js \
-	static/js.external/stupidtable.min.js \
 	static/js.external/jquery-ui.min.js \
 	static/js.external/jquery-ui-slider-pips.min.js \
 	static/js.external/jquery.datetimepicker.js \
