@@ -458,7 +458,7 @@ var EventsView = function(userProfile, options) {
       if (exclude && !selected[unifiedId])
         return true;
       return false;
-    }
+    };
     var elementId = "#select-" + type;
 
     if (type == "hostgroup")
