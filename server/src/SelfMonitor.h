@@ -31,6 +31,7 @@ typedef std::weak_ptr<SelfMonitor> SelfMonitorWeakPtr;
 
 class SelfMonitor {
 public:
+	static const char *DEFAULT_SELF_MONITOR_HOST_NAME;
 	typedef std::function<void (
 	          SelfMonitor &monitor,
 	          const TriggerStatusType &prevStatus,

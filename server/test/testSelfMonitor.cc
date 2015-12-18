@@ -46,8 +46,26 @@ static string expectedTriggerDBContent(
 	            DBCONTENT_MAGIC_ANY, // ns
 	            INAPPLICABLE_HOST_ID);
 	expect += StringUtils::sprintf(
-	            "|__SELF_MONITOR|(SELF MONITOR)|%s||%d\n",
+	            "|__SELF_MONITOR|%s|%s||%d\n",
+	            SelfMonitor::DEFAULT_SELF_MONITOR_HOST_NAME,
 	            brief.c_str(), TRIGGER_VALID_SELF_MONITORING);
+	return expect;
+}
+
+static string expectedServerHostDefDBContent(
+  const ServerIdType &serverId)
+{
+	string expect;
+	const GenericIdType expectedId = 1;
+	const HostIdType expectedHostId = 1;
+	expect += StringUtils::sprintf(
+	            "%" FMT_GEN_ID "|%" FMT_HOST_ID "|%" FMT_SERVER_ID,
+	            expectedId, expectedHostId, serverId);
+	expect += StringUtils::sprintf(
+	            "|%" FMT_LOCAL_HOST_ID "|%s|%d",
+	            MONITORING_SELF_LOCAL_HOST_ID.c_str(),
+	            SelfMonitor::DEFAULT_SELF_MONITOR_HOST_NAME,
+	            HOST_STAT_SELF_MONITOR);
 	return expect;
 }
 
@@ -77,6 +95,15 @@ static void _assertTriggerDB(const string &expect)
 #define assertTriggerDB(E,...) \
 cut_trace(_assertTriggerDB(E,##__VA_ARGS__))
 
+static void _assertHostDB(const string &expect)
+{
+	ThreadLocalDBCache cache;
+	assertDBContent(&cache.getMonitoring().getDBAgent(),
+	                "select * from server_host_def", expect);
+}
+
+#define assertHostDB(E,...) cut_trace(_assertHostDB(E,##__VA_ARGS__))
+
 
 void cut_setup(void)
 {
@@ -94,6 +121,7 @@ void test_constructor(void)
 	const string brief = "Test trigger for self monitoring.";
 	SelfMonitor monitor(serverId, triggerId, brief);
 	assertTriggerDB(expectedTriggerDBContent(serverId, triggerId, brief));
+	assertHostDB(expectedServerHostDefDBContent(serverId));
 }
 
 void test_constructor_define_same_multiple()
@@ -366,8 +394,10 @@ void test_saveEvent(void)
 		  expectedEventType, triggerId.c_str(),
 		  expectedStatus, severity);
 		s += StringUtils::sprintf(
-		  "%" FMT_HOST_ID "|__SELF_MONITOR|(SELF MONITOR)|%s|",
-		  INAPPLICABLE_HOST_ID, expectedEventBrief.c_str());
+		  "%" FMT_HOST_ID "|__SELF_MONITOR|%s|%s|",
+		  INAPPLICABLE_HOST_ID,
+		  SelfMonitor::DEFAULT_SELF_MONITOR_HOST_NAME,
+		  expectedEventBrief.c_str());
 		s += "\n";
 		unifiedEventId++;
 		return s;

@@ -27,6 +27,8 @@
 using namespace std;
 using namespace mlpl;
 
+const char *SelfMonitor::DEFAULT_SELF_MONITOR_HOST_NAME = "(self-monitor)";
+
 struct SelfMonitor::Impl
 {
 	TriggerInfo        triggerInfo;
@@ -66,6 +68,7 @@ struct SelfMonitor::Impl
 	{
 		initEventGenerators();
 		setupTriggerInfo(serverId, triggerId, brief, severity);
+		setupHostForSelfMonitor(serverId);
 	}
 
 	bool hasTriggerId(void)
@@ -92,7 +95,7 @@ struct SelfMonitor::Impl
 		  SmartTime::getCurrTime().getAsTimespec();
 		triggerInfo.globalHostId = INAPPLICABLE_HOST_ID;
 		triggerInfo.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
-		triggerInfo.hostName = "(SELF MONITOR)";
+		triggerInfo.hostName = DEFAULT_SELF_MONITOR_HOST_NAME;
 
 		triggerInfo.brief = brief;
 		triggerInfo.extendedInfo.clear();
@@ -100,6 +103,19 @@ struct SelfMonitor::Impl
 
 		ThreadLocalDBCache cache;
 		cache.getMonitoring().addTriggerInfo(&triggerInfo);
+	}
+
+	void setupHostForSelfMonitor(const ServerIdType &serverId)
+	{
+		ServerHostDef svHostDef;
+		svHostDef.id = AUTO_INCREMENT_VALUE;
+		svHostDef.hostId = AUTO_ASSIGNED_ID;
+		svHostDef.serverId = serverId;
+		svHostDef.hostIdInServer = MONITORING_SELF_LOCAL_HOST_ID;
+		svHostDef.name = DEFAULT_SELF_MONITOR_HOST_NAME;
+		svHostDef.status = HOST_STAT_SELF_MONITOR;
+		ThreadLocalDBCache cache;
+		cache.getHost().upsertHost(svHostDef);
 	}
 
 	void initEventGenerators(void)
