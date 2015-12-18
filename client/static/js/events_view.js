@@ -267,20 +267,7 @@ var EventsView = function(userProfile, options) {
       type: eventPropertyChoices.type,
       severity: eventPropertyChoices.severity,
     };
-    self.userConfig = new HatoholEventsViewConfig({
-      columnDefinitions: columnDefinitions,
-      filterCandidates: customEventPropertyChoices,
-      loadedCallback: function(config) {
-        applyConfig(config);
-        updatePager();
-        setupFilterValues();
-        setupCallbacks();
-      },
-      savedCallback: function(config) {
-        applyConfig(config);
-        load();
-      },
-    });
+    self.userConfig.setFilterCandidates(customEventPropertyChoices);
   }
 
   function applyConfig(config) {
