@@ -1193,7 +1193,7 @@ var EventsView = function(userProfile, options) {
     if (!incident)
       return html + "</td>";
 
-    if (!incident.localtion)
+    if (!incident.location)
       return html + getIncidentStatusLabel(event) + "</td>";
 
     html += "<a href='" + escapeHTML(incident.location)
