@@ -25,6 +25,7 @@ from logging import getLogger
 import datetime
 from hatohol import hap
 from hatohol import haplib
+from hatohol.haplib import Utils
 from hatohol import standardhap
 import socket
 import uuid
@@ -127,8 +128,8 @@ class Common:
                 self.__trigger_last_info = self.get_last_info("trigger")
 
             if len(self.__trigger_last_info):
-                nag_time = self.__convert_to_nagios_time(self.__trigger_last_info)
-                query = query.filter("last_state_change >= %s" % nag_time)
+                unix_timestamp = Utils.translate_hatohol_time_to_unix_time(self.__trigger_last_info)
+                query = query.filter("last_state_change >= %s" % unix_timestamp)
                 update_type = "UPDATED"
 
         result = query.call()
@@ -139,7 +140,7 @@ class Common:
               self.__parse_status_and_severity(service["state"])
 
             last_state_change = datetime.datetime.fromtimestamp(service["last_state_change"])
-            hapi_time = haplib.Utils.conv_to_hapi_time(last_state_change,
+            hapi_time = Utils.conv_to_hapi_time(last_state_change,
                                                        self.__time_offset)
             triggers.append({
                 "triggerId": service["description"],
@@ -152,7 +153,7 @@ class Common:
                 "extendedInfo": ""
             })
         self.__trigger_last_info = \
-            haplib.Utils.get_biggest_num_of_dict_array(triggers,
+            Utils.get_biggest_num_of_dict_array(triggers,
                                                        "lastChangeTime")
         self.put_triggers(triggers, update_type=update_type,
                           last_info=self.__trigger_last_info,
@@ -197,8 +198,9 @@ class Common:
             hapi_status, hapi_severity = \
               self.__parse_status_and_severity(event["state"])
 
-            hapi_time = haplib.Utils.conv_to_hapi_time(event["time"],
-                                                       self.__time_offset)
+            event_time = datetime.datetime.fromtimestamp(event["time"])
+            hapi_time = Utils.conv_to_hapi_time(event_time,
+                                                self.__time_offset)
             events.append({
                 "eventId": str(uuid.uuid1()),
                 "time": hapi_time,
@@ -225,13 +227,6 @@ class Common:
             hapi_severity = "UNKNOWN"
 
         return (hapi_status, hapi_severity)
-
-    def __convert_to_nagios_time(self, hatohol_time):
-        nagios_time = hatohol_time
-        if "." in hatohol_time:
-            nagios_time, msec = hatohol_time.split(".")
-
-        return nagios_time
 
 
 class Hap2NagiosLivestatusPoller(haplib.BasePoller, Common):
