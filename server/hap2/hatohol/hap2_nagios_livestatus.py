@@ -188,19 +188,13 @@ class Common:
             query = query.filter("time <= %s" % unix_timestamp)
 
         result = query.call()
-        if not len(result): return
         logger.debug(query)
-
 
         try:
             latest_state_index = result.index(last_info)
             result = result[:latest_state_index]
         except ValueError:
             pass
-
-        # livestatus return a sorted list.
-        # result[0] is latest statehist.
-        self.__latest_statehist = json.dumps(result[0])
 
         events = []
         for event in result:
@@ -229,6 +223,11 @@ class Common:
                 "brief": event["log_output"],
                 "extendedInfo": ""
             })
+
+        if len(result):
+            # livestatus return a sorted list.
+            # result[0] is latest statehist.
+            self.__latest_statehist = json.dumps(result[0])
         self.put_events(events, fetch_id=fetch_id,
                         last_info_generator=self.return_latest_statehist)
 
