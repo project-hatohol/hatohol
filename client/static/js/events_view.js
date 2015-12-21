@@ -423,7 +423,7 @@ var EventsView = function(userProfile, options) {
       if (exclude && !selected[unifiedId])
         return true;
       return false;
-    }
+    };
     var elementId = "#select-" + type;
 
     if (type == "hostgroup")
@@ -630,21 +630,39 @@ var EventsView = function(userProfile, options) {
 
   function updateIncidentStatus() {
     var status = $("#change-incident").val();
-    var updateIncidentIds = [], unifiedId;
+    var unifiedId, trackerId;
     var incidents = $(".incident.selected");
     var promise, promises = [], errors = [];
     var errorMessage;
+    var selectedTrackerId = undefined;
+    var i;
 
     if (!status)
       return;
 
-    for (var i = 0; i < incidents.length; i++) {
-      unifiedId = incidents[i].getAttribute("data-unified-id");
-      updateIncidentIds.push(unifiedId);
+    // Select an incident tracker to post new incidents
+    for (i = 0; i < incidents.length; i++) {
+      trackerId = parseInt(incidents[i].getAttribute("data-tracker-id"));
+      if (isNaN(trackerId)) {
+        selectedTrackerId = chooseIncidentTracker();
+        if (!selectedTrackerId) {
+          errorMessage = gettext("There is no valid incident tracker to post!");
+          hatoholErrorMsgBox(errorMessage);
+          return;
+        }
+        break;
+      }
     }
 
-    for (var idx = 0; idx < updateIncidentIds.length; idx++) {
-      promise = applyIncidentStatus(updateIncidentIds[idx], errors);
+    // update existing incidents and post new incidents
+    for (i = 0; i < incidents.length; i++) {
+      unifiedId = parseInt(incidents[i].getAttribute("data-unified-id"));
+      trackerId = parseInt(incidents[i].getAttribute("data-tracker-id"));
+      if (trackerId > 0) {
+        promise = applyIncidentStatus(unifiedId, status, errors);
+      } else {
+        promise = addIncident(unifiedId, selectedTrackerId, status, errors);
+      }
       promises.push(promise);
     }
 
@@ -668,11 +686,63 @@ var EventsView = function(userProfile, options) {
     }
   }
 
-  function applyIncidentStatus(updateIncidentId, errors) {
-    var status = $("#change-incident").val();
+  function chooseIncidentTracker() {
+    var trackers = self.rawData.incidentTrackers;
+    var ids = Object.keys(trackers), id;
+
+    // TODO: show a selection dialog when plural trackers exist
+
+    for (var i = 0; i < ids.length; i++) {
+      id = ids[i];
+      if (trackers[id].type == hatohol.INCIDENT_TRACKER_HATOHOL) {
+        return id;
+      }
+    }
+    return undefined;
+  }
+
+  function addIncident(eventId, trackerId, status, errors) {
+    var deferred = new $.Deferred;
+    new HatoholConnector({
+      url: "/incident",
+      request: "POST",
+      data: {
+	  unifiedEventId: eventId,
+	  incidentTrackerId: trackerId,
+      },
+      replyCallback: function() {
+        var promise = applyIncidentStatus(eventId, status, errors);
+        $.when(promise).done(function() {
+          deferred.resolve();
+        });
+      },
+      parseErrorCallback: function(reply, parser)  {
+        var message = parser.getMessage();
+        if (!message) {
+          message =
+            gettext("An unknown error occured on creating an incident for the event: ") +
+            eventId;
+        }
+        if (parser.optionMessages)
+          message += " " + parser.optionMessages;
+        errors.push(message);
+        deferred.resolve();
+      },
+      connectErrorCallback: function() {
+        var message =
+          gettext("Failed to connect to Hatohol server on posting an incident for the event: ") +
+          eventId;
+        errors.push(message);
+        deferred.resolve();
+      },
+    });
+    return deferred.promise();
+  }
+
+  function applyIncidentStatus(incidentId, status, errors) {
     var deferred = new $.Deferred;
     var url = "/incident";
-    url += "/" + updateIncidentId;
+    url += "/" + incidentId;
     new HatoholConnector({
       url: url,
       request: "PUT",
@@ -685,10 +755,16 @@ var EventsView = function(userProfile, options) {
         if (!message) {
           message =
             gettext("An unknown error occured on changing treatment of an event with ID: ") +
-            updateIncidentId;
+            incidentId;
         }
         if (parser.optionMessages)
           message += " " + parser.optionMessages;
+        errors.push(message);
+      },
+      connectErrorCallback: function() {
+        var message =
+          gettext("Failed to connect to Hatohol server on changing treatment of an event with ID: ") +
+          eventId;
         errors.push(message);
       },
       completionCallback: function() {
@@ -1067,9 +1143,14 @@ var EventsView = function(userProfile, options) {
   function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
     var unifiedId = event["unifiedId"];
+    var trackerId = incident["trackerId"];
 
     html += "<td class='selectable incident " + getSeverityClass(event) + "'";
-    html += "data-unified-id='" + unifiedId + "'";
+    html += " data-unified-id='" + unifiedId + "'";
+    if (trackerId > 0)
+      html += " data-tracker-id='" + trackerId + "'";
+    else
+      html += " data-tracker-id=''";
     html += " style='display:none;'>";
 
     if (!incident)
