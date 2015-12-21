@@ -514,6 +514,7 @@ HatoholEventsViewConfig.prototype.setFilterCandidates = function(candidates) {
   var self = this;
 
   self.options.filterCandidates = candidates;
+  self.resetFilterList();
 };
 
 HatoholEventsViewConfig.prototype.setCurrentFilterConfig = function(filter) {
