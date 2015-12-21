@@ -510,6 +510,13 @@ HatoholEventsViewConfig.prototype.resetFilterList = function() {
   };
 };
 
+HatoholEventsViewConfig.prototype.setFilterCandidates = function(candidates) {
+  var self = this;
+
+  self.options.filterCandidates = candidates;
+  self.setCurrentFilterConfig();
+};
+
 HatoholEventsViewConfig.prototype.setCurrentFilterConfig = function(filter) {
   var self = this;
 

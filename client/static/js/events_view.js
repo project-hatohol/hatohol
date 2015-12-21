@@ -153,6 +153,7 @@ var EventsView = function(userProfile, options) {
   function start() {
     $.when(loadUserConfig(), loadSeverityRank(), loadCustomIncidentStatus()).done(function() {
       load();
+      applyCustomIncidentLabelsToEventsConfig();
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
       load(); // Ensure to work with the default config
@@ -233,6 +234,40 @@ var EventsView = function(userProfile, options) {
       },
     });
     return deferred.promise();
+  }
+
+  function applyCustomIncidentLabelsToEventsConfig() {
+    var defaultCandidates = self.defaultIncidentStatusesMap;
+    var candidates = self.customIncidentStatusesMap;
+    var customIncidentLabelChoices = [];
+
+    if (Object.keys(candidates).length == 0)
+      candidates = defaultCandidates;
+
+    $.map(candidates, function(aCandidate) {
+      var option;
+      var label = null;
+
+      if (aCandidate.label !== "") {
+        label = aCandidate.label;
+      } else if ( aCandidate.label == "" && defaultCandidates[aCandidate.code]) {
+        label = defaultCandidates[aCandidate.code].label;
+      }
+
+      if (label && aCandidate) {
+        customIncidentLabelChoices.push({
+          label: label,
+          value: aCandidate.code
+        });
+      }
+    });
+    var customEventPropertyChoices = {
+      incident: customIncidentLabelChoices,
+      status: eventPropertyChoices.status,
+      type: eventPropertyChoices.type,
+      severity: eventPropertyChoices.severity,
+    };
+    self.userConfig.setFilterCandidates(customEventPropertyChoices);
   }
 
   function applyConfig(config) {
