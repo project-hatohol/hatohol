@@ -29,6 +29,7 @@ from hatohol.haplib import Utils
 from hatohol import standardhap
 import socket
 import uuid
+import json
 from mk_livestatus import Socket
 
 logger = getLogger(__name__)
@@ -53,6 +54,7 @@ class Common:
         self.__port = None
         self.__time_offset = datetime.timedelta(seconds=time.timezone)
         self.__trigger_last_info = None
+        self.__latest_statehist = None
 
     def ensure_connection(self):
         # load MonitoringServerInfo
@@ -161,30 +163,44 @@ class Common:
 
     def collect_events_and_put(self, fetch_id=None, last_info=None,
                                count=None, direction="ASC"):
-        query = self.__socket.services.columns("plugin_output",
-                                               "state",
-                                               "time",
-                                               "current_host_name",
-                                               "current_host_alias",
-                                               "service_description")
+        query = self.__socket.statehist.columns("log_output",
+                                                "state",
+                                                "time",
+                                                "current_host_name",
+                                                "current_host_alias",
+                                                "service_description")
 
-        # Event range to select and call query
         if last_info is None:
             last_info = self.get_cached_event_last_info()
 
-        if direction == "ASC":
-            query = query.filter("time >= %s" % last_info)
-            result = query.call()
-            sorted(result, key=lambda log: log["time"])
-        else:
-            query = query.filter("time <= %s" % last_info)
-            result = query.call()
-            sorted(result, key=lambda log: log["time"], reverse=True)
+        if last_info:
+            last_info = json.loads(last_info)
 
+        if not last_info:
+            pass
+        elif direction == "ASC":
+            unix_timestamp = \
+                Utils.translate_hatohol_time_to_unix_time(last_info["time"])
+            query = query.filter("time >= %s" % unix_timestamp)
+        elif direction == "DESC":
+            unix_timestamp = \
+                Utils.translate_hatohol_time_to_unix_time(last_info["time"])
+            query = query.filter("time <= %s" % unix_timestamp)
+
+        result = query.call()
+        if not len(result): return
         logger.debug(query)
 
-        # Event cut down
-        result = result[:count]
+
+        try:
+            latest_state_index = result.index(last_info)
+            result = result[:latest_state_index]
+        except ValueError:
+            pass
+
+        # livestatus return a sorted list.
+        # result[0] is latest statehist.
+        self.__latest_statehist = json.dumps(result[0])
 
         events = []
         for event in result:
@@ -210,10 +226,16 @@ class Common:
                 "severity": hapi_severity,
                 "hostId": event["current_host_name"],
                 "hostName": event["current_host_alias"],
-                "brief": event["plugin_output"],
+                "brief": event["log_output"],
                 "extendedInfo": ""
             })
-        self.put_events(events, fetch_id=fetch_id)
+        self.put_events(events, fetch_id=fetch_id,
+                        last_info_generator=self.return_latest_statehist)
+
+    def return_latest_statehist(self, events):
+        # livestatus plugins does not use events.
+        # But, haplib.put_events last_info_generator have wanted events.
+        return self.__latest_statehist
 
     def __parse_status_and_severity(self, status):
         hapi_status = self.STATUS_MAP.get(status)
