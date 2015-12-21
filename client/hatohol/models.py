@@ -22,6 +22,12 @@ import smartfield
 import json
 
 
+try:
+    atomic = transaction.atomic
+except AttributeError:
+    atomic = transaction.commit_on_success
+
+
 class UserConfig(models.Model):
     item_name = models.CharField(max_length=255, db_index=True)
     user_id = models.IntegerField(db_index=True)
@@ -76,7 +82,7 @@ class UserConfig(models.Model):
         return obj.value
 
     @classmethod
-    @transaction.commit_on_success
+    @atomic
     def get_items(cls, item_name_list, user_id):
         items = {}
         for item_name in item_name_list:
@@ -90,7 +96,7 @@ class UserConfig(models.Model):
             self.id = obj.id  # to update on save()
         self.save()
 
-    @transaction.commit_on_success
+    @atomic
     def store(self):
         """Insert if the record with item_name and user_id doesn't exist.
            Otherwise update with value of the this object.
@@ -98,7 +104,7 @@ class UserConfig(models.Model):
         self._store_without_transaction()
 
     @classmethod
-    @transaction.commit_on_success
+    @atomic
     def store_items(cls, items, user_id):
         for name in items:
             value = items[name]
