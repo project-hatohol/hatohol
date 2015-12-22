@@ -434,6 +434,7 @@ static void addIncident(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 			const IncidentInfo &incident)
 {
 	agent.startObject("incident");
+	agent.add("trackerId", incident.trackerId);
 	agent.add("identifier", incident.identifier);
 	agent.add("location", incident.location);
 	agent.add("status", incident.status);
