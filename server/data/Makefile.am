@@ -1,7 +1,14 @@
 sql_DATA = \
 	create-db.sql \
+	init-user.sql \
 	server-type-zabbix.sql \
-	server-type-nagios.sql
+	server-type-nagios.sql \
+	server-type-hap2-zabbix.sql \
+	server-type-hap2-nagios.sql \
+	server-type-hap2-ceilometer.sql \
+	server-type-hap2-fluentd.sql \
+	severity-ranks.sql \
+	custom-incident-statuses.sql
 
 if WITH_QPID
 sql_DATA += \
@@ -9,15 +16,6 @@ sql_DATA += \
 	server-type-hapi-json.sql \
 	server-type-ceilometer.sql
 endif
-
-sql_DATA += \
-	server-type-hap2-zabbix.sql \
-	server-type-hap2-nagios.sql \
-	server-type-hap2-ceilometer.sql \
-	server-type-hap2-fluentd.sql \
-	init-user.sql \
-	severity-ranks.sql \
-	custom-incident-statuses.sql
 
 sqldir = $(pkgdatadir)/sql
 
