@@ -70,6 +70,12 @@ sql_file_list.extend([
     {'table_name': 'custom_incident_statuses',
      'file_name': 'custom-incident-statuses.sql',
      'target': 'custom-incident-statuses'},
+    {'table_name': 'incident_trackers',
+     'file_name': 'incident-trackers.sql',
+     'target': 'incident-trackers'},
+    {'table_name': 'actions',
+     'file_name': 'actions.sql',
+     'target': 'actions'},
 ])
 
 config_map = {
