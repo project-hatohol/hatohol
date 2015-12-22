@@ -16,7 +16,7 @@
 # <http://www.gnu.org/licenses/>.
 
 import json
-
+import django
 from django import http
 from django.core import serializers
 from django.core.urlresolvers import reverse
@@ -58,6 +58,7 @@ def to_json(object):
 class LogSearchSystemForm(ModelForm):
     class Meta:
         model = LogSearchSystem
+        fields = ('type', 'base_url')
 
 
 def is_valid_session(request):

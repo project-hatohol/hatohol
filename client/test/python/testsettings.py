@@ -195,3 +195,7 @@ LOGGING = {
 LOCALE_PATHS = (
     os.path.join(PROJECT_HOME, "conf", "locale"),
 )
+
+import django
+if django.VERSION >= (1, 7):
+    django.setup()
