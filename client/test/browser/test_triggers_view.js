@@ -181,7 +181,7 @@ describe('TriggersView', function() {
     respond('{}', triggersJson(defaultTriggers, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultTriggers.length + 1);
-    expect($('tr :eq(1)').html()).to.be(expected);
+    expect($('tr').eq(1).html()).to.be(expected);
   });
 
   it('With expandedDesctription', function() {
@@ -197,7 +197,7 @@ describe('TriggersView', function() {
     respond('{}', triggersJson(defaultTriggers, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultTriggers.length + 1);
-    expect($('tr :eq(2)').html()).to.be(expected);
+    expect($('tr').eq(2).html()).to.be(expected);
   });
 
   it('With a problem trigger', function() {
@@ -217,6 +217,6 @@ describe('TriggersView', function() {
     respond('{}', triggersJson(triggers, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(triggers.length + 1);
-    expect($('tr :eq(1)').html()).to.be(expected);
+    expect($('tr').eq(1).html()).to.be(expected);
   });
 });
