@@ -134,7 +134,7 @@ describe('LatestView', function() {
     respond('{}', itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);
-    expect($('tr :eq(1)').html()).to.be(expected);
+    expect($('tr').eq(1).html()).to.be(expected);
   });
 
   it('String item', function() {
@@ -153,7 +153,7 @@ describe('LatestView', function() {
     respond('{}', itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);
-    expect($('tr :eq(2)').html()).to.be(expected);
+    expect($('tr').eq(2).html()).to.be(expected);
   });
 
   it('default page size', function() {

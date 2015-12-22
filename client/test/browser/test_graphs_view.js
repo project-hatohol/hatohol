@@ -123,6 +123,6 @@ describe("GraphsView", function() {
     expect(requests[0].url).to.be(
       "/graphs/");
     expect($('tr')).to.have.length(defaultGraphs.length + 1);
-    expect($('tr :eq(1)').html()).to.contain(expected);
+    expect($('tr').eq(1).html()).to.contain(expected);
   });
 });

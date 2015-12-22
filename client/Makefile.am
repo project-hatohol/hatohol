@@ -34,13 +34,9 @@ nobase_dist_hatohol_client_DATA = \
 	static/css.external/themes/ui-lightness/images/ui-bg_diagonals-thick_20_666666_40x40.png \
 	static/css.external/themes/ui-lightness/images/ui-bg_glass_65_ffffff_1x400.png \
 	static/css.external/themes/ui-lightness/images/ui-icons_ef8c08_256x240.png \
-	static/css.external/bootstrap.css \
-	static/css.external/bootstrap.css.map \
 	static/css.external/bootstrap.min.css \
-	static/css.external/bootstrap-theme.css \
-	static/css.external/bootstrap-theme.css.map \
 	static/css.external/bootstrap-theme.min.css \
-	static/css.external/jquery-ui-slider-pips.css \
+	static/css.external/jquery-ui-slider-pips.min.css \
 	static/css.external/jquery.datetimepicker.css \
 	static/css.external/spectrum.css \
 	static/fonts/glyphicons-halflings-regular.eot \
@@ -48,10 +44,8 @@ nobase_dist_hatohol_client_DATA = \
 	static/fonts/glyphicons-halflings-regular.ttf \
 	static/fonts/glyphicons-halflings-regular.woff \
 	static/images/favicon.ico \
-	static/js.external/jquery.js \
 	static/js.external/jquery.min.js \
 	static/js.external/jquery-ui.min.js \
-	static/js.external/jquery-ui-slider-pips.js \
 	static/js.external/jquery-ui-slider-pips.min.js \
 	static/js.external/jquery.datetimepicker.js \
 	static/js.external/jquery.flot.js \
@@ -59,11 +53,8 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/jquery.flot.selection.js \
 	static/js.external/jquery.flot.pie.js \
 	static/js.external/jquery.flot.resize.js \
-	static/js.external/jquery-deparam.js \
 	static/js.external/jquery-deparam.min.js \
-	static/js.external/multiselect.js \
 	static/js.external/multiselect.min.js \
-	static/js.external/bootstrap.js \
 	static/js.external/bootstrap.min.js \
 	static/js.plugins/hap1-ceilometer.js \
 	static/js.plugins/hap1-zabbix.js \
