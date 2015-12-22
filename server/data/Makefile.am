@@ -8,7 +8,9 @@ sql_DATA = \
 	server-type-hap2-ceilometer.sql \
 	server-type-hap2-fluentd.sql \
 	severity-ranks.sql \
-	custom-incident-statuses.sql
+	custom-incident-statuses.sql \
+	incident-trackers.sql \
+	actions.sql
 
 if WITH_QPID
 sql_DATA += \
