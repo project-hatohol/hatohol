@@ -913,8 +913,10 @@ var EventsView = function(userProfile, options) {
       eventPropertyChoices.incident;
     if (defaultIncidentStatuses) {
       for (i = 0; i < defaultIncidentStatuses.length; i++) {
-        self.defaultIncidentStatusesMap[defaultIncidentStatuses[i].value] =
-          defaultIncidentStatuses[i];
+        self.defaultIncidentStatusesMap[defaultIncidentStatuses[i].value] = {
+          code: defaultIncidentStatuses[i].value,
+          label: defaultIncidentStatuses[i].label,
+        };
       }
     }
   }
