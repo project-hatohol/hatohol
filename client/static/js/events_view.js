@@ -1182,7 +1182,7 @@ var EventsView = function(userProfile, options) {
     html += "<td class='selectable incident " + getSeverityClass(event) + "'";
     html += " data-unified-id='" + unifiedId + "'";
     if (incident) {
-      trackerId = event["trackerId"];
+      trackerId = incident["trackerId"];
       if (trackerId > 0)
         html += " data-tracker-id='" + trackerId + "'";
       else
