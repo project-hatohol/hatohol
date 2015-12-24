@@ -476,7 +476,7 @@ var EventsView = function(userProfile, options) {
     }
   }
 
-  function resetEventPropertyFilter(filterConfig, type, addEmptyItem) {
+  function resetEventPropertyFilter(filterConfig, type) {
     var conf = filterConfig;
     var candidates = eventPropertyChoices[type];
     var option;
@@ -490,12 +490,10 @@ var EventsView = function(userProfile, options) {
 
     $("#select-" + type).empty();
 
-    if (addEmptyItem) {
-      option = $("<option/>", {
-        text: "---------",
-        value: "",
-      }).appendTo("#select-" + type);
-    }
+    option = $("<option/>", {
+      text: "---------",
+      value: "",
+    }).appendTo("#select-" + type);
 
     $.map(candidates, function(candidate) {
       var option;
@@ -547,9 +545,9 @@ var EventsView = function(userProfile, options) {
 
     self.setupHostFilters(servers, query);
 
-    resetEventPropertyFilter(filterConfig, "type", true);
-    resetEventPropertyFilter(filterConfig, "severity", false);
-    resetEventPropertyFilter(filterConfig, "incident", true);
+    resetEventPropertyFilter(filterConfig, "type");
+    resetEventPropertyFilter(filterConfig, "severity");
+    resetEventPropertyFilter(filterConfig, "incident");
     setupChangeIncidentCandidates();
     setupChangeIncidentMenu();
 
