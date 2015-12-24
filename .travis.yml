@@ -48,6 +48,7 @@ install:
   - travis_retry npm install
   - sudo pip install django==1.5.4
   - sudo pip install daemon
+  - sudo pip install python-mk-livestatus
   - sudo server/misc/setup-rabbitmq-server-port.sh
   - sudo service rabbitmq-server restart
 before_script:
