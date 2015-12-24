@@ -159,6 +159,7 @@ var EventsView = function(userProfile, options) {
 
   function start() {
     $.when(loadUserConfig(), loadSeverityRank(), loadCustomIncidentStatus()).done(function() {
+      self.userConfig.setFilterCandidates(eventPropertyChoices);
       load();
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
@@ -192,13 +193,19 @@ var EventsView = function(userProfile, options) {
       url: "/severity-rank",
       request: "GET",
       replyCallback: function(reply, parser) {
-        var i, severityRanks;
+        var i, severityRanks, rank;
+        var choices = eventPropertyChoices.severity;
         self.rawSeverityRankData = reply;
         self.severityRanksMap = {};
         severityRanks = self.rawSeverityRankData["SeverityRanks"];
         if (severityRanks) {
           for (i = 0; i < severityRanks.length; i++) {
             self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
+          }
+          for (i = 0; i < choices.length; i++) {
+            rank = self.severityRanksMap[choices[i].value];
+            if (rank && rank.label)
+              choices[i].label = rank.label;
           }
         }
         deferred.resolve();
@@ -229,7 +236,6 @@ var EventsView = function(userProfile, options) {
         }
 
         eventPropertyChoices.incident = [];
-        self.incidentStatusesMap = {};
         for (i = 0; i < incidentStatuses.length; i++) {
           status = incidentStatuses[i];
           if (status.label == "") {
@@ -250,7 +256,6 @@ var EventsView = function(userProfile, options) {
           }
           incidentLabelMap = buildLabelMap(eventPropertyChoices.incident);
         }
-        self.userConfig.setFilterCandidates(eventPropertyChoices);
 
         deferred.resolve();
       },
@@ -1098,12 +1103,7 @@ var EventsView = function(userProfile, options) {
 
   function getSeverityLabel(event) {
     var severity = event["severity"];
-    var defaultLabel = eventPropertyChoices.severity[Number(severity)].label;
-    if (!self.severityRanksMap || !self.severityRanksMap[severity])
-      return defaultLabel;
-    if (!self.severityRanksMap[severity].label)
-      return defaultLabel;
-    return self.severityRanksMap[severity].label;
+    return eventPropertyChoices.severity[Number(severity)].label;
   }
 
   function getIncidentStatusLabel(event) {
