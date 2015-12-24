@@ -250,7 +250,7 @@ var EventsView = function(userProfile, options) {
 
       if (aCandidate.label !== "") {
         label = aCandidate.label;
-      } else if ( aCandidate.label == "" && defaultCandidates[aCandidate.code]) {
+      } else if (aCandidate.label == "" && defaultCandidates[aCandidate.code]) {
         label = defaultCandidates[aCandidate.code].label;
       }
 
@@ -538,7 +538,7 @@ var EventsView = function(userProfile, options) {
 
       if (aCandidate.label !== "") {
         label = aCandidate.label;
-      } else if ( aCandidate.label == "" && defaultCandidates[aCandidate.code]) {
+      } else if (aCandidate.label == "" && defaultCandidates[aCandidate.code]) {
         label = defaultCandidates[aCandidate.code].label;
       }
 
