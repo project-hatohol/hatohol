@@ -29,6 +29,7 @@ from hap2_nagios_livestatus import Common
 import hap2_nagios_livestatus
 import transporter
 import os
+from os import path
 import signal
 
 class CommonForTest(Common):
@@ -81,7 +82,10 @@ class TestCommon(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         subprocess.call(["rm", "/tmp/nagios.sock"])
-        cls.__socket_process = subprocess.Popen(["python", "test/make_afunix_socket.py"], preexec_fn=os.setsid, close_fds=True)
+        script_path = path.dirname(path.abspath(__file__)) \
+                            + "/make_afunix_socket.py"
+        cls.__socket_process = subprocess.Popen(["python", script_path], \
+                                preexec_fn=os.setsid, close_fds=True)
         cls.__pid = cls.__socket_process.pid
         cls.__socket_process.wait()
 
