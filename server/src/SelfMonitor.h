@@ -31,7 +31,9 @@ typedef std::weak_ptr<SelfMonitor> SelfMonitorWeakPtr;
 
 class SelfMonitor {
 public:
+	static const TriggerIdType STATELESS_MONITOR;
 	static const char *DEFAULT_SELF_MONITOR_HOST_NAME;
+
 	typedef std::function<void (
 	          SelfMonitor &monitor,
 	          const TriggerStatusType &prevStatus,
@@ -44,6 +46,22 @@ public:
 	          const TriggerStatusType &newStatus)
 	> NotificationHandler;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param serverId
+	 * A serverId that is concerned with this monitor.
+	 *
+	 * @param triggerID
+	 * A trigger ID of this monitor. If STATELESS_TRIGGER is given,
+	 * the monitor is not listed in the trigger list and doesn't work as
+	 * a normal trigger.
+	 * This is typically used when the monitoring target doesn't
+	 * have a state, but generates events.
+	 *
+	 * @param brief    A brief message of this monitor.
+	 * @param severity A severity of this monitor.
+	 */
 	SelfMonitor(
 	  const ServerIdType &serverId,
 	  const TriggerIdType &triggerId,

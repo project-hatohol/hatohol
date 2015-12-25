@@ -27,6 +27,8 @@
 using namespace std;
 using namespace mlpl;
 
+const TriggerIdType SelfMonitor::STATELESS_MONITOR =
+  SPECIAL_TRIGGER_ID_PREFIX "STATELESS_SELF_MONITOR";
 const char *SelfMonitor::DEFAULT_SELF_MONITOR_HOST_NAME = "(self-monitor)";
 
 struct SelfMonitor::Impl
@@ -71,11 +73,6 @@ struct SelfMonitor::Impl
 		setupHostForSelfMonitor(serverId);
 	}
 
-	bool hasTriggerId(void)
-	{
-		return !triggerInfo.id.empty();
-	}
-
 	TriggerStatusType unworkableVisibleStatus(void)
 	{
 		// We use NUM_TRIGGER_STATUS for the meaning.
@@ -101,8 +98,7 @@ struct SelfMonitor::Impl
 		triggerInfo.extendedInfo.clear();
 		triggerInfo.validity = TRIGGER_VALID_SELF_MONITORING;
 
-		ThreadLocalDBCache cache;
-		cache.getMonitoring().addTriggerInfo(&triggerInfo);
+		updateTrigger();
 	}
 
 	void setupHostForSelfMonitor(const ServerIdType &serverId)
@@ -138,6 +134,14 @@ struct SelfMonitor::Impl
 		else
 			evtType = EVENT_TYPE_BAD;
 		return evtType;
+	}
+
+	void updateTrigger(void)
+	{
+		if (triggerInfo.id == STATELESS_MONITOR)
+			return;
+		ThreadLocalDBCache cache;
+		cache.getMonitoring().addTriggerInfo(&triggerInfo);
 	}
 };
 
@@ -211,10 +215,7 @@ void SelfMonitor::update(const TriggerStatusType &_status)
 	m_impl->triggerInfo.status = status;
 	onUpdated(status, prevStatus);
 
-	if (m_impl->hasTriggerId()) {
-		ThreadLocalDBCache cache;
-		cache.getMonitoring().addTriggerInfo(&m_impl->triggerInfo);
-	}
+	m_impl->updateTrigger();
 
 	generateEvent(prevStatus, status);
 
