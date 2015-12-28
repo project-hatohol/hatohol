@@ -353,8 +353,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 			setArmInfoStatus(errObj);
 
-			if (errObj.hasErrors())
+			if (errObj.hasErrors()) {
+				m_impl.parseError(errObj.getConcatenatedMessage().c_str());
 				return;
+			}
 
 			m_impl.m_hapi2.setEstablished(true);
 		}
@@ -1092,6 +1094,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
