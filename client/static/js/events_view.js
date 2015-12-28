@@ -30,9 +30,6 @@ var EventsView = function(userProfile, options) {
   self.rawSummaryData = {};
   self.rawSeverityRankData = {};
   self.severityRanksMap = {};
-  self.rawCustomIncidentStatusData = {};
-  self.customIncidentStatusesMap = {};
-  self.defaultIncidentStatusesMap = {};
   self.durations = {};
   self.baseQuery = {
     limit:            50,
@@ -84,7 +81,8 @@ var EventsView = function(userProfile, options) {
       { value: "5", label: gettext("Disaster") },
     ],
   };
-  setupDefaultIncidentStatusMap();
+  var defaultIncidentLabelMap = buildLabelMap(eventPropertyChoices.incident);
+  var incidentLabelMap = defaultIncidentLabelMap;
 
   var columnDefinitions = {
     "monitoringServerName": {
@@ -150,10 +148,19 @@ var EventsView = function(userProfile, options) {
   //
   // Private functions
   //
+  function buildLabelMap(array) {
+    var labelMap = {};
+    $.map(array, function(obj, i) {
+      if (obj.value)
+        labelMap[obj.value] = obj.label
+    })
+    return labelMap;
+  }
+
   function start() {
     $.when(loadUserConfig(), loadSeverityRank(), loadCustomIncidentStatus()).done(function() {
+      self.userConfig.setFilterCandidates(eventPropertyChoices);
       load();
-      applyCustomIncidentLabelsToEventsConfig();
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
       load(); // Ensure to work with the default config
@@ -186,13 +193,19 @@ var EventsView = function(userProfile, options) {
       url: "/severity-rank",
       request: "GET",
       replyCallback: function(reply, parser) {
-        var i, severityRanks;
+        var i, severityRanks, rank;
+        var choices = eventPropertyChoices.severity;
         self.rawSeverityRankData = reply;
         self.severityRanksMap = {};
         severityRanks = self.rawSeverityRankData["SeverityRanks"];
         if (severityRanks) {
           for (i = 0; i < severityRanks.length; i++) {
             self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
+          }
+          for (i = 0; i < choices.length; i++) {
+            rank = self.severityRanksMap[choices[i].value];
+            if (rank && rank.label)
+              choices[i].label = rank.label;
           }
         }
         deferred.resolve();
@@ -213,17 +226,37 @@ var EventsView = function(userProfile, options) {
       url: "/custom-incident-status",
       request: "GET",
       replyCallback: function(reply, parser) {
-        var i, customIncidentStatuses;
-        self.rawCustomIncidentStatusData = reply;
-        self.customIncidentStatusesMap = {};
-        customIncidentStatuses =
-          self.rawCustomIncidentStatusData["CustomIncidentStatuses"];
-        if (customIncidentStatuses) {
-          for (i = 0; i < customIncidentStatuses.length; i++) {
-            self.customIncidentStatusesMap[customIncidentStatuses[i].code] =
-              customIncidentStatuses[i];
-          }
+        var i, incidentStatuses, status, label;
+
+        incidentStatuses = reply["CustomIncidentStatuses"];
+
+        if (!incidentStatuses || incidentStatuses.length <= 0) {
+          deferred.resolve();
+          return;
         }
+
+        eventPropertyChoices.incident = [];
+        for (i = 0; i < incidentStatuses.length; i++) {
+          status = incidentStatuses[i];
+          if (status.label == "") {
+            if (defaultIncidentLabelMap[status.code]) {
+              label = defaultIncidentLabelMap[status.code];
+            } else {
+              label = null;
+            }
+          } else {
+            label = status.label;
+          }
+
+          if (label) {
+            eventPropertyChoices.incident.push({
+              value: status.code,
+              label: label,
+            });
+          }
+          incidentLabelMap = buildLabelMap(eventPropertyChoices.incident);
+        }
+
         deferred.resolve();
       },
       parseErrorCallback: function() {
@@ -234,40 +267,6 @@ var EventsView = function(userProfile, options) {
       },
     });
     return deferred.promise();
-  }
-
-  function applyCustomIncidentLabelsToEventsConfig() {
-    var defaultCandidates = self.defaultIncidentStatusesMap;
-    var candidates = self.customIncidentStatusesMap;
-    var customIncidentLabelChoices = [];
-
-    if (Object.keys(candidates).length == 0)
-      candidates = defaultCandidates;
-
-    $.map(candidates, function(aCandidate) {
-      var option;
-      var label = null;
-
-      if (aCandidate.label !== "") {
-        label = aCandidate.label;
-      } else if ( aCandidate.label == "" && defaultCandidates[aCandidate.code]) {
-        label = defaultCandidates[aCandidate.code].label;
-      }
-
-      if (label && aCandidate) {
-        customIncidentLabelChoices.push({
-          label: label,
-          value: aCandidate.code
-        });
-      }
-    });
-    var customEventPropertyChoices = {
-      incident: customIncidentLabelChoices,
-      status: eventPropertyChoices.status,
-      type: eventPropertyChoices.type,
-      severity: eventPropertyChoices.severity,
-    };
-    self.userConfig.setFilterCandidates(customEventPropertyChoices);
   }
 
   function applyConfig(config) {
@@ -477,7 +476,7 @@ var EventsView = function(userProfile, options) {
     }
   }
 
-  function resetEventPropertyFilter(filterConfig, type, addEmptyItem) {
+  function resetEventPropertyFilter(filterConfig, type) {
     var conf = filterConfig;
     var candidates = eventPropertyChoices[type];
     var option;
@@ -491,12 +490,10 @@ var EventsView = function(userProfile, options) {
 
     $("#select-" + type).empty();
 
-    if (addEmptyItem) {
-      option = $("<option/>", {
-        text: "---------",
-        value: "",
-      }).appendTo("#select-" + type);
-    }
+    option = $("<option/>", {
+      text: "---------",
+      value: "",
+    }).appendTo("#select-" + type);
 
     $.map(candidates, function(candidate) {
       var option;
@@ -512,42 +509,23 @@ var EventsView = function(userProfile, options) {
     $("#select-" + type).val(currentId);
   }
 
-  function setupIncidentStatusSelectCandidates(selector, addEmptyItem) {
-    var defaultCandidates = self.defaultIncidentStatusesMap;
-    var candidates = self.customIncidentStatusesMap;
-    var option;
-    var x;
-    var selectedCandidates = {};
+  function setupChangeIncidentCandidates() {
+    var selector = "#change-incident";
+    var candidates = eventPropertyChoices.incident;
     var currentId = $(selector).val();
 
     $(selector).empty();
 
-    if (Object.keys(candidates).length == 0)
-      candidates = defaultCandidates;
-
-    if (addEmptyItem) {
-      option = $("<option/>", {
-        text: "---------",
-        value: "",
-      }).appendTo(selector);
-    }
+    $("<option/>", {
+      text: "---------",
+      value: "",
+    }).appendTo(selector);
 
     $.map(candidates, function(aCandidate) {
-      var option;
-      var label = null;
-
-      if (aCandidate.label !== "") {
-        label = aCandidate.label;
-      } else if ( aCandidate.label == "" && defaultCandidates[aCandidate.code]) {
-        label = defaultCandidates[aCandidate.code].label;
-      }
-
-      if (label && aCandidate) {
-        option = $("<option/>", {
-          text: label,
-          value: aCandidate.code
-        }).appendTo(selector);
-      }
+      $("<option/>", {
+        text: aCandidate.label,
+        value: aCandidate.value,
+      }).appendTo(selector);
     });
 
     $(selector).val(currentId);
@@ -567,10 +545,10 @@ var EventsView = function(userProfile, options) {
 
     self.setupHostFilters(servers, query);
 
-    resetEventPropertyFilter(filterConfig, "type", true);
-    resetEventPropertyFilter(filterConfig, "severity", false);
-    setupIncidentStatusSelectCandidates("#select-incident", true);
-    setupIncidentStatusSelectCandidates("#change-incident", true);
+    resetEventPropertyFilter(filterConfig, "type");
+    resetEventPropertyFilter(filterConfig, "severity");
+    resetEventPropertyFilter(filterConfig, "incident");
+    setupChangeIncidentCandidates();
     setupChangeIncidentMenu();
 
     removeUnselectableFilterCandidates(filterConfig, "server");
@@ -906,19 +884,6 @@ var EventsView = function(userProfile, options) {
     });
   }
 
-  function setupDefaultIncidentStatusMap() {
-    var i, defaultIncidentStatuses;
-    self.defaultIncidentStatusesMap = {};
-    defaultIncidentStatuses =
-      eventPropertyChoices.incident;
-    if (defaultIncidentStatuses) {
-      for (i = 0; i < defaultIncidentStatuses.length; i++) {
-        self.defaultIncidentStatusesMap[defaultIncidentStatuses[i].value] =
-          defaultIncidentStatuses[i];
-      }
-    }
-  }
-
   function setLoading(loading) {
     if (loading) {
       $("#begin-time").attr("disabled", "disabled");
@@ -1136,26 +1101,17 @@ var EventsView = function(userProfile, options) {
 
   function getSeverityLabel(event) {
     var severity = event["severity"];
-    var defaultLabel = eventPropertyChoices.severity[Number(severity)].label;
-    if (!self.severityRanksMap || !self.severityRanksMap[severity])
-      return defaultLabel;
-    if (!self.severityRanksMap[severity].label)
-      return defaultLabel;
-    return self.severityRanksMap[severity].label;
+    return eventPropertyChoices.severity[Number(severity)].label;
   }
 
   function getIncidentStatusLabel(event) {
     var incident = event["incident"];
-    var defaultLabel = "";
-    if (self.customIncidentStatusesMap[incident.status] &&
-        self.customIncidentStatusesMap[incident.status].label)
-      return self.customIncidentStatusesMap[incident.status].label;
 
-    if (self.defaultIncidentStatusesMap[incident.status] &&
-        self.defaultIncidentStatusesMap[incident.status].label)
-      return self.defaultIncidentStatusesMap[incident.status].label;
-
-    return defaultLabel;
+    if (incidentLabelMap[incident.status])
+      return incidentLabelMap[incident.status];
+    if (defaultIncidentLabelMap[incident.status])
+      return defaultIncidentLabelMap[incident.status];
+    return incident.status;
   }
 
   function renderTableDataEventSeverity(event, server) {
