@@ -130,6 +130,15 @@ void test_constructor_define_same_multiple()
 	test_constructor();
 }
 
+void test_constructorWithStatelessTrigger(void)
+{
+	const ServerIdType serverId = 1035;
+	const string brief = "Test stateless trigger for self monitoring.";
+	SelfMonitor monitor(serverId, SelfMonitor::STATELESS_MONITOR, brief);
+	assertTriggerDB("");
+	assertHostDB(expectedServerHostDefDBContent(serverId));
+}
+
 void test_constructor_define_different_multiple()
 {
 	struct {

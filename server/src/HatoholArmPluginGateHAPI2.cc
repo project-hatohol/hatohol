@@ -52,6 +52,16 @@ struct JSONRPCError {
 	const StringList &getErrors(void) {
 		return errors;
 	}
+
+	string getConcatenatedMessage(void) const {
+		string s;
+		for (const auto &errMsg: errors) {
+			if (!s.empty())
+				s += " || ";
+			s += errMsg;
+		}
+		return s;
+	}
 };
 
 #define PARSE_AS_MANDATORY(MEMBER, VALUE, RPCERR)			\
@@ -129,11 +139,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 	    HatoholError::getMessage(HTERR_HAP_INTERNAL_ERROR),
 	    TRIGGER_SEVERITY_CRITICAL)),
 	  monitorParseError(new SelfMonitor(
-	    _serverInfo.id, FAILED_PARSER_JSON_DATA_TRIGGER_ID,
+	    _serverInfo.id, SelfMonitor::STATELESS_MONITOR,
 	    HatoholError::getMessage(HTERR_INVALID_OBJECT_PASSED_BY_HAP2),
 	    TRIGGER_SEVERITY_CRITICAL)),
 	  monitorGateInternal(new SelfMonitor(
-	    _serverInfo.id, FAILED_INTERNAL_ERROR_TRIGGER_ID,
+	    _serverInfo.id, SelfMonitor::STATELESS_MONITOR,
 	    HatoholError::getMessage(HTERR_INTERNAL_ERROR),
 	    TRIGGER_SEVERITY_CRITICAL)),
 	  monitorBrokerConn(new SelfMonitor(
@@ -146,8 +156,9 @@ struct HatoholArmPluginGateHAPI2::Impl
 		DBTablesConfig &dbConfig = cache.getConfig();
 		const ServerIdType &serverId = m_serverInfo.id;
 		if (!dbConfig.getArmPluginInfo(m_pluginInfo, serverId)) {
-			MLPL_ERR("Failed to get ArmPluginInfo: serverId: %d\n",
-				 serverId);
+			internalError(
+			  "Failed to get ArmPluginInfo: serverId: %d\n",
+			   serverId);
 			return;
 		}
 		if (m_pluginInfo.staticQueueAddress.empty()) {
@@ -175,6 +186,29 @@ struct HatoholArmPluginGateHAPI2::Impl
 			delete closure;
 		}
 		m_armStatus.setRunningStatus(false);
+	}
+
+	void logError(SelfMonitorPtr monitor, const char *fmt, va_list ap)
+	{
+		string msg = StringUtils::vsprintf(fmt, ap);
+		MLPL_ERR("%s", msg.c_str());
+		monitor->saveEvent(msg, EVENT_TYPE_BAD);
+	}
+
+	void internalError(const char *fmt, ...)
+	{
+		va_list ap;
+		va_start(ap, fmt);
+		logError(monitorGateInternal, fmt, ap);
+		va_end(ap);
+	}
+
+	void parseError(const char *fmt, ...)
+	{
+		va_list ap;
+		va_start(ap, fmt);
+		logError(monitorParseError, fmt, ap);
+		va_end(ap);
 	}
 
 	void setupSelfMonitors(void)
@@ -299,16 +333,16 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		virtual void onGotResponse(JSONParser &parser) override
 		{
-			bool isErr = parser.isMember("error");
-			updateSelfMonitor(m_impl.monitorParseError, isErr);
-			if (isErr) {
+			if (parser.isMember("error")) {
 				string errorMessage;
 				parser.startObject("error");
 				parser.read("message", errorMessage);
 				parser.endObject();
-				MLPL_WARN("Received an error on calling "
-					  "exchangeProfile: %s\n",
-					  errorMessage.c_str());
+				// TODO: Consider this is really parse error?
+				m_impl.parseError(
+				  "Received an error on calling "
+				  "exchangeProfile: %s\n",
+				  errorMessage.c_str());
 				return;
 			}
 
@@ -319,10 +353,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 			setArmInfoStatus(errObj);
 
-			isErr = errObj.hasErrors();
-			updateSelfMonitor(m_impl.monitorParseError, isErr);
-			if (isErr)
+			if (errObj.hasErrors()) {
+				m_impl.parseError(errObj.getConcatenatedMessage().c_str());
 				return;
+			}
 
 			m_impl.m_hapi2.setEstablished(true);
 		}
@@ -638,10 +672,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 			       flags, NULL, NULL, NULL, NULL,
 			       &exitStatus, &error);
 		if (!succeeded) {
-			MLPL_ERR("Failed to %s: %s\n",
-				 command.c_str(), scriptPath.c_str());
+			internalError("Failed to %s: %s\n",
+			              command.c_str(), scriptPath.c_str());
 			// The error always exists in this case.
-			MLPL_ERR("Reason: %s\n", error->message);
+			internalError("Reason: %s\n", error->message);
 			g_error_free(error);
 			return false;
 		}
@@ -662,10 +696,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 		dataStore->getTargetServers(monitoringServers, option);
 
 		if (monitoringServers.size() == 0) {
-			MLPL_ERR("Target monitoring server is not found.\n");
+			internalError("Target monitoring server is not found.\n");
 			return HTERR_UNKNOWN_REASON;
 		} else if (monitoringServers.size() > 1) {
-			MLPL_ERR("Multiple monitoring servers is tied up.\n");
+			internalError("Multiple monitoring servers is tied up.\n");
 			return HTERR_UNKNOWN_REASON;
 		}
 		monitoringServerInfo = *monitoringServers.begin();
@@ -812,7 +846,6 @@ HatoholArmPluginGateHAPI2::HatoholArmPluginGateHAPI2(
 
 void HatoholArmPluginGateHAPI2::start(void)
 {
-	updateSelfMonitor(m_impl->monitorGateInternal, false);
 	HatoholArmPluginInterfaceHAPI2::start();
 	m_impl->start();
 	m_impl->startPlugin();
@@ -1061,6 +1094,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerExchangeProfile(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -1148,9 +1182,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	JSONRPCError errObj;
 	parseLastInfoParams(parser, lastInfoType, errObj);
 
-	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
-
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -1267,9 +1300,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 	parser.endObject(); // params
 
-	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
-
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -1341,9 +1373,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
-
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -1428,9 +1459,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
-
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -1506,9 +1536,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
-
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -1609,9 +1638,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
-
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -1777,9 +1805,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
-
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -1918,9 +1945,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
-
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -1998,9 +2024,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	}
 	parser.endObject(); // params
 
-	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
-
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -2068,9 +2093,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 
 	parser.endObject(); // params
 
-	updateSelfMonitor(m_impl->monitorParseError, errObj.hasErrors());
-
 	if (errObj.hasErrors()) {
+		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 		  &errObj.getErrors(), &parser);
@@ -2079,6 +2103,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	status.setArmInfo(armInfo);
 	updateSelfMonitor(m_impl->monitorPluginInternal,
 	                  armInfo.stat != ARM_WORK_STAT_OK);
+	if (armInfo.stat == ARM_WORK_STAT_FAILURE &&
+	    !armInfo.failureComment.empty()) {
+		string msg = "Plugin Error: ";
+		msg += armInfo.failureComment;
+		m_impl->monitorPluginInternal->saveEvent(msg, EVENT_TYPE_BAD);
+	}
 
 	// TODO: add failure clause
 	string result = "SUCCESS";
