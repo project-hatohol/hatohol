@@ -48,8 +48,6 @@ install:
   - npm install
   - sudo pip install django==1.5.4
   - sudo pip install daemon
-  - sudo sh -c "echo acl allow all all > /etc/qpid/qpidd.acl"
-  - sudo /etc/init.d/qpidd restart
   - sudo server/misc/setup-rabbitmq-server-port.sh
   - sudo service rabbitmq-server restart
 before_script:
