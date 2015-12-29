@@ -67,38 +67,12 @@ to consolidate monitoring centers and the operators even when monitored
 devices are being used in different places or with different monitoring
 software.
 
-%package arm-zabbix
-Summary: Arm for Zabbix server.
-Group: Applications/System
-Requires: hatohol-lib-arm = %{version}
-
-%description arm-zabbix
-hatohol-arm-zabbix collects monitoring data from a Zabbix server and sends
-it to hatohol via HAPI.
-
-%package arm-ceilometer
-Summary: Arm for OpenStack Ceilometer.
-Group: Applications/System
-Requires: hatohol-lib-arm = %{version}
-
-%description arm-ceilometer
-hatohol-arm-ceilometer collects monitoring data from a OpenStack Ceilometer
-and sends it to hatohol via HAPI.
-
 %package lib-common
 Summary: Library files for Hatohol
 Group: Applications/System
 
 %description lib-common
 Common libraries for hatohol and arms.
-
-%package lib-arm
-Summary: Library files for Hatohol arms.
-Group: Applications/System
-Requires: hatohol-lib-common = %{version}
-
-%description lib-arm
-Libraries for arms.
 
 %package web
 Summary: Hatohol web frontend.
@@ -276,18 +250,9 @@ rm -rf %{buildroot}
 %{_datadir}/hatohol/sql/actions.sql
 %{_datadir}/hatohol/sql/incident-trackers.sql
 
-%files arm-zabbix
-%{_sbindir}/hatohol-arm-plugin-zabbix
-
-%files arm-ceilometer
-%{_sbindir}/hatohol-arm-plugin-ceilometer
-
 %files lib-common
 %{_libdir}/libhatohol-common.so.*
 %{_libdir}/libmlpl.so.*
-
-%files lib-arm
-%{_libdir}/libhapprocess.so.*
 
 %files web
 %defattr(-,root,root,-)
