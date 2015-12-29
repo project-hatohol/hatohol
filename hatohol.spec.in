@@ -31,7 +31,6 @@ BuildRequires: python-argparse
 BuildRequires: mariadb-devel
 %endif
 BuildRequires: libuuid-devel >= 2.17
-BuildRequires: qpid-cpp-client-devel >= 0.14
 BuildRequires: librabbitmq-devel >= 0.4.1
 BuildRequires: Django >= 1.5.3
 
@@ -58,7 +57,6 @@ Requires: mariadb
 %endif
 Requires: MySQL-python
 Requires: libuuid >= 2.17
-Requires: qpid-cpp-client >= 0.14
 Requires: librabbitmq >= 0.4.1
 Requires: hatohol-lib-common = %{version}
 
@@ -178,7 +176,7 @@ Header files for the Hatohol library.
 %setup -q -n %{name}-%{version}
 
 %build
-%configure --with-qpid
+%configure
 make
 
 %install
