@@ -4,7 +4,7 @@ build:
     - script:
         name: Install libraries for Hatohol
         code: |
-          yum install -y glib2-devel libsoup-devel sqlite-devel mysql-devel mysql-server libuuid-devel json-glib-devel MySQL-python httpd mod_wsgi python-argparse
+          yum install -y glib2-devel libsoup-devel sqlite-devel mysql-devel mysql-server libuuid-devel MySQL-python httpd mod_wsgi python-argparse
     - script:
         name: Setup network
         code: |
@@ -16,6 +16,11 @@ build:
           rpm -ivh --force http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
           yum install -y librabbitmq-devel wget
           wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
+
+    - script:
+        name: Setup json-glib-devel
+        code: |
+          yum install -y json-glib-devel
 
     - script:
         name: Setup build enviroment
