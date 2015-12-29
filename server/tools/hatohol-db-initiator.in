@@ -58,7 +58,7 @@ sql_file_list = [
     {'table_name': 'actions',
      'file_name': 'actions.sql',
      'target': 'actions'},
-])
+]
 
 config_map = {
     'db_login_user': 'root',
