@@ -18,11 +18,6 @@ build:
           wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
 
     - script:
-        name: Setup Qpid
-        code: |
-          yum install -y json-glib-devel qpid-cpp-server-devel
-
-    - script:
         name: Setup build enviroment
         code: |
           yum groupinstall -y 'Development tools'
