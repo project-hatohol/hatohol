@@ -4,7 +4,7 @@ build:
     - script:
         name: Install libraries for Hatohol
         code: |
-          yum install -y glib2-devel libsoup-devel sqlite-devel mysql-devel mysql-server libuuid-devel qpid-cpp-client-devel MySQL-python httpd mod_wsgi python-argparse
+          yum install -y glib2-devel libsoup-devel sqlite-devel mysql-devel mysql-server libuuid-devel json-glib-devel MySQL-python httpd mod_wsgi python-argparse
     - script:
         name: Setup network
         code: |
