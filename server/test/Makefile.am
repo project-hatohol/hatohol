@@ -8,9 +8,6 @@ TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = libTest.la testHatohol.la residentTest.la
 noinst_PROGRAMS = ActionTp zabbix-api-response-collector
-if WITH_QPID
-noinst_PROGRAMS += hapi-test-plugin
-endif
 endif
 
 # default

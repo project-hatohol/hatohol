@@ -12,13 +12,6 @@ sql_DATA = \
 	incident-trackers.sql \
 	actions.sql
 
-if WITH_QPID
-sql_DATA += \
-	server-type-hapi-zabbix.sql \
-	server-type-hapi-json.sql \
-	server-type-ceilometer.sql
-endif
-
 sqldir = $(pkgdatadir)/sql
 
 HATOHOL_SERVER_TYPE_UTIL = ../tools/hatohol-server-type-util
@@ -27,11 +20,6 @@ server-type: $(HATOHOL_SERVER_TYPE_UTIL)
 
 server-type-zabbix.sql: server-type
 server-type-nagios.sql: server-type
-if WITH_QPID
-server-type-hapi-zabbix.sql: server-type
-server-type-hapi-json.sql: server-type
-server-type-ceilometer.sql: server-type
-endif
 
 HATOHOL_INIT_USER_GENERATOR = ../tools/hatohol-init-user-generator
 init-user.sql: $(HATOHOL_INIT_USER_GENERATOR)
@@ -49,13 +37,6 @@ EXTRA_DIST = \
 CLEANFILES = \
 	server-type-zabbix.sql \
 	server-type-nagios.sql
-
-if WITH_QPID
-CLEANFILES += \
-	server-type-hapi-zabbix.sql \
-	server-type-hapi-json.sql \
-	server-type-ceilometer.sql
-endif
 
 CLEANFILES += \
 	init-user.sql \
