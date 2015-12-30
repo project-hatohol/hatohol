@@ -30,6 +30,7 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
     "id": "reconnectionModal",
     "title": gettext("Connection Error"),
     "body": $(getBodyHTML()),
+    "footer": $(getFooterHTML()),
   }]);
 
   HatoholReconnectModalVars.taskList.push(retryFunc);
@@ -37,7 +38,16 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
   if (!self.isOwner())
     return;
 
-  setTimeout(function() {self.countdown();}, 1000);
+  self.timerId = setTimeout(function() {self.countdown();}, 1000);
+
+  $("#reconn-retry-button").on("click", function() {
+    if (self.timerId) {
+      clearTimeout(self.timerId);
+      self.timerId = null;
+    }
+    self.timeToReconnect = 1;
+    self.countdown();
+  });
 
   function getBodyHTML() {
     var s = "<p>";
@@ -47,6 +57,13 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
     }
     s += gettext("Try to reconnect after ") + self.timeToReconnect + gettext(" sec.");
     s += "</p>";
+    return s;
+  };
+
+  function getFooterHTML() {
+    var label = gettext("Retry now");
+    var s = '<button type="button" class="btn btn-primary"';
+    s += 'id="reconn-retry-button">' + label + '</button>';
     return s;
   };
 
@@ -66,7 +83,7 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
       self.close(retryAllTasks);
     } else {
       self.updateBody($(getBodyHTML()));
-      setTimeout(function() {self.countdown();}, 1000);
+      self.timerId = setTimeout(function() {self.countdown();}, 1000);
     }
   };
 
