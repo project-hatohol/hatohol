@@ -260,8 +260,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 		};
 
 		SelfMonitorPtr monitors[] = {
-			monitorParseError,
-			monitorGateInternal,
 			monitorBrokerConn,
 		};
 		for (auto &m : monitors)
