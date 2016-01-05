@@ -308,5 +308,4 @@ class Hap2NagiosLivestatus(standardhap.StandardHap):
 
 
 if __name__ == '__main__':
-    hap = Hap2NagiosLivestatus()
-    hap()
+    Hap2NagiosLivestatus().run()
