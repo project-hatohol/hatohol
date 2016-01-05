@@ -143,7 +143,7 @@ class Common:
 
             last_state_change = datetime.datetime.fromtimestamp(service["last_state_change"])
             hapi_time = Utils.conv_to_hapi_time(last_state_change,
-                                                       self.__time_offset)
+                                                self.__time_offset)
             triggers.append({
                 "triggerId": service["description"],
                 "status": hapi_status,
@@ -156,7 +156,7 @@ class Common:
             })
         self.__trigger_last_info = \
             Utils.get_biggest_num_of_dict_array(triggers,
-                                                       "lastChangeTime")
+                                                "lastChangeTime")
         self.put_triggers(triggers, update_type=update_type,
                           last_info=self.__trigger_last_info,
                           fetch_id=fetch_id)
