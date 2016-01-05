@@ -45,6 +45,8 @@ MonitoringSystemType MonitoringSystemType_deprecated;
   ((MonitoringSystemType_deprecated) MONITORING_SYSTEM_HAPI_ZABBIX)
 #define MONITORING_SYSTEM_HAPI_NAGIOS \
   ((MonitoringSystemType_deprecated) MONITORING_SYSTEM_HAPI_NAGIOS)
+#define MONITORING_SYSTEM_HAPI_CEILOMETER \
+  ((MonitoringSystemType_deprecated) MONITORING_SYSTEM_HAPI_CEILOMETER)
 
 struct MonitoringServerInfo {
 	ServerIdType         id;
