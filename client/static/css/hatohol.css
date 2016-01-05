@@ -263,6 +263,11 @@ div#noscript-background div#noscript-notice
   white-space: nowrap;
 }
 
+#add-server-param-form .checkbox input[type="checkbox"] {
+    position: static;
+    float: left;
+}
+
 /* graph */
 h2.hatohol-graph {
     text-align: center;
