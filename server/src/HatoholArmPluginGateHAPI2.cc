@@ -125,6 +125,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
 	SelfMonitorPtr monitorBrokerConn;
+	SelfMonitorPtr monitorHAP2Conn;
 
 	Impl(const MonitoringServerInfo &_serverInfo,
 	     HatoholArmPluginGateHAPI2 &hapi2)
@@ -134,7 +135,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	  m_armStatus(),
 	  hostInfoCache(&_serverInfo.id),
 	  monitorPluginInternal(new SelfMonitor(
-	    _serverInfo.id, FAILED_HAP_INTERNAL_ERROR_TRIGGER_ID,
+	    _serverInfo.id, SelfMonitor::STATELESS_MONITOR,
 	    HatoholError::getMessage(HTERR_HAP_INTERNAL_ERROR),
 	    TRIGGER_SEVERITY_CRITICAL)),
 	  monitorParseError(new SelfMonitor(
@@ -148,6 +149,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 	  monitorBrokerConn(new SelfMonitor(
 	    _serverInfo.id, FAILED_CONNECT_BROKER_TRIGGER_ID,
 	    HatoholError::getMessage(HTERR_FAILED_CONNECT_BROKER),
+	    TRIGGER_SEVERITY_CRITICAL)),
+	  monitorHAP2Conn(new SelfMonitor(
+	    _serverInfo.id, FAILED_CONNECT_HAP2_TRIGGER_ID,
+	    HatoholError::getMessage(HTERR_FAILED_CONNECT_HAP2),
 	    TRIGGER_SEVERITY_CRITICAL))
 	{
 		ArmPluginInfo::initialize(m_pluginInfo);
@@ -259,26 +264,33 @@ struct HatoholArmPluginGateHAPI2::Impl
 		};
 
 		SelfMonitorPtr monitors[] = {
-			monitorParseError,
-			monitorGateInternal,
 			monitorBrokerConn,
+			monitorHAP2Conn,
 		};
 		for (auto &m : monitors)
 			setAllStatusComb(m);
 
-		setupMonitorPluginInternal();
+		struct {
+			SelfMonitorPtr target;
+			SelfMonitorPtr src;
+		} dependentMonitorPairs[] = {
+			{monitorHAP2Conn, monitorBrokerConn},
+		};
+		for (auto &monPair: dependentMonitorPairs)
+			setupWorkableDependency(monPair.src, monPair.target);
 	}
 
-	void setupMonitorPluginInternal(void)
+	void setupWorkableDependency(
+	  SelfMonitorPtr srcMonitor, SelfMonitorPtr targetMonitor)
 	{
-		monitorBrokerConn->addNotificationListener(monitorPluginInternal);
+		srcMonitor->addNotificationListener(targetMonitor);
 		auto handler = [](SelfMonitor &monitor,
 		                  const SelfMonitor &srcMonitor,
 		                  const TriggerStatusType &prevStatus,
 		                  const TriggerStatusType &currStatus) {
 			monitor.setWorkable(currStatus == TRIGGER_STATUS_OK);
 		};
-		monitorPluginInternal->setNotificationHandler(handler);
+		targetMonitor->setNotificationHandler(handler);
 	}
 
 	void start(void)
@@ -332,6 +344,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		virtual void onGotResponse(JSONParser &parser) override
 		{
+			updateSelfMonitor(m_impl.monitorHAP2Conn, false);
 			if (parser.isMember("error")) {
 				string errorMessage;
 				parser.startObject("error");
@@ -363,6 +376,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		virtual void onTimeout(void) override
 		{
 			MLPL_WARN("exchangeProfile has been timed out.\n");
+			updateSelfMonitor(m_impl.monitorHAP2Conn, true);
 		}
 	};
 
@@ -508,6 +522,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		virtual void onGotResponse(JSONParser &parser) override
 		{
+			updateSelfMonitor(m_impl.monitorHAP2Conn, false);
 			if (isSucceeded(parser)) {
 				// The callback function will be executed on
 				// put* or update* procedures.
@@ -525,6 +540,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		{
 			flush();
 			MLPL_WARN("%s has been timed out.\n", m_methodName.c_str());
+			updateSelfMonitor(m_impl.monitorHAP2Conn, true);
 		}
 	};
 
@@ -2100,12 +2116,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	}
 
 	status.setArmInfo(armInfo);
-	updateSelfMonitor(m_impl->monitorPluginInternal,
-	                  armInfo.stat != ARM_WORK_STAT_OK);
-	if (armInfo.stat == ARM_WORK_STAT_FAILURE &&
-	    !armInfo.failureComment.empty()) {
+	if (armInfo.stat == ARM_WORK_STAT_FAILURE) {
 		string msg = "Plugin Error: ";
-		msg += armInfo.failureComment;
+		if (!armInfo.failureComment.empty())
+			msg += armInfo.failureComment;
+		else
+			msg += "Unknown reason";
 		m_impl->monitorPluginInternal->saveEvent(msg, EVENT_TYPE_BAD);
 	}
 
