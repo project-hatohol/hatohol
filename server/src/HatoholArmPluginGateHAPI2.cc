@@ -136,7 +136,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	  m_armStatus(),
 	  hostInfoCache(&_serverInfo.id),
 	  monitorPluginInternal(new SelfMonitor(
-	    _serverInfo.id, FAILED_HAP_INTERNAL_ERROR_TRIGGER_ID,
+	    _serverInfo.id, SelfMonitor::STATELESS_MONITOR,
 	    HatoholError::getMessage(HTERR_HAP_INTERNAL_ERROR),
 	    TRIGGER_SEVERITY_CRITICAL)),
 	  monitorParseError(new SelfMonitor(
@@ -275,7 +275,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 			SelfMonitorPtr target;
 			SelfMonitorPtr src;
 		} dependentMonitorPairs[] = {
-			{monitorPluginInternal, monitorBrokerConn},
 			{monitorHAP2Conn, monitorBrokerConn},
 		};
 		for (auto &monPair: dependentMonitorPairs)
@@ -2118,12 +2117,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutArmInfo(
 	}
 
 	status.setArmInfo(armInfo);
-	updateSelfMonitor(m_impl->monitorPluginInternal,
-	                  armInfo.stat != ARM_WORK_STAT_OK);
-	if (armInfo.stat == ARM_WORK_STAT_FAILURE &&
-	    !armInfo.failureComment.empty()) {
+	if (armInfo.stat == ARM_WORK_STAT_FAILURE) {
 		string msg = "Plugin Error: ";
-		msg += armInfo.failureComment;
+		if (!armInfo.failureComment.empty())
+			msg += armInfo.failureComment;
+		else
+			msg += "Unknown reason";
 		m_impl->monitorPluginInternal->saveEvent(msg, EVENT_TYPE_BAD);
 	}
 
