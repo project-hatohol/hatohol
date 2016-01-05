@@ -30,7 +30,7 @@ from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
 
-logger = getLogger(__name__)
+logger = getLogger("hatohol.hap2_fluentd")
 
 class Hap2FluentdMain(haplib.BaseMainPlugin):
 

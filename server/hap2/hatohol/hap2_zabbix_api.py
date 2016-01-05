@@ -25,12 +25,13 @@ import multiprocessing
 import Queue
 import argparse
 import time
+from logging import getLogger
 from hatohol.haplib import Utils
 from hatohol import haplib
 from hatohol import zabbixapi
 from hatohol import standardhap
 
-logger = haplib.logger
+logger = getLogger("hatohol.hap2_zabbix_api")
 MAX_NUMBER_OF_EVENTS_FROM_ZABBIX = 1000
 MAX_NUMBER_OF_EVENTS_OF_HAPI2 = 1000
 
