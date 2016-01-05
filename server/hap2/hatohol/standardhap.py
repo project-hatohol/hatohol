@@ -103,6 +103,9 @@ class StandardHap:
         self.on_parsed_argument(args)
         return args
 
+    def run(self):
+        self()
+
     def __call__(self):
         args = self.__setup()
         try:

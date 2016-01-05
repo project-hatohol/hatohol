@@ -209,5 +209,4 @@ class Hap2ZabbixAPI(standardhap.StandardHap):
 
 
 if __name__ == '__main__':
-    hap = Hap2ZabbixAPI()
-    hap()
+    Hap2ZabbixAPI().run();
