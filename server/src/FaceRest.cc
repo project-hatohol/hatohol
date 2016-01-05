@@ -39,10 +39,6 @@
 #include "DBTablesConfig.h"
 #include "SessionManager.h"
 #include "ThreadLocalDBCache.h"
-#ifdef WITH_QPID
-#include "HatoholArmPluginInterface.h"
-#include "HatoholArmPluginGate.h"
-#endif
 #include "RestResourceSystem.h"
 #include "RestResourceAction.h"
 #include "RestResourceHost.h"

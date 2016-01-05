@@ -82,11 +82,6 @@ libhatohol_la_SOURCES = \
 	TriggerFetchWorker.cc TriggerFetchWorker.h \
 	UnifiedDataStore.cc UnifiedDataStore.h
 
-if WITH_QPID
-libhatohol_la_SOURCES += \
-	HatoholArmPluginGate.cc HatoholArmPluginGate.h
-endif
-
 if HAVE_LIBRABBITMQ
 libhatohol_la_SOURCES += \
 	GateJSONEventMessage.cc GateJSONEventMessage.h \

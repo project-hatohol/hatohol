@@ -24,8 +24,6 @@ import MySQLdb
 from ctypes import *
 import ConfigParser
 
-_use_hapi1_plugins = '@with_qpid@'
-
 sql_file_list = [
     {'table_name': 'users',
      'file_name': 'init-user.sql',
@@ -36,22 +34,6 @@ sql_file_list = [
     {'table_name': 'server_types',
      'file_name': 'server-type-nagios.sql',
      'target': 'nagios'},
-]
-
-if _use_hapi1_plugins == 'yes':
-    sql_file_list.extend([
-    {'table_name': 'server_types',
-     'file_name': 'server-type-hapi-zabbix.sql',
-     'target': 'hapi-zabbix'},
-    {'table_name': 'server_types',
-     'file_name': 'server-type-hapi-json.sql',
-     'target': 'hapi-json'},
-    {'table_name': 'server_types',
-     'file_name': 'server-type-ceilometer.sql',
-     'target': 'ceilometer'},
-    ])
-
-sql_file_list.extend([
     {'table_name': 'server_types',
      'file_name': 'server-type-hap2-ceilometer.sql',
      'target': 'hapi2-ceilometer'},
@@ -76,7 +58,7 @@ sql_file_list.extend([
     {'table_name': 'actions',
      'file_name': 'actions.sql',
      'target': 'actions'},
-])
+]
 
 config_map = {
     'db_login_user': 'root',

@@ -8,9 +8,6 @@ TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = libTest.la testHatohol.la residentTest.la
 noinst_PROGRAMS = ActionTp zabbix-api-response-collector
-if WITH_QPID
-noinst_PROGRAMS += hapi-test-plugin
-endif
 endif
 
 # default
@@ -89,15 +86,6 @@ testHatohol_la_SOURCES = \
 	testUnifiedDataStore.cc testMain.cc \
 	testZabbixAPI.cc
 
-if WITH_QPID
-testHatohol_la_SOURCES += \
-	testHatoholArmPluginInterface.cc testHatoholArmPluginGate.cc \
-	testHatoholArmPluginZabbix.cc \
-	testHatoholArmPluginBase.cc \
-	testHapProcess.cc testHapProcessStandard.cc testHapProcessZabbixAPI.cc \
-	testHapProcessCeilometer.cc
-endif
-
 if HAVE_LIBRABBITMQ
 testHatohol_la_SOURCES += \
 	testAMQPConnectionInfo.cc \
@@ -108,9 +96,6 @@ endif
 
 testHatohol_la_LDFLAGS = \
 	$(AM_LDFLAGS) $(LIBS)
-if WITH_QPID
-testHatohol_la_LDFLAGS += $(top_builddir)/server/hap/libhapprocess.la
-endif
 testHatohol_la_LIBADD = libTest.la
 
 residentTest_la_SOURCES = residentTest.cc residentTest.h
@@ -133,13 +118,6 @@ libTest_la_SOURCES = \
 
 libTest_la_LDFLAGS =
 
-if WITH_QPID
-libTest_la_SOURCES += \
-	HatoholArmPluginInterfaceTest.cc HatoholArmPluginInterfaceTest.h \
-	HatoholArmPluginGateTest.cc HatoholArmPluginGateTest.h \
-	HatoholArmPluginTestPair.cc HatoholArmPluginTestPair.h
-endif
-
 ActionTp_SOURCES = ActionTp.cc ActionTp.h
 ActionTp_LDFLAGS = $(LIBS)
 ActionTp_LDADD = libTest.la
@@ -147,11 +125,6 @@ ActionTp_LDADD = libTest.la
 zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
 zabbix_api_response_collector_LDFLAGS = -lstdc++
 zabbix_api_response_collector_LDADD = $(LIBS)
-
-if WITH_QPID
-hapi_test_plugin_SOURCES = hapi-test-plugin.cc hapi-test-plugin.h
-hapi_test_plugin_LDFLAGS = $(LIBS) -lqpidmessaging
-endif
 
 echo-cutter:
 	@echo $(CUTTER)

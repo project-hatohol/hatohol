@@ -137,117 +137,6 @@ class NagiosParamGenerator(ParamGenerator):
         return self.get_sql_version_number()
 
 
-class HapiZabbixParamGenerator(ParamGenerator):
-    def get_server_type(self):
-        return hatohol_def.MONITORING_SYSTEM_HAPI_ZABBIX
-
-    def get_server_type_name(self):
-        return 'Zabbix (HAPI)'
-
-    def get_parameters(self):
-        obj = self.get_zabbix_params()
-        obj.extend(self.get_hapi_params())
-        return obj
-
-    def get_plugin_path(self):
-        return 'hatohol-arm-plugin-zabbix'
-
-    def get_sql_file_type_name(self):
-        return 'hapi-zabbix'
-
-    def get_sql_version(self):
-        return self.get_sql_version_number()
-
-
-class HapiJSONParamGenerator(ParamGenerator):
-    def get_server_type(self):
-        return hatohol_def.MONITORING_SYSTEM_HAPI_JSON
-
-    def get_server_type_name(self):
-        return 'JSON (HAPI)'
-
-    def get_parameters(self):
-        obj = []
-        obj.append({'id': 'nickname',
-                    'label': 'Nickname'})
-        obj.append({'id': 'brokerUrl',
-                    'label': 'Broker URL',
-                    'allowEmpty': True,
-                    'hint': '(empty: Default)'})
-        obj.append({'id': 'staticQueueAddress',
-                    'label': 'Static queue address',
-                    'allowEmpty': True,
-                    'hint': '(empty: Default)'})
-        obj.append({'id': 'tlsCertificatePath',
-                    'label': 'TLS client certificate path',
-                    'allowEmpty': True})
-        obj.append({'id': 'tlsKeyPath',
-                    'label': 'TLS client key path',
-                    'allowEmpty': True})
-        obj.append({'id': 'tlsCACertificatePath',
-                    'label': 'TLS CA certificate path',
-                    'allowEmpty': True})
-        obj.append({'id': 'tlsEnableVerify',
-                    'label': 'TLS: Enable verify',
-                    'inputStyle': 'checkBox',
-                    'allowEmpty': True})
-        return obj
-
-    def get_sql_file_type_name(self):
-        return 'hapi-json'
-
-    def get_sql_version(self):
-        return self.get_sql_version_number()
-
-
-class HapiCeilometerGenerator(ParamGenerator):
-    def get_server_type(self):
-        return hatohol_def.MONITORING_SYSTEM_HAPI_CEILOMETER
-
-    def get_server_type_name(self):
-        return 'Ceilometer'
-
-    def get_parameters(self):
-        obj = []
-        obj.append({'id': 'nickname',
-                    'label': 'Nickname'})
-        obj.append({'id': 'hostName',
-                    'label': 'Keystone URL',
-                    'hint': 'Example: http://controller:5000/v2.0'})
-        obj.append({'id': 'ipAddress',
-                    'label': 'IP address',
-                    'hidden': True,
-                    'default': '127.0.0.1'})
-        obj.append({'id': 'port',
-                    'label': 'Port',
-                    'hidden': True,
-                    'default': '0'})
-        obj.append({'id': 'dbName',
-                    'label': 'Tenant name'})
-        obj.append({'id': 'userName',
-                    'label': 'User name'})
-        obj.append({'id': 'password',
-                    'label': 'Password',
-                    'inputStyle': 'password'})
-        obj.append({'id': 'pollingInterval',
-                    'label': 'Polling interval (sec)',
-                    'default': '30'})
-        obj.append({'id': 'retryInterval',
-                    'label': 'Retry interval (sec)',
-                    'default': '10'})
-        obj.extend(self.get_hapi_params())
-        return obj
-
-    def get_plugin_path(self):
-        return 'hatohol-arm-plugin-ceilometer'
-
-    def get_sql_file_type_name(self):
-        return 'ceilometer'
-
-    def get_sql_version(self):
-        return self.get_sql_version_number()
-
-
 def generate_one_type(table_name, server_type, server_label, parameters,
                       plugin_path, sql_version, file_identifier, uuid):
     PLUGIN_ENABLED = 1
@@ -298,9 +187,6 @@ def main():
     generators = (
         ZabbixParamGenerator(),
         NagiosParamGenerator(),
-        HapiZabbixParamGenerator(),
-        HapiJSONParamGenerator(),
-        HapiCeilometerGenerator(),
     )
 
     command_handlers = {

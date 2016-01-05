@@ -27,7 +27,6 @@
 #include "ChildProcessManager.h"
 #include <libsoup/soup.h>
 #include <Reaper.h>
-#include "ArmUtils.h"
 #include "SelfMonitor.h"
 
 using namespace std;

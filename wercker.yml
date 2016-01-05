@@ -4,7 +4,7 @@ build:
     - script:
         name: Install libraries for Hatohol
         code: |
-          yum install -y glib2-devel libsoup-devel sqlite-devel mysql-devel mysql-server libuuid-devel qpid-cpp-client-devel MySQL-python httpd mod_wsgi python-argparse
+          yum install -y glib2-devel libsoup-devel sqlite-devel mysql-devel mysql-server libuuid-devel MySQL-python httpd mod_wsgi python-argparse
     - script:
         name: Setup network
         code: |
@@ -18,9 +18,9 @@ build:
           wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
 
     - script:
-        name: Setup Qpid
+        name: Setup json-glib-devel
         code: |
-          yum install -y json-glib-devel qpid-cpp-server-devel
+          yum install -y json-glib-devel
 
     - script:
         name: Setup build enviroment

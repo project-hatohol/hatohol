@@ -25,9 +25,6 @@
 #include "ThreadLocalDBCache.h"
 #include "DBTablesTest.h"
 #include "UnifiedDataStore.h"
-#ifdef WITH_QPID
-#include "HatoholArmPluginInterface.h"
-#endif
 #include "FaceRestTestUtils.h"
 using namespace std;
 using namespace mlpl;
@@ -227,34 +224,6 @@ void test_addServer(void)
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
-#ifdef WITH_QPID
-void test_addServerWithHapiParams(void)
-{
-	MonitoringServerInfo expected;
-	MonitoringServerInfo::initialize(expected);
-	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
-	expected.type = MONITORING_SYSTEM_HAPI_ZABBIX;
-
-	ArmPluginInfo armPluginInfo;
-	setupArmPluginInfo(armPluginInfo, expected);
-	armPluginInfo.id = 1; // We suppose all entries have been deleted
-
-	StringMap params;
-	serverInfo2StringMap(expected, params);
-	params["passiveMode"] = "false";
-	params["brokerUrl"] = armPluginInfo.brokerUrl;
-	assertAddServerWithSetup(params, HTERR_OK);
-
-	// check the content in the DB
-	ThreadLocalDBCache cache;
-	DBTablesConfig &dbConfig = cache.getConfig();
-	string statement = "select * from arm_plugins";
-	statement += " order by id desc limit 1";
-	string expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
-	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
-}
-#endif
-
 void test_addServerHapiJSON(void)
 {
 	MonitoringServerInfo expected;
@@ -368,61 +337,6 @@ void test_updateServer(gconstpointer data)
 	string expectedOutput = makeServerInfoOutput(updateSvInfo);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
-
-#ifdef WITH_QPID
-void test_updateServerWithArmPlugin(void)
-{
-	startFaceRest();
-
-	// a copy is necessary not to change the source.
-	MonitoringServerInfo serverInfo;
-	MonitoringServerInfo::initialize(serverInfo);
-	serverInfo.type = MONITORING_SYSTEM_HAPI_ZABBIX;
-	ArmPluginInfo armPluginInfo;
-	setupArmPluginInfo(armPluginInfo, serverInfo);
-	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	assertHatoholError(
-	  HTERR_OK,
-	  uds->addTargetServer(serverInfo, armPluginInfo,
-	                       OperationPrivilege(USER_ID_SYSTEM), false)
-	);
-
-	// Make an updated data
-	serverInfo.hostName = "ume.tree.com";
-	serverInfo.pollingIntervalSec = 30;
-	const UserIdType userId = findUserWith(OPPRVLG_UPDATE_ALL_SERVER);
-	string url = StringUtils::sprintf("/server/%" FMT_SERVER_ID,
-	                                  serverInfo.id);
-	StringMap params;
-	serverInfo2StringMap(serverInfo, params);
-	armPluginInfo.brokerUrl = "tosaken.dog.exmaple.com:3322";
-	armPluginInfo.staticQueueAddress = "address-for-cats";
-	params["brokerUrl"] = armPluginInfo.brokerUrl;
-	params["staticQueueAddress"] = armPluginInfo.staticQueueAddress;
-
-	// send a request
-	RequestArg arg(url);
-	arg.parameters = params;
-	arg.request = "PUT";
-	arg.userId = userId;
-	g_parser = getResponseAsJSONParser(arg);
-	assertErrorCode(g_parser);
-	assertValueInParser(g_parser, "id", serverInfo.id);
-
-	// check the content in the DB
-	ThreadLocalDBCache cache;
-	DBTablesConfig &dbConfig = cache.getConfig();
-	string statement = StringUtils::sprintf(
-	  "SELECT * FROM servers WHERE id=%d", serverInfo.id);
-	// TODO: serverInfo2StringMap() doesn't set dbName. Is this OK ?
-	string expectedOutput = makeServerInfoOutput(serverInfo);
-	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
-
-	statement = "SELECT * FROM arm_plugins ORDER BY id DESC LIMIT 1";
-	expectedOutput = makeArmPluginInfoOutput(armPluginInfo);
-	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
-}
-#endif
 
 void test_deleteServer(void)
 {
