@@ -132,15 +132,6 @@ describe('getServerLocation', function() {
     expect(getServerLocation(server)).to.be(undefined);
   });
 
-  it('with HAPI CEILOMETER type(unknown)', function() {
-    var server = {
-      "type": hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER,
-      "ipAddress": "192.168.19.111",
-      "NAME": "localhost"
-    };
-    expect(getServerLocation(server)).to.be(undefined);
-  });
-
   it('with unknown server type', function() {
     var server = {
       "type": hatohol.MONITORING_SYSTEM_UNKNOWN,
