@@ -200,6 +200,9 @@ void HatoholError::init(void)
 	// DBClient
 	DEFINE_ERR(RECORD_EXISTS,
 		   "The record already exists.");
+	// DBTablesConfig
+	DEFINE_ERR(OBSOLETED_ARM_PLUGIN_TYPE,
+		   "The plugin type is already obsoleted.");
 }
 
 void HatoholError::defineError(const HatoholErrorCode errorCode,
