@@ -987,8 +987,6 @@ bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 {
 	if (type == MONITORING_SYSTEM_HAPI_JSON)
 		return true;
-	else if (type == MONITORING_SYSTEM_HAPI_CEILOMETER)
-		return true;
 	else if (type == MONITORING_SYSTEM_HAPI2)
 		return true;
 	return false;
