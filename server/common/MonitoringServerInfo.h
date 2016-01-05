@@ -38,6 +38,14 @@ enum MonitoringSystemType {
 	NUM_MONITORING_SYSTEMS,
 };
 
+typedef __attribute__((deprecated))
+MonitoringSystemType MonitoringSystemType_deprecated;
+
+#define MONITORING_SYSTEM_HAPI_ZABBIX \
+  ((MonitoringSystemType_deprecated) MONITORING_SYSTEM_HAPI_ZABBIX)
+#define MONITORING_SYSTEM_HAPI_NAGIOS \
+  ((MonitoringSystemType_deprecated) MONITORING_SYSTEM_HAPI_NAGIOS)
+
 struct MonitoringServerInfo {
 	ServerIdType         id;
 	MonitoringSystemType type;
