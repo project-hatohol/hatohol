@@ -5,6 +5,7 @@ hatohol_hap2_SCRIPTS = \
 	start-stop-hap2-ceilometer.sh \
 	start-stop-hap2-fluentd.sh \
 	start-stop-hap2-nagios-ndoutils.sh \
+	start-stop-hap2-nagios-livestatus.sh \
 	start-stop-hap2-zabbix-api.sh
 
 hatohol_hap2_DATA = \
@@ -44,6 +45,7 @@ nobase_hatohol_hap2_SCRIPTS = \
 	hatohol/hap2_fluentd.py \
 	hatohol/hap2_ceilometer.py \
 	hatohol/hap2_nagios_ndoutils.py \
+	hatohol/hap2_nagios_livestatus.py \
 	hatohol/hap2_starter.py
 
 EXTRA_DIST = \

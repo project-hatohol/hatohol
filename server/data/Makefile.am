@@ -4,7 +4,8 @@ sql_DATA = \
 	server-type-zabbix.sql \
 	server-type-nagios.sql \
 	server-type-hap2-zabbix.sql \
-	server-type-hap2-nagios.sql \
+	server-type-hap2-nagios-ndoutils.sql \
+	server-type-hap2-nagios-livestatus.sql \
 	server-type-hap2-ceilometer.sql \
 	server-type-hap2-fluentd.sql \
 	severity-ranks.sql \
