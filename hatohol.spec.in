@@ -239,6 +239,9 @@ mkdir -p %{_sysconfdir}/hatohol
 %post hap2-common
 pip install pika
 
+%post hap2-nagios-livestatus
+pip install python-mk-livestatus
+
 %clean
 rm -rf %{buildroot}
 
