@@ -32,7 +32,7 @@ import uuid
 import json
 from mk_livestatus import Socket
 
-logger = getLogger(__name__)
+logger = getLogger("hatohol.hap2_nagios_livestatus")
 
 class Common:
 
