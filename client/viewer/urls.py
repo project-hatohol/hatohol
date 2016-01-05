@@ -1,4 +1,4 @@
-# Copyright (C) 2013 Project Hatohol
+# Copyright (C) 2013,2015 Project Hatohol
 #
 # This file is part of Hatohol.
 #
@@ -16,14 +16,14 @@
 # <http://www.gnu.org/licenses/>.
 
 from django.conf.urls import patterns, url
+from django.views.generic import RedirectView
 
 from hatohol import hatohol_def
 from views import HatoholView
 
 urlpatterns = patterns(
     '',
-    url(r'^$',
-        HatoholView.as_view(template_name='viewer/dashboard_ajax.html')),
+    url(r'^$', RedirectView.as_view(url='ajax_dashboard')),
     url(r'^ajax_dashboard$',
         HatoholView.as_view(
             template_name='viewer/dashboard_ajax.html')),
