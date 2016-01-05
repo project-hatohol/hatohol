@@ -2437,6 +2437,11 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
 		MLPL_ERR("Obsoleted type: %d\n", armPluginInfo.type);
 		return HTERR_OBSOLETED_ARM_PLUGIN_TYPE;
 	}
+	if (armPluginInfo.type > MONITORING_SYSTEM_INCIDENT_TRACKER ||
+	    armPluginInfo.type < MONITORING_SYSTEM_HAPI2) {
+		MLPL_ERR("Obsoleted type: %d\n", armPluginInfo.type);
+		return HTERR_OBSOLETED_ARM_PLUGIN_TYPE;
+	}
 
 	condition = StringUtils::sprintf(
 	  "%s=%d",
