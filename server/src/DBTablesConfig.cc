@@ -985,11 +985,7 @@ void DBTablesConfig::reset(void)
 // ArmZabbixAPI and ArmNagiosNDOUtils are replaced with HAPI's ones.
 bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 {
-	if (type == MONITORING_SYSTEM_HAPI_ZABBIX)
-		return true;
-	else if (type == MONITORING_SYSTEM_HAPI_NAGIOS)
-		return true;
-	else if (type == MONITORING_SYSTEM_HAPI_JSON)
+	if (type == MONITORING_SYSTEM_HAPI_JSON)
 		return true;
 	else if (type == MONITORING_SYSTEM_HAPI_CEILOMETER)
 		return true;
@@ -1081,16 +1077,6 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type,
 					    const string &uuid)
 {
-	// TODO: these should be defined in server_types tables.
-	switch (type) {
-	case MONITORING_SYSTEM_HAPI_ZABBIX:
-		return "hatohol-arm-plugin-zabbix";
-	case MONITORING_SYSTEM_HAPI_NAGIOS:
-		return "hatohol-arm-plugin-nagios";
-	default:
-		;
-	}
-
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerTypeInfo serverType;
