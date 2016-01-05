@@ -57,8 +57,6 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/jquery-deparam.min.js \
 	static/js.external/multiselect.min.js \
 	static/js.external/bootstrap.min.js \
-	static/js.plugins/hap1-ceilometer.js \
-	static/js.plugins/hap1-zabbix.js \
 	static/js.plugins/hapi-json.js \
 	static/js.plugins/nagios.js \
 	static/js.plugins/zabbix.js \
