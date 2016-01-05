@@ -407,5 +407,4 @@ class Hap2NagiosNDOUtils(standardhap.StandardHap):
 
 
 if __name__ == '__main__':
-    hap = Hap2NagiosNDOUtils()
-    hap()
+    Hap2NagiosNDOUtils().run()

@@ -197,5 +197,4 @@ class Hap2Fluentd(standardhap.StandardHap):
         return plugin
 
 if __name__ == '__main__':
-    hap = Hap2Fluentd()
-    hap()
+    Hap2Fluentd().run()

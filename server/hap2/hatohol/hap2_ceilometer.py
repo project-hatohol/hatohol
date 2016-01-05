@@ -536,5 +536,4 @@ class Hap2Ceilometer(standardhap.StandardHap):
 
 
 if __name__ == '__main__':
-    hap = Hap2Ceilometer()
-    hap()
+    Hap2Ceilometer().run()
