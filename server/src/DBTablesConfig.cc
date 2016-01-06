@@ -2432,13 +2432,9 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
 		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
 		return HTERR_INVALID_ARM_PLUGIN_TYPE;
 	}
-	if (armPluginInfo.type > MONITORING_SYSTEM_NAGIOS &&
-	    armPluginInfo.type < MONITORING_SYSTEM_HAPI_JSON) {
-		MLPL_ERR("Obsoleted type: %d\n", armPluginInfo.type);
-		return HTERR_OBSOLETE_ARM_PLUGIN_TYPE;
-	}
-	if (armPluginInfo.type > MONITORING_SYSTEM_INCIDENT_TRACKER &&
-	    armPluginInfo.type < MONITORING_SYSTEM_HAPI2) {
+	if (armPluginInfo.type == OBSOLETED_MONITORING_SYSTEM_HAPI_ZABBIX ||
+	    armPluginInfo.type == OBSOLETED_MONITORING_SYSTEM_HAPI_NAGIOS ||
+	    armPluginInfo.type == OBSOLETED_MONITORING_SYSTEM_HAPI_CEILOMETER){
 		MLPL_ERR("Obsoleted type: %d\n", armPluginInfo.type);
 		return HTERR_OBSOLETE_ARM_PLUGIN_TYPE;
 	}
