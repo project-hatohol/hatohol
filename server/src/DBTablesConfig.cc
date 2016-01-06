@@ -2436,9 +2436,9 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
 	#undef MONITORING_SYSTEM_HAPI_ZABBIX
 	#undef MONITORING_SYSTEM_HAPI_NAGIOS
 	#undef MONITORING_SYSTEM_HAPI_CEILOMETER
-	if (armPluginInfo.type == OBSOLETED_MONITORING_SYSTEM_HAPI_ZABBIX ||
-	    armPluginInfo.type == OBSOLETED_MONITORING_SYSTEM_HAPI_NAGIOS ||
-	    armPluginInfo.type == OBSOLETED_MONITORING_SYSTEM_HAPI_CEILOMETER){
+	if (armPluginInfo.type == OBSOLETE_MONITORING_SYSTEM_HAPI_ZABBIX ||
+	    armPluginInfo.type == OBSOLETE_MONITORING_SYSTEM_HAPI_NAGIOS ||
+	    armPluginInfo.type == OBSOLETE_MONITORING_SYSTEM_HAPI_CEILOMETER){
 		MLPL_ERR("Obsoleted type: %d\n", armPluginInfo.type);
 		return HTERR_OBSOLETE_ARM_PLUGIN_TYPE;
 	}
