@@ -69,7 +69,8 @@ class Common:
 
         socket_arg = self.__access_point
         try:
-            if self.__port: socket_arg = (socket_arg, self.__port)
+            if self.__port:
+                socket_arg = (socket_arg, self.__port)
             self.__socket = Socket(socket_arg)
             test_query = self.__socket.test
             test_query.call()
@@ -119,8 +120,10 @@ class Common:
         if host_ids is not None:
             filter_condition = "host_name ~ "
             for host_id in enumerate(host_ids):
-                if host_id[0] == 0: filter_condition += host_id[1]
-                else: filter_condition += "|" + host_id[1]
+                if host_id[0] == 0:
+                    filter_condition += host_id[1]
+                else:
+                    filter_condition += "|" + host_id[1]
 
             query = query.filter(filter_condition)
 
@@ -199,7 +202,8 @@ class Common:
 
         events = []
         for event in result:
-            if not len(event["current_host_name"]): continue
+            if not len(event["current_host_name"]):
+                continue
 
             hapi_event_type = self.EVENT_TYPE_MAP.get(event["state"])
             if hapi_event_type is None:
