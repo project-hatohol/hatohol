@@ -62,7 +62,8 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.plugins/zabbix.js \
 	static/js.plugins/hap2-ceilometer.js \
 	static/js.plugins/hap2-fluentd.js \
-	static/js.plugins/hap2-nagios.js \
+	static/js.plugins/hap2-nagios-ndoutils.js \
+	static/js.plugins/hap2-nagios-livestatus.js \
 	static/js.plugins/hap2-zabbix.js \
 	static/js/utils.js \
 	static/js/hatohol_monitoring_view.js \
