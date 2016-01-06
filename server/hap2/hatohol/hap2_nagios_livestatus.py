@@ -97,7 +97,7 @@ class Common:
         query = self.__socket.hostgroups.columns("name", "alias")
         result = query.call()
         groups = \
-          [{"groupId": group["name"], "groupName": group["alias"]} for group in result]
+            [{"groupId": group["name"], "groupName": group["alias"]} for group in result]
         self.put_host_groups(groups)
 
     def collect_host_group_membership_and_put(self):
@@ -139,7 +139,7 @@ class Common:
         triggers = []
         for service in result:
             hapi_status, hapi_severity = \
-              self.__parse_status_and_severity(service["state"])
+                self.__parse_status_and_severity(service["state"])
 
             last_state_change = datetime.datetime.fromtimestamp(service["last_state_change"])
             hapi_time = Utils.conv_to_hapi_time(last_state_change,
@@ -206,7 +206,7 @@ class Common:
                 hapi_event_type = "UNKNOWN"
 
             hapi_status, hapi_severity = \
-              self.__parse_status_and_severity(event["state"])
+                self.__parse_status_and_severity(event["state"])
 
             event_time = datetime.datetime.fromtimestamp(event["time"])
             hapi_time = Utils.conv_to_hapi_time(event_time,
