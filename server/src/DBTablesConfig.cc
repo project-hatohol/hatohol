@@ -2432,7 +2432,7 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
 		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
 		return HTERR_INVALID_ARM_PLUGIN_TYPE;
 	}
-	// For suppress deprecated warnings
+	// For suppressing deprecated warnings
 	#undef MONITORING_SYSTEM_HAPI_ZABBIX
 	#undef MONITORING_SYSTEM_HAPI_NAGIOS
 	#undef MONITORING_SYSTEM_HAPI_CEILOMETER
