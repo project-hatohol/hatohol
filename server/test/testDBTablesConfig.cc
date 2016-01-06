@@ -1061,7 +1061,8 @@ void test_saveArmPluginInfoWithNoPath(void)
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[0];
 	armPluginInfo.path = "";
-	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_PATH,
+	// HAPI2 accepts no path in passive mode
+	assertHatoholError(HTERR_OK,
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
 }
 
