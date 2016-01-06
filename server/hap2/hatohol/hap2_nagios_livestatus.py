@@ -34,6 +34,7 @@ from mk_livestatus import Socket
 
 logger = getLogger("hatohol.hap2_nagios_livestatus")
 
+
 class Common:
 
     STATE_OK = 0
