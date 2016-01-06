@@ -250,10 +250,6 @@ var TriggersView = function(userProfile) {
   function updateCore(reply) {
     rawData = reply;
 
-    self.setServerFilterCandidates(rawData["servers"]);
-    self.setHostgroupFilterCandidates(rawData["servers"]);
-    self.setHostFilterCandidates(rawData["servers"]);
-
     drawTableContents(rawData);
     updatePager();
     setupFilterValues();

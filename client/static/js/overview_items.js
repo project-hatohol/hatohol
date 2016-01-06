@@ -167,9 +167,6 @@ var OverviewItems = function(userProfile) {
   function updateCore(reply) {
     rawData = reply;
     parsedData = parseData(reply);
-    self.setServerFilterCandidates(rawData["servers"]);
-    self.setHostgroupFilterCandidates(rawData["servers"]);
-    self.setHostFilterCandidates(rawData["servers"]);
     drawTableContents(parsedData);
     setupFilterValues(rawData.servers,
                       self.lastQuery ? self.lastQuery : self.baseQuery,
