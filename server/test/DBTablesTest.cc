@@ -64,33 +64,6 @@ const ServerTypeInfo testServerTypeInfo[] =
 	1,                       // plugin_sql_version
 	1,                       // plugin_enabled
 	"",                      // uuid
-}, {
-	MONITORING_SYSTEM_HAPI_ZABBIX,
-	"Zabbix (HAPI)",          // name
-	"["
-	"{\"id\": \"nickname\", \"label\": \"Nickname\"}, "
-	"{\"id\": \"hostName\", \"label\": \"Host name\"}, "
-	"{\"id\": \"ipAddress\", \"label\": \"IP address\"}, "
-	"{\"default\": \"80\", \"id\": \"port\", \"label\": \"Port\"}, "
-	"{\"id\": \"userName\", \"label\": \"User name\"}, "
-	"{\"inputStyle\": \"password\", \"id\": \"password\","
-	" \"label\": \"Password\"}, "
-	"{\"default\": \"30\", \"id\": \"pollingInterval\","
-	" \"label\": \"Polling interval (sec)\"}, "
-	"{\"default\": \"10\", \"id\": \"retryInterval\","
-	" \"label\": \"Retry interval (sec)\"}, "
-	"{\"inputStyle\": \"checkBox\", \"id\": \"passiveMode\","
-	" \"label\": \"Passive mode\"}, "
-	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
-	" \"id\": \"brokerUrl\", \"label\": \"Broker URL\"}, "
-	"{\"hint\": \"(empty: Default)\", \"allowEmpty\": true,"
-	" \"id\": \"staticQueueAddress\","
-	" \"label\": \"Static queue address\"}"
-	"]", // paramters
-	"/opt/bin/hatohol-arm-plugin-ver2000",  // pluginPath
-	1,                       // plugin_sql_version
-	1,                       // plugin_enabled
-	"",                      // uuid
 },{
 	MONITORING_SYSTEM_HAPI_JSON, // type
 	"JSON",                      // name
@@ -973,8 +946,8 @@ const size_t NumTestUserRoleInfo = ARRAY_SIZE(testUserRoleInfo);
 ArmPluginInfo testArmPluginInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,            // id
-	MONITORING_SYSTEM_HAPI_ZABBIX,   // type
-	"../hap/hatohol-arm-plugin-zabbix", // path
+	MONITORING_SYSTEM_HAPI2,         // type
+	"start-stop-hap2-zabbix-api.sh", // path
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	1,                               // serverId
@@ -982,11 +955,11 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // tlsKeyPath
 	"",                              // tlsCACertificatePath
 	0,                               // tlsEnableVerify
-	"144b2a3f-0cc9-4392-be91-137c75142772", // uuid
+	"8e632c14-d1f7-11e4-8350-d43d7e3146fb", // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
-	MONITORING_SYSTEM_HAPI_NAGIOS,   // type
-	"/usr/local/lib/hatohol/hapi/hapi-nagios-ndoutils",  // path
+	MONITORING_SYSTEM_HAPI2,         // type
+	"start-stop-hap2-nagios-ndoutils.sh",  // path
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
 	100, // (Not exists)             // serverId
@@ -994,7 +967,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // tlsKeyPath
 	"",                              // tlsCACertificatePath
 	0,                               // tlsEnableVerify
-	"778b1786-6b89-481c-bdd4-288050370284", // uuid
+	"902d955c-d1f7-11e4-80f9-d43d7e3146fb", // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI_TEST,     // type
