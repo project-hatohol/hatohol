@@ -41,6 +41,7 @@ var EventsView = function(userProfile, options) {
   $.extend(self.baseQuery, getEventsQueryInURI());
   self.lastFilterId = null;
   self.lastQuickFilter = {};
+  self.isFilteringOptionsUsed = false;
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.abbreviateDescriptionLength = 30;
@@ -110,7 +111,7 @@ var EventsView = function(userProfile, options) {
       body: renderTableDataEventSeverity,
     },
     "time": {
-      header: gettext("Time"),
+      header: gettext("Period"),
       body: renderTableDataEventTime,
     },
     "description": {
@@ -122,7 +123,7 @@ var EventsView = function(userProfile, options) {
       body: renderTableDataEventDuration,
     },
     "incidentStatus": {
-      header: gettext("Treatment"),
+      header: gettext("Handling"),
       body: renderTableDataIncidentStatus,
     },
     "incidentPriority": {
@@ -322,6 +323,54 @@ var EventsView = function(userProfile, options) {
     });
   }
 
+  function updateFilteringResult() {
+    var numEvents = self.rawData["events"].length;
+    var title;
+    var filteringOpts = $("#filtering-options-brief");
+    if (!self.isFilteringOptionsUsed) {
+        filteringOpts.hide();
+        title = gettext("All Events");
+    } else {
+        filteringOpts.show();
+        $("#filtering-options-brief-line").text(getBriefOfFilteringOptions());
+        title = gettext("Filtering Results");
+    }
+    title += " (" + numEvents + ")";
+    $("#controller-container-title").text(title);
+  }
+
+  function appendFilteringTimeRange(elementId, briefObj) {
+    var value = $(elementId).val();
+    if (!value)
+      value = $(elementId).attr("placeholder");
+    briefObj["brief"] += value;
+  }
+
+  function appendFilteringValue(elementId, briefObj) {
+    var value = $(elementId + " option:selected").text();
+    if (value == "---------")
+      return;
+    briefObj["brief"] += ", ";
+    briefObj["brief"] += value;
+  }
+
+  function getBriefOfFilteringOptions() {
+    var s = {"brief":""};
+    appendFilteringTimeRange("#begin-time", s);
+    s["brief"] += " - ";
+    appendFilteringTimeRange("#end-time", s);
+
+    appendFilteringValue("#select-incident", s);
+    appendFilteringValue("#select-type", s);
+    appendFilteringValue("#select-severity", s);
+    appendFilteringValue("#select-server", s);
+    appendFilteringValue("#select-host-group", s);
+    appendFilteringValue("#select-host", s);
+
+    appendFilteringValue("#select-filter", s);
+    return s["brief"];
+  }
+
   function showXHRError(XMLHttpRequest) {
     var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
       XMLHttpRequest.statusText;
@@ -431,6 +480,11 @@ var EventsView = function(userProfile, options) {
     if (summaryShown)
       self.startConnection(getSummaryQuery(), updateSummary);
     $(document.body).scrollTop(0);
+  }
+
+  function resetTimeRangeFilter() {
+    $("#begin-time").next(".clear-button").trigger('click');
+    $("#end-time").next(".clear-button").trigger('click');
   }
 
   function resetQuickFilter() {
@@ -626,8 +680,16 @@ var EventsView = function(userProfile, options) {
       updateIncidentStatus();
     });
 
+    $('button.reset-apply-all-filter').click(function() {
+      resetTimeRangeFilter();
+      resetQuickFilter();
+      load({ applyFilter: true });
+      self.isFilteringOptionsUsed = false;
+    });
+
     $('button.btn-apply-all-filter').click(function() {
       load({ applyFilter: true });
+      self.isFilteringOptionsUsed = true;
     });
 
     $("#select-filter").change(function() {
@@ -1086,8 +1148,10 @@ var EventsView = function(userProfile, options) {
   function renderTableDataEventType(event, server) {
     var type = event["type"];
     var typeClass = "event-type" + type;
+    var typeIcon = type=="0" ? "glyphicon-ok" : "glyphicon-ban-circle";
 
     return "<td class='" + getSeverityClass(event) + " " + typeClass + "'>" +
+      "<span class=\"glyphicon "+typeIcon+"\"></span> "+
       eventPropertyChoices.type[Number(type)].label + "</td>";
   }
 
@@ -1300,7 +1364,7 @@ var EventsView = function(userProfile, options) {
       if (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING)
         icon = "up";
       th.find("i.sort").remove();
-      th.append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
+      th.append(" <i class='sort glyphicon glyphicon-collapse-" + icon +"'></i>");
       th.click(function() {
         switchSort();
       });
@@ -1310,9 +1374,9 @@ var EventsView = function(userProfile, options) {
   function setupChangeIncidentMenu() {
     var selected = $('.incident.selectable.selected');
     if (selected.length > 0) {
-      $("#change-incident").removeAttr("disabled", "disabled");
+      $("#change-incident").removeAttr("disabled", "disabled").parents('form').show();
     } else {
-      $("#change-incident").attr("disabled", "disabled");
+      $("#change-incident").attr("disabled", "disabled").parents('form').hide();
     }
   }
 
@@ -1449,6 +1513,7 @@ var EventsView = function(userProfile, options) {
     drawTableContents();
     setupTableColor();
     updatePager();
+    updateFilteringResult();
     setLoading(false);
     if (self.currentPage == 0)
       self.enableAutoRefresh(load, self.reloadIntervalSeconds);

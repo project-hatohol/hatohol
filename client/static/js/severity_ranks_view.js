@@ -64,9 +64,9 @@ var SeverityRanksView = function(userProfile) {
       html += "<td id='severity-rank-color" + escapeHTML(status) + "'" +
         " style='background-color: " + escapeHTML(color) + "'>" +
         escapeHTML(color) + "</td>";
-      html += "<td id='severity-rank-label" + escapeHTML(status) +"'" +
-        "contenteditable='true' data-placeholder='" + defaultLabel + "'>" +
-	 escapeHTML(label) + "</td>";
+      html += "<td><input type=\"text\" id='severity-rank-label" + escapeHTML(status) +"'" +
+        "contenteditable='true' data-placeholder='" + defaultLabel + "' value='" +
+	 escapeHTML(label) + "'></td>";
       html += "<td class='delete-selector'>";
       html += "<input type='checkbox' id='severity-rank-checkbox" +
         escapeHTML(status) +"'";
@@ -86,7 +86,7 @@ var SeverityRanksView = function(userProfile) {
     var queryData = {};
     queryData.status = status;
     queryData.color = $("#severity-rank-color" + status).text();
-    queryData.label = $("#severity-rank-label" + status).text();
+    queryData.label = $("#severity-rank-label" + status).val();
     queryData.asImportant = $("#severity-rank-checkbox" + status).is(":checked");
     return queryData;
   }
@@ -143,6 +143,11 @@ var SeverityRanksView = function(userProfile) {
     $("#save-severity-ranks").show();
     $("#save-severity-ranks").click(function() {
       saveSeverityRanks();
+    });
+    $("#cancel-severity-ranks").show();
+    $("#cancel-severity-ranks").click(function() {
+      load();
+      hatoholInfoMsgBox(gettext("Input data has reset."));
     });
   }
 
