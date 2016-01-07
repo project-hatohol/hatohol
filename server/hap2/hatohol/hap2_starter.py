@@ -36,8 +36,11 @@ def create_pid_file(pid_dir, server_id, hap_pid):
     with open("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id), "w") as file:
         file.writelines([str(os.getpid()), "\n", str(hap_pid)])
 
+    logger.info("PID file has been created.")
+
 def remove_pid_file(pid_dir,server_id):
     subprocess.call("rm %s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
+    logger.info("PID file has been removed.")
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
