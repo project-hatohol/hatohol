@@ -39,7 +39,7 @@ def create_pid_file(pid_dir, server_id, hap_pid):
     logger.info("PID file was created.")
 
 def remove_pid_file(pid_dir,server_id):
-    subprocess.call("rm %s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
+    os.remove("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
     logger.info("PID file was removed.")
 
 if __name__=="__main__":
