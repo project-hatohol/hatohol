@@ -360,17 +360,32 @@ HatoholMonitoringView.prototype.setupCheckboxForDelete =
 
 HatoholMonitoringView.prototype.setupHostFilters = function(servers, query, withoutSelfMonitor) {
   this.setServerFilterCandidates(servers);
-  if (query && ("serverId" in query))
-    $("#select-server").val(query.serverId);
+  if (query && ("serverId" in query)) {
+    if (query.serverId == "-1") {
+      $("#select-server").val("");
+    } else {
+      $("#select-server").val(query.serverId);
+    }
+  }
 
   this.setHostgroupFilterCandidates(servers);
-  if (query && ("hostgroupId" in query))
-    $("#select-host-group").val(query.hostgroupId);
+  if (query && ("hostgroupId" in query)) {
+    if (query.hostgroupId == "*") {
+      $("#select-host-group").val("");
+    } else {
+      $("#select-host-group").val(query.hostgroupId);
+    }
+  }
 
   this.setHostFilterCandidates(servers, this.getTargetServerId(), withoutSelfMonitor);
 
-  if (query && ("hostId" in query))
-    $("#select-host").val(query.hostId);
+  if (query && ("hostId" in query)) {
+    if (query.hostId == "*") {
+      $("#select-host").val("");
+    } else {
+      $("#select-host").val(query.hostId);
+    }
+  }
 };
 
 HatoholMonitoringView.prototype.displayUpdateTime =

@@ -200,9 +200,6 @@ var LatestView = function(userProfile) {
     rawData = reply;
     parsedData = parseData(rawData);
 
-    self.setServerFilterCandidates(rawData["servers"]);
-    self.setHostgroupFilterCandidates(rawData["servers"]);
-    self.setHostFilterCandidates(rawData["servers"]);
     self.setApplicationFilterCandidates(parsedData.applications);
 
     drawTableContents(rawData);
