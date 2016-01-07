@@ -54,8 +54,8 @@ class ZabbixAPI:
 
         self.result = check_response(res_dict)
         if not self.result:
-            logger.error("Authenticate failure: %s" % res_dict)
-            raise Exception("Authenticate failure: %s" % res_dict)
+            logger.error("Authentication failure: %s" % res_dict)
+            raise Exception("Authentication failure: %s" % res_dict)
 
         return res_dict["result"]
 
