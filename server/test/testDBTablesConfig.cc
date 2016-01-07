@@ -263,14 +263,6 @@ void data_getDefaultPluginPath(void)
 	gcut_add_datum("MONITORING_SYSTEM_NAGIOS",
 	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_NAGIOS,
 	               "expect", G_TYPE_STRING, NULL, NULL);
-	gcut_add_datum("MONITORING_SYSTEM_HAPI_ZABBIX",
-	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_ZABBIX,
-	               "expect", G_TYPE_STRING, "hatohol-arm-plugin-zabbix",
-	               NULL);
-	gcut_add_datum("MONITORING_SYSTEM_HAPI_NAGIOS",
-	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_NAGIOS,
-	               "expect", G_TYPE_STRING, "hatohol-arm-plugin-nagios",
-	               NULL);
 }
 
 void test_getDefaultPluginPath(gconstpointer data)
@@ -993,12 +985,6 @@ void data_isHatoholArmPlugin(void)
 	gcut_add_datum("MONITORING_SYSTEM_NAGIOS",
 	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_NAGIOS,
 	               "expect", G_TYPE_BOOLEAN, FALSE, NULL);
-	gcut_add_datum("MONITORING_SYSTEM_HAPI_ZABBIX",
-	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_ZABBIX,
-	               "expect", G_TYPE_BOOLEAN, TRUE, NULL);
-	gcut_add_datum("MONITORING_SYSTEM_HAPI_NAGIOS",
-	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI_NAGIOS,
-	               "expect", G_TYPE_BOOLEAN, TRUE, NULL);
 }
 
 void test_isHatoholArmPlugin(gconstpointer data)
@@ -1075,7 +1061,8 @@ void test_saveArmPluginInfoWithNoPath(void)
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[0];
 	armPluginInfo.path = "";
-	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_PATH,
+	// HAPI2 accepts no path in passive mode
+	assertHatoholError(HTERR_OK,
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
 }
 

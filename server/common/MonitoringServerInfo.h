@@ -38,6 +38,19 @@ enum MonitoringSystemType {
 	NUM_MONITORING_SYSTEMS,
 };
 
+typedef __attribute__((deprecated))
+MonitoringSystemType MonitoringSystemType_deprecated;
+
+#define OBSOLETE_MONITORING_SYSTEM_HAPI_ZABBIX MONITORING_SYSTEM_HAPI_ZABBIX
+#define OBSOLETE_MONITORING_SYSTEM_HAPI_NAGIOS MONITORING_SYSTEM_HAPI_NAGIOS
+#define OBSOLETE_MONITORING_SYSTEM_HAPI_CEILOMETER MONITORING_SYSTEM_HAPI_CEILOMETER
+#define MONITORING_SYSTEM_HAPI_ZABBIX \
+  ((MonitoringSystemType_deprecated) MONITORING_SYSTEM_HAPI_ZABBIX)
+#define MONITORING_SYSTEM_HAPI_NAGIOS \
+  ((MonitoringSystemType_deprecated) MONITORING_SYSTEM_HAPI_NAGIOS)
+#define MONITORING_SYSTEM_HAPI_CEILOMETER \
+  ((MonitoringSystemType_deprecated) MONITORING_SYSTEM_HAPI_CEILOMETER)
+
 struct MonitoringServerInfo {
 	ServerIdType         id;
 	MonitoringSystemType type;

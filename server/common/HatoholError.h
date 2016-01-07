@@ -127,6 +127,7 @@ enum HatoholErrorCode
 	// 16.01
 	// DBClient
 	HTERR_RECORD_EXISTS,
+	HTERR_OBSOLETE_ARM_PLUGIN_TYPE,
 
 	// End of code
 	NUM_HATOHOL_ERROR_CODE

@@ -985,13 +985,7 @@ void DBTablesConfig::reset(void)
 // ArmZabbixAPI and ArmNagiosNDOUtils are replaced with HAPI's ones.
 bool DBTablesConfig::isHatoholArmPlugin(const MonitoringSystemType &type)
 {
-	if (type == MONITORING_SYSTEM_HAPI_ZABBIX)
-		return true;
-	else if (type == MONITORING_SYSTEM_HAPI_NAGIOS)
-		return true;
-	else if (type == MONITORING_SYSTEM_HAPI_JSON)
-		return true;
-	else if (type == MONITORING_SYSTEM_HAPI_CEILOMETER)
+	if (type == MONITORING_SYSTEM_HAPI_JSON)
 		return true;
 	else if (type == MONITORING_SYSTEM_HAPI2)
 		return true;
@@ -1081,16 +1075,6 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type,
 					    const string &uuid)
 {
-	// TODO: these should be defined in server_types tables.
-	switch (type) {
-	case MONITORING_SYSTEM_HAPI_ZABBIX:
-		return "hatohol-arm-plugin-zabbix";
-	case MONITORING_SYSTEM_HAPI_NAGIOS:
-		return "hatohol-arm-plugin-nagios";
-	default:
-		;
-	}
-
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	ServerTypeInfo serverType;
@@ -2444,9 +2428,19 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
 	    armPluginInfo.type != MONITORING_SYSTEM_HAPI2 &&
 	    armPluginInfo.path.empty())
 		return HTERR_INVALID_ARM_PLUGIN_PATH;
-	if (armPluginInfo.type < MONITORING_SYSTEM_HAPI_ZABBIX) {
+	if (armPluginInfo.type <= MONITORING_SYSTEM_NAGIOS) {
 		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
 		return HTERR_INVALID_ARM_PLUGIN_TYPE;
+	}
+	// For suppressing deprecated warnings
+	#undef MONITORING_SYSTEM_HAPI_ZABBIX
+	#undef MONITORING_SYSTEM_HAPI_NAGIOS
+	#undef MONITORING_SYSTEM_HAPI_CEILOMETER
+	if (armPluginInfo.type == OBSOLETE_MONITORING_SYSTEM_HAPI_ZABBIX ||
+	    armPluginInfo.type == OBSOLETE_MONITORING_SYSTEM_HAPI_NAGIOS ||
+	    armPluginInfo.type == OBSOLETE_MONITORING_SYSTEM_HAPI_CEILOMETER) {
+		MLPL_ERR("Obsoleted type: %d\n", armPluginInfo.type);
+		return HTERR_OBSOLETE_ARM_PLUGIN_TYPE;
 	}
 
 	condition = StringUtils::sprintf(

@@ -720,7 +720,7 @@ static string getExpectedServers(void)
 		      "\"type\":0,"
 		      "\"ipAddress\":\"192.168.0.5\","
 		      "\"baseURL\":\"\","
-		      "\"uuid\":\"144b2a3f-0cc9-4392-be91-137c75142772\","
+		      "\"uuid\":\"8e632c14-d1f7-11e4-8350-d43d7e3146fb\","
 		      "\"hosts\":{"
 		      "\"1129\":{\"name\":\"hostX3\"},"
 		      "\"235012\":{\"name\":\"hostX1\"},"
