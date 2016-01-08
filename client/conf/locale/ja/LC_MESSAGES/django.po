@@ -109,7 +109,7 @@ msgstr "JavaScriptが無効になっています。JavaScriptを有効にして�
 #: viewer/custom_incident_labels_ajax.html:24
 #: viewer/custom_incident_labels_ajax.html:29
 msgid "Custom Incident Labels"
-msgstr ""
+msgstr "インシデントラベルの設定"
 
 #: viewer/custom_incident_labels_ajax.html:31 viewer/history_ajax.html:98
 msgid "SAVE"
@@ -117,7 +117,7 @@ msgstr "保存"
 
 #: viewer/custom_incident_labels_ajax.html:35
 msgid "Code"
-msgstr ""
+msgstr "コード"
 
 #: viewer/custom_incident_labels_ajax.html:36
 msgid "Display Label"
