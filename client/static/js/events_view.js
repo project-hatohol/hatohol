@@ -1421,77 +1421,6 @@ var EventsView = function(userProfile, options) {
     }
   }
 
-  function setupPieChart() {
-    var item, severity, times, severityStatMap = {}, pieChartDataMap = {};
-    var preDefinedSeverityArray = [
-      hatohol.TRIGGER_SEVERITY_UNKNOWN,
-      hatohol.TRIGGER_SEVERITY_INFO,
-      hatohol.TRIGGER_SEVERITY_WARNING,
-      hatohol.TRIGGER_SEVERITY_ERROR,
-      hatohol.TRIGGER_SEVERITY_CRITICAL,
-      hatohol.TRIGGER_SEVERITY_EMERGENCY,
-    ];
-    var statisticsSize = self.rawSummaryData["statistics"].length;
-    for (var x = 0; x < statisticsSize; ++x) {
-      item = self.rawSummaryData["statistics"][x];
-      severity = item["severity"];
-      times = item["times"];
-
-      severityStatMap[severity] = times;
-    }
-    var getColor = function(status) {
-      var defaultColors = [
-        "#BCBCBC", "#CCE2CC", "#FDFD96", "#DDAAAA", "#FF8888", "#FF0000",
-      ];
-      if (self.severityRanksMap && self.severityRanksMap[status])
-	return self.severityRanksMap[status].color;
-      return defaultColors[status];
-    };
-    for (var idx = 0; idx < preDefinedSeverityArray.length; ++idx) {
-      pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
-    }
-    var candidates = eventPropertyChoices.severity;
-    var dataSet = [
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY],
-        color: getColor(hatohol.TRIGGER_SEVERITY_EMERGENCY) },
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_CRITIAL],
-        color: getColor(hatohol.TRIGGER_SEVERITY_CRITICAL) },
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_ERROR)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_ERROR],
-        color: getColor(hatohol.TRIGGER_SEVERITY_ERROR) },
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_WARNING)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_WARNING],
-        color: getColor(hatohol.TRIGGER_SEVERITY_WARNING) },
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_INFO)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_INFO],
-        color: getColor(hatohol.TRIGGER_SEVERITY_INFO) },
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_UNKNOWN],
-        color: getColor(hatohol.TRIGGER_SEVERITY_UNKNOWN) },
-    ];
-
-    var options = {
-      series: {
-        pie: {
-          show: true,
-          label: {
-            show: true,
-            background: {
-              opacity: 0.8,
-              color: '#000'
-            }
-          }
-        }
-      },
-      legend: {
-        show: false
-      },
-    };
-    $.plot($("#severityStatChart"), dataSet, options);
-  }
-
   function updateSummary(reply) {
     if (!$("#SummarySidebar").is(":visible"))
       return;
@@ -1500,7 +1429,6 @@ var EventsView = function(userProfile, options) {
       self.rawSummaryData = reply;
 
     setupStatictics();
-    setupPieChart();
   }
 
   function updateCore(reply) {
