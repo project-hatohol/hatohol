@@ -32,6 +32,15 @@ TRIGGER_SEVERITY = {"-1": "ALL", "0": "UNKNOWN", "1": "INFO", "2": "WARNING",
 TRIGGER_STATUS = {"0": "OK", "1": "NG", "2": "UNKNOWN"}
 EVENT_TYPE = {"0": "GOOD", "1": "BAD", "2": "UNKNOWN", "3": "NOTIFICATION"}
 
+
+class AuthenticationError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+         return repr(self.value)
+
+
 class ZabbixAPI:
     def __init__(self, monitoring_server_info):
         self.url = monitoring_server_info.url
@@ -55,7 +64,7 @@ class ZabbixAPI:
         self.result = check_response(res_dict)
         if not self.result:
             logger.error("Authentication failure: %s" % res_dict)
-            raise Exception("Authentication failure: %s" % res_dict)
+            raise AuthenticationError("Authentication failure: %s" % res_dict)
 
         return res_dict["result"]
 
