@@ -323,24 +323,24 @@ msgstr "対応の更新に失敗しました"
 
 #: static/js/events_view.js:798
 msgid "An unknown error occured on creating an incident for the event: "
-msgstr "イベントに対応するインシデント作成時に未知のエラーが発生しました。: "
+msgstr "イベントに対応するインシデント作成時に未知のエラーが発生しました: "
 
 #: static/js/events_view.js:808
 msgid ""
 "Failed to connect to Hatohol server on posting an incident for the event: "
 msgstr ""
-"イベントに対応するインシデント登録時に Hatohol サーバーへの接続に失敗しました。: "
+"イベントに対応するインシデント登録時に Hatohol サーバーへの接続に失敗しました: "
 
 #: static/js/events_view.js:832
 msgid "An unknown error occured on changing treatment of an event with ID: "
-msgstr "対応の変更中に未知のエラーが発生しました。イベントID: "
+msgstr "対応の変更中に未知のエラーが発生しました イベントID: "
 
 #: static/js/events_view.js:841
 msgid ""
 "Failed to connect to Hatohol server on changing treatment of an event with "
 "ID: "
 msgstr ""
-"イベントの対処の変更時に Hatohol サーバーへの接続に失敗しました。 "
+"イベントの対処の変更時に Hatohol サーバーへの接続に失敗しました "
 "ID: "
 
 #: static/js/events_view.js:856 static/js/hatohol_add_action_dialog.js:372
@@ -1282,15 +1282,15 @@ msgstr "接続エラー"
 
 #: static/js/hatohol_reconnection_modal.js:58
 msgid "Try to reconnect after "
-msgstr "後で再接続してください "
+msgstr "再接続します: "
 
 #: static/js/hatohol_reconnection_modal.js:58
 msgid " sec."
-msgstr ""
+msgstr " 秒後"
 
 #: static/js/hatohol_reconnection_modal.js:64
 msgid "Retry now"
-msgstr "再試行してください"
+msgstr "すぐに再接続"
 
 #: static/js/hatohol_reply_parser.js:81
 msgid "Invalid user name or password."
