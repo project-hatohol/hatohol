@@ -1,5 +1,5 @@
 #!/bin/sh
-version=16.01_alpha1
+version=16.01_beta
 if [ x$ADD_DATE_TO_VERSION = "x1" ]; then
   version=${version}_`eval date +%Y%m%d_%H%M%S`
 fi
