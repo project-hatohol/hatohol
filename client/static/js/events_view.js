@@ -41,6 +41,7 @@ var EventsView = function(userProfile, options) {
   $.extend(self.baseQuery, getEventsQueryInURI());
   self.lastFilterId = null;
   self.lastQuickFilter = {};
+  self.isFilteringOptionsUsed = false;
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.abbreviateDescriptionLength = 30;
@@ -110,7 +111,7 @@ var EventsView = function(userProfile, options) {
       body: renderTableDataEventSeverity,
     },
     "time": {
-      header: gettext("Time"),
+      header: gettext("Period"),
       body: renderTableDataEventTime,
     },
     "description": {
@@ -122,7 +123,7 @@ var EventsView = function(userProfile, options) {
       body: renderTableDataEventDuration,
     },
     "incidentStatus": {
-      header: gettext("Treatment"),
+      header: gettext("Handling"),
       body: renderTableDataIncidentStatus,
     },
     "incidentPriority": {
@@ -322,6 +323,54 @@ var EventsView = function(userProfile, options) {
     });
   }
 
+  function updateFilteringResult() {
+    var numEvents = self.rawData["events"].length;
+    var title;
+    var filteringOpts = $("#filtering-options-brief");
+    if (!self.isFilteringOptionsUsed) {
+        filteringOpts.hide();
+        title = gettext("All Events");
+    } else {
+        filteringOpts.show();
+        $("#filtering-options-brief-line").text(getBriefOfFilteringOptions());
+        title = gettext("Filtering Results");
+    }
+    title += " (" + numEvents + ")";
+    $("#controller-container-title").text(title);
+  }
+
+  function appendFilteringTimeRange(elementId, briefObj) {
+    var value = $(elementId).val();
+    if (!value)
+      value = $(elementId).attr("placeholder");
+    briefObj["brief"] += value;
+  }
+
+  function appendFilteringValue(elementId, briefObj) {
+    var value = $(elementId + " option:selected").text();
+    if (value == "---------")
+      return;
+    briefObj["brief"] += ", ";
+    briefObj["brief"] += value;
+  }
+
+  function getBriefOfFilteringOptions() {
+    var s = {"brief":""};
+    appendFilteringTimeRange("#begin-time", s);
+    s["brief"] += " - ";
+    appendFilteringTimeRange("#end-time", s);
+
+    appendFilteringValue("#select-incident", s);
+    appendFilteringValue("#select-type", s);
+    appendFilteringValue("#select-severity", s);
+    appendFilteringValue("#select-server", s);
+    appendFilteringValue("#select-host-group", s);
+    appendFilteringValue("#select-host", s);
+
+    appendFilteringValue("#select-filter", s);
+    return s["brief"];
+  }
+
   function showXHRError(XMLHttpRequest) {
     var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
       XMLHttpRequest.statusText;
@@ -431,6 +480,11 @@ var EventsView = function(userProfile, options) {
     if (summaryShown)
       self.startConnection(getSummaryQuery(), updateSummary);
     $(document.body).scrollTop(0);
+  }
+
+  function resetTimeRangeFilter() {
+    $("#begin-time").next(".clear-button").trigger('click');
+    $("#end-time").next(".clear-button").trigger('click');
   }
 
   function resetQuickFilter() {
@@ -626,8 +680,16 @@ var EventsView = function(userProfile, options) {
       updateIncidentStatus();
     });
 
+    $('button.reset-apply-all-filter').click(function() {
+      resetTimeRangeFilter();
+      resetQuickFilter();
+      load({ applyFilter: true });
+      self.isFilteringOptionsUsed = false;
+    });
+
     $('button.btn-apply-all-filter').click(function() {
       load({ applyFilter: true });
+      self.isFilteringOptionsUsed = true;
     });
 
     $("#select-filter").change(function() {
@@ -1086,8 +1148,10 @@ var EventsView = function(userProfile, options) {
   function renderTableDataEventType(event, server) {
     var type = event["type"];
     var typeClass = "event-type" + type;
+    var typeIcon = type=="0" ? "glyphicon-ok" : "glyphicon-ban-circle";
 
     return "<td class='" + getSeverityClass(event) + " " + typeClass + "'>" +
+      "<span class=\"glyphicon "+typeIcon+"\"></span> "+
       eventPropertyChoices.type[Number(type)].label + "</td>";
   }
 
@@ -1300,7 +1364,7 @@ var EventsView = function(userProfile, options) {
       if (self.baseQuery.sortOrder == hatohol.DATA_QUERY_OPTION_SORT_ASCENDING)
         icon = "up";
       th.find("i.sort").remove();
-      th.append("<i class='sort glyphicon glyphicon-arrow-" + icon +"'></i>");
+      th.append(" <i class='sort glyphicon glyphicon-collapse-" + icon +"'></i>");
       th.click(function() {
         switchSort();
       });
@@ -1310,9 +1374,9 @@ var EventsView = function(userProfile, options) {
   function setupChangeIncidentMenu() {
     var selected = $('.incident.selectable.selected');
     if (selected.length > 0) {
-      $("#change-incident").removeAttr("disabled", "disabled");
+      $("#change-incident").removeAttr("disabled", "disabled").parents('form').show();
     } else {
-      $("#change-incident").attr("disabled", "disabled");
+      $("#change-incident").attr("disabled", "disabled").parents('form').hide();
     }
   }
 
@@ -1357,77 +1421,6 @@ var EventsView = function(userProfile, options) {
     }
   }
 
-  function setupPieChart() {
-    var item, severity, times, severityStatMap = {}, pieChartDataMap = {};
-    var preDefinedSeverityArray = [
-      hatohol.TRIGGER_SEVERITY_UNKNOWN,
-      hatohol.TRIGGER_SEVERITY_INFO,
-      hatohol.TRIGGER_SEVERITY_WARNING,
-      hatohol.TRIGGER_SEVERITY_ERROR,
-      hatohol.TRIGGER_SEVERITY_CRITICAL,
-      hatohol.TRIGGER_SEVERITY_EMERGENCY,
-    ];
-    var statisticsSize = self.rawSummaryData["statistics"].length;
-    for (var x = 0; x < statisticsSize; ++x) {
-      item = self.rawSummaryData["statistics"][x];
-      severity = item["severity"];
-      times = item["times"];
-
-      severityStatMap[severity] = times;
-    }
-    var getColor = function(status) {
-      var defaultColors = [
-        "#BCBCBC", "#CCE2CC", "#FDFD96", "#DDAAAA", "#FF8888", "#FF0000",
-      ];
-      if (self.severityRanksMap && self.severityRanksMap[status])
-	return self.severityRanksMap[status].color;
-      return defaultColors[status];
-    };
-    for (var idx = 0; idx < preDefinedSeverityArray.length; ++idx) {
-      pieChartDataMap[idx] = severityStatMap[idx] ? severityStatMap[idx] : 0;
-    }
-    var candidates = eventPropertyChoices.severity;
-    var dataSet = [
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_EMERGENCY)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_EMERGENCY],
-        color: getColor(hatohol.TRIGGER_SEVERITY_EMERGENCY) },
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_CRITICAL)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_CRITIAL],
-        color: getColor(hatohol.TRIGGER_SEVERITY_CRITICAL) },
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_ERROR)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_ERROR],
-        color: getColor(hatohol.TRIGGER_SEVERITY_ERROR) },
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_WARNING)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_WARNING],
-        color: getColor(hatohol.TRIGGER_SEVERITY_WARNING) },
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_INFO)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_INFO],
-        color: getColor(hatohol.TRIGGER_SEVERITY_INFO) },
-      { label: candidates[Number(hatohol.TRIGGER_SEVERITY_UNKNOWN)].label,
-        data: pieChartDataMap[hatohol.TRIGGER_SEVERITY_UNKNOWN],
-        color: getColor(hatohol.TRIGGER_SEVERITY_UNKNOWN) },
-    ];
-
-    var options = {
-      series: {
-        pie: {
-          show: true,
-          label: {
-            show: true,
-            background: {
-              opacity: 0.8,
-              color: '#000'
-            }
-          }
-        }
-      },
-      legend: {
-        show: false
-      },
-    };
-    $.plot($("#severityStatChart"), dataSet, options);
-  }
-
   function updateSummary(reply) {
     if (!$("#SummarySidebar").is(":visible"))
       return;
@@ -1436,7 +1429,6 @@ var EventsView = function(userProfile, options) {
       self.rawSummaryData = reply;
 
     setupStatictics();
-    setupPieChart();
   }
 
   function updateCore(reply) {
@@ -1449,6 +1441,7 @@ var EventsView = function(userProfile, options) {
     drawTableContents();
     setupTableColor();
     updatePager();
+    updateFilteringResult();
     setLoading(false);
     if (self.currentPage == 0)
       self.enableAutoRefresh(load, self.reloadIntervalSeconds);

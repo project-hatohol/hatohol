@@ -53,6 +53,7 @@
       </ul>
 
       <div class="btn-toolbar" role="toolbar">
+<!--
         <div class="pull-right btn-group" id="sts">
           <button class="navbar-btn btn btn-info dropdown-toggle">
             <span>{% trans "PREPARE" %}</span>
@@ -60,10 +61,13 @@
           <ul class="dropdown-menu" role="menu">
           </ul>
         </div>
+-->
 
         <div class="pull-right btn-group" id="toggleAutoRefresh">
-          <button class="navbar-btn btn btn-primary active" id="toggleAutoRefreshButton" data-toggle="tooltip" data-placement="left" title="{% trans "toggle auto refresh" %}">
+          <button class="navbar-btn btn btn-success active" id="toggleAutoRefreshButton" data-toggle="tooltip" data-placement="left" title="{% trans "toggle auto refresh" %}">
             <i class="glyphicon glyphicon-refresh"></i>
+            <i class="glyphicon glyphicon-pause"></i>
+            <span class="toggleAutoRefreshStatus">{% trans "Monitoring" %}</span>
             <span id="toggleAutorefreshGlyphicon"></span>
           </button>
         </div>
@@ -89,7 +93,7 @@
     </div>
 
     <div style="display: none;"><form>{% csrf_token %}</form></div>
-    <div style="text-align: center;" id="update-time"> {% trans "Last update time:"%} None </div>
+    <div id="update-time"> {% trans "Last Update:"%} None </div>
 
     <noscript><div id="noscript-background">
       <div id="noscript-notice">{% trans "JavaScript is disabled. Please turn on JavaScript." %}</div>

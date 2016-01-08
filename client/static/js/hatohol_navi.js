@@ -85,7 +85,7 @@ var HatoholNavi = function(userProfile, currentPage) {
           ]
         },
         {
-          title: gettext("Severity Ranks"),
+          title: gettext("Severity Setting"),
           href:  "ajax_severity_ranks",
           flags: [
             hatohol.OPPRVLG_CREATE_SEVERITY_RANK,

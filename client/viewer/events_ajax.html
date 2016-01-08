@@ -21,7 +21,7 @@
 {% endcomment %}
 
 {% block title %}
-{{ brand_name }} {% trans "Event Console" %}
+{{ brand_name }} {% trans "Event" %}
 {% endblock %}
 
 {% block main %}
@@ -29,108 +29,77 @@
 
   <div class="page-config-button">
     <button class="btn btn-info" data-toggle="modal" data-target="#events-view-config">
-    <i class="glyphicon glyphicon-wrench"></i> {% trans "Console Settings" %}
+    <i class="glyphicon  glyphicon-wrench"></i> {% trans "Console Settings" %}
     </button>
   </div>
 
-  <h2 style="margin-left: 20px;">{{ brand_name }} {% trans "Event Console" %}</h2>
+  <h2 style="margin-left: 20px;">{% trans "Event" %}</h2>
 
-  <hr>
   <div class="col-sm-3 col-md-2 sidebar" id="SummarySidebar" style="display: none;">
+    <h3>{% trans "Summary" %}</h3>
     <ul class="nav nav-sidebar">
-      <li class="active"><a href="#" class="list-group-item list-group-item-warning">{% trans "Important event(s) index" %}<span class="sr-only">(current)</span></a></li>
       <li><select id="select-summary-filter" class="form-control"></select></li>
+      <li>
+        <button class="btn btn-default">
+          {% trans "All Events" %}
+        </button>
+      </li>
       <li id="IncidentTypeHatoholNotAssignedEventLabel" style="display: none;">
-        <a href="#" color="black">
-          {% trans "Total amount of non assigned important event(s)" %}<br><span class="badge progress-bar-info" id="numOfUnAssignedEvents">N/A</span><br>
-        </a>
+        <button class="btn btn-default">
+          {% trans "Unhandled Important Events" %}<span class="badge progress-bar-info" id="numOfUnAssignedEvents">N/A</span>
+        </button>
       </li>
       <li>
-        <a href="#">
-          {% trans "Total amount of important event(s)" %}<br><span class="badge progress-bar-warning" id="numOfImportantEvents">N/A</span><br>
-        </a>
-      </li>
-      <li id="IncidentTypeHatoholImportantEventLabel" style="display: none;">
-        <a href="#">{% trans "A percentage not assigned in the important event(s)" %}</a>
-      </li>
-      <li id="IncidentTypeHatoholImportantEventProgress" style="display: none;">
-        <div class="progress">
-          <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0"
-               aria-valuemin="0" aria-valuemax="100" style="width: 0%;"
-               id="unAssignedEventsPercentage">
-            N/A%
-          </div>
-        </div>
+        <button class="btn btn-default">
+          {% trans "Important Events" %}<span class="badge progress-bar-warning" id="numOfImportantEvents">N/A</span>
+        </button>
       </li>
       <li>
-        <a href="#">
-          {% trans "A number of host(s) which causes important event(s)" %}<br><span class="badge progress-bar-error" id="numOfImportantEventOccurredHosts">N/A</span><br>
-        </a>
-      </li>
-      <li>
-        <a href="#">{% trans "A percentage host which causes the important event(s)" %}</a>
-      </li>
-      <li>
-        <div class="progress">
-          <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0"
-               aria-valuemin="0" aria-valuemax="100" style="width: 0%;"
-               id="importantEventOccurredHostsPercentage">
-            N/A
-          </div>
-        </div>
-      </li>
-      <li>
-        <a href="#">{% trans "A percentage the important event(s)" %}</a></a>
-      </li>
-      <li>
-        <div id="severityStatChart"></div>
+        <button class="btn btn-default">
+          {% trans "Hosts with important events" %}<span class="badge progress-bar-error" id="numOfImportantEventOccurredHosts">N/A</span>
+        </button>
       </li>
     </ul>
   </div>
 
-  <div class="container-fluid">
+  <div class="container-fluid" id="event-table-area-wrap">
     <div class="col-sm-10 col-md-10 main" id="event-table-area">
 
-      <div id="controller-container">
-	<div class="pull-left">
-	  <button id="toggle-sidebar" type="button" class="btn btn-info dropdown-toggle btn-sm btn-toggle-sidebar"
+	  <button id="toggle-sidebar" type="button" class="btn dropdown-toggle btn-toggle-sidebar"
 		  data-toggle="dropdown" style="display: none;">
 	    <span class="glyphicon glyphicon-chevron-left" id="sidebar-left-glyph"></span>
 	    <span class="glyphicon glyphicon-chevron-right" id="sidebar-right-glyph" style="display: none;"></span>
 	  </button>
-	</div>
+
+      <div id="controller-container">
 	<form class="form-inline hatohol-filter-toolbar">
-	  <button id="hide" type="button" class="btn btn-primary dropdown-toggle btn-sm"
-		  data-toggle="dropdown">
-	    {% trans "Filter" %} <span class="glyphicon glyphicon-chevron-right" id="filter-right-glyph"></span>
-	    <span class="glyphicon glyphicon-chevron-down" id="filter-down-glyph" style="display: none;"></span>
-	  </button>
-	  <div class="pull-right" style="margin-top: -10px;">
+    <div class="clearfix">
+	<div class="pull-left">
+	  <h3 id="controller-container-title"></h3>
+          <span id="filtering-options-brief"><span aria-hiden="true" class="glyphicon glyphicon-tag"></span><span id="filtering-options-brief-line"/></span>
+	</div>
+	<div class="pull-right">
+	  <a href="#" id="hide" data-toggle="dropdown">
+	    <span class="glyphicon glyphicon-chevron-down" id="filter-right-glyph"></span>
+	    <span class="glyphicon glyphicon-chevron-up" id="filter-down-glyph" style="display: none;"></span>
+        {% trans "Filtering Options" %}
+	  </a>
+	</div>
+    </div>
+	  <div id="hideDiv"  style="display: none; margin-bottom: 16px;">
 	    <div class="calendar-element">
-              <p><label>{% trans "Begin time:" %}</label></p>
+              <p><label>{% trans "Period:" %}</label></p>
               <input type="text" id="begin-time" class="form-control filter-time-range">
               <span class="clear-button glyphicon glyphicon-remove-circle form-control-feedback" style="display: none;"></span>
-	    </div>～
+	    </div>
+        　～　
 	    <div class="calendar-element">
-              <p><label>{% trans "End time:" %}</label></p>
               <input type="text" id="end-time" class="form-control filter-time-range" placeholder="{% trans "Current time" %}">
               <span class="clear-button glyphicon glyphicon-remove-circle form-control-feedback" style="display: none;"></span>
 	    </div>
 	    <br><br>
-	    <div class="pull-right">
-	      <button id="apply-all-filter" type="button" class="btn btn-info btn-apply-all-filter">
-		<span class="glyphicon glyphicon-ok-circle" id="sidebar-left-glyph"></span> {% trans "Apply filter(s)" %}
-	      </button>
-              <button type="button" class="btn btn-info latest-button">
-                <span class="glyphicon glyphicon-refresh"></span>
-                {% trans "Latest events" %}
-              </button>
-	    </div>
-	  </div>
-	  <br><br>
-	  <div id="hideDiv"  style="display: none; margin-bottom: 16px;">
 	    <div id="select-incident-container" class="filter-element" style="display: none;">
-	      <p><label>{% trans "Treatment:" %}</label></p>
+	      <p><label>{% trans "Handling:" %}</label></p>
 	      <select id="select-incident" class="form-control">
 		<option value="">---------</option>
 		<option value="NONE">{% trans "NONE" %}</option>
@@ -183,13 +152,20 @@
 	      <select id="select-filter" class="form-control">
 	      </select>
 	    </div>
+        <div style="text-align:center;">
+          <button id="reset-all-filter" type="button" class="btn btn-default reset-apply-all-filter">
+          {% trans "Reset" %}
+          </button>　
+	      <button id="apply-all-filter" type="button" class="btn btn-info btn-apply-all-filter">
+		  {% trans "Filter" %}
+	      </button>
+        </div>
 	  </div>
 	</form>
 
 	<div id="change-incident-container" style="display: none;">
       	  <form class="form-inline hatohol-filter-toolbar">
 	    <div class="filter-element change-treatment">
-              <p><label>{% trans "Change Treatment:" %}</label></p>
               <select id="change-incident" class="form-control" disabled>
 		<option value="">---------</option>
 		<option value="NONE">{% trans "NONE" %}</option>
@@ -204,12 +180,20 @@
 	<div id="abbreviating-event-descriptions-container">
 	  <form class="form-inline hatohol-filter-toolbar">
 	    <div class="filter-element">
-	      <p><input class="form-control abbreviate-checkbox" type="checkbox" id="toggle-abbreviating-event-descriptions"></input>
+	      <p><input class="form-control abbreviate-checkbox" type="checkbox" id="toggle-abbreviating-event-descriptions">
               <label for="toggle-abbreviating-event-descriptions">{% trans "Abbreviate Event Descriptions" %}</label></p>
 	    </div>
       	  </form>
 	</div>
-      </div>
+
+	    <div class="pull-right">
+              <button type="button" class="btn btn-info latest-button">
+                <span class="glyphicon glyphicon-refresh"></span>
+                {% trans "Update" %}
+              </button>
+	    </div>
+	  
+     </div>
 
       <div class="event-table-content">
 	<table class="table table-condensed table-hover" id="table">
@@ -236,7 +220,7 @@
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
 	  </button>
-          <h4 class="modal-title" id="events-view-config-label">{% trans "Customize Event Console" %}</h4>
+          <h4 class="modal-title" id="events-view-config-label">{% trans "Event Page Setting" %}</h4>
 	</div>
 	<div class="modal-body">
 
@@ -248,14 +232,14 @@
 	  <div class="tab-content">
 	    <div class="tab-pane fade in active" id="view-config">
 	      <div class="boxed-group">
-	      <p><label for="auto-reload-interval">{% trans "Auto reload interval (5 - 600 sec)" %}</label><p>
+	      <p><label for="auto-reload-interval">{% trans "Auto reload interval (5 - 600 sec)" %}</p>
 	      <p>
 		<div id="auto-reload-interval-slider"></div>
 		<span style="float: right;">
 		<input id="auto-reload-interval" type="text" class="form-control">
 		<label class="unit">{% trans "seconds" %}</label>
 		</span>
-	      <p>
+	      </p>
 	      </div>
 	      <hr>
 	      <p>
@@ -264,50 +248,53 @@
 		</span>
 		<span style="float: right;">
 		<input id="num-rows-per-page" type="text" class="form-control">
-		<label class="unit">{% trans "rows" %}<label>
+		<label class="unit">{% trans "rows" %}</label>
 		</span>
-	      <p>
+	      </p>
 	      <hr>
 
+		  <p><strong>{% trans "Display Item" %}</strong></p>
 	      <div class="row">
 		<div class="col-xs-5">
 
-		  <p><label for="column-selector">{% trans "Select visible columns" %}<label></p>
+          <p style="text-align:center"><label for="column-selector">{% trans "Selectable" %}</label></p>
 
 		  <select name="from[]" id="column-selector"
 		    class="form-control" size="8" multiple="multiple">
 		  </select>
+          
+          <button type="button" id="all-left-column-selector" class="btn btn-default" style="margin-top: 10px;">
+		    {% trans "Select All" %}
+		  </button>
 		</div>
 
-		<div class="column-selector-buttons col-xs-1" style="margin-top: 45px;">
-		  <button type="button" id="column-selector_rightAll" class="btn btn-block">
-		    <i class="glyphicon glyphicon-forward"></i>
-		  </button>
+		<div class="column-selector-buttons col-xs-1" style="margin-top: 75px;">
 		  <button type="button" id="column-selector_rightSelected" class="btn btn-block">
-		    <i class="glyphicon glyphicon-chevron-right"></i>
+		    <i class="glyphicon glyphicon-arrow-right"></i>
 		  </button>
 		  <button type="button" id="column-selector_leftSelected" class="btn btn-block">
-		    <i class="glyphicon glyphicon-chevron-left"></i>
-		  </button>
-		  <button type="button" id="column-selector_leftAll" class="btn btn-block">
-		    <i class="glyphicon glyphicon-backward"></i>
+		    <i class="glyphicon glyphicon-arrow-left"></i>
 		  </button>
 		</div>
 
 		<div class="col-xs-5">
 
-		  <p><label for="column-selector-selected">{% trans "Selected columns" %}<label></p>
+		  <p style="text-align:center"><label for="column-selector-selected">{% trans "Selected" %}</label></p>
 
 		  <select name="to[]" id="column-selector-selected"
 		    class="form-control" size="8" multiple="multiple">
 		  </select>
+          
+          <button type="button" id="all-right-column-selector" class="btn btn-default" style="margin-top: 10px;">
+		    {% trans "Select All" %}
+		  </button>
 		</div>
 
-		<div class="column-selector-buttons col-xs-1" style="margin-top: 85px;">
-		  <button type="button" id="column-selector-up" class="btn btn-block">
+		<div class="column-selector-buttons col-xs-1" style="margin-top: 75px;">
+		  <button type="button" id="column-selector-up" class="btn btn-block btn-default">
 		    <i class="glyphicon glyphicon-chevron-up"></i>
 		  </button>
-		  <button type="button" id="column-selector-down" class="btn btn-block">
+		  <button type="button" id="column-selector-down" class="btn btn-block btn-default">
 		    <i class="glyphicon glyphicon-chevron-down"></i>
 		  </button>
 		</div>
@@ -350,7 +337,7 @@
 		<div class="panel-body">
 		  <div class="row">
 		    <div class="col-xs-5">
-		      <p><label for="incident-filter-selector">{% trans "Candidates" %}<label></p>
+		      <p><label for="incident-filter-selector">{% trans "Candidates" %}</label></p>
 		      <select name="from[]" id="incident-filter-selector"
 			      class="form-control" size="4" multiple="multiple">
 		      </select>
@@ -366,7 +353,7 @@
 		    </div>
 
 		    <div class="col-xs-5">
-		      <p><label for="incident-filter-selector-selected">{% trans "Selected" %}<label></p>
+		      <p><label for="incident-filter-selector-selected">{% trans "Selected" %}</label></p>
 		      <select name="to[]" id="incident-filter-selector-selected"
 			      class="form-control" size="4" multiple="multiple">
 		      </select>
@@ -384,7 +371,7 @@
 		<div class="panel-body">
 		  <div class="row">
 		    <div class="col-xs-5">
-		      <p><label for="type-filter-selector">{% trans "Candidates" %}<label></p>
+		      <p><label for="type-filter-selector">{% trans "Candidates" %}</label></p>
 		      <select name="from[]" id="type-filter-selector"
 			      class="form-control" size="4" multiple="multiple">
 		      </select>
@@ -400,7 +387,7 @@
 		    </div>
 
 		    <div class="col-xs-5">
-		      <p><label for="type-filter-selector-selected">{% trans "Selected" %}<label></p>
+		      <p><label for="type-filter-selector-selected">{% trans "Selected" %}</label></p>
 		      <select name="to[]" id="type-filter-selector-selected"
 			      class="form-control" size="4" multiple="multiple">
 		      </select>
@@ -420,7 +407,7 @@
 		<div class="panel-body">
 		  <div class="row">
 		    <div class="col-xs-5">
-		      <p><label for="severity-filter-selector">{% trans "Candidates" %}<label></p>
+		      <p><label for="severity-filter-selector">{% trans "Candidates" %}</label></p>
 		      <select name="from[]" id="severity-filter-selector"
 			    class="form-control" size="6" multiple="multiple">
 		      </select>
@@ -436,7 +423,7 @@
 		    </div>
 
 		    <div class="col-xs-5">
-		      <p><label for="severity-filter-selector-selected">{% trans "Selected" %}<label></p>
+		      <p><label for="severity-filter-selector-selected">{% trans "Selected" %}</label></p>
 		      <select name="to[]" id="severity-filter-selector-selected"
 			      class="form-control" size="6" multiple="multiple">
 		      </select>
@@ -468,7 +455,7 @@
 
 		  <div class="row">
 		    <div class="col-xs-5">
-		      <div><label for="server-filter-selector">{% trans "Candidates" %}<label></div>
+		      <div><label for="server-filter-selector">{% trans "Candidates" %}</label></div>
 		      <select name="from[]" id="server-filter-selector"
 			      class="form-control" size="8" multiple="multiple">
 		      </select>
@@ -484,7 +471,7 @@
 		    </div>
 
 		    <div class="col-xs-5">
-		      <div><label for="server-filter-selector-selected">{% trans "Selected" %}<label></div>
+		      <div><label for="server-filter-selector-selected">{% trans "Selected" %}</label></div>
 		      <select name="to[]" id="server-filter-selector-selected"
 			      class="form-control" size="8" multiple="multiple">
 		      </select>
@@ -516,7 +503,7 @@
 
 		  <div class="row">
 		    <div class="col-xs-5">
-		      <div><label for="hostgroup-filter-selector">{% trans "Candidates" %}<label></div>
+		      <div><label for="hostgroup-filter-selector">{% trans "Candidates" %}</label></div>
 		      <select name="from[]" id="hostgroup-filter-selector"
 			      class="form-control" size="8" multiple="multiple">
 		      </select>
@@ -532,7 +519,7 @@
 		    </div>
 
 		    <div class="col-xs-5">
-		      <div><label for="hostgroup-filter-selector-selected">{% trans "Selected" %}<label></div>
+		      <div><label for="hostgroup-filter-selector-selected">{% trans "Selected" %}</label></div>
 		      <select name="to[]" id="hostgroup-filter-selector-selected"
 			      class="form-control" size="8" multiple="multiple">
 		      </select>
@@ -574,7 +561,7 @@
 
 		  <div class="row">
 		    <div class="col-xs-5">
-		      <div><label for="host-filter-selector">{% trans "Candidates" %}<label></div>
+		      <div><label for="host-filter-selector">{% trans "Candidates" %}</label></div>
 		      <select name="from[]" id="host-filter-selector"
 			      class="form-control" size="8" multiple="multiple">
 		      </select>
@@ -590,7 +577,7 @@
 		    </div>
 
 		    <div class="col-xs-5">
-		      <div><label for="host-filter-selector-selected">{% trans "Selected" %}<label></div>
+		      <div><label for="host-filter-selector-selected">{% trans "Selected" %}</label></div>
 		      <select name="to[]" id="host-filter-selector-selected"
 			      class="form-control" size="8" multiple="multiple">
 		      </select>
@@ -635,7 +622,7 @@
 	</div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">
-	    {% trans "Close" %}
+	    {% trans "Cancel" %}
 	  </button>
           <button id="config-save" type="button" class="btn btn-primary">
 	    {% trans "Save changes" %}
@@ -650,9 +637,6 @@
 
 {% block option %}
   <script src="{{ STATIC_URL }}js.external/multiselect.min.js"></script>
-  <script src="{{ STATIC_URL }}js.external/jquery.flot.js"></script>
-  <script src="{{ STATIC_URL }}js.external/jquery.flot.pie.js"></script>
-  <script src="{{ STATIC_URL }}js.external/jquery.flot.resize.js"></script>
 {% endblock %}
 
 {% block logic %}

@@ -21,18 +21,17 @@
 {% endcomment %}
 
 {% block title %}
-{% trans "Severity Ranks" %}
+{% trans "Severity Setting" %}
 {% endblock %}
 
 {% block main %}
 <div id="main">
-  <h2>{% trans "Severity Ranks" %}</h2>
+  <h2>{% trans "Severity Setting" %}</h2>
 
-  <input type="button" id="save-severity-ranks" class="btn btn-primary" value="{% trans "SAVE" %}" style="display: none;">
-  <table class="table table-condensed table-hover" id="table">
+  <table class="table table-condensed table-hover verticalAlignMiddle" id="table">
     <thead>
       <tr>
-        <th style="width: 20%;"> {% trans "Severity Ranks" %} </th>
+        <th style="width: 20%;"> {% trans "Severity" %} </th>
         <th> {% trans "Display Colors" %} </th>
         <th> {% trans "Display Label Names" %} </th>
         <th> {% trans "Important or Not" %} </th>
@@ -41,7 +40,10 @@
     <tbody>
     </tbody>
   </table>
-</div>
+  <div style="text-align: center;padding-bottom: 20px;">
+  <input type="button" id="cancel-severity-ranks" class="btn btn-default" value="{% trans "Cancel" %}"	>　
+  <input type="button" id="save-severity-ranks" class="btn btn-primary" value="{% trans "Save changes" %}" style="display: none;">
+  </div>
 </div>
 {% endblock %}
 
