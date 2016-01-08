@@ -396,9 +396,9 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)));
     expect($('tr').eq(0).text()).to.be(
-      "TreatmentStatusSeverityTimeMonitoring ServerHostBrief");
+      "HandlingStatusSeverityPeriod Monitoring ServerHostBrief");
     expect($('tr').eq(1).text()).to.be(
-      "ProblemInformation" + getEventTimeString(dummyEventInfo[0]) +
+      " ProblemInformation" + getEventTimeString(dummyEventInfo[0]) +
       "ServerHostTest description.");
   });
 
@@ -410,9 +410,9 @@ describe('EventsView', function() {
     respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)),
 	    configJson);
     expect($('tr').eq(0).text()).to.be(
-      "DurationSeverityStatusBriefHostTimeMonitoring Server");
+      "DurationSeverityStatusBriefHostPeriod Monitoring Server");
     expect($('tr').eq(1).text()).to.be(
-      "02:46:40InformationProblemTest description.Host" +
+      "02:46:40Information ProblemTest description.Host" +
       getEventTimeString(dummyEventInfo[0]) +
       "Server");
   });
@@ -435,7 +435,7 @@ describe('EventsView', function() {
     respond(eventsJson(events, getDummyServerInfo(0)),
 	    configJson);
     expect($('tr').eq(0).text()).to.be(
-      "Event IDTreatmentPriorityAssignee% Done");
+      "Event IDHandlingPriorityAssignee% Done");
     expect($('tr').eq(1).text()).to.be(
       "12332NONEHIGHTom5%");
   });
@@ -458,7 +458,7 @@ describe('EventsView', function() {
     respond(eventsJson(events, getDummyServerInfo(0)),
             configJson);
     expect($('tr').eq(0).text()).to.be(
-      "Event IDTreatmentPriorityAssignee% Done");
+      "Event IDHandlingPriorityAssignee% Done");
     expect($('tr').eq(1).text()).to.be(
       "12332Value1HIGHTom5%");
   });
