@@ -249,7 +249,7 @@ msgstr "ステータス"
 
 #: static/js/events_view.js:106
 msgid "Current trigger status"
-msgstr ""
+msgstr "現在のトリガーステータス"
 
 #: static/js/events_view.js:110 static/js/hatohol_add_action_dialog.js:719
 msgid "Severity"
@@ -297,7 +297,7 @@ msgstr "絞り込み結果"
 
 #: static/js/events_view.js:724
 msgid "There is no valid incident tracker to post!"
-msgstr ""
+msgstr "インシデント登録可能なインシデントトラッカーが存在しません。"
 
 #: static/js/events_view.js:745
 msgid "Appling the treatment..."
@@ -323,12 +323,13 @@ msgstr "対応の更新に失敗しました"
 
 #: static/js/events_view.js:798
 msgid "An unknown error occured on creating an incident for the event: "
-msgstr ""
+msgstr "イベントに対応するインシデント作成時に未知のエラーが発生しました。: "
 
 #: static/js/events_view.js:808
 msgid ""
 "Failed to connect to Hatohol server on posting an incident for the event: "
 msgstr ""
+"イベントに対応するインシデント登録時に Hatohol サーバーへの接続に失敗しました。: "
 
 #: static/js/events_view.js:832
 msgid "An unknown error occured on changing treatment of an event with ID: "
@@ -339,6 +340,8 @@ msgid ""
 "Failed to connect to Hatohol server on changing treatment of an event with "
 "ID: "
 msgstr ""
+"イベントの対処の変更時に Hatohol サーバーへの接続に失敗しました。 "
+"ID: "
 
 #: static/js/events_view.js:856 static/js/hatohol_add_action_dialog.js:372
 #: static/js/hatohol_incident_trackers_editor.js:310
@@ -1197,7 +1200,7 @@ msgstr "深刻度設定"
 
 #: static/js/hatohol_navi.js:97
 msgid "Custom Incident Labels"
-msgstr ""
+msgstr "インシデントラベルの設定"
 
 #: static/js/hatohol_navi.js:108
 msgid "Help"
@@ -1275,11 +1278,11 @@ msgstr "表示 / 編集"
 
 #: static/js/hatohol_reconnection_modal.js:31
 msgid "Connection Error"
-msgstr ""
+msgstr "接続エラー"
 
 #: static/js/hatohol_reconnection_modal.js:58
 msgid "Try to reconnect after "
-msgstr ""
+msgstr "後で再接続してください "
 
 #: static/js/hatohol_reconnection_modal.js:58
 msgid " sec."
@@ -1287,7 +1290,7 @@ msgstr ""
 
 #: static/js/hatohol_reconnection_modal.js:64
 msgid "Retry now"
-msgstr ""
+msgstr "再試行してください"
 
 #: static/js/hatohol_reply_parser.js:81
 msgid "Invalid user name or password."
