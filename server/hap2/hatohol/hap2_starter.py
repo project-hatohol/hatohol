@@ -36,8 +36,14 @@ def create_pid_file(pid_dir, server_id, hap_pid):
     with open("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id), "w") as file:
         file.writelines([str(os.getpid()), "\n", str(hap_pid)])
 
+    logger.info("PID file has been created.")
+
+def check_existence_of_pid_file(pid_dir, server_id):
+    return os.path.isfile("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
+
 def remove_pid_file(pid_dir,server_id):
-    subprocess.call("rm %s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
+    os.remove("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
+    logger.info("PID file has been removed.")
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
@@ -66,7 +72,8 @@ if __name__=="__main__":
         except OSError:
             logger.info("%s process was finished" % self_args.plugin_path)
 
-        if self_args.server_id is not None:
+        if self_args.server_id is not None and \
+            check_existence_of_pid_file(self_args.pid_file_dir, self_args.server_id):
             remove_pid_file(self_args.pid_file_dir, self_args.server_id)
 
         logger.info("Rerun after %d sec" % DEFAULT_ERROR_SLEEP_TIME)
