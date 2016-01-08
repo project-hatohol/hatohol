@@ -1285,6 +1285,7 @@ msgid "Try to reconnect after "
 msgstr "再接続します: "
 
 #: static/js/hatohol_reconnection_modal.js:58
+msgctxt "ReconnectionModal"
 msgid " sec."
 msgstr " 秒後"
 
