@@ -55,7 +55,7 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
       s += errorMsg;
       s += "<hr>";
     }
-    s += gettext("Try to reconnect after ") + self.timeToReconnect + gettext(" sec.");
+    s += gettext("Try to reconnect after ") + self.timeToReconnect + pgettext("ReconnectionModal", " sec.");
     s += "</p>";
     return s;
   };
