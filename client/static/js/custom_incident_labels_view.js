@@ -74,7 +74,7 @@ var CustomIncidentLabelsView = function(userProfile) {
     var queryData = {};
     queryData.id = customIncidentStatusId;
     queryData.code = $("#custom-incident-status-code" + customIncidentStatusId).text();
-    queryData.label = $("#custom-incident-status-label" + customIncidentStatusId).text();
+    queryData.label = $("#custom-incident-status-label" + customIncidentStatusId).val();
     return queryData;
   }
 
