@@ -131,6 +131,11 @@ var CustomIncidentLabelsView = function(userProfile) {
     $("#save-custom-incident-labels").click(function() {
       saveCustomIncidentLabels();
     });
+    $("#cancel-custom-incident-labels").show();
+    $("#cancel-custom-incident-labels").click(function() {
+      load();
+      hatoholInfoMsgBox(gettext("Input data has reset."));
+    });
   }
 
   function drawTableContents(data) {
