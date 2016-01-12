@@ -171,7 +171,7 @@ var HatoholNavi = function(userProfile, currentPage) {
       klass = "active";
     } else {
       title = '<a href=' + menuItem.href + '>' +
-	menuItem.title + '</a>';
+        menuItem.title + '</a>';
       klass = undefined;
     }
 
