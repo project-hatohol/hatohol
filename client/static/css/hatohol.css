@@ -406,7 +406,7 @@ html {
     color: #ffffff;
     text-indent: -9999px;
     outline: nonoe;
-    background: #f0942d url(/static/images/logo_hatohol.png) no-repeat;
+    background: #f0942d url(../images/logo_hatohol.png) no-repeat;
 }
 
 .navbar a.navbar-brand:hover,.navbar a.navbar-brand:active,.navbar a.navbar-brand:focus {
