@@ -1,8 +1,12 @@
 2016-01-29 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.01
 
 	* New Features
+	- [HAP2] Create a new Nagios plugin that uses livestatus API. (#1549)
+	- [HAP2] Create a starter of hap2. (#1729)
+	- [HAP2][ZabbixAPI] Support Zabbix3.0.
 
 	* Bug Fixes
+	- [Server] Plug a memory leak. (#1639)
 
 	* Support OS
 	- CentOS 7
