@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-07 12:44-0600\n"
+"POT-Creation-Date: 2016-01-11 21:14-0600\n"
 "PO-Revision-Date: 2015-11-05 14:23+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -329,7 +329,8 @@ msgstr "イベントに対応するインシデント作成時に未知のエラ
 msgid ""
 "Failed to connect to Hatohol server on posting an incident for the event: "
 msgstr ""
-"イベントに対応するインシデント登録時に Hatohol サーバーへの接続に失敗しました: "
+"イベントに対応するインシデント登録時に Hatohol サーバーへの接続に失敗しまし"
+"た: "
 
 #: static/js/events_view.js:832
 msgid "An unknown error occured on changing treatment of an event with ID: "
@@ -339,9 +340,7 @@ msgstr "対応の変更中に未知のエラーが発生しました イベン�
 msgid ""
 "Failed to connect to Hatohol server on changing treatment of an event with "
 "ID: "
-msgstr ""
-"イベントの対処の変更時に Hatohol サーバーへの接続に失敗しました "
-"ID: "
+msgstr "イベントの対処の変更時に Hatohol サーバーへの接続に失敗しました ID: "
 
 #: static/js/events_view.js:856 static/js/hatohol_add_action_dialog.js:372
 #: static/js/hatohol_incident_trackers_editor.js:310
