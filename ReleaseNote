@@ -1,3 +1,25 @@
+
+	* New Features
+	- [HAP2] Give a pass word to an arm plugin by an environment variable
+	  instead of a command line argument to enhance security. (#1428)
+	- [HAP2] Log the file name, the line number, time, and the process ID
+	  as well as the message. (#1453)
+	- [WebUI] Remove HAPI1 plugins from candidates of target server types.
+	  (#1626)
+	- [HAP2] Log messages with syslog by default. (#1738, #1876)
+	- [Server] New self monitoring sub system. (#1745)
+	    - Watch AMQP broker connection and HAP connection as a trigger.
+	    - Notify some internal errors as an event.
+	- [WebUI] Can place the URL of Hatohol other than the top (#1607)
+
+	* Bug Fixes
+	- [Server][HAP2] Save lastInfo and the data body atomically. (#1569)
+	- [WebUI] Show an error message at login even when the Web server
+	  or Hatohol server is unresponsive (#1581, #1795)
+	- [HAP2][Server] Save the first item group when the server get
+	  multiple ones. Note that this behavior is tentative. We will have
+	  to save all the received ones (#1721)
+
 2015-07-10 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 15.06
 
 	* New Features
