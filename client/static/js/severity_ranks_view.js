@@ -65,7 +65,7 @@ var SeverityRanksView = function(userProfile) {
         " style='background-color: " + escapeHTML(color) + "'>" +
         escapeHTML(color) + "</td>";
       html += "<td><input type=\"text\" id='severity-rank-label" + escapeHTML(status) +"'" +
-        "contenteditable='true' data-placeholder='" + defaultLabel + "' value='" +
+        "contenteditable='true' placeholder='" + defaultLabel + "' value='" +
 	 escapeHTML(label) + "'></td>";
       html += "<td class='delete-selector'>";
       html += "<input type='checkbox' id='severity-rank-checkbox" +
