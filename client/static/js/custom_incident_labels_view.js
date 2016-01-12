@@ -147,10 +147,6 @@ var CustomIncidentLabelsView = function(userProfile) {
 
     drawTableContents(rawData);
     setupApplyButton(rawData);
-
-    // I don't know why but the following elements are unexpectedly inserted
-    // on Firefox.
-    $('#table td br[type="_moz"]').remove();
   }
 
   function load() {
