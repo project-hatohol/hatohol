@@ -4,6 +4,10 @@
 
 	* Bug Fixes
 
+	* Support OS
+	- CentOS 7
+	- Ubuntu 14.04 LTS
+
 	* Contributer
 	- Kazuhiro Yamato
 	- Takuro Ashie
