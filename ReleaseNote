@@ -12,7 +12,13 @@
 	    - Watch AMQP broker connection and HAP connection as a trigger.
 	    - Notify some internal errors as an event.
 	- [WebUI] Can place the URL of Hatohol other than the top (#1607)
-
+	- [HatoholHouseKeeper] Add hatohol house keeper tool. (#1786, #1806)
+	- [WebUI] Support toggle abbreviating event descriptions. (#1768)
+	- [WebUI][Server] Support customizing incident status labels.
+	  (#1697, #1711, #1716, #1722, #1727, #1746)
+	- [Server] Support event statistics. (#1664, #1686, #1642, #1637)
+	- [Server] Support user-defined severity rank.
+	  (#1773, #1701, #1660, #1657, #1653)
 	- [HAP2] Create a new Nagios plugin that uses livestatus API. (#1549)
 	- [HAP2] Create a starter of hap2. (#1729)
 	- [HAP2][ZabbixAPI] Support Zabbix3.0.
@@ -24,6 +30,9 @@
 	- [HAP2][Server] Save the first item group when the server get
 	  multiple ones. Note that this behavior is tentative. We will have
 	  to save all the received ones (#1721)
+	- [Server] Fix memory corruption in HAP2 Gate. (#1771)
+	- [Server] Fix bug about privileges enums are defined
+	  greater than or equal to 32. (#1696)
 	- [Server] Plug a memory leak. (#1639)
 
 	* Support OS
