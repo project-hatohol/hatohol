@@ -97,9 +97,6 @@ var LatestView = function(userProfile) {
       query = self.lastQuery ? self.lastQuery : self.baseQuery;
 
     self.setupHostFilters(servers, query, withoutSelfMonitor);
-
-    if ('limit' in query)
-      $('#num-items-per-page').val(query.limit);
   }
 
   function setupCallbacks() {
