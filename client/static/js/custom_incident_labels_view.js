@@ -60,10 +60,10 @@ var CustomIncidentLabelsView = function(userProfile) {
       html += "<tr>";
       html += "<td id='custom-incident-status-code" + escapeHTML(customIncidentStatusId) + "'>" +
         escapeHTML(code) + "</td>";
-      html += "<td id='custom-incident-status-label" + escapeHTML(customIncidentStatusId) + "'" +
+      html += "<td><input type=\"text\" id='custom-incident-status-label" + escapeHTML(customIncidentStatusId) + "'" +
         " contenteditable='true' " +
-        " data-placeholder='" + getDefaultLabel(code) + "'>" +
-        escapeHTML(label) + "</td>";
+        " placeholder='" + getDefaultLabel(code) + "' value='" +
+        escapeHTML(label) + "'></td>";
       html += "</tr>";
     }
 
@@ -74,7 +74,7 @@ var CustomIncidentLabelsView = function(userProfile) {
     var queryData = {};
     queryData.id = customIncidentStatusId;
     queryData.code = $("#custom-incident-status-code" + customIncidentStatusId).text();
-    queryData.label = $("#custom-incident-status-label" + customIncidentStatusId).text();
+    queryData.label = $("#custom-incident-status-label" + customIncidentStatusId).val();
     return queryData;
   }
 
@@ -131,6 +131,11 @@ var CustomIncidentLabelsView = function(userProfile) {
     $("#save-custom-incident-labels").click(function() {
       saveCustomIncidentLabels();
     });
+    $("#cancel-custom-incident-labels").show();
+    $("#cancel-custom-incident-labels").click(function() {
+      load();
+      hatoholInfoMsgBox(gettext("Input data has reset."));
+    });
   }
 
   function drawTableContents(data) {
@@ -147,10 +152,6 @@ var CustomIncidentLabelsView = function(userProfile) {
 
     drawTableContents(rawData);
     setupApplyButton(rawData);
-
-    // I don't know why but the following elements are unexpectedly inserted
-    // on Firefox.
-    $('#table td br[type="_moz"]').remove();
   }
 
   function load() {
