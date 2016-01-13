@@ -1,5 +1,5 @@
 =========================
-Overview
+GET-Overview
 =========================
 
 Request
@@ -27,7 +27,7 @@ Parameters
      - JSONP
    * - fmt
      - json or jsonp
-     - This parameter is omitted, the return format is json.
+     - If this parameter is omitted, the return format is json.
      - Optional 
      - Optional
    * - callback
@@ -51,14 +51,13 @@ Repsponse structure
    * - apiVersion
      - Number
      - An API version of this URL.
-       This document is written for version **2**.
+       This document is written for version **4**.
      - Always
-   * - result
-     - Boolean
-     - True on success. Otherwise False and the reason is shown in the
-       element: message.
+   * - errorCode
+     - Number
+     - N/A
      - Always
-   * - message
+   * - errorMessage
      - String
      - Error message. This key is reply only when result is False.
      - False
@@ -67,14 +66,18 @@ Repsponse structure
      - The number of hosts.
      - True
    * - serverStatus
-     - Array
+     - Object
      - The array of `ServerStatus object`_.
        Servers that Hatotal connot communicate with are not included in this array.
        They are listed in the array: badServers.
      - True
-   * - badServers
-     - Array
-     - An array of `BadServer object`_.
+   * - numberOfGoodServer
+     - Number
+     - The number of good servers.
+     - True
+   * - numberOfBadServer
+     - Number
+     - The number of bad servers.
      - True
 
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
@@ -108,6 +111,12 @@ ServerStatus object
    * - numberOfTriggers
      - Number
      - The number of triggers.
+   * - numberOfBadHosts
+     - Number
+     - The number of bad hosts.
+   * - numberOfBadTriggers
+     - Number
+     - The number of bad triggers.
    * - numberOfUsers
      - Number
      - | The number of users.
@@ -152,15 +161,15 @@ SystemStatus object
    * - Key
      - Value type
      - Brief
-   * - hostGroupId
+   * - hostgroupId
      - Number
      - A host groud ID.
    * - severity
      - Number
      - A :ref:`ref-trigger-severity`.
-   * - numberOfHosts
+   * - numberOfTriggers
      - Number
-     - The number of hosts whose host group ID and serverity consist with hostGroupId and serverity in this object.
+     - The number of triggers.
 
 HostStatus object
 -----------------
@@ -170,7 +179,7 @@ HostStatus object
    * - Key
      - Value type
      - Brief
-   * - hostGroupId
+   * - hostgroupId
      - Number
      - A host groud ID.
    * - numberOfGoodHosts
@@ -180,17 +189,4 @@ HostStatus object
      - Number
      - A number of bad hosts whose host group ID is hostGroupId in this object.
 
-BadServer object
------------------------------
-.. list-table::
-   :header-rows: 1
 
-   * - Key
-     - Value type
-     - Brief
-   * - serverId
-     - Number
-     - A server ID.
-   * - brief
-     - String
-     - A brief of the problem.

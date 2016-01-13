@@ -1,7 +1,7 @@
 =========================
-GET-Item
+GET-Trigger
 =========================
-
+ **Please refer when you Get a Trigger.**
 Request
 =======
 
@@ -12,7 +12,7 @@ Path
 
    * - URL
      - Comments
-   * - /item
+   * - /trigger
      - N/A
 
 Parameters
@@ -35,16 +35,41 @@ Parameters
      - N/A
      - N/A
      - Mandatory
+   * - hostId
+     - N/A
+     - N/A
+     - Optional 
+     - Optional
+   * - hostgroupId
+     - N/A
+     - N/A
+     - Optional 
+     - Optional
    * - limit
      - N/A
      - N/A
+     - Optional 
+     - Optional
+   * - minimumSeverity
      - N/A
      - N/A
+     - Optional 
+     - Optional
    * - offset
-     - N/A 
      - N/A
      - N/A
+     - Optional 
+     - Optional
+   * - serverId
      - N/A
+     - N/A
+     - Optional 
+     - Optional
+   * - status
+     - N/A
+     - N/A
+     - Optional 
+     - Optional
 
 Response
 ========
@@ -64,38 +89,34 @@ Repsponse structure
        This document is written for version **4**.
      - Always
    * - errorCode
-     - String
+     - Number
      - N/A
      - Always
    * - errorMessage
      - String
-     - Error message. This key is reply only when result is False.
+     - N/A
      - False
-   * - numberOfItems
+   * - triggers
+     - Array
+     - The array of `Trigger object`_.
+     - True
+   * - numberOfTriggers
      - Number
      - The number of triggers.
      - True
-   * - items
-     - Array
-     - The array of `Item object`_.
-     - True
-   * - applications 
-     - Object
-     - N/A
-     - N/A
-   * - totalNumberOfItems
+   * - totalNumberOfTriggers
      - Number
      - N/A
-     - N/A
+     - True
    * - servers
-     - Object
-     - List of `Server object`_. Keys for each `Server object`_ are server IDs which corresponds to serverId values in `Item object`_.
+     - Array
+     - List of `Server object`_. Keys for each `Server object`_ are server IDs which corresponds to serverId values in `Trigger object`_.
      - True
 
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
-Item object
--------------
+Trigger object
+--------------
 .. list-table::
    :header-rows: 1
 
@@ -103,57 +124,29 @@ Item object
      - Value type
      - Brief
    * - id
-     - Number
+     - String
      - N/A
+   * - status
+     - Number
+     - A `Trigger status`_.
+   * - severity
+     - Number
+     - A `Trigger severity`_.
+   * - lastChangeTime
+     - Number
+     - A last change time of the trigger.
    * - serverId
      - Number
      - A server ID.
    * - hostId
-     - Number
+     - String
      - A host ID.
    * - brief
      - String
-     - A brief of the item.
-   * - lastValueTime
-     - Number
-     - A time of the last value.
-   * - lastValue
+     - A brief of the trigger.
+   * - extendedInfo
      - String
-     - The last value.
-   * - itemGroupName
-     - String
-     - The item group name.
-   * - unit
-     - String
-     - The unit of the item.
-   * - valueType
-     - Number
-     - A `value type`_ of the item.
-
-Value type
-----------
-.. list-table::
-
-   * - 0
-     - ITEM_INFO_VALUE_TYPE_UNKNOWN
-   * - 1
-     - ITEM_INFO_VALUE_TYPE_FLOAT
-   * - 2
-     - ITEM_INFO_VALUE_TYPE_INTEGER
-   * - 3
-     - ITEM_INFO_VALUE_TYPE_STRING
-
-Application object
--------------
-.. list-table::
-   :header-rows: 1
-
-   * - Key
-     - Value type
-     - Brief
-   * - name
-     - String
-     - A hostname of the server.
+     - N/A
 
 Server object
 -------------
@@ -168,7 +161,7 @@ Server object
      - A hostname of the server.
    * - nickname
      - String
-     - N/A
+     - A nickname of the server.
    * - type
      - Number
      - A `Server type`_.
@@ -180,9 +173,9 @@ Server object
      - N/A
    * - hosts
      - Object
-     - N/A
+     - List of `Host object`_. Keys for each `Host object`_ are host IDs which corresponds to hostId values in `Trigger object`_.
    * - groups
-     - Object
+     - Array
      - N/A
 
 Host object
@@ -195,7 +188,7 @@ Host object
      - Brief
    * - name
      - String
-     - A hostname of the hosts.
+     - A hostname of the host.
 
 Group object
 -------------
@@ -207,7 +200,27 @@ Group object
      - Brief
    * - name
      - String
-     - A grouotname of the grouop.
+     - N/A
+
+Trigger status
+--------------
+.. list-table::
+
+   * - 0
+     - TRIGGER_STATUS_OK
+   * - 1
+     - TRIGGER_STATUS_PROBLEM
+
+.. _ref-trigger-severity:
+
+Trigger severity
+----------------
+.. list-table::
+
+   * - 0
+     - TRIGGER_SEVERITY_INFO
+   * - 1
+     - TRIGGER_SEVERITY_WARN
 
 Server type
 -------------

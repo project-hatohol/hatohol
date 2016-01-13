@@ -1,7 +1,7 @@
 =========================
-Servers
+GET-History
 =========================
-
+ **Please refer when you Get a History.**
 Request
 =======
 
@@ -12,9 +12,8 @@ Path
 
    * - URL
      - Comments
-   * - /server
+   * - /history
      - N/A
-
 
 Parameters
 ----------
@@ -28,13 +27,38 @@ Parameters
      - JSONP
    * - fmt
      - json or jsonp
-     - This parameter is omitted, the return format is json.
+     - If this parameter is omitted, the return format is json.
      - Optional 
      - Optional
    * - callback
      - The name of returned JSONP object.
      - N/A
      - N/A
+     - Mandatory
+   * - beginTime
+     - The time of the beginning by UNIX Time.
+     - N/A
+     - Optional
+     - Optional
+   * - endTime
+     - The time of the end by UNIX Time.
+     - N/A
+     - Optional
+     - Optional
+   * - hostId
+     - N/A
+     - N/A
+     - Optional
+     - Optional
+   * - itemId
+     - N/A
+     - N/A
+     - Mandatory
+     - Mandatory
+   * - serverId
+     - N/A
+     - N/A
+     - Mandatory
      - Mandatory
 
 Response
@@ -52,57 +76,42 @@ Repsponse structure
    * - apiVersion
      - Number
      - An API version of this URL.
-       This document is written for version **2**.
+       This document is written for version **4**.
      - Always
-   * - result
-     - Boolean
-     - True on success. Otherwise False and the reason is shown in the
-       element: message.
-     - Always
-   * - message
-     - String
-     - Error message. This key is reply only when result is False.
-     - False
-   * - numberOfServers
+   * - errorCode
      - Number
-     - The number of servers.
-     - True
-   * - servers
+     - N/A
+     - Always
+   * - errorMessage
+     - String
+     - N/A
+     - False
+   * - optionMessages
+     - String
+     - N/A
+     - False
+   * - history
      - Array
-     - The array of `Server object`_.
+     - N/A
      - True
 
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
-Server object
--------------
+History object
+--------------
 .. list-table::
    :header-rows: 1
 
    * - Key
      - Value type
      - Brief
-   * - id
+   * - value
+     - String
+     - The value of the data.
+   * - clock
      - Number
-     - A unique server ID.
-   * - type
+     - The time of the data by UNIX Time.
+   * - ns
      - Number
-     - Any of `Server type`_.
-   * - hostName
-     - String
-     - A host name.
-   * - ipAddress
-     - String
-     - An IP Address of the server.
-   * - nickname
-     - String
-     - Arbitrary nickname of the server.
+     - N/A
 
-Server type
--------------
-.. list-table::
-
-   * - 0
-     - Zabbix
-   * - 1
-     - Nagios
