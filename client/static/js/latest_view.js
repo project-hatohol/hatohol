@@ -80,11 +80,11 @@ var LatestView = function(userProfile) {
       numTotalRecords: rawData ? rawData["totalNumberOfItems"] : -1,
       numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
-        load(page);
         if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
           self.baseQuery.limit = self.pager.numRecordsPerPage;
           saveConfig({'num-items-per-page': self.baseQuery.limit});
         }
+        load(page);
       }
     });
   }

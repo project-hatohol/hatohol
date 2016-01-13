@@ -66,6 +66,7 @@ var TriggersView = function(userProfile) {
         deferred.reject();
       },
     });
+    return deferred.promise();
   }
 
   function loadSeverityRank() {
@@ -111,11 +112,11 @@ var TriggersView = function(userProfile) {
       numTotalRecords: rawData ? rawData["totalNumberOfTriggers"] : -1,
       numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
-        load(page);
         if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
           self.baseQuery.limit = self.pager.numRecordsPerPage;
           saveConfig({'num-triggers-per-page': self.baseQuery.limit});
         }
+        load(page);
       }
     });
   }
