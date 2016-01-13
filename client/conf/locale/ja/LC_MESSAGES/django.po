@@ -390,8 +390,8 @@ msgid "days"
 msgstr "日"
 
 #: viewer/events_ajax.html:333
-msgid "Include \"Treatment\" to the filter condition"
-msgstr "「対応」の選択をフィルターの条件に含める"
+msgid "Include \"Handling\" to the filter condition"
+msgstr "「対処」の選択をフィルターの条件に含める"
 
 #: viewer/events_ajax.html:340 viewer/events_ajax.html:374
 #: viewer/events_ajax.html:410 viewer/events_ajax.html:458
