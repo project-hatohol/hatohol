@@ -57,10 +57,6 @@ the specific monitoring software in various way.
 - librt
 - libstdc++
 - uuid-dev
-- qpidd
-- libqpidmessaging2-dev
-- libqpidtypes1-dev
-- libqpidcommon2-dev
 
 ### Example to install required libraries on CentOS 6.5
 > See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.06/ja/index.md)
@@ -70,11 +66,6 @@ First, you need to install development tools to build Hatohol and some required
 packages
 
     # yum groupinstall "Development Tools"
-
-You need to register a yum repository for installing qpid-cpp-client-devel packages
-by the following command
-
-    # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
 
 You can add a new repository the following command.
 
@@ -118,14 +109,10 @@ You should install these package to build Hatohol and required libraries.
 - libmysqlclient-dev
 - mysql-server
 - uuid-dev
-- qpidd
-- libqpidmessaging2-dev
-- libqpidtypes1-dev
-- libqpidcommon2-dev
 
 installing by following commands:
 
-    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev qpidd libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev
+    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev
 
 In addition, you need to install following libraries if you want to enable HAPI
 (Hatohol Arm Plugin Interface) 2.0.
