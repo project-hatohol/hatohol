@@ -139,11 +139,11 @@ Then run the following commands to install Hatohol:
 ## How to start
 (0.1) Run MySQL server for storing configuration.
 
-(0.3) Set RabbitMQ's setting
+(0.2) Set RabbitMQ's setting
 
 TBD
 
-(0.4) Create a directory to save a PID file.
+(0.3) Create a directory to save a PID file.
 
     # mkdir -p /usr/local/var/run
 
