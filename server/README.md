@@ -153,7 +153,7 @@ Then run the following commands to install Hatohol:
 
 ## How to start
 (0.1) Run MySQL server for storing configuration.
-Type the following comannds to run MySQL server.
+Type the following commands to run MySQL server.
 
     # system mysql start
 
