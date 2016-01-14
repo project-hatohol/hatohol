@@ -16,6 +16,7 @@ Overview:
    :maxdepth: 1
 
    overview
+
 Action:
 
 .. toctree::
@@ -25,6 +26,7 @@ Action:
    actionsGET
    actionsPUT
    actionsDELETE
+
 Server:
 
 .. toctree::
@@ -34,6 +36,7 @@ Server:
    serversGET
    serversPUT
    serversDELETE
+
 ServerConnectionStatus:
 
 .. toctree::
@@ -47,12 +50,14 @@ Trigger:
    :maxdepth: 1
 
    triggersGET
+
 Event:
 
 .. toctree::
    :maxdepth: 1
 
    events
+
 Item:
 
 .. toctree::
@@ -68,6 +73,7 @@ UserAccessInfo:
    userAccessInfoPOST
    userAccessInfoGET
    userAccessInfoDELETE
+
 User:
 
 .. toctree::
@@ -77,6 +83,7 @@ User:
    userGET
    userPUT
    userDELETE
+
 UserRole:
 
 .. toctree::
@@ -85,24 +92,28 @@ UserRole:
    userRoleGET
    userRolePOST
    userRolePUT
+
 Host:
 
 .. toctree::
    :maxdepth: 1
 
    hostGET
+
 HostGroup:
 
 .. toctree::
    :maxdepth: 1
 
    hostGroupGET
+
 History:
 
 .. toctree::
    :maxdepth: 1
 
    historyGET
+
 Login/Logout:
 
 .. toctree::
