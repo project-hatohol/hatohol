@@ -29,7 +29,7 @@ Parameters
    * - fmt
      - json or jsonp
      - If this parameter is omitted, the return format is json.
-     - Optional 
+     - Optional
      - Optional
    * - callback
      - The name of returned JSONP object.
@@ -39,7 +39,7 @@ Parameters
    * - serverId
      - N/A
      - N/A
-     - Optional 
+     - Optional
      - Optional
 
 Response

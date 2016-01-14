@@ -28,7 +28,7 @@ Parameters
    * - fmt
      - json or jsonp
      - If this parameter is omitted, the return format is json.
-     - Optional 
+     - Optional
      - Optional
    * - callback
      - The name of returned JSONP object.
@@ -41,7 +41,7 @@ Parameters
      - N/A
      - N/A
    * - offset
-     - N/A 
+     - N/A
      - N/A
      - N/A
      - N/A
@@ -79,7 +79,7 @@ Repsponse structure
      - Array
      - The array of `Item object`_.
      - True
-   * - applications 
+   * - applications
      - Object
      - N/A
      - N/A

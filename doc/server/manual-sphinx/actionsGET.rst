@@ -29,7 +29,7 @@ Parameters
    * - fmt
      - json or jsonp
      - If this parameter is omitted, the return format is json.
-     - Optional 
+     - Optional
      - Optional
    * - callback
      - The name of returned JSONP object.
@@ -39,8 +39,8 @@ Parameters
    * - type
      - N/A
      - If you want `Incident tracking`, it value must be `2`.
-     - Optional 
-     - Optional 
+     - Optional
+     - Optional
 
 Parameter type
 --------------
