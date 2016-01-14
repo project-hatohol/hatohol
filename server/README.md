@@ -12,7 +12,7 @@ the specific monitoring software in various way.
 - [Supported output method](#user-content-supported-output-method)
 - [Supported platforms](#user-content-supported-platforms)
 - [Required libraries](#user-content-required-libraries)
-	- [Example to install required libraries on CentOS 6.5](#user-content-example-to-install-required-libraries-on-centos-65)
+	- [Example to install required libraries on CentOS 7](#user-content-example-to-install-required-libraries-on-centos-65)
 		- [For json-glib, there are two ways to install.](#user-content-for-json-glib-there-are-two-ways-to-install)
 			- [One is to use json-glib RPM package built by Project Hatohol.](#user-content-one-is-to-use-json-glib-rpm-package-built-by-project-hatohol)
 			- [The other is to install it from the source tar ball like below.](#user-content-the-other-is-to-install-it-from-the-source-tar-ball-like-below)
