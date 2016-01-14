@@ -43,7 +43,7 @@ the specific monitoring software in various way.
 - REST
 
 ## Supported platforms
-- CentOS 6.5 (x86\_64)
+- CentOS 7 (x86\_64)
 - Ubuntu Server 14.04LTS (64-bit)
 - Ubuntu 14.04 (64-bit) [supported until the next ubuntu release]
 
