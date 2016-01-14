@@ -139,19 +139,6 @@ Then run the following commands to install Hatohol:
 ## How to start
 (0.1) Run MySQL server for storing configuration.
 
-(0.2) Set QPid's setting
-(0.2.a) Disable authentification
-Add the following line in /etc/qpid/qpidd.conf
-
-    auth=no
-
-(0.2.b) Allow all yours (Setting of ACL)
-Example of /etc/qpid/qpidd.acl
-
-    acl allow all all
-
-NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
-
 (0.3) Set RabbitMQ's setting
 
 TBD
