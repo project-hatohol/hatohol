@@ -38,6 +38,7 @@ the specific monitoring software in various way.
 
 ## Supported incident tracking software
 - Redmine
+- Hatohol (built-in)
 
 ## Supported output method
 - REST
