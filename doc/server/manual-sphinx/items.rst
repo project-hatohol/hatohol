@@ -144,7 +144,7 @@ Value type
      - ITEM_INFO_VALUE_TYPE_STRING
 
 Application object
--------------
+------------------
 .. list-table::
    :header-rows: 1
 

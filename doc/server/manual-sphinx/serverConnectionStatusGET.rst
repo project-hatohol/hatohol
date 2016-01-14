@@ -1,6 +1,6 @@
-=========================
+============================
 GET-Server_Connection_Status
-=========================
+============================
 
  **Please refer when you Get a Server Connection Status.**
 
@@ -72,7 +72,7 @@ Repsponse structure
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
 ServerConnStat object
--------------
+---------------------
 .. list-table::
    :header-rows: 1
 

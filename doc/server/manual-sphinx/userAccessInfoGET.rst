@@ -70,7 +70,7 @@ Repsponse structure
 .. note:: [Condition] Always: always, True: only when result is True, False: only when result is False.
 
 Allow server object
---------------
+-------------------
 .. list-table::
    :header-rows: 1
 

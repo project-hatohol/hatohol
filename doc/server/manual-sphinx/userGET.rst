@@ -98,7 +98,7 @@ User object
      - N/A
 
 User role object
---------------
+----------------
 .. list-table::
    :header-rows: 1
 

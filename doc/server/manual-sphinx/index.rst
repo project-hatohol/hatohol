@@ -4,7 +4,8 @@
    contain the root `toctree` directive.
 
 Welcome to HATOHOL REST Service's documentation!
-==============================================
+================================================
+
 ==========
  Contents
 ==========

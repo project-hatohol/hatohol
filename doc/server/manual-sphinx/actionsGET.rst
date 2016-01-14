@@ -43,7 +43,7 @@ Parameters
      - Optional 
 
 Parameter type
--------------
+--------------
 .. list-table::
 
    * - N/A
@@ -188,7 +188,7 @@ Host object
      - A hostname of the host.
 
 Trigger object
--------------
+--------------
 .. list-table::
    :header-rows: 1
 
