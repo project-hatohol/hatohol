@@ -164,20 +164,20 @@ To setup database used by hatohol server, you need to execute helper command `ha
 Before you execute this helper command, you can edit mysql section in `${prefix}/etc/hatohol/hatohol.conf` which is used for database settings (username, database name and password).
 Then, run this helper command as follows:
 
-    $ hatohol-db-initiator --db_user DBUSER --db_password DBPASSWORD
+    $ hatohol-db-initiator --db-user DBUSER --db-password DBPASSWORD
 
 You must specify DBUSER and PASSWORD whose MySQL administrator user, respectively.
 
 Example:
 
-    $ hatohol-db-initiator --db_user root --db_password rootpass
+    $ hatohol-db-initiator --db-user root --db-password rootpass
 
 Note: Since 15.03, hatohol-db-initiator doesn't require command line argument after hatohol database is created.
-`db_name`, `db_user` and `db_password` are read from `hatohol.conf` by default.
+`db-name`, `db-user` and `db-password` are read from `hatohol.conf` by default.
 For example, `hatohol.conf` is placed at `/etc/hatohol/hatohol.conf`.
 
 Tips:
-- If the root password of the MySQL server is not set, just pass '' for `--db_password`.
+- If the root password of the MySQL server is not set, just pass '' for `--db-password`.
 - You can change password of the created DB by --hatohol-db-user and --hatohol-db-password options.
 - You can change database, username and password by editing mysql section in `hatohol.conf`.
 - If Hatohol server and MySQL server are executed on different machines, you have to input GRANT statement manually with the mysql command line tool.
