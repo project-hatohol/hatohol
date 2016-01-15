@@ -72,13 +72,9 @@ You can add a new repository the following command.
 
     # yum install epel-release
 
-You can install sqlite3, MySQL and libsoup and others by the following command:
+You can install sqlite3, MySQL, libsoup, json-glib and others by the following command:
 
-    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel librabbitmq-devel
-
-You can install json-glib and its development packages by the following command:
-
-    # yum install json-glib-devel
+    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel librabbitmq-devel
 
 ### Example to install required libraries on ubuntu 14.04
 
