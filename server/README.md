@@ -76,8 +76,8 @@ You can install sqlite3, MySQL, libsoup, json-glib and others by the following c
 
     # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel
 
-In addition, you need to install following libraries if you want to enable HAPI
-(Hatohol Arm Plugin Interface) 2.0 in server by the following command:
+In addition, you need to install librabbitmq development package if you want to enable HAPI
+(Hatohol Arm Plugin Interface) 2.0 in Hatohol server by the following command:
 
     # yum install librabbitmq-devel
 
@@ -99,8 +99,8 @@ installing by following commands:
 
     $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev
 
-In addition, you need to install following libraries if you want to enable HAPI
-(Hatohol Arm Plugin Interface) 2.0 in server.
+In addition, you need to install the following package if you want to enable HAPI
+(Hatohol Arm Plugin Interface) 2.0 in Hatohol server.
 
 - librabbitmq-dev
 
