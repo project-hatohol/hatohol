@@ -94,16 +94,6 @@ installing by following commands:
 
     $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev
 
-In addition, you need to install following libraries if you want to enable HAPI
-(Hatohol Arm Plugin Interface) 2.0.
-
-- librabbitmq-dev
-- rabbitmq-server
-
-You can install them by the following command:
-
-    $ sudo apt-get install librabbitmq-dev rabbitmq-server
-
 ## How to build Hatohol
 First, you need to install required libraries.
 Then run the following commands to install Hatohol:
