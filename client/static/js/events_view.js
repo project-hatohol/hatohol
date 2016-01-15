@@ -617,7 +617,7 @@ var EventsView = function(userProfile, options) {
       $("#select-type").val(query.type);
   }
 
-  function setupTreatmentMenu() {
+  function setupHandlingMenu() {
     var trackers = self.rawData.incidentTrackers;
     var enableIncident = self.rawData["haveIncident"];
     var hasIncidentTypeHatohol = false;
@@ -742,15 +742,12 @@ var EventsView = function(userProfile, options) {
     }
 
     if (promises.length > 0) {
-      hatoholInfoMsgBox(gettext("Appling the treatment..."));
+      hatoholInfoMsgBox(gettext("Appling the handling..."));
       $.when.apply($, promises).done(function() {
         if (errors.length == 0) {
           hatoholInfoMsgBox(gettext("Successfully updated."));
         } else {
-          if (errors.length == 1)
-            errorMessage = gettext("Failed to update a treatment");
-          else
-            errorMessage = gettext("Failed to update treatments");
+          errorMessage = gettext("Failed to update handling");
           hatoholErrorMsgBox(errorMessage, { optionMessages: errors });
         }
         $("#change-incident").val("");
@@ -829,7 +826,7 @@ var EventsView = function(userProfile, options) {
         var message = parser.getMessage();
         if (!message) {
           message =
-            gettext("An unknown error occured on changing treatment of an event with ID: ") +
+            gettext("An unknown error occured on changing handling of an event with ID: ") +
             incidentId;
         }
         if (parser.optionMessages)
@@ -838,7 +835,7 @@ var EventsView = function(userProfile, options) {
       },
       connectErrorCallback: function() {
         var message =
-          gettext("Failed to connect to Hatohol server on changing treatment of an event with ID: ") +
+          gettext("Failed to connect to Hatohol server on changing handling of an event with ID: ") +
           eventId;
         errors.push(message);
       },
@@ -1437,7 +1434,7 @@ var EventsView = function(userProfile, options) {
     self.durations = parseData(self.rawData);
 
     setupFilterValues();
-    setupTreatmentMenu();
+    setupHandlingMenu();
     drawTableContents();
     setupTableColor();
     updatePager();

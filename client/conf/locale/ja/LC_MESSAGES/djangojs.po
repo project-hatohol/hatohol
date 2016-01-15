@@ -300,8 +300,8 @@ msgid "There is no valid incident tracker to post!"
 msgstr "インシデント登録可能なインシデントトラッカーが存在しません。"
 
 #: static/js/events_view.js:745
-msgid "Appling the treatment..."
-msgstr "対応を適用中..."
+msgid "Appling the handling..."
+msgstr "対処を適用中..."
 
 #: static/js/events_view.js:748 static/js/events_view.js:854
 #: static/js/hatohol_add_action_dialog.js:370
@@ -314,12 +314,8 @@ msgid "Successfully updated."
 msgstr "正常に更新されました。"
 
 #: static/js/events_view.js:751
-msgid "Failed to update a treatment"
-msgstr "対応の更新に失敗しました"
-
-#: static/js/events_view.js:753
-msgid "Failed to update treatments"
-msgstr "対応の更新に失敗しました"
+msgid "Failed to update handling"
+msgstr "対処の更新に失敗しました"
 
 #: static/js/events_view.js:798
 msgid "An unknown error occured on creating an incident for the event: "
@@ -333,12 +329,12 @@ msgstr ""
 "た: "
 
 #: static/js/events_view.js:832
-msgid "An unknown error occured on changing treatment of an event with ID: "
-msgstr "対応の変更中に未知のエラーが発生しました イベントID: "
+msgid "An unknown error occured on changing handling of an event with ID: "
+msgstr "対処の変更中に未知のエラーが発生しました イベントID: "
 
 #: static/js/events_view.js:841
 msgid ""
-"Failed to connect to Hatohol server on changing treatment of an event with "
+"Failed to connect to Hatohol server on changing handling of an event with "
 "ID: "
 msgstr "イベントの対処の変更時に Hatohol サーバーへの接続に失敗しました ID: "
 
