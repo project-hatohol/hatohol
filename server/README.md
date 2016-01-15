@@ -74,7 +74,12 @@ You can add a new repository the following command.
 
 You can install sqlite3, MySQL, libsoup, json-glib and others by the following command:
 
-    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel librabbitmq-devel
+    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel
+
+In addition, you need to install following libraries if you want to enable HAPI
+(Hatohol Arm Plugin Interface) 2.0 in server by the following command:
+
+    # yum install librabbitmq-devel
 
 ### Example to install required libraries on ubuntu 14.04
 
