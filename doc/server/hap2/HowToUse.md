@@ -66,6 +66,7 @@ In this document, it assumes that virtual host is `hatohol`, user and password i
 ### On CentOS 7
 
 You need to install hap2 dependent packages via pip:
+
     # pip install pika daemon
 
 If you want to use hap2-nagios-livestatus, you need to install `python-mk-livestatus`
