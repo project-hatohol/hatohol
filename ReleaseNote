@@ -19,8 +19,24 @@
 	- [Server] Support event statistics. (#1664, #1686, #1642, #1637)
 	- [Server] Support user-defined severity rank.
 	  (#1773, #1701, #1660, #1657, #1653)
+	- [WebUI] Brash up the design to apply more unified and intelligible design rule.
 	- [HAP2] Create a new Nagios plugin that uses livestatus API. (#1549)
 	- [HAP2] Create a starter of hap2. (#1729)
+	- [Server][WebUI] Add various filters for events.
+	  * Time range (#184, #1508)
+	  * Servers / Hostgroups / Hosts (#1538, #1539)
+	  * Severities / Statuses (#1550)
+	  * Incident statuses (#1599)
+	- [WebUI] Enable to save filter settings of events.
+	  (#1565, #1570, #1587)
+	- [Server][WebUI] Add a simple buit-in incident tracker.
+	  (#1542, #1593)
+	- [WebUI] Enable to customize columns of the events table. (#1553)
+	- [WebUI] Colorize all columns of the events table. (#1573)
+	- [WebUI] Add tooltips for event descriptions. (#1640)
+	- [WebUI] Support Django 1.8 LTS. (#1856)
+	- [hap2_zabbix_api] Support Zabbix 2.0. (#1801)
+
 	- [HAP2][ZabbixAPI] Support Zabbix3.0.
 
 	* Bug Fixes
@@ -34,6 +50,10 @@
 	- [Server] Fix bug about privileges enums are defined
 	  greater than or equal to 32. (#1696)
 	- [Server] Plug a memory leak. (#1639)
+	- [Server] Improve stability of HAPI 2.0.
+	  (#1425, #1478, #1488, #1490, #1502)
+	- [WebUI] Fix incorrect "Status" filter of events. (#1491, #1493)
+	- [Server] Add missing TLS settings for HAP2 plugins. (#1800)
 
 	* Support OS
 	- CentOS 7
