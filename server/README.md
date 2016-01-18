@@ -124,7 +124,7 @@ Then run the following commands to install Hatohol:
 
 (0.2) Set RabbitMQ's setting
 
-Please refer to [How to use HAP2](doc/server/hap2/HowToUse.md).
+Please refer to [How to use HAP2](../doc/server/hap2/HowToUse.md).
 
 (0.3) Create a directory to save a PID file.
 
