@@ -63,7 +63,7 @@ In this document, it assumes that virtual host is `hatohol`, user and password i
 
 ## Install hap2 plugin dependent python modules
 
-### On CentOS
+### On CentOS 7
 
 You need to install hap2 dependent packages via pip:
     # pip install pika daemon
