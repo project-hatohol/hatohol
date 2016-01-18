@@ -178,4 +178,4 @@ update-po: misc/external-labels.js
 	$(srcdir)/manage.py makemessages -d djangojs -a
 
 .po.mo:
-	$(srcdir)/manage.py compilemessages
+	$(MSGFMT) -o $@ $<
