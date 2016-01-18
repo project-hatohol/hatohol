@@ -44,7 +44,7 @@ The following shows examples to install Required Packages.
 
 #### On CentOS 7
 
-    # yum install python-setuptools python-devel
+    # yum install python-setuptools python-devel gettext
     # easy_install pip
     # pip install django==1.5.4 mysql-python
 
