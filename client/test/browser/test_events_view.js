@@ -417,7 +417,7 @@ describe('EventsView', function() {
       "Server");
   });
 
-  it('Treatment columns', function() {
+  it('Handling columns', function() {
     var view = new EventsView(getOperator(), testOptions);
     var events = [
       $.extend({}, dummyEventInfo[0], {
@@ -440,7 +440,7 @@ describe('EventsView', function() {
       "12332NONEHIGHTom5%");
   });
 
-  it('Treatment user-defined label columns', function() {
+  it('Handling user-defined label columns', function() {
     var view = new EventsView(getOperator(), testOptions);
     var events = [
       $.extend({}, dummyEventInfo[0], {

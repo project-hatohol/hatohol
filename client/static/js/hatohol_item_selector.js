@@ -73,6 +73,7 @@ var HatoholItemSelector = function(options) {
       if (self.appendItemCallback)
         self.appendItemCallback(index, query);
     });
+    setupPopover("#select-item");
   }
 
   function isAlreadyAddedItem(item1) {
@@ -113,6 +114,19 @@ var HatoholItemSelector = function(options) {
 
     query = self.view.getHostFilterQuery();
     self.view.startConnection("items?" + $.param(query), setItemCandidates);
+  }
+
+  function setupPopover(selector) {
+    $(selector).popover({
+      content: function() {
+        var selectedItem = $(selector).children(':selected').text();
+        return selectedItem;
+      }
+    }).on("mouseenter", function () {
+      $(selector).popover("show");
+    }).on("mouseleave", function () {
+      $(selector).popover("hide");
+    });
   }
 };
 

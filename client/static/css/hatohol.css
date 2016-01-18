@@ -298,6 +298,10 @@ h2.hatohol-graph {
     margin-bottom: 3.6em;
 }
 
+#hatohol-graph-item .form-control {
+    width: 100%;
+}
+
 #hatohol-item-list label {
     font-size: 18px;
     margin-right: 0.5em;
@@ -406,7 +410,7 @@ html {
     color: #ffffff;
     text-indent: -9999px;
     outline: nonoe;
-    background: #f0942d url(/static/images/logo_hatohol.png) no-repeat;
+    background: #f0942d url(../images/logo_hatohol.png) no-repeat;
 }
 
 .navbar a.navbar-brand:hover,.navbar a.navbar-brand:active,.navbar a.navbar-brand:focus {
