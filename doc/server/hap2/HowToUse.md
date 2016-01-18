@@ -60,3 +60,39 @@ In this document, it assumes that virtual host is `hatohol`, user and password i
 3. Set permissions to created user
 
     $ sudo rabbitmqctl set\_permissions -p hatohol hatohol ".*" ".*" ".*"
+
+## Install hap2 plugin dependent python modules
+
+### On CentOS
+
+You need to install hap2 dependent packages via pip:
+    # pip install pika daemon
+
+If you want to use hap2-nagios-livestatus, you need to install `python-mk-livestatus`
+via pip with the following command:
+
+    # pip install python-mk-livestatus
+
+### On Ubuntu 14.04
+
+You need to install hap2 dependent packages via apt-get with the following command:
+
+    $ sudo apt-get install python-pika python-daemon
+
+If you want to use hap2-nagios-livestatus, you need to install `python-mk-livestatus`
+via pip with the following command:
+
+    $ sudo pip install python-mk-livestatus
+
+## Starting HAP2 Tips
+
+### HAP2 Zabbix
+
+You should input http://<servername or ip>/zabbix/api_jsonrpc.php into
+"Zabbix API URL" instead of <servername or ip> simply.
+
+### HAP2 Nagios Livestatus
+
+HAP2 Nagios Livestatus depends `nagios-mk-livestatus` package.
+You should install this dependent package on Nagios node and its node's Nagios proicess
+before you start to use this HAP2.
