@@ -14,7 +14,8 @@ Then, you can install erlang from EPEL repository by following command:
 
     # yum install erlang
 
-Finally, you can install rabbitmq-server package by following command:
+Finally, you can install rabbitmq-server package by following command
+after downloading the server package from [RabbitMQ official site](https://www.rabbitmq.com/install-rpm.html):
 
     # rpm --import https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
     # yum install rabbitmq-server-3.6.0-1.noarch.rpm
