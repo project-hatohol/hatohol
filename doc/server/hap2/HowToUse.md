@@ -57,7 +57,7 @@ $ sudo rabbitmqctl add_vhost hatohol
 
 2. Create user and password
 
-``bash
+```bash
 $ sudo rabbitmqctl add\_user hatohol hatohol
 ```
 
