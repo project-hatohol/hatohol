@@ -32,7 +32,7 @@ build:
         code: |
           cd /etc/yum.repos.d && wget http://people.centos.org/tru/devtools-2/devtools-2.repo
           yum install -y devtoolset-2-gcc devtoolset-2-binutils devtoolset-2-gcc-c++
-          yum install -y Django
+          yum install -y gettext
           rpm -Uvh http://sourceforge.net/projects/cutter/files/centos/cutter-release-1.1.0-0.noarch.rpm
           yum install -y cutter tar
 
