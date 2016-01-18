@@ -58,13 +58,13 @@ $ sudo rabbitmqctl add_vhost hatohol
 2. Create user and password
 
 ```bash
-$ sudo rabbitmqctl add\_user hatohol hatohol
+$ sudo rabbitmqctl add_user hatohol hatohol
 ```
 
 3. Set permissions to created user
 
 ```bash
-$ sudo rabbitmqctl set\_permissions -p hatohol hatohol ".*" ".*" ".*"
+$ sudo rabbitmqctl set_permissions -p hatohol hatohol ".*" ".*" ".*"
 ```
 
 ## Install hap2 plugin dependent python modules
