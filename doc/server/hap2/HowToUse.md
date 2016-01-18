@@ -51,15 +51,21 @@ In this document, it assumes that virtual host is `hatohol`, user and password i
 
 1. Create virtual host
 
-    $ sudo rabbitmqctl add_vhost hatohol
+```bash
+$ sudo rabbitmqctl add_vhost hatohol
+```
 
 2. Create user and password
 
-    $ sudo rabbitmqctl add\_user hatohol hatohol
+``bash
+$ sudo rabbitmqctl add\_user hatohol hatohol
+```
 
 3. Set permissions to created user
 
-    $ sudo rabbitmqctl set\_permissions -p hatohol hatohol ".*" ".*" ".*"
+```bash
+$ sudo rabbitmqctl set\_permissions -p hatohol hatohol ".*" ".*" ".*"
+```
 
 ## Install hap2 plugin dependent python modules
 
@@ -89,8 +95,8 @@ via pip with the following command:
 
 ### HAP2 Zabbix
 
-You should input http://<servername or ip>/zabbix/api_jsonrpc.php into
-"Zabbix API URL" instead of <servername or ip> simply.
+You should input `http://<servername or ip>/zabbix/api_jsonrpc.php` into
+"Zabbix API URL" instead of `<servername or ip>` simply.
 
 ### HAP2 Nagios Livestatus
 
