@@ -32,6 +32,7 @@ BuildRequires: mariadb-devel
 %endif
 BuildRequires: libuuid-devel >= 2.17
 BuildRequires: librabbitmq-devel >= 0.4.1
+BuildRequires: gettext
 
 %description
 Hatohol collects monitoring information from running monitoring systems
