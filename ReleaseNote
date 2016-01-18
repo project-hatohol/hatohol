@@ -1,68 +1,66 @@
 2016-01-29 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.01
 
 	* New Features
-	- [HAP2] Give a pass word to an arm plugin by an environment variable
+	- Improve the UI design.
+	  * [Server] Support user-defined severity label.
+		(#1773, #1701, #1660, #1657, #1653)
+	  * [WebUI][Server] Support customizing incident status labels.
+		(#1697, #1711, #1716, #1722, #1727, #1746)
+	  * [WebUI] Support toggle abbreviating event descriptions. (#1768)
+	  * [WebUI] Enable to save filter settings of events.
+		(#1565, #1570, #1587)
+	  * [Server][WebUI] Add various filters for events.
+		+ Time range (#184, #1508)
+		+ Servers / Hostgroups / Hosts (#1538, #1539)
+		+ Severities / Statuses (#1550)
+		+ Incident statuses (#1599)
+	  * [Server][WebUI] Add a simple built-in incident tracker.
+		(#1542, #1593)
+	  * [WebUI] Enable to customize columns of the events table. (#1553)
+	  * [WebUI] Colorize all columns of the events table. (#1573)
+	  * [WebUI] Add tooltips for event descriptions. (#1640)
+	- [Server] Add TLS settings for HAP2 plugins. (#1800)
+	- [hap2_zabbix_api] Support Zabbix 2.0. (#1801)
+	- [hap2_zabbix_api] Support Zabbix 3.0. (Verified with alpha2)
+	- [experimental][HAP2] Create a new Nagios plugin that uses
+	  livestatus API. (#1549)
+	- [HatoholHouseKeeper] Add hatohol house keeper tool. (#1786, #1806)
+	- Remove HAPI1. (#1626)(#1873)
+	- [HAP2] Give a password to an arm plugin via an environment variable
 	  instead of a command line argument to enhance security. (#1428)
 	- [HAP2] Log the file name, the line number, time, and the process ID
 	  as well as the message. (#1453)
-	- [WebUI] Remove HAPI1 plugins from candidates of target server types.
-	  (#1626)
 	- [HAP2] Log messages with syslog by default. (#1738, #1876)
 	- [Server] New self monitoring sub system. (#1745)
-	    - Watch AMQP broker connection and HAP connection as a trigger.
-	    - Notify some internal errors as an event.
-	- [WebUI] Can place the URL of Hatohol other than the top (#1607)
-	- [HatoholHouseKeeper] Add hatohol house keeper tool. (#1786, #1806)
-	- [WebUI] Support toggle abbreviating event descriptions. (#1768)
-	- [WebUI][Server] Support customizing incident status labels.
-	  (#1697, #1711, #1716, #1722, #1727, #1746)
-	- [Server] Support event statistics. (#1664, #1686, #1642, #1637)
-	- [Server] Support user-defined severity rank.
-	  (#1773, #1701, #1660, #1657, #1653)
-	- [WebUI] Brash up the design to apply more unified and intelligible design rule.
-	- [HAP2] Create a new Nagios plugin that uses livestatus API. (#1549)
-	- [HAP2] Create a starter of hap2. (#1729)
-	- [Server][WebUI] Add various filters for events.
-	  * Time range (#184, #1508)
-	  * Servers / Hostgroups / Hosts (#1538, #1539)
-	  * Severities / Statuses (#1550)
-	  * Incident statuses (#1599)
-	- [WebUI] Enable to save filter settings of events.
-	  (#1565, #1570, #1587)
-	- [Server][WebUI] Add a simple buit-in incident tracker.
-	  (#1542, #1593)
-	- [WebUI] Enable to customize columns of the events table. (#1553)
-	- [WebUI] Colorize all columns of the events table. (#1573)
-	- [WebUI] Add tooltips for event descriptions. (#1640)
+	  * Watch AMQP broker connection and HAP connection as a trigger.
+	  * Notify some internal errors as an event.
+	- [WebUI] Can place the path of Hatohol Web UI other than the top (#1607)
+	- [Server] Provide internal event statistics. (#1664, #1686, #1642, #1637)
+	- [HAP2] Improve plugin availability. (#1729)
 	- [WebUI] Support Django 1.8 LTS. (#1856)
-	- [hap2_zabbix_api] Support Zabbix 2.0. (#1801)
-
-	- [HAP2][ZabbixAPI] Support Zabbix3.0.
 
 	* Bug Fixes
-	- [Server][HAP2] Save lastInfo and the data body atomically. (#1569)
-	- [WebUI] Show an error message at login even when the Web server
+	- [Server][HAPI2] Save lastInfo and the data body atomically. (#1569)
+	- [WebUI] Show an error message at login when the Web server
 	  or Hatohol server is unresponsive (#1581, #1795)
-	- [HAP2][Server] Save the first item group when the server get
+	- [Server][HAPI2] Save the first item group when the server get
 	  multiple ones. Note that this behavior is tentative. We will have
 	  to save all the received ones (#1721)
-	- [Server] Fix memory corruption in HAP2 Gate. (#1771)
-	- [Server] Fix bug about privileges enums are defined
-	  greater than or equal to 32. (#1696)
+	- [Server] Fix memory corruption in HAPI2 Gate. (#1771)
 	- [Server] Plug a memory leak. (#1639)
 	- [Server] Improve stability of HAPI 2.0.
 	  (#1425, #1478, #1488, #1490, #1502)
 	- [WebUI] Fix incorrect "Status" filter of events. (#1491, #1493)
-	- [Server] Add missing TLS settings for HAP2 plugins. (#1800)
 
 	* Support OS
 	- CentOS 7
-	- Ubuntu 14.04 LTS
+	- Ubuntu 14.04 LTS(x86_64)
 
 	* Contributer
 	- Kazuhiro Yamato
 	- Takuro Ashie
 	- Hiroshi Hatake
+	- Satoshi Uchiki
 	- Takanori Suzuki
 	- Teruo Oshida
 	- Noriki Nakamura
