@@ -104,5 +104,5 @@ You should input `http://<servername or ip>/zabbix/api_jsonrpc.php` into
 ### HAP2 Nagios Livestatus
 
 HAP2 Nagios Livestatus depends `nagios-mk-livestatus` package.
-You should install this dependent package on Nagios node and its node's Nagios proicess
-before you start to use this HAP2.
+You should install this dependent package on Nagios node
+and restart its node's Nagios process before you start to use this HAP2.
