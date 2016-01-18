@@ -21,7 +21,21 @@ Finally, you can install rabbitmq-server package by following command:
 
 ### How to start rabbitmq-server on CentOS 7
 
-TBD.
+You need to permit 5672/tcp port with firewalld and turn off SELinux.
+
+First, you need to permit 5672/tcp with firewall-cmd by the following commands:
+
+    # firewall-cmd --add-port=5672/tcp --zone=public --permanent
+    # firewall-cmd --add-port=5672/tcp --zone=public
+
+And you need to disable SELinux by the following command:
+
+    # setsebool -P nis_enabled 1
+
+Finally, you can enable and start rabbitmq-server by the following commands:
+
+    # systemctl enable rabbitmq-server
+    # systemctl rabbitmq-server start
 
 ## Install RabbitMQ server on Ubuntu 14.04
 
