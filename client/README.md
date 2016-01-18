@@ -44,14 +44,13 @@ The following shows examples to install Required Packages.
 
 #### On CentOS 7
 
-    # yum install python-setuptools python-devel gettext
-    # easy_install pip
-    # pip install django==1.5.4 mysql-python
+    # yum install python-pip python-devel django gettext
+    # pip install mysql-python
 
 #### On Ubuntu 12.04 and 14.04
 
-    $ sudo apt-get install python-pip python-dev gettext
-    $ sudo pip install django==1.5.4 mysql-python
+    $ sudo apt-get install python-pip python-dev python-django gettext
+    $ sudo pip install mysql-python
 
 
 ### Create the database
