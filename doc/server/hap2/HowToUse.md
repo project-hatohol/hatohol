@@ -49,6 +49,8 @@ Then, rabbitmq-server runs automatically.
 ## Prepare RabbitMQ server settings
 
 In this document, it assumes that virtual host is `hatohol`, user and password is `hatohol`.
+If you use CentOS 7, you need to perform following command as root instead of
+a user who belongs to `sudo` group.
 
 First, create virtual host
 
