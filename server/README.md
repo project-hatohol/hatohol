@@ -138,7 +138,7 @@ It can be set by setting my.conf such as
     [mysqld]
     default-storage-engine=InnoDB
 
-To enable the above lines, you need to restart MySQL sesrver.
+To enable the above lines, you need to restart MySQL server.
 
 (1.0.b) Setup database for Hatohol
 
