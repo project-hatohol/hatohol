@@ -49,19 +49,19 @@ Then, rabbitmq-server runs automatically.
 
 In this document, it assumes that virtual host is `hatohol`, user and password is `hatohol`.
 
-1. Create virtual host
+First, create virtual host
 
 ```bash
 $ sudo rabbitmqctl add_vhost hatohol
 ```
 
-2. Create user and password
+And then, create user and password
 
 ```bash
 $ sudo rabbitmqctl add_user hatohol hatohol
 ```
 
-3. Set permissions to created user
+Finally, set permissions to created user
 
 ```bash
 $ sudo rabbitmqctl set_permissions -p hatohol hatohol ".*" ".*" ".*"
