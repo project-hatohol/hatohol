@@ -502,6 +502,10 @@ class HapiProcessor:
     def get_cached_event_last_info(self):
         if self.__event_last_info is None:
             self.__event_last_info = self.get_last_info("event")
+
+        if not self.__event_last_info:
+            self.__event_last_info = get_current_hatohol_time()
+
         return self.__event_last_info
 
     def generate_event_last_info(self, events):
