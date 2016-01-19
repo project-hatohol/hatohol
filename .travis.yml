@@ -32,6 +32,11 @@ matrix:
     - compiler: gcc
       env: RUN_TEST="test/feature-test.sh"
 
+# To prune non-root Python from PATH.
+# see: https://github.com/travis-ci/travis-ci/issues/5326
+before_install:
+  - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
+
 install:
   - server/misc/setup-cutter.sh
   - sudo apt-get install -qq -y autotools-dev libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev npm python-pip expect python-dev rabbitmq-server python-mysqldb python-pika librabbitmq-dev
