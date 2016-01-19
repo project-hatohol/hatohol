@@ -40,8 +40,6 @@ EXTRA_DIST = \
 CLEANFILES = \
 	server-type-zabbix.sql \
 	server-type-nagios.sql \
-	server-type-hapi-json.sql
-
-CLEANFILES += \
+	server-type-hapi-json.sql \
 	init-user.sql \
 	_tmp.*
