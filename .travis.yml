@@ -36,6 +36,7 @@ matrix:
 # see: https://github.com/travis-ci/travis-ci/issues/5326
 before_install:
   - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
+  - export PATH=${PATH//:\.\/node_modules\/\.bin/}
 
 install:
   - server/misc/setup-cutter.sh
