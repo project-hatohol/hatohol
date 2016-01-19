@@ -3,6 +3,7 @@ sql_DATA = \
 	init-user.sql \
 	server-type-zabbix.sql \
 	server-type-nagios.sql \
+	server-type-hapi-json.sql \
 	server-type-hap2-zabbix.sql \
 	server-type-hap2-nagios-ndoutils.sql \
 	server-type-hap2-nagios-livestatus.sql \
@@ -21,6 +22,7 @@ server-type: $(HATOHOL_SERVER_TYPE_UTIL)
 
 server-type-zabbix.sql: server-type
 server-type-nagios.sql: server-type
+server-type-hapi-json.sql: server-type
 
 HATOHOL_INIT_USER_GENERATOR = ../tools/hatohol-init-user-generator
 init-user.sql: $(HATOHOL_INIT_USER_GENERATOR)
@@ -37,7 +39,8 @@ EXTRA_DIST = \
 
 CLEANFILES = \
 	server-type-zabbix.sql \
-	server-type-nagios.sql
+	server-type-nagios.sql \
+	server-type-hapi-json.sql
 
 CLEANFILES += \
 	init-user.sql \
