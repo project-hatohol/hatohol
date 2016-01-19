@@ -402,6 +402,9 @@ class HapiProcessor:
         else:
             logger.error("Inputed value is invalid.")
 
+    def set_event_last_info(self, event_last_info):
+        self.__event_last_info = event_last_info
+
     def get_monitoring_server_info(self):
         """
         Get a MonitoringServerInfo from Hatohol server.
