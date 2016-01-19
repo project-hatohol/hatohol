@@ -560,7 +560,7 @@ class HapiProcessor:
             self.__wait_response(request_id)
 
         if fetch_id is None:
-            self.__event_last_info = last_info
+            self.set_event_last_info(last_info)
 
     def put_events(self, events, fetch_id=None, last_info_generator=None):
         chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
