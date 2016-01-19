@@ -540,11 +540,12 @@ class HapiProcessor:
             if last_info_generator is None:
                 last_info_generator = self.generate_event_last_info
             last_info = str(last_info_generator(event_chunk))
-            params = {"events": event_chunk, "lastInfo": last_info,
-                      "updateType": "UPDATE"}
+            params = {"events": event_chunk}
 
             if fetch_id is not None:
                 params["fetchId"] = fetch_id
+            else:
+                params["lastInfo"] = last_info
 
             if num < count - 1:
                 params["mayMoreFlag"] = True
@@ -555,7 +556,8 @@ class HapiProcessor:
             del events[0: chunk_size]
             self.__wait_response(request_id)
 
-        self.__event_last_info = last_info
+        if fetch_id is None:
+            self.__event_last_info = last_info
 
     def put_events(self, events, fetch_id=None, last_info_generator=None):
         chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
