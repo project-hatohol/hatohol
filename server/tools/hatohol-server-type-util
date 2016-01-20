@@ -216,7 +216,13 @@ def generate_label_gettext(generators):
         for obj in gen.get_parameters():
             labels.add(obj['label'])
     for label in labels:
-        print 'gettext("' + label + '")'
+        print 'gettext("' + label + '");'
+
+    # Additinal parameters for HAP2 plugins
+    # TODO: Should be moved to WebUI plugins
+    print 'gettext("Passive mode");'
+    print 'gettext("Tenant name");'
+    print 'gettext("Keystone URL");'
 
 
 def main():
