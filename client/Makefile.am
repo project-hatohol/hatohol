@@ -45,6 +45,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/fonts/glyphicons-halflings-regular.woff \
 	static/fonts/glyphicons-halflings-regular.woff2 \
 	static/images/favicon.ico \
+	static/images/logo_hatohol.png \
 	static/js.external/jquery.min.js \
 	static/js.external/jquery-ui.min.js \
 	static/js.external/jquery-ui-slider-pips.min.js \
@@ -57,6 +58,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/jquery-deparam.min.js \
 	static/js.external/multiselect.min.js \
 	static/js.external/bootstrap.min.js \
+	static/js.external/spectrum.js \
 	static/js.plugins/hapi-json.js \
 	static/js.plugins/nagios.js \
 	static/js.plugins/zabbix.js \
@@ -80,6 +82,8 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/log_search_systems_view.js \
 	static/js/graphs_view.js \
 	static/js/users_view.js \
+	static/js/custom_incident_labels_view.js \
+	static/js/severity_ranks_view.js \
 	static/js/hatohol_def.js \
 	static/js/hatohol_connector.js \
 	static/js/hatohol_graph.js \
@@ -137,6 +141,8 @@ nobase_dist_hatohol_client_DATA = \
 	viewer/history_ajax.html \
 	viewer/log_search_systems_ajax.html \
 	viewer/graphs_ajax.html \
+	viewer/custom_incident_labels_ajax.html \
+	viewer/severity_ranks_ajax.html \
 	viewer/tests.py
 
 MO_FILES = \
@@ -172,4 +178,4 @@ update-po: misc/external-labels.js
 	$(srcdir)/manage.py makemessages -d djangojs -a
 
 .po.mo:
-	$(srcdir)/manage.py compilemessages
+	$(MSGFMT) -o $@ $<

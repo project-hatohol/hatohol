@@ -790,17 +790,6 @@ static bool updateDB(
 			IDX_ARM_PLUGINS_UUID);
 		dbAgent.addColumns(addArgForArmPlugins);
 	}
-	if (oldVer < 17) {
-		dbAgent.createTable(tableProfileSeverityRanks);
-	}
-	if (oldVer < 18) {
-		DBAgent::AddColumnsArg addColumnsArg(tableProfileSeverityRanks);
-		addColumnsArg.columnIndexes.push_back(
-			IDX_SEVERITY_RANK_LABEL);
-		addColumnsArg.columnIndexes.push_back(
-			IDX_SEVERITY_RANK_AS_IMPORTANT);
-		dbAgent.addColumns(addColumnsArg);
-	}
 	return true;
 }
 

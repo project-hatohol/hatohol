@@ -146,6 +146,17 @@ AC_SUBST(MLPL_LIBS)
 
 AC_LANG_POP([C++])
 
+
+dnl **************************************************************
+dnl Checks for gettext
+dnl **************************************************************
+AC_PATH_PROG(MSGFMT, msgfmt, msgfmt-not-found)
+if test x"$MSGFMT" = x"msgfmt-not-found"; then
+  AC_MSG_ERROR([You don't have msgfmt command. Please install gettext tools.])
+fi
+AC_SUBST(MSGFMT)
+
+
 dnl **************************************************************
 dnl Checks for Cutter
 dnl **************************************************************
