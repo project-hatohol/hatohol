@@ -119,6 +119,14 @@ var HatoholEventsViewConfig = function(options) {
     selected.insertAfter(selected.next());
   });
 
+  $('#all-left-column-selector').click(function() {
+    $("#column-selector option").attr("selected", true);
+  });
+
+  $('#all-right-column-selector').click(function() {
+    $("#column-selector-selected option").attr("selected", true);
+  });
+
   $("#config-save").click(function() {
     self.saveAll();
   });
