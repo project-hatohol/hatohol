@@ -216,7 +216,9 @@ def generate_label_gettext(generators):
         for obj in gen.get_parameters():
             labels.add(obj['label'])
     for label in labels:
-        print 'gettext("' + label + '")'
+        print 'gettext("' + label + '");'
+    # Add an additinal parameters for HAP2 plugins
+    print 'gettext("Passive mode");'
 
 
 def main():
