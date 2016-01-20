@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Project Hatohol
+ * Copyright (C) 2015-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -117,6 +117,14 @@ var HatoholEventsViewConfig = function(options) {
     if (!selected || selected.length != 1)
       return;
     selected.insertAfter(selected.next());
+  });
+
+  $('#all-left-column-selector').click(function() {
+    $("#column-selector option").attr("selected", true);
+  });
+
+  $('#all-right-column-selector').click(function() {
+    $("#column-selector-selected option").attr("selected", true);
   });
 
   $("#config-save").click(function() {
