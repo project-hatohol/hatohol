@@ -51,6 +51,7 @@ class ZabbixAPIConductor(unittest.TestCase):
         cls.conductor.put_triggers = null_func
         cls.conductor.put_events = null_func
         cls.conductor.get_last_info = null_func
+        cls.conductor.set_event_last_info = null_func
         cls.conductor.get_cached_event_last_info = return_empty_string
 
     def test_reset(self):
