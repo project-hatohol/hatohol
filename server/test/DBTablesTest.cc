@@ -1577,6 +1577,28 @@ const CustomIncidentStatus testCustomIncidentStatus[] = {
 };
 const size_t NumTestCustomIncidentStatus = ARRAY_SIZE(testCustomIncidentStatus);
 
+const IncidentStatusHistory testIncidentStatusHistory[] = {
+{
+	AUTO_INCREMENT_VALUE,  // id
+	3,                     // unifiedId
+	1,                     // userId
+	{1412957260, 0},       // createdAt
+},
+{
+	AUTO_INCREMENT_VALUE,  // id
+	10,                    // unifiedId
+	2,                     // userId
+	{1412957290, 0},       // createdAt
+},
+{
+	AUTO_INCREMENT_VALUE,  // id
+	20,                    // unifiedId
+	3,                     // userId
+	{1453451165, 0},       // createdAt
+},
+};
+const size_t NumTestIncidentStatusHistory = ARRAY_SIZE(testIncidentStatusHistory);
+
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
 	for (size_t i = 0; i < NumTestTriggerInfo; i++) {
@@ -2474,4 +2496,13 @@ void loadTestDBCustomIncidentStatusInfo(void)
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	for (auto customIncidentStatus : testCustomIncidentStatus)
 		dbConfig.upsertCustomIncidentStatus(customIncidentStatus, privilege);
+}
+
+void loadTestDBIncidentStatusHistory(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	OperationPrivilege privilege(USER_ID_SYSTEM);
+	for (auto incidentStatusHistory : testIncidentStatusHistory)
+		dbMonitoring.addIncidentStatusHistory(incidentStatusHistory);
 }
