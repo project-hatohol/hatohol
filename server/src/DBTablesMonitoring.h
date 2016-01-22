@@ -161,6 +161,7 @@ public:
 	static const char *TABLE_NAME_ITEMS;
 	static const char *TABLE_NAME_SERVER_STATUS;
 	static const char *TABLE_NAME_INCIDENTS;
+	static const char *TABLE_NAME_INCIDENT_STATUS_HISTORIES;
 
 	DBTablesMonitoring(DBAgent &dbAgent);
 	virtual ~DBTablesMonitoring();
