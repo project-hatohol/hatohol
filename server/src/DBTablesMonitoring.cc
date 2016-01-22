@@ -1634,6 +1634,93 @@ string IncidentsQueryOption::getCondition(void) const
 	return condition;
 }
 
+
+// ---------------------------------------------------------------------------
+// IncidentStatusHistoriesQueryOption
+// ---------------------------------------------------------------------------
+const UnifiedEventIdType IncidentStatusHistoriesQueryOption::ALL_INCIDENTS = -1;
+
+struct IncidentStatusHistoriesQueryOption::Impl {
+	UnifiedEventIdType unifiedId;
+	UserIdType         userId;
+
+	Impl()
+	: unifiedId(ALL_INCIDENTS),
+	  userId(INVALID_USER_ID)
+	{
+	}
+};
+
+IncidentStatusHistoriesQueryOption::IncidentStatusHistoriesQueryOption(
+  const UserIdType &userId)
+: DataQueryOption(userId),
+  m_impl(new Impl())
+{
+}
+
+IncidentStatusHistoriesQueryOption::IncidentStatusHistoriesQueryOption(
+  DataQueryContext *dataQueryContext)
+: DataQueryOption(dataQueryContext),
+  m_impl(new Impl())
+{
+}
+
+IncidentStatusHistoriesQueryOption::IncidentStatusHistoriesQueryOption(
+  const IncidentStatusHistoriesQueryOption &src)
+: DataQueryOption(src),
+  m_impl(new Impl())
+{
+	*m_impl = *src.m_impl;
+}
+
+IncidentStatusHistoriesQueryOption::~IncidentStatusHistoriesQueryOption()
+{
+}
+
+void IncidentStatusHistoriesQueryOption::setTargetUnifiedId(const UnifiedEventIdType &id)
+{
+	m_impl->unifiedId = id;
+}
+
+const UnifiedEventIdType IncidentStatusHistoriesQueryOption::getTargetUnifiedId(void)
+{
+	return m_impl->unifiedId;
+}
+
+void IncidentStatusHistoriesQueryOption::setTargetUserId(const UserIdType &userId)
+{
+	m_impl->userId = userId;
+}
+
+const UserIdType IncidentStatusHistoriesQueryOption::getTargetUserId(void)
+{
+	return m_impl->userId;
+}
+
+string IncidentStatusHistoriesQueryOption::getCondition(void) const
+{
+	string condition = DataQueryOption::getCondition();
+	if (m_impl->unifiedId != ALL_INCIDENTS) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string unifiedIdCondition =
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_ID].columnName,
+		    rhs(m_impl->unifiedId));
+		addCondition(condition, unifiedIdCondition);
+	}
+	if (m_impl->userId != INVALID_USER_ID) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string userIdCondition =
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_USER_ID].columnName,
+		    rhs(m_impl->userId));
+		addCondition(condition, userIdCondition);
+	}
+	return condition;
+}
+
 // ---------------------------------------------------------------------------
 // Public methods
 // ---------------------------------------------------------------------------
@@ -2889,6 +2976,52 @@ HatoholError DBTablesMonitoring::getSystemInfo(
 		eventsCounters[i]->get(prevSlot, currSlot);
 	}
 	return HatoholError(HTERR_OK);
+}
+
+HatoholError DBTablesMonitoring::addIncidentStatusHistory(
+  IncidentStatusHistory &incidentStatusHistory)
+{
+	IncidentStatusHistoryIdType incidentStatusHistoryId;
+
+	DBAgent::InsertArg arg(tableProfileIncidentStatusHistories);
+	arg.add(incidentStatusHistory.id);
+	arg.add(incidentStatusHistory.unifiedId);
+	arg.add(incidentStatusHistory.userId);
+	arg.add(incidentStatusHistory.createdAt.tv_sec);
+
+	DBAgent &dbAgent = getDBAgent();
+	dbAgent.runTransaction(arg, &incidentStatusHistoryId);
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError DBTablesMonitoring::getIncidentStatusHistory(
+  list<IncidentStatusHistory> &IncidentStatusHistoriesList,
+  const IncidentStatusHistoriesQueryOption &option)
+{
+	DBAgent::SelectExArg arg(tableProfileIncidentStatusHistories);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_ID);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_ID);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_USER_ID);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT);
+
+	arg.condition = option.getCondition();
+
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	for (auto itemGrp : grpList) {
+		ItemGroupStream itemGroupStream(itemGrp);
+
+		IncidentStatusHistory incidentStatusHistory;
+		itemGroupStream >> incidentStatusHistory.id;
+		itemGroupStream >> incidentStatusHistory.unifiedId;
+		itemGroupStream >> incidentStatusHistory.userId;
+		itemGroupStream >> incidentStatusHistory.createdAt.tv_sec;
+
+		IncidentStatusHistoriesList.push_back(incidentStatusHistory);
+	}
+
+	return HTERR_OK;
 }
 
 // ---------------------------------------------------------------------------
