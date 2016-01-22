@@ -1835,6 +1835,50 @@ void test_getSystemInfoByInvalidUser(void)
 	  DBTablesMonitoring::getSystemInfo(systemInfo, option));
 }
 
+void test_addIncidentStatusHistory(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	string expected, actual;
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+
+	string statement = "select * from incident_status_histories;";
+	for (size_t i = 0; i < NumTestIncidentStatusHistory; i++) {
+		IncidentStatusHistory expectedIncidentStatusHistory =
+		  testIncidentStatusHistory[i];
+		expectedIncidentStatusHistory.id = i + 1;
+		expected +=
+		  makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+		IncidentStatusHistory incidentStatusHistory =
+		  testIncidentStatusHistory[i];
+		dbMonitoring.addIncidentStatusHistory(incidentStatusHistory);
+	}
+	assertDBContent(&dbAgent, statement, expected);
+}
+
+void test_getIncidentStatusHistory(void)
+{
+	loadTestDBIncidentStatusHistory();
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	string expected, actual;
+
+	IncidentStatusHistoriesQueryOption option(USER_ID_SYSTEM);
+	option.setTargetUnifiedId(3);
+	option.setTargetUserId(1);
+
+	IncidentStatusHistory expectedIncidentStatusHistory =
+	  testIncidentStatusHistory[0];
+	expectedIncidentStatusHistory.id = 1;
+	expected = makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+
+	list<IncidentStatusHistory> incidentstatusHistoryList;
+	dbMonitoring.getIncidentStatusHistory(incidentstatusHistoryList, option);
+	for (auto incidentStatusHistory : incidentstatusHistoryList) {
+		actual += makeIncidentStatusHistoryOutput(incidentStatusHistory);
+	}
+
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_getNumberOfEvents(void)
 {
 	loadTestDBEvents();
