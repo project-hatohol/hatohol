@@ -45,6 +45,8 @@ const char *DBTablesMonitoring::TABLE_NAME_EVENTS     = "events";
 const char *DBTablesMonitoring::TABLE_NAME_ITEMS      = "items";
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
+const char *DBTablesMonitoring::TABLE_NAME_INCIDENT_STATUS_HISTORIES =
+  "incident_status_histories";
 
 // -> 1.0
 //   * remove IDX_TRIGGERS_HOST_ID,
@@ -781,6 +783,62 @@ static const DBAgent::TableProfile tableProfileIncidents =
 			    COLUMN_DEF_INCIDENTS,
 			    NUM_IDX_INCIDENTS,
 			    indexDefsIncidents);
+
+// ----------------------------------------------------------------------------
+// Table: incident_status_histories
+// ----------------------------------------------------------------------------
+static const ColumnDef COLUMN_DEF_INCIDENT_STATUS_HISTORIES[] = {
+{
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                      // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	"unified_id",                      // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"user_id",                         // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},  {
+	"created_at",                      // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
+};
+
+enum {
+	IDX_INCIDENT_STATUS_HISTORIES_ID,
+	IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_ID,
+	IDX_INCIDENT_STATUS_HISTORIES_USER_ID,
+	IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT,
+	NUM_IDX_INCIDENT_STATUS_HISTORIES,
+};
+
+static const DBAgent::TableProfile tableProfileIncidentStatusHistories =
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_INCIDENT_STATUS_HISTORIES,
+			    COLUMN_DEF_INCIDENT_STATUS_HISTORIES,
+			    NUM_IDX_INCIDENT_STATUS_HISTORIES);
 
 struct DBTablesMonitoring::Impl
 {
@@ -2852,6 +2910,8 @@ DBTables::SetupInfo &DBTablesMonitoring::getSetupInfo(void)
 		&tableProfileServerStatus,
 	}, {
 		&tableProfileIncidents,
+	}, {
+		&tableProfileIncidentStatusHistories,
 	}
 	};
 
