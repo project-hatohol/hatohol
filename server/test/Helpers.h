@@ -123,6 +123,7 @@ std::string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id);
 std::string makeMapHostsHostgroupsOutput(const HostgroupMember &hostgrpMember, const size_t &id);
 std::string makeSeverityRankInfoOutput(const SeverityRankInfo &severityRankInfo);
 std::string makeCustomIncidentStatusOutput(const CustomIncidentStatus &customIncidentStatus);
+std::string makeIncidentStatusHistoryOutput(const IncidentStatusHistory &incidentStatusHistory);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))

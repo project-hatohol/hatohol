@@ -718,6 +718,17 @@ std::string makeCustomIncidentStatusOutput(const CustomIncidentStatus &customInc
 		 customIncidentStatus.label.c_str());
 }
 
+std::string makeIncidentStatusHistoryOutput(const IncidentStatusHistory &incidentStatusHistory)
+{
+	return StringUtils::sprintf(
+		 "%" FMT_INCIDENT_STATUS_HISTORY_ID "|%" FMT_UNIFIED_EVENT_ID
+		 "|%" FMT_USER_ID "|%" PRIu64 "\n",
+		 incidentStatusHistory.id,
+		 incidentStatusHistory.unifiedId,
+		 incidentStatusHistory.userId,
+		 incidentStatusHistory.createdAt.tv_sec);
+}
+
 static void assertDBContentForComponets(const string &expect,
                                         const string &actual,
                                         DBAgent *dbAgent)
