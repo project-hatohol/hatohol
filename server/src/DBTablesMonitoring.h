@@ -129,6 +129,28 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
+class IncidentStatusHistoriesQueryOption : public DataQueryOption {
+public:
+	static const UnifiedEventIdType ALL_INCIDENTS;
+
+public:
+	IncidentStatusHistoriesQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	IncidentStatusHistoriesQueryOption(DataQueryContext *dataQueryContext);
+	IncidentStatusHistoriesQueryOption(const IncidentStatusHistoriesQueryOption &src);
+	~IncidentStatusHistoriesQueryOption();
+
+	virtual std::string getCondition(void) const override;
+
+	void setTargetUnifiedId(const UnifiedEventIdType &id);
+	const UnifiedEventIdType getTargetUnifiedId(void);
+	void setTargetUserId(const UserIdType &userId);
+	const UserIdType getTargetUserId(void);
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
+};
+
 class IncidentsQueryOption : public DataQueryOption {
 public:
 	static const UnifiedEventIdType ALL_INCIDENTS;
@@ -309,6 +331,10 @@ public:
 	};
 	static HatoholError getSystemInfo(SystemInfo &info,
 	                                  const DataQueryOption &option);
+	HatoholError addIncidentStatusHistory(IncidentStatusHistory &incidentStatusHistory);
+	HatoholError getIncidentStatusHistory(
+	  std::list<IncidentStatusHistory> &IncidentStatusHistoriesList,
+	  const IncidentStatusHistoriesQueryOption &option);
 
 protected:
 	static SetupInfo &getSetupInfo(void);
