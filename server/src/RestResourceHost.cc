@@ -763,12 +763,9 @@ void RestResourceHost::handlerPutIncident(void)
 		replyError(err);
 	}
 	IncidentStatusHistory incidentStatusHistory;
-	incidentStatusHistory.id = AUTO_INCREMENT_VALUE;
+	IncidentStatusHistory::initialize(incidentStatusHistory);
 	incidentStatusHistory.unifiedEventId = unifiedEventId;
 	incidentStatusHistory.userId = this->m_userId;
-	timespec currTimespec = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	incidentStatusHistory.createdAt.tv_sec = currTimespec.tv_sec;
-	incidentStatusHistory.createdAt.tv_nsec = currTimespec.tv_nsec;
 
 	dataStore->addIncidentStatusHistory(incidentStatusHistory);
 }
