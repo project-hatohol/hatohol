@@ -261,6 +261,7 @@ struct IncidentStatusHistory {
 	IncidentStatusHistoryIdType id;
 	UnifiedEventIdType          unifiedEventId;
 	UserIdType                  userId;
+	std::string                 status;
 	mlpl::Time                  createdAt;
 
 	static void initialize(IncidentStatusHistory &incidentStatusHistory);

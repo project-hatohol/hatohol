@@ -722,10 +722,11 @@ std::string makeIncidentStatusHistoryOutput(const IncidentStatusHistory &inciden
 {
 	return StringUtils::sprintf(
 		 "%" FMT_INCIDENT_STATUS_HISTORY_ID "|%" FMT_UNIFIED_EVENT_ID
-		 "|%" FMT_USER_ID "|%" PRIu64 "|%" PRIu64 "\n",
+		 "|%" FMT_USER_ID "|%s|%" PRIu64 "|%" PRIu64 "\n",
 		 incidentStatusHistory.id,
 		 incidentStatusHistory.unifiedEventId,
 		 incidentStatusHistory.userId,
+		 incidentStatusHistory.status.c_str(),
 		 incidentStatusHistory.createdAt.tv_sec,
 		 incidentStatusHistory.createdAt.tv_nsec);
 }

@@ -1582,18 +1582,21 @@ const IncidentStatusHistory testIncidentStatusHistory[] = {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // unifiedId
 	1,                     // userId
+	"NONE",                // status
 	{1412957260, 0},       // createdAt
 },
 {
 	AUTO_INCREMENT_VALUE,  // id
 	10,                    // unifiedId
 	2,                     // userId
+	"IN PROGRESS",         // status
 	{1412957290, 0},       // createdAt
 },
 {
 	AUTO_INCREMENT_VALUE,  // id
 	20,                    // unifiedId
 	3,                     // userId
+	"HOLD",                // status
 	{1453451165, 0},       // createdAt
 },
 };
