@@ -825,6 +825,15 @@ static const ColumnDef COLUMN_DEF_INCIDENT_STATUS_HISTORIES[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
+	"comment",                         // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	2048,                              // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
 	"created_at_sec",                  // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
@@ -850,6 +859,7 @@ enum {
 	IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID,
 	IDX_INCIDENT_STATUS_HISTORIES_USER_ID,
 	IDX_INCIDENT_STATUS_HISTORIES_STATUS,
+	IDX_INCIDENT_STATUS_HISTORIES_COMMENT,
 	IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC,
 	IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS,
 	NUM_IDX_INCIDENT_STATUS_HISTORIES,
