@@ -1178,7 +1178,7 @@ void test_putIncident(void)
 	          "select * from incident_status_histories");
 	// id: 1, unifiedEventId: 123, userId: 2
 	string expectedIncidentStatusHistory =
-		"^1\\|123\\|2\\|IN PROGRESS\\|\\d+\\|\\d+$";
+		"^1\\|123\\|2\\|IN PROGRESS\\|\\|\\d+\\|\\d+$";
 	cut_assert_match(expectedIncidentStatusHistory.c_str(),
 			 actualIncidentStatusHistory.c_str());
 }

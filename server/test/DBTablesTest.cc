@@ -1583,6 +1583,7 @@ const IncidentStatusHistory testIncidentStatusHistory[] = {
 	3,                     // unifiedId
 	1,                     // userId
 	"NONE",                // status
+	"",                    // comment
 	{1412957260, 0},       // createdAt
 },
 {
@@ -1590,6 +1591,7 @@ const IncidentStatusHistory testIncidentStatusHistory[] = {
 	10,                    // unifiedId
 	2,                     // userId
 	"IN PROGRESS",         // status
+	"This is a comment.",  // comment
 	{1412957290, 0},       // createdAt
 },
 {
@@ -1597,6 +1599,7 @@ const IncidentStatusHistory testIncidentStatusHistory[] = {
 	20,                    // unifiedId
 	3,                     // userId
 	"HOLD",                // status
+	"Hold to operate.",    // comment
 	{1453451165, 0},       // createdAt
 },
 };

@@ -3081,6 +3081,7 @@ void IncidentStatusHistory::initialize(IncidentStatusHistory &incidentStatusHist
 	incidentStatusHistory.unifiedEventId = INVALID_EVENT_ID;
 	incidentStatusHistory.userId = INVALID_USER_ID;
 	incidentStatusHistory.status = "";
+	incidentStatusHistory.comment = "";
 	timespec currTimespec = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
 	incidentStatusHistory.createdAt.tv_sec = currTimespec.tv_sec;
 	incidentStatusHistory.createdAt.tv_nsec = currTimespec.tv_nsec;
@@ -3096,6 +3097,7 @@ HatoholError DBTablesMonitoring::addIncidentStatusHistory(
 	arg.add(incidentStatusHistory.unifiedEventId);
 	arg.add(incidentStatusHistory.userId);
 	arg.add(incidentStatusHistory.status);
+	arg.add(incidentStatusHistory.comment);
 	arg.add(incidentStatusHistory.createdAt.tv_sec);
 	arg.add(incidentStatusHistory.createdAt.tv_nsec);
 
@@ -3113,6 +3115,7 @@ HatoholError DBTablesMonitoring::getIncidentStatusHistory(
 	arg.add(IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID);
 	arg.add(IDX_INCIDENT_STATUS_HISTORIES_USER_ID);
 	arg.add(IDX_INCIDENT_STATUS_HISTORIES_STATUS);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_COMMENT);
 	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC);
 	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS);
 
@@ -3132,6 +3135,7 @@ HatoholError DBTablesMonitoring::getIncidentStatusHistory(
 		itemGroupStream >> incidentStatusHistory.unifiedEventId;
 		itemGroupStream >> incidentStatusHistory.userId;
 		itemGroupStream >> incidentStatusHistory.status;
+		itemGroupStream >> incidentStatusHistory.comment;
 		itemGroupStream >> incidentStatusHistory.createdAt.tv_sec;
 		itemGroupStream >> incidentStatusHistory.createdAt.tv_nsec;
 
