@@ -3030,7 +3030,6 @@ HatoholError DBTablesMonitoring::getIncidentStatusHistory(
 		itemGroupStream >> incidentStatusHistory.userId;
 		itemGroupStream >> incidentStatusHistory.createdAt.tv_sec;
 		itemGroupStream >> incidentStatusHistory.createdAt.tv_nsec;
-		incidentStatusHistory.createdAt.tv_nsec = 0;
 
 		IncidentStatusHistoriesList.push_back(incidentStatusHistory);
 	}
