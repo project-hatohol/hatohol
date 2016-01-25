@@ -133,7 +133,7 @@ class TestZabbixApi(unittest.TestCase):
 
     def test_get_event_end_id(self):
         result = self.api.get_event_end_id(False)
-        expected = 1
+        expected = u"1"
 
         self.assertEquals(expected, result)
 
