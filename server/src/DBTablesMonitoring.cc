@@ -3073,7 +3073,7 @@ HatoholError DBTablesMonitoring::addIncidentStatusHistory(
 }
 
 HatoholError DBTablesMonitoring::getIncidentStatusHistory(
-  list<IncidentStatusHistory> &IncidentStatusHistoriesList,
+  list<IncidentStatusHistory> &incidentStatusHistoriesList,
   const IncidentStatusHistoriesQueryOption &option)
 {
 	DBAgent::SelectExArg arg(tableProfileIncidentStatusHistories);
@@ -3101,7 +3101,7 @@ HatoholError DBTablesMonitoring::getIncidentStatusHistory(
 		itemGroupStream >> incidentStatusHistory.createdAt.tv_sec;
 		itemGroupStream >> incidentStatusHistory.createdAt.tv_nsec;
 
-		IncidentStatusHistoriesList.push_back(incidentStatusHistory);
+		incidentStatusHistoriesList.push_back(incidentStatusHistory);
 	}
 
 	return HTERR_OK;
