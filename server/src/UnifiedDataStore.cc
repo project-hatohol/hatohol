@@ -994,6 +994,24 @@ HatoholError UnifiedDataStore::updateIncidentInfo(IncidentInfo &incidentInfo)
 	return dbMonitoring.updateIncidentInfo(incidentInfo);
 }
 
+HatoholError UnifiedDataStore::addIncidentStatusHistory(
+  IncidentStatusHistory &incidentStatusHistory)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	return dbMonitoring.addIncidentStatusHistory(incidentStatusHistory);
+}
+
+HatoholError UnifiedDataStore::getIncidentStatusHistories(
+  list<IncidentStatusHistory> &incidentStatusHistoryList,
+  const IncidentStatusHistoriesQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	return dbMonitoring.getIncidentStatusHistory(incidentStatusHistoryList,
+	                                             option);
+}
+
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 {
 	return m_impl->getDataStoreVector();
