@@ -762,6 +762,15 @@ void RestResourceHost::handlerPutIncident(void)
 		unref();
 		replyError(err);
 	}
+	IncidentStatusHistory incidentStatusHistory;
+	incidentStatusHistory.id = AUTO_INCREMENT_VALUE;
+	incidentStatusHistory.unifiedEventId = unifiedEventId;
+	incidentStatusHistory.userId = this->m_userId;
+	timespec currTimespec = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
+	incidentStatusHistory.createdAt.tv_sec = currTimespec.tv_sec;
+	incidentStatusHistory.createdAt.tv_nsec = currTimespec.tv_nsec;
+
+	dataStore->addIncidentStatusHistory(incidentStatusHistory);
 }
 
 // TODO: Add a macro or template to simplify the definition
