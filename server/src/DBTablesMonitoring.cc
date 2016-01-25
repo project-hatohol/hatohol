@@ -798,7 +798,7 @@ static const ColumnDef COLUMN_DEF_INCIDENT_STATUS_HISTORIES[] = {
 	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
-	"unified_id",                      // columnName
+	"unified_event_id",                // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
 	0,                                 // decFracLength
@@ -815,8 +815,17 @@ static const ColumnDef COLUMN_DEF_INCIDENT_STATUS_HISTORIES[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
-},  {
-	"created_at",                      // columnName
+}, {
+	"created_at_sec",                  // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"created_at_ns",                   // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
 	20,                                // columnLength
 	0,                                 // decFracLength
@@ -829,9 +838,10 @@ static const ColumnDef COLUMN_DEF_INCIDENT_STATUS_HISTORIES[] = {
 
 enum {
 	IDX_INCIDENT_STATUS_HISTORIES_ID,
-	IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_ID,
+	IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID,
 	IDX_INCIDENT_STATUS_HISTORIES_USER_ID,
-	IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT,
+	IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC,
+	IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS,
 	NUM_IDX_INCIDENT_STATUS_HISTORIES,
 };
 
@@ -1641,11 +1651,11 @@ string IncidentsQueryOption::getCondition(void) const
 const UnifiedEventIdType IncidentStatusHistoriesQueryOption::ALL_INCIDENTS = -1;
 
 struct IncidentStatusHistoriesQueryOption::Impl {
-	UnifiedEventIdType unifiedId;
+	UnifiedEventIdType unifiedEventId;
 	UserIdType         userId;
 
 	Impl()
-	: unifiedId(ALL_INCIDENTS),
+	: unifiedEventId(ALL_INCIDENTS),
 	  userId(INVALID_USER_ID)
 	{
 	}
@@ -1677,14 +1687,14 @@ IncidentStatusHistoriesQueryOption::~IncidentStatusHistoriesQueryOption()
 {
 }
 
-void IncidentStatusHistoriesQueryOption::setTargetUnifiedId(const UnifiedEventIdType &id)
+void IncidentStatusHistoriesQueryOption::setTargetUnifiedEventId(const UnifiedEventIdType &id)
 {
-	m_impl->unifiedId = id;
+	m_impl->unifiedEventId = id;
 }
 
-const UnifiedEventIdType IncidentStatusHistoriesQueryOption::getTargetUnifiedId(void)
+const UnifiedEventIdType IncidentStatusHistoriesQueryOption::getTargetUnifiedEventId(void)
 {
-	return m_impl->unifiedId;
+	return m_impl->unifiedEventId;
 }
 
 void IncidentStatusHistoriesQueryOption::setTargetUserId(const UserIdType &userId)
@@ -1700,13 +1710,13 @@ const UserIdType IncidentStatusHistoriesQueryOption::getTargetUserId(void)
 string IncidentStatusHistoriesQueryOption::getCondition(void) const
 {
 	string condition = DataQueryOption::getCondition();
-	if (m_impl->unifiedId != ALL_INCIDENTS) {
+	if (m_impl->unifiedEventId != ALL_INCIDENTS) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		string unifiedIdCondition =
 		  StringUtils::sprintf(
 		    "%s=%s",
-		    COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_ID].columnName,
-		    rhs(m_impl->unifiedId));
+		    COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID].columnName,
+		    rhs(m_impl->unifiedEventId));
 		addCondition(condition, unifiedIdCondition);
 	}
 	if (m_impl->userId != INVALID_USER_ID) {
@@ -2985,9 +2995,10 @@ HatoholError DBTablesMonitoring::addIncidentStatusHistory(
 
 	DBAgent::InsertArg arg(tableProfileIncidentStatusHistories);
 	arg.add(incidentStatusHistory.id);
-	arg.add(incidentStatusHistory.unifiedId);
+	arg.add(incidentStatusHistory.unifiedEventId);
 	arg.add(incidentStatusHistory.userId);
 	arg.add(incidentStatusHistory.createdAt.tv_sec);
+	arg.add(incidentStatusHistory.createdAt.tv_nsec);
 
 	DBAgent &dbAgent = getDBAgent();
 	dbAgent.runTransaction(arg, &incidentStatusHistoryId);
@@ -3000,9 +3011,10 @@ HatoholError DBTablesMonitoring::getIncidentStatusHistory(
 {
 	DBAgent::SelectExArg arg(tableProfileIncidentStatusHistories);
 	arg.add(IDX_INCIDENT_STATUS_HISTORIES_ID);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_ID);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID);
 	arg.add(IDX_INCIDENT_STATUS_HISTORIES_USER_ID);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS);
 
 	arg.condition = option.getCondition();
 
@@ -3014,9 +3026,10 @@ HatoholError DBTablesMonitoring::getIncidentStatusHistory(
 
 		IncidentStatusHistory incidentStatusHistory;
 		itemGroupStream >> incidentStatusHistory.id;
-		itemGroupStream >> incidentStatusHistory.unifiedId;
+		itemGroupStream >> incidentStatusHistory.unifiedEventId;
 		itemGroupStream >> incidentStatusHistory.userId;
 		itemGroupStream >> incidentStatusHistory.createdAt.tv_sec;
+		itemGroupStream >> incidentStatusHistory.createdAt.tv_nsec;
 		incidentStatusHistory.createdAt.tv_nsec = 0;
 
 		IncidentStatusHistoriesList.push_back(incidentStatusHistory);

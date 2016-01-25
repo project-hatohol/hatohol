@@ -141,8 +141,8 @@ public:
 
 	virtual std::string getCondition(void) const override;
 
-	void setTargetUnifiedId(const UnifiedEventIdType &id);
-	const UnifiedEventIdType getTargetUnifiedId(void);
+	void setTargetUnifiedEventId(const UnifiedEventIdType &id);
+	const UnifiedEventIdType getTargetUnifiedEventId(void);
 	void setTargetUserId(const UserIdType &userId);
 	const UserIdType getTargetUserId(void);
 
