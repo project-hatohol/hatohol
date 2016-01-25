@@ -3085,6 +3085,9 @@ HatoholError DBTablesMonitoring::getIncidentStatusHistory(
 
 	arg.condition = option.getCondition();
 
+	// Order By
+	arg.orderBy = option.getOrderBy();
+
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
