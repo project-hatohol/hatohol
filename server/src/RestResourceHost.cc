@@ -766,6 +766,7 @@ void RestResourceHost::handlerPutIncident(void)
 	IncidentStatusHistory::initialize(incidentStatusHistory);
 	incidentStatusHistory.unifiedEventId = unifiedEventId;
 	incidentStatusHistory.userId = this->m_userId;
+	incidentStatusHistory.status = incidentInfo.status;
 
 	dataStore->addIncidentStatusHistory(incidentStatusHistory);
 }
