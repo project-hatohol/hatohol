@@ -3055,6 +3055,16 @@ HatoholError DBTablesMonitoring::getSystemInfo(
 	return HatoholError(HTERR_OK);
 }
 
+void IncidentStatusHistory::initialize(IncidentStatusHistory &incidentStatusHistory)
+{
+	incidentStatusHistory.id = AUTO_INCREMENT_VALUE;
+	incidentStatusHistory.unifiedEventId = INVALID_EVENT_ID;
+	incidentStatusHistory.userId = INVALID_USER_ID;
+	timespec currTimespec = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
+	incidentStatusHistory.createdAt.tv_sec = currTimespec.tv_sec;
+	incidentStatusHistory.createdAt.tv_nsec = currTimespec.tv_nsec;
+}
+
 HatoholError DBTablesMonitoring::addIncidentStatusHistory(
   IncidentStatusHistory &incidentStatusHistory)
 {
