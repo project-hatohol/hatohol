@@ -148,10 +148,6 @@ class ZabbixAPI:
         if not self.result:
             return
 
-        if not len(res_dict["result"]) > 0:
-            logger.error("Malformed response dictionary: %s" % res_dict)
-            return
-
         return res_dict["result"][0]["value_type"]
 
     # The following method gets not only hosts info but also host group membership.
@@ -307,7 +303,7 @@ class ZabbixAPI:
 
         res_dict = self.get_response_dict("event.get", params, self.auth_token)["result"]
 
-        self.result = check_response(res_dict)
+        self.result = check_response(res_dict, 1)
         if not self.result:
             return
 
@@ -333,8 +329,13 @@ def get_item_groups(applications):
     return item_groups
 
 
-def check_response(response_dict):
+def check_response(response_dict, expected_minimum_result_length=0):
     if "error" in response_dict:
+        logger.warning("Response dictionary contains an error: %s" % response_dict)
+        return False
+
+    if len(response_dict["result"]) < expected_minimum_result_length:
+        logger.warning("Response dictionary result is less than expected length: %s" % response_dict)
         return False
 
     return True
