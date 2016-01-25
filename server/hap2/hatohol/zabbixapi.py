@@ -301,13 +301,13 @@ class ZabbixAPI:
         else:
             params["sortorder"] = "DESC"
 
-        res_dict = self.get_response_dict("event.get", params, self.auth_token)["result"]
+        res_dict = self.get_response_dict("event.get", params, self.auth_token)
 
         self.result = check_response(res_dict)
         if not self.result:
             return
 
-        return res_dict[0]["eventid"]
+        return res_dict["result"][0]["eventid"]
 
 
     def get_response_dict(self, method_name, params, auth_token=None):
