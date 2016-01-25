@@ -141,5 +141,8 @@ class TestZabbixApi(unittest.TestCase):
         res_dict = {"error": None}
         self.assertFalse(zabbixapi.check_response(res_dict))
 
-        res_dict = {"result": None}
+        res_dict = {"result": [""]}
         self.assertTrue(zabbixapi.check_response(res_dict))
+
+        res_dict = {"result": []}
+        self.assertFalse(zabbixapi.check_response(res_dict, 1))
