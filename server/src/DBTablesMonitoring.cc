@@ -845,10 +845,21 @@ enum {
 	NUM_IDX_INCIDENT_STATUS_HISTORIES,
 };
 
+static const int columnIndexesCreatedAtSequence[] = {
+  IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC, IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS,
+  IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID, DBAgent::IndexDef::END,
+};
+
+static const DBAgent::IndexDef indexDefsIncidentStatusHistories[] = {
+  {"CreatedtAtSequence", (const int *)columnIndexesCreatedAtSequence, false},
+  {NULL}
+};
+
 static const DBAgent::TableProfile tableProfileIncidentStatusHistories =
   DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_INCIDENT_STATUS_HISTORIES,
 			    COLUMN_DEF_INCIDENT_STATUS_HISTORIES,
-			    NUM_IDX_INCIDENT_STATUS_HISTORIES);
+			    NUM_IDX_INCIDENT_STATUS_HISTORIES,
+			    indexDefsIncidentStatusHistories);
 
 struct DBTablesMonitoring::Impl
 {
@@ -1653,10 +1664,14 @@ const UnifiedEventIdType IncidentStatusHistoriesQueryOption::ALL_INCIDENTS = -1;
 struct IncidentStatusHistoriesQueryOption::Impl {
 	UnifiedEventIdType unifiedEventId;
 	UserIdType         userId;
+	SortType sortType;
+	SortDirection sortDirection;
 
 	Impl()
 	: unifiedEventId(ALL_INCIDENTS),
-	  userId(INVALID_USER_ID)
+	  userId(INVALID_USER_ID),
+	  sortType(SORT_UNIFIED_EVENT_ID),
+	  sortDirection(SORT_DONT_CARE)
 	{
 	}
 };
@@ -1705,6 +1720,58 @@ void IncidentStatusHistoriesQueryOption::setTargetUserId(const UserIdType &userI
 const UserIdType IncidentStatusHistoriesQueryOption::getTargetUserId(void)
 {
 	return m_impl->userId;
+}
+
+void IncidentStatusHistoriesQueryOption::setSortType(
+  const IncidentStatusHistoriesQueryOption::SortType &type,
+  const SortDirection &direction)
+{
+	m_impl->sortType = type;
+	m_impl->sortDirection = direction;
+
+	switch (type) {
+	case SORT_UNIFIED_EVENT_ID:
+	{
+		SortOrder order(
+		  COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID].columnName,
+		  direction);
+		setSortOrder(order);
+		break;
+	}
+	case SORT_TIME:
+	{
+		SortOrderVect sortOrderVect;
+		SortOrder order1(
+		  COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC].columnName,
+		  direction);
+		SortOrder order2(
+		  COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS].columnName,
+		  direction);
+		SortOrder order3(
+		  COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID].columnName,
+		  direction);
+		sortOrderVect.reserve(3);
+		sortOrderVect.push_back(order1);
+		sortOrderVect.push_back(order2);
+		sortOrderVect.push_back(order3);
+		setSortOrderVect(sortOrderVect);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+IncidentStatusHistoriesQueryOption::SortType
+IncidentStatusHistoriesQueryOption::getSortType(void) const
+{
+	return m_impl->sortType;
+}
+
+DataQueryOption::SortDirection
+IncidentStatusHistoriesQueryOption::getSortDirection(void) const
+{
+	return m_impl->sortDirection;
 }
 
 string IncidentStatusHistoriesQueryOption::getCondition(void) const
