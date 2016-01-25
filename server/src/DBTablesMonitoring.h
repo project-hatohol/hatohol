@@ -131,6 +131,12 @@ private:
 
 class IncidentStatusHistoriesQueryOption : public DataQueryOption {
 public:
+	enum SortType {
+		SORT_UNIFIED_EVENT_ID,
+		SORT_TIME,
+		NUM_SORT_TYPES
+	};
+
 	static const UnifiedEventIdType ALL_INCIDENTS;
 
 public:
@@ -145,6 +151,9 @@ public:
 	const UnifiedEventIdType getTargetUnifiedEventId(void);
 	void setTargetUserId(const UserIdType &userId);
 	const UserIdType getTargetUserId(void);
+	void setSortType(const SortType &type, const SortDirection &direction);
+	SortType getSortType(void) const;
+	SortDirection getSortDirection(void) const;
 
 private:
 	struct Impl;
