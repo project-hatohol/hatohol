@@ -1862,7 +1862,7 @@ void test_getIncidentStatusHistory(void)
 	string expected, actual;
 
 	IncidentStatusHistoriesQueryOption option(USER_ID_SYSTEM);
-	option.setTargetUnifiedId(3);
+	option.setTargetUnifiedEventId(3);
 	option.setTargetUserId(1);
 
 	IncidentStatusHistory expectedIncidentStatusHistory =

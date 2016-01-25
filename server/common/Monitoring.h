@@ -259,7 +259,7 @@ typedef IncidentInfoVect::const_iterator IncidentInfoVectConstIterator;
 
 struct IncidentStatusHistory {
 	IncidentStatusHistoryIdType id;
-	UnifiedEventIdType          unifiedId;
+	UnifiedEventIdType          unifiedEventId;
 	UserIdType                  userId;
 	mlpl::Time                  createdAt;
 };
