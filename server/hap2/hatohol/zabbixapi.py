@@ -311,7 +311,7 @@ class ZabbixAPI:
         if not self.result:
             return
 
-        return int(res_dict[0]["eventid"])
+        return res_dict[0]["eventid"]
 
 
     def get_response_dict(self, method_name, params, auth_token=None):
