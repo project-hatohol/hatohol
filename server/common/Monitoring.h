@@ -262,6 +262,8 @@ struct IncidentStatusHistory {
 	UnifiedEventIdType          unifiedEventId;
 	UserIdType                  userId;
 	mlpl::Time                  createdAt;
+
+	static void initialize(IncidentStatusHistory &incidentStatusHistory);
 };
 
 #endif // Monitoring_h
