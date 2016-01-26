@@ -762,6 +762,7 @@ void RestResourceHost::handlerPutIncident(void)
 		unref();
 		replyError(err);
 	}
+
 	IncidentStatusHistory incidentStatusHistory;
 	IncidentStatusHistory::initialize(incidentStatusHistory);
 	incidentStatusHistory.unifiedEventId = unifiedEventId;
