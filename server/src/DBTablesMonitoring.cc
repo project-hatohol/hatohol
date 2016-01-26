@@ -794,7 +794,7 @@ static const ColumnDef COLUMN_DEF_INCIDENT_STATUS_HISTORIES[] = {
 	11,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_PRI,                      // keyType
+	SQL_KEY_PRI,                       // keyType
 	SQL_COLUMN_FLAG_AUTO_INC,          // flags
 	NULL,                              // defaultValue
 }, {
@@ -803,7 +803,7 @@ static const ColumnDef COLUMN_DEF_INCIDENT_STATUS_HISTORIES[] = {
 	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
-	SQL_KEY_NONE,                       // keyType
+	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
