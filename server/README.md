@@ -279,6 +279,10 @@ In ubuntu 13.04, edit of ENABLE_NDOUTILS variable in /etc/default/ndoutils
 
 See also [this install document](../doc/misc/nagios-setup-cent6.md) if you use CentOS.
 
+## Tips to configure Nagios Livestatus API
+
+Please refer to [How to setup Livestatus](../doc/server/hap2/how-to-setup-livestatus.md).
+
 ## API Reference Manual for REST service
 The API reference manual can be created as below.
 
