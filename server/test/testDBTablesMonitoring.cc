@@ -1944,7 +1944,6 @@ void test_getIncidentStatusHistoryWithSortUnifiedEventIdAscending(void)
 	option.setSortType(IncidentStatusHistoriesQueryOption::SORT_UNIFIED_EVENT_ID,
 			   DataQueryOption::SORT_ASCENDING);
 
-	// Reverse access
 	for (size_t i = 0; i < NumTestIncidentStatusHistory; i++) {
 		IncidentStatusHistory expectedIncidentStatusHistory =
 		  testIncidentStatusHistory[i];
