@@ -137,7 +137,7 @@ public:
 		NUM_SORT_TYPES
 	};
 
-	static const UnifiedEventIdType ALL_INCIDENTS;
+	static const UnifiedEventIdType INVALID_ID;
 
 public:
 	IncidentStatusHistoriesQueryOption(const UserIdType &userId = INVALID_USER_ID);

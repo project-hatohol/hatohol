@@ -1679,7 +1679,7 @@ string IncidentsQueryOption::getCondition(void) const
 // ---------------------------------------------------------------------------
 // IncidentStatusHistoriesQueryOption
 // ---------------------------------------------------------------------------
-const UnifiedEventIdType IncidentStatusHistoriesQueryOption::ALL_INCIDENTS = -1;
+const UnifiedEventIdType IncidentStatusHistoriesQueryOption::INVALID_ID = -1;
 
 struct IncidentStatusHistoriesQueryOption::Impl {
 	UnifiedEventIdType unifiedEventId;
@@ -1688,7 +1688,7 @@ struct IncidentStatusHistoriesQueryOption::Impl {
 	SortDirection sortDirection;
 
 	Impl()
-	: unifiedEventId(ALL_INCIDENTS),
+	: unifiedEventId(INVALID_ID),
 	  userId(INVALID_USER_ID),
 	  sortType(SORT_UNIFIED_EVENT_ID),
 	  sortDirection(SORT_DONT_CARE)
@@ -1797,7 +1797,7 @@ IncidentStatusHistoriesQueryOption::getSortDirection(void) const
 string IncidentStatusHistoriesQueryOption::getCondition(void) const
 {
 	string condition = DataQueryOption::getCondition();
-	if (m_impl->unifiedEventId != ALL_INCIDENTS) {
+	if (m_impl->unifiedEventId != INVALID_ID) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		string unifiedIdCondition =
 		  StringUtils::sprintf(
