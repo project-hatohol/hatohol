@@ -194,7 +194,7 @@ HatoholItemSelector.prototype.setItem = function(index, item, servers,
 
   if (!(index in self.rowData)) {
     self.rowData[index] = {};
-    tr.insertBefore("#" + self.elementId + " tbody tr :last");
+    tr.insertBefore("#item-chooser-row");
   }
 
   if (item) {
