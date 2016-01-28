@@ -790,8 +790,8 @@ static const DBAgent::TableProfile tableProfileIncidents =
 static const ColumnDef COLUMN_DEF_INCIDENT_STATUS_HISTORIES[] = {
 {
 	"id",                              // columnName
-	SQL_COLUMN_TYPE_INT,               // type
-	11,                                // columnLength
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_PRI,                       // keyType
