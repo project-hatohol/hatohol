@@ -39,6 +39,8 @@ EXTRA_DIST = \
 	browser/test_severity_ranks_view.js \
 	browser/test_custom_incident_labels_view.js \
 	browser/test_hatohol_events_view_config.js \
+	browser/test_hatohol_incident_tracker_editor.js \
+	browser/test_hatohol_modal.js \
 	feature/dashboard_test.js \
 	feature/feature_test_utils.js \
 	feature/login_logout_test.js \
@@ -54,6 +56,8 @@ EXTRA_DIST = \
 	python/TestUserConfig.py \
 	python/TestUserConfigView.py \
 	python/TestLogSearchSystemsView.py \
+	python/TestEventFiltersView.py \
+	python/TestGraphsView.py \
 	python/__init__.py \
 	python/run-test.sh \
 	python/testsettings.py \

@@ -162,21 +162,16 @@ var HatoholNavi = function(userProfile, currentPage) {
       return null;
     }
 
-    var href = "";
-    if (HATOHOL_PROJECT_TOP_PATH.length > 0)
-        href = HATOHOL_PROJECT_TOP_PATH + "/";
-    href = href + menuItem.href;
-
     if (menuItem.children) {
       title = '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
         menuItem.title + '<span class="caret"></span>' + '</a>';
       klass = 'dropdown';
-    } else if (href == self.currentPage) {
+    } else if (menuItem.href == self.currentPage) {
       title = '<a>' + menuItem.title + '</a>';
       klass = "active";
     } else {
-      title = '<a href=' + href + '>' +
-	menuItem.title + '</a>';
+      title = '<a href=' + menuItem.href + '>' +
+        menuItem.title + '</a>';
       klass = undefined;
     }
 

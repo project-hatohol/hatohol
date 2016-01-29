@@ -12,7 +12,7 @@ the specific monitoring software in various way.
 - [Supported output method](#user-content-supported-output-method)
 - [Supported platforms](#user-content-supported-platforms)
 - [Required libraries](#user-content-required-libraries)
-	- [Example to install required libraries on CentOS 6.5](#user-content-example-to-install-required-libraries-on-centos-65)
+	- [Example to install required libraries on CentOS 7](#user-content-example-to-install-required-libraries-on-centos-7)
 		- [For json-glib, there are two ways to install.](#user-content-for-json-glib-there-are-two-ways-to-install)
 			- [One is to use json-glib RPM package built by Project Hatohol.](#user-content-one-is-to-use-json-glib-rpm-package-built-by-project-hatohol)
 			- [The other is to install it from the source tar ball like below.](#user-content-the-other-is-to-install-it-from-the-source-tar-ball-like-below)
@@ -30,6 +30,7 @@ the specific monitoring software in various way.
 - Zabbix 2.0
 - Zabbix 2.2
 - Zabbix 2.4
+- Zabbix 3.0
 - Nagios3 (with NDOUtils)
 - Nagios4 (with NDOUtils)
 - Ceilometer (OpenStack)
@@ -37,12 +38,13 @@ the specific monitoring software in various way.
 
 ## Supported incident tracking software
 - Redmine
+- Hatohol (built-in)
 
 ## Supported output method
 - REST
 
 ## Supported platforms
-- CentOS 6.5 (x86\_64)
+- CentOS 7 (x86\_64)
 - Ubuntu Server 14.04LTS (64-bit)
 - Ubuntu 14.04 (64-bit) [supported until the next ubuntu release]
 
@@ -56,13 +58,9 @@ the specific monitoring software in various way.
 - librt
 - libstdc++
 - uuid-dev
-- qpidd
-- libqpidmessaging2-dev
-- libqpidtypes1-dev
-- libqpidcommon2-dev
 
-### Example to install required libraries on CentOS 6.5
-> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.06/ja/index.md)
+### Example to install required libraries on CentOS 7
+> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/16.01/ja/index.md)
 > to setup Hatohol for CentOS with the binary packages.
 
 First, you need to install development tools to build Hatohol and some required
@@ -70,39 +68,18 @@ packages
 
     # yum groupinstall "Development Tools"
 
-You need to register a yum repository for installing qpid-cpp-client-devel packages
-by the following command
-
-    # wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
-
 You can add a new repository the following command.
 
     # yum install epel-release
 
-You can install sqlite3, MySQL and libsoup and others by the following command:
+You can install sqlite3, MySQL, libsoup, json-glib and others by the following command:
 
-    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel qpid-cpp-client-devel librabbitmq-devel
+    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel
 
-#### For json-glib, there are two ways to install.
+In addition, you need to install librabbitmq development package if you want to enable HAPI
+(Hatohol Arm Plugin Interface) 2.0 in Hatohol server by the following command:
 
-##### One is to use json-glib RPM package built by Project Hatohol.
-
-- [json-glib library] (https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-0.12.6-1PH.x86_64.rpm?raw=true)
-- [Header files (devel package)] (https://github.com/project-hatohol/json-glib-for-distribution/blob/master/RPMS/x86_64/json-glib-devel-0.12.6-1PH.x86_64.rpm?raw=true)
-
-##### The other is to install it from the source tar ball like below.
-
-Getting json-glib:
-
-    $ wget http://ftp.gnome.org/pub/GNOME/sources/json-glib/0.12/json-glib-0.12.6.tar.bz2
-    $ tar xvfj json-glib-0.12.6.tar.bz2
-
-Building & installing by following commands:
-
-    $ ./configure
-    $ make all
-    $ su
-    # make install
+    # yum install librabbitmq-devel
 
 ### Example to install required libraries on ubuntu 14.04
 
@@ -117,24 +94,19 @@ You should install these package to build Hatohol and required libraries.
 - libmysqlclient-dev
 - mysql-server
 - uuid-dev
-- qpidd
-- libqpidmessaging2-dev
-- libqpidtypes1-dev
-- libqpidcommon2-dev
 
 installing by following commands:
 
-    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev qpidd libqpidmessaging2-dev libqpidtypes1-dev libqpidcommon2-dev
+    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev
 
-In addition, you need to install following libraries if you want to enable HAPI
-(Hatohol Arm Plugin Interface) 2.0.
+In addition, you need to install the following package if you want to enable HAPI
+(Hatohol Arm Plugin Interface) 2.0 in Hatohol server.
 
 - librabbitmq-dev
-- rabbitmq-server
 
-You can install them by the following command:
+You can install it by the following command:
 
-    $ sudo apt-get install librabbitmq-dev rabbitmq-server
+    $ sudo apt-get install librabbitmq-dev
 
 ## How to build Hatohol
 First, you need to install required libraries.
@@ -150,24 +122,11 @@ Then run the following commands to install Hatohol:
 ## How to start
 (0.1) Run MySQL server for storing configuration.
 
-(0.2) Set QPid's setting
-(0.2.a) Disable authentification
-Add the following line in /etc/qpid/qpidd.conf
+(0.2) Set RabbitMQ's setting
 
-    auth=no
+Please refer to [How to use HAP2](../doc/server/hap2/HowToUse.md).
 
-(0.2.b) Allow all yours (Setting of ACL)
-Example of /etc/qpid/qpidd.acl
-
-    acl allow all all
-
-NOTE: You have to restart qpidd after you edit /etc/qpid/qpiid.acl.
-
-(0.3) Set RabbitMQ's setting
-
-TBD
-
-(0.4) Create a directory to save a PID file.
+(0.3) Create a directory to save a PID file.
 
     # mkdir -p /usr/local/var/run
 
@@ -179,7 +138,7 @@ It can be set by setting my.conf such as
     [mysqld]
     default-storage-engine=InnoDB
 
-To enable the above lines, you need to restart MySQL sesrver.
+To enable the above lines, you need to restart MySQL server.
 
 (1.0.b) Setup database for Hatohol
 
@@ -188,20 +147,20 @@ To setup database used by hatohol server, you need to execute helper command `ha
 Before you execute this helper command, you can edit mysql section in `${prefix}/etc/hatohol/hatohol.conf` which is used for database settings (username, database name and password).
 Then, run this helper command as follows:
 
-    $ hatohol-db-initiator --db_user DBUSER --db_password DBPASSWORD
+    $ hatohol-db-initiator --db-user DBUSER --db-password DBPASSWORD
 
 You must specify DBUSER and PASSWORD whose MySQL administrator user, respectively.
 
 Example:
 
-    $ hatohol-db-initiator --db_user root --db_password rootpass
+    $ hatohol-db-initiator --db-user root --db-password rootpass
 
 Note: Since 15.03, hatohol-db-initiator doesn't require command line argument after hatohol database is created.
-`db_name`, `db_user` and `db_password` are read from `hatohol.conf` by default.
+`db-name`, `db-user` and `db-password` are read from `hatohol.conf` by default.
 For example, `hatohol.conf` is placed at `/etc/hatohol/hatohol.conf`.
 
 Tips:
-- If the root password of the MySQL server is not set, just pass '' for `--db_password`.
+- If the root password of the MySQL server is not set, just pass '' for `--db-password`.
 - You can change password of the created DB by --hatohol-db-user and --hatohol-db-password options.
 - You can change database, username and password by editing mysql section in `hatohol.conf`.
 - If Hatohol server and MySQL server are executed on different machines, you have to input GRANT statement manually with the mysql command line tool.
@@ -319,6 +278,10 @@ In ubuntu 13.04, edit of ENABLE_NDOUTILS variable in /etc/default/ndoutils
     ENABLE_NDOUTILS=1
 
 See also [this install document](../doc/misc/nagios-setup-cent6.md) if you use CentOS.
+
+## Tips to configure Nagios Livestatus API
+
+Please refer to [How to setup Livestatus](../doc/server/hap2/how-to-setup-livestatus.md).
 
 ## API Reference Manual for REST service
 The API reference manual can be created as below.

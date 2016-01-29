@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to HATOHOL REST Service's documentation!
-==============================================
+Hatohol REST API Reference
+==========================
 
 Contents:
 
@@ -16,6 +16,7 @@ Contents:
    triggers
    events
    items
+   common-properties
 
 
 Indices and tables

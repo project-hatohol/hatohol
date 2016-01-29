@@ -114,10 +114,13 @@ class ZabbixAPIConductor(object):
         last_info = self.get_cached_event_last_info()
         if len(last_info):
             last_info = int(last_info)
-        # If Hatohol server does not have last_info, set 0 to last_info.
+        # If Hatohol server and this plugin does not have last_info,
+        # set last_event_id to last_info.
         else:
-            last_info = 0
+            self.set_event_last_info(last_event_id)
+            return
 
+        last_event_id = int(last_event_id)
         while True:
             event_id_from = last_info + 1
             event_id_till = last_info + MAX_NUMBER_OF_EVENTS_FROM_ZABBIX

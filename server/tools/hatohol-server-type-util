@@ -137,6 +137,47 @@ class NagiosParamGenerator(ParamGenerator):
         return self.get_sql_version_number()
 
 
+class HapiJSONParamGenerator(ParamGenerator):
+    def get_server_type(self):
+        return hatohol_def.MONITORING_SYSTEM_HAPI_JSON
+
+    def get_server_type_name(self):
+        return 'JSON (HAPI)'
+
+    def get_parameters(self):
+        obj = []
+        obj.append({'id': 'nickname',
+                    'label': 'Nickname'})
+        obj.append({'id': 'brokerUrl',
+                    'label': 'Broker URL',
+                    'allowEmpty': True,
+                    'hint': '(empty: Default)'})
+        obj.append({'id': 'staticQueueAddress',
+                    'label': 'Static queue address',
+                    'allowEmpty': True,
+                    'hint': '(empty: Default)'})
+        obj.append({'id': 'tlsCertificatePath',
+                    'label': 'TLS client certificate path',
+                    'allowEmpty': True})
+        obj.append({'id': 'tlsKeyPath',
+                    'label': 'TLS client key path',
+                    'allowEmpty': True})
+        obj.append({'id': 'tlsCACertificatePath',
+                    'label': 'TLS CA certificate path',
+                    'allowEmpty': True})
+        obj.append({'id': 'tlsEnableVerify',
+                    'label': 'TLS: Enable verify',
+                    'inputStyle': 'checkBox',
+                    'allowEmpty': True})
+        return obj
+
+    def get_sql_file_type_name(self):
+        return 'hapi-json'
+
+    def get_sql_version(self):
+        return self.get_sql_version_number()
+
+
 def generate_one_type(table_name, server_type, server_label, parameters,
                       plugin_path, sql_version, file_identifier, uuid):
     PLUGIN_ENABLED = 1
@@ -175,7 +216,13 @@ def generate_label_gettext(generators):
         for obj in gen.get_parameters():
             labels.add(obj['label'])
     for label in labels:
-        print 'gettext("' + label + '")'
+        print 'gettext("' + label + '");'
+
+    # Additinal parameters for HAP2 plugins
+    # TODO: Should be moved to WebUI plugins
+    print 'gettext("Passive mode");'
+    print 'gettext("Tenant name");'
+    print 'gettext("Keystone URL");'
 
 
 def main():
@@ -187,6 +234,7 @@ def main():
     generators = (
         ZabbixParamGenerator(),
         NagiosParamGenerator(),
+        HapiJSONParamGenerator(),
     )
 
     command_handlers = {

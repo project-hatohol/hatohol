@@ -28,7 +28,6 @@
 <div id="main">
   <h2>{% trans "Custom Incident Labels" %}</h2>
 
-  <input type="button" id="save-custom-incident-labels" class="btn btn-primary" value="{% trans "SAVE" %}" style="display: none;">
   <table class="table table-condensed table-hover" id="table">
     <thead>
       <tr>
@@ -39,6 +38,10 @@
     <tbody>
     </tbody>
   </table>
+  <div style="text-align: center;padding-bottom: 20px;">
+    <input type="button" id="cancel-custom-incident-labels" class="btn btn-default" value="{% trans "Cancel" %}">
+    <input type="button" id="save-custom-incident-labels" class="btn btn-primary" value="{% trans "SAVE" %}" style="display: none;">
+  </div>
 </div>
 </div>
 {% endblock %}

@@ -11,7 +11,7 @@ on Django.
 - [How to setup](#user-content-how-to-setup)
 	- [Install Hatohol Client](#user-content-install-hatohol-client)
 	- [Install Required Libraries](#user-content-install-required-libraries)
-		- [On CentOS 6.5](#user-content-on-centos-65)
+		- [On CentOS 7](#user-content-on-centos-7)
 		- [On Ubuntu 12.04 and 14.04](#user-content-on-ubuntu-1204-and-1404)
 	- [Create the database](#user-content-create-the-database)
 	- [Create the database and the tables](#user-content-create-the-database-and-the-tables)
@@ -33,9 +33,8 @@ maintained by [joequery]
 (http://joequery.github.io/Stupid-Table-Plugin/)
 
 ## How to setup
-> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/14.06/ja/index.md)
+> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/16.01/en/index.md)
 > to setup Hatohol for CentOS with the binary packages.
-(Only Japanese explanation is provided.) 
 
 ### Install Hatohol Client
 Hatohol Client is written as PATH FREE. So you can place it anywhere.
@@ -43,16 +42,15 @@ Hatohol Client is written as PATH FREE. So you can place it anywhere.
 ### Install Required Libraries
 The following shows examples to install Required Packages.
 
-#### On CentOS 6.5
+#### On CentOS 7
 
-    # yum install python-setuptools python-devel
-    # easy_install pip
-    # pip install django==1.5.4 mysql-python
+    # yum install python-pip python-devel django gettext
+    # pip install mysql-python
 
 #### On Ubuntu 12.04 and 14.04
 
-    $ sudo apt-get install python-pip python-dev gettext
-    $ sudo pip install django==1.5.4 mysql-python
+    $ sudo apt-get install python-pip python-dev python-django gettext
+    $ sudo pip install mysql-python
 
 
 ### Create the database

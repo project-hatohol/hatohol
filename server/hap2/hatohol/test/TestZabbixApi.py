@@ -133,7 +133,7 @@ class TestZabbixApi(unittest.TestCase):
 
     def test_get_event_end_id(self):
         result = self.api.get_event_end_id(False)
-        expected = 1
+        expected = u"1"
 
         self.assertEquals(expected, result)
 
@@ -141,5 +141,8 @@ class TestZabbixApi(unittest.TestCase):
         res_dict = {"error": None}
         self.assertFalse(zabbixapi.check_response(res_dict))
 
-        res_dict = {"result": None}
+        res_dict = {"result": [""]}
         self.assertTrue(zabbixapi.check_response(res_dict))
+
+        res_dict = {"result": []}
+        self.assertFalse(zabbixapi.check_response(res_dict, 1))

@@ -25,7 +25,7 @@ from logging import getLogger
 from hatohol.haplib import Utils
 from hatohol import hap
 
-logger = getLogger(__name__)
+logger = getLogger("hatohol.zabbixapi")
 
 TRIGGER_SEVERITY = {"-1": "ALL", "0": "UNKNOWN", "1": "INFO", "2": "WARNING",
                     "3": "ERROR", "4": "CRITICAL", "5": "EMERGENCY"}
@@ -301,13 +301,13 @@ class ZabbixAPI:
         else:
             params["sortorder"] = "DESC"
 
-        res_dict = self.get_response_dict("event.get", params, self.auth_token)["result"]
+        res_dict = self.get_response_dict("event.get", params, self.auth_token)
 
-        self.result = check_response(res_dict)
+        self.result = check_response(res_dict, 1)
         if not self.result:
             return
 
-        return int(res_dict[0]["eventid"])
+        return res_dict["result"][0]["eventid"]
 
 
     def get_response_dict(self, method_name, params, auth_token=None):
@@ -329,8 +329,13 @@ def get_item_groups(applications):
     return item_groups
 
 
-def check_response(response_dict):
+def check_response(response_dict, expected_minimum_result_length=0):
     if "error" in response_dict:
+        logger.warning("Response dictionary contains an error: %s" % response_dict)
+        return False
+
+    if len(response_dict["result"]) < expected_minimum_result_length:
+        logger.warning("Response dictionary result is less than expected length: %s" % response_dict)
         return False
 
     return True
