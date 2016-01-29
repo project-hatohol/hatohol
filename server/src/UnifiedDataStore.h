@@ -290,6 +290,12 @@ public:
 	void addIncidentInfo(IncidentInfo &incidentInfo);
 	HatoholError updateIncidentInfo(IncidentInfo &incidentInfo);
 
+	HatoholError addIncidentStatusHistory(
+	  IncidentStatusHistory &incidentStatusHistory);
+	HatoholError getIncidentStatusHistories(
+	  std::list<IncidentStatusHistory> &IncidentStatusHistoriesList,
+	  const IncidentStatusHistoriesQueryOption &option);
+
 	/**
 	 * get a vector of pointers of DataStore instance.
 	 * This method is a wrapper of DataStoreManager::getDataStoreManager().

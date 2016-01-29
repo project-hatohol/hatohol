@@ -1172,6 +1172,14 @@ void test_putIncident(void)
 		"^5\\|2\\|2\\|3\\|123\\|\\|IN PROGRESS\\|taro\\|"
 		"1412957360\\|0\\|\\d+\\|\\d+\\|HIGH\\|30\\|123$";
 	cut_assert_match(expected.c_str(), actual.c_str());
+
+	string actualIncidentStatusHistory =
+	  execSQL(&dbMonitoring.getDBAgent(),
+	          "select * from incident_status_histories");
+	string expectedIncidentStatusHistory =
+		"^1\\|123\\|2\\|IN PROGRESS\\|\\|\\d+\\|\\d+$";
+	cut_assert_match(expectedIncidentStatusHistory.c_str(),
+			 actualIncidentStatusHistory.c_str());
 }
 
 void test_putInvalidIncident(void)

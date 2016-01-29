@@ -762,6 +762,15 @@ void RestResourceHost::handlerPutIncident(void)
 		unref();
 		replyError(err);
 	}
+
+	IncidentStatusHistory incidentStatusHistory;
+	IncidentStatusHistory::initialize(incidentStatusHistory);
+	incidentStatusHistory.unifiedEventId = unifiedEventId;
+	incidentStatusHistory.userId = this->m_userId;
+	incidentStatusHistory.status = incidentInfo.status;
+	incidentStatusHistory.comment = comment;
+
+	dataStore->addIncidentStatusHistory(incidentStatusHistory);
 }
 
 // TODO: Add a macro or template to simplify the definition
