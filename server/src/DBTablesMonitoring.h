@@ -129,6 +129,37 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
+class IncidentStatusHistoriesQueryOption : public DataQueryOption {
+public:
+	enum SortType {
+		SORT_UNIFIED_EVENT_ID,
+		SORT_TIME,
+		NUM_SORT_TYPES
+	};
+
+	static const UnifiedEventIdType INVALID_ID;
+
+public:
+	IncidentStatusHistoriesQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	IncidentStatusHistoriesQueryOption(DataQueryContext *dataQueryContext);
+	IncidentStatusHistoriesQueryOption(const IncidentStatusHistoriesQueryOption &src);
+	~IncidentStatusHistoriesQueryOption();
+
+	virtual std::string getCondition(void) const override;
+
+	void setTargetUnifiedEventId(const UnifiedEventIdType &id);
+	const UnifiedEventIdType getTargetUnifiedEventId(void);
+	void setTargetUserId(const UserIdType &userId);
+	const UserIdType getTargetUserId(void);
+	void setSortType(const SortType &type, const SortDirection &direction);
+	SortType getSortType(void) const;
+	SortDirection getSortDirection(void) const;
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
+};
+
 class IncidentsQueryOption : public DataQueryOption {
 public:
 	static const UnifiedEventIdType ALL_INCIDENTS;
@@ -161,6 +192,7 @@ public:
 	static const char *TABLE_NAME_ITEMS;
 	static const char *TABLE_NAME_SERVER_STATUS;
 	static const char *TABLE_NAME_INCIDENTS;
+	static const char *TABLE_NAME_INCIDENT_STATUS_HISTORIES;
 
 	DBTablesMonitoring(DBAgent &dbAgent);
 	virtual ~DBTablesMonitoring();
@@ -308,6 +340,10 @@ public:
 	};
 	static HatoholError getSystemInfo(SystemInfo &info,
 	                                  const DataQueryOption &option);
+	HatoholError addIncidentStatusHistory(IncidentStatusHistory &incidentStatusHistory);
+	HatoholError getIncidentStatusHistory(
+	  std::list<IncidentStatusHistory> &IncidentStatusHistoriesList,
+	  const IncidentStatusHistoriesQueryOption &option);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

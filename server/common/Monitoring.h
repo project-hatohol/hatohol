@@ -257,4 +257,15 @@ typedef std::vector<IncidentInfo>        IncidentInfoVect;
 typedef IncidentInfoVect::iterator       IncidentInfoVectIterator;
 typedef IncidentInfoVect::const_iterator IncidentInfoVectConstIterator;
 
+struct IncidentStatusHistory {
+	IncidentStatusHistoryIdType id;
+	UnifiedEventIdType          unifiedEventId;
+	UserIdType                  userId;
+	std::string                 status;
+	std::string                 comment;
+	mlpl::Time                  createdAt;
+
+	static void initialize(IncidentStatusHistory &incidentStatusHistory);
+};
+
 #endif // Monitoring_h
