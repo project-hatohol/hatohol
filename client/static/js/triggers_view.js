@@ -226,22 +226,23 @@ var TriggersView = function(userProfile) {
       clock      = trigger["lastChangeTime"];
       status     = trigger["status"];
       severity   = trigger["severity"];
-      severityClass = "severity";
-      if (status == hatohol.TRIGGER_STATUS_PROBLEM)
-	severityClass += escapeHTML(severity);
       triggerName = getTriggerName(trigger);
 
-      html += "<tr><td>" + escapeHTML(nickName) + "</td>";
-      html += "<td class='" + severityClass +
+      html += "<tr><td class='" + getSeverityClass(trigger) +"'>"
+        + escapeHTML(nickName) + "</td>";
+      html += "<td class='" + getSeverityClass(trigger) +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
         severity_choices[Number(severity)] + "</td>";
       html += "<td class='status" + escapeHTML(status) +
+        " " + getSeverityClass(trigger) +
         "' data-sort-value='" + escapeHTML(status) + "'>" +
         status_choices[Number(status)] + "</td>";
-      html += "<td data-sort-value='" + escapeHTML(clock) + "'>" +
+      html += "<td class='" + getSeverityClass(trigger) +
+        "' data-sort-value='" + escapeHTML(clock) + "'>" +
         formatDate(clock) + "</td>";
-      html += "<td>" + escapeHTML(hostName) + "</td>";
-      html += "<td>"
+      html += "<td class='" + getSeverityClass(trigger) + "'>" +
+        escapeHTML(hostName) + "</td>";
+      html += "<td class='" + getSeverityClass(trigger) + "'>"
 	+ "<a href='ajax_events?serverId=" + escapeHTML(serverId)
 	+ "&triggerId=" + escapeHTML(trigger["id"]) + "'>"
 	+ escapeHTML(triggerName)
