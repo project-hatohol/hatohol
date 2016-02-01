@@ -199,6 +199,17 @@ var TriggersView = function(userProfile) {
     return name ? name : trigger["brief"];
   }
 
+  function getSeverityClass(trigger) {
+    var status     = trigger["status"];
+    var severity   = trigger["severity"];
+    var severityClass = "severity";
+
+    if (status == hatohol.TRIGGER_STATUS_PROBLEM)
+      return severityClass += escapeHTML(severity);
+    else
+      return severityClass;
+  }
+
   function drawTableBody(replyData) {
     var serverName, hostName, clock, status, severity, triggerName;
     var html, server, trigger, severityClass;
