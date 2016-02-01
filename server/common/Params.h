@@ -105,8 +105,8 @@ typedef int SeverityRankStatusType;
 typedef int CustomIncidentStatusIdType;
 #define FMT_CUSTOM_INCIDENT_STATUS_ID "d"
 
-typedef int IncidentStatusHistoryIdType;
-#define FMT_INCIDENT_STATUS_HISTORY_ID "d"
+typedef uint64_t IncidentStatusHistoryIdType;
+#define FMT_INCIDENT_STATUS_HISTORY_ID PRIu64
 
 // Special Server IDs =========================================================
 static const ServerIdType ALL_SERVERS       = -1;
