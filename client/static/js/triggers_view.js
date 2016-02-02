@@ -31,6 +31,16 @@ var TriggersView = function(userProfile) {
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.rawSeverityRankData = {};
+  var triggerPropertyChoices = {
+    severity: [
+      { value: "0", label: gettext("Not classified") },
+      { value: "1", label: gettext("Information") },
+      { value: "2", label: gettext("Warning") },
+      { value: "3", label: gettext("Average") },
+      { value: "4", label: gettext("High") },
+      { value: "5", label: gettext("Disaster") },
+    ],
+  };
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -125,14 +135,6 @@ var TriggersView = function(userProfile) {
     gettext("OK"),
     gettext("Problem"),
     gettext("Unknown")
-  ];
-  var severity_choices = [
-    gettext("Not classified"),
-    gettext("Information"),
-    gettext("Warning"),
-    gettext("Average"),
-    gettext("High"),
-    gettext("Disaster")
   ];
 
   function setupFilterValues(servers, query) {
