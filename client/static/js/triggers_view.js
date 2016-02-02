@@ -234,9 +234,11 @@ var TriggersView = function(userProfile) {
       html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
         severity_choices[Number(severity)] + "</td>";
-      html += "<td class='status" + escapeHTML(status) +
-        " " + severityClass +
-        "' data-sort-value='" + escapeHTML(status) + "'>" +
+      html += "<td class='status" + escapeHTML(status);
+      if (severityClass) {
+        html += " " + severityClass;
+      }
+      html += "' data-sort-value='" + escapeHTML(status) + "'>" +
         status_choices[Number(status)] + "</td>";
       html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(clock) + "'>" +

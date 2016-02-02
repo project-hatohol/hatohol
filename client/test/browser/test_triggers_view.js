@@ -172,7 +172,7 @@ describe('TriggersView', function() {
     var expected =
       '<td class="">Zabbix</td>' +
       '<td class="" data-sort-value="5">Disaster</td>' +
-      '<td class="status0 " data-sort-value="0">OK</td>' +
+      '<td class="status0" data-sort-value="0">OK</td>' +
       '<td class="" data-sort-value="1422584694">' +
       formatDate(1422584694) +
       '</td>' +
@@ -190,7 +190,7 @@ describe('TriggersView', function() {
     var expected =
       '<td class="">Zabbix</td>' +
       '<td class="" data-sort-value="1">Information</td>' +
-      '<td class="status0 " data-sort-value="0">OK</td>' +
+      '<td class="status0" data-sort-value="0">OK</td>' +
       '<td class="" data-sort-value="0">-</td>' +
       '<td class="">Host2</td>' +
       '<td class=""><a href="' + eventURL + '">Host name of zabbix_agentd was changed on TestHost0</a></td>';
