@@ -226,8 +226,8 @@ var TriggersView = function(userProfile) {
       clock      = trigger["lastChangeTime"];
       status     = trigger["status"];
       severity   = trigger["severity"];
-      triggerName = getTriggerName(trigger);
       severityClass = getSeverityClass(trigger);
+      triggerName = getTriggerName(trigger);
 
       html += "<tr><td class='" + severityClass +"'>"
         + escapeHTML(nickName) + "</td>";
