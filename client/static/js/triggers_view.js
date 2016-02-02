@@ -31,6 +31,7 @@ var TriggersView = function(userProfile) {
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.rawSeverityRankData = {};
+  self.severityRanksMap = {};
   var triggerPropertyChoices = {
     severity: [
       { value: "0", label: gettext("Not classified") },
@@ -85,8 +86,21 @@ var TriggersView = function(userProfile) {
       url: "/severity-rank",
       request: "GET",
       replyCallback: function(reply, parser) {
-        var severityRanks;
+        var i, severityRanks, rank;
+        var choices = triggerPropertyChoices.severity;
         self.rawSeverityRankData = reply;
+        self.severityRanksMap = {};
+        severityRanks = self.rawSeverityRankData["SeverityRanks"];
+        if (severityRanks) {
+          for (i = 0; i < severityRanks.length; i++) {
+            self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
+          }
+          for (i = 0; i < choices.length; i++) {
+            rank = self.severityRanksMap[choices[i].value];
+            if (rank && rank.label)
+              choices[i].label = rank.label;
+          }
+        }
         deferred.resolve();
       },
       parseErrorCallback: function() {
@@ -235,7 +249,7 @@ var TriggersView = function(userProfile) {
         + escapeHTML(nickName) + "</td>";
       html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
-        severity_choices[Number(severity)] + "</td>";
+        triggerPropertyChoices.severity[Number(severity)].label + "</td>";
       html += "<td class='status" + escapeHTML(status);
       if (severityClass) {
         html += " " + severityClass;
