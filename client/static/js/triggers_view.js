@@ -227,22 +227,23 @@ var TriggersView = function(userProfile) {
       status     = trigger["status"];
       severity   = trigger["severity"];
       triggerName = getTriggerName(trigger);
+      severityClass = getSeverityClass(trigger);
 
-      html += "<tr><td class='" + getSeverityClass(trigger) +"'>"
+      html += "<tr><td class='" + severityClass +"'>"
         + escapeHTML(nickName) + "</td>";
-      html += "<td class='" + getSeverityClass(trigger) +
+      html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
         severity_choices[Number(severity)] + "</td>";
       html += "<td class='status" + escapeHTML(status) +
-        " " + getSeverityClass(trigger) +
+        " " + severityClass +
         "' data-sort-value='" + escapeHTML(status) + "'>" +
         status_choices[Number(status)] + "</td>";
-      html += "<td class='" + getSeverityClass(trigger) +
+      html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(clock) + "'>" +
         formatDate(clock) + "</td>";
-      html += "<td class='" + getSeverityClass(trigger) + "'>" +
+      html += "<td class='" + severityClass + "'>" +
         escapeHTML(hostName) + "</td>";
-      html += "<td class='" + getSeverityClass(trigger) + "'>"
+      html += "<td class='" + severityClass + "'>"
 	+ "<a href='ajax_events?serverId=" + escapeHTML(serverId)
 	+ "&triggerId=" + escapeHTML(trigger["id"]) + "'>"
 	+ escapeHTML(triggerName)
