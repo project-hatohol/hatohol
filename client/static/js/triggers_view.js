@@ -207,7 +207,7 @@ var TriggersView = function(userProfile) {
     if (status == hatohol.TRIGGER_STATUS_PROBLEM)
       return severityClass += escapeHTML(severity);
     else
-      return severityClass;
+      return "";
   }
 
   function drawTableBody(replyData) {
