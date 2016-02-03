@@ -60,6 +60,50 @@ describe('TriggersView', function() {
       },
     },
   };
+  var defaultSeverityRank = [
+    {
+      "id": 1,
+      "status": 0,
+      "color": "#BCBCBC",
+      "label": "Rank1",
+      "asImportant":false
+    },
+    {
+      "id": 2,
+      "status": 1,
+      "color": "#CCE2CC",
+      "label": "",
+      "asImportant": false
+    },
+    {
+      "id": 3,
+      "status": 2,
+      "color": "#FDFD96",
+      "label": "",
+      "asImportant": false
+    },
+    {
+      "id": 4,
+      "status": 3,
+      "color": "#DDAAAA",
+      "label": "",
+      "asImportant": true
+    },
+    {
+      "id": 5,
+      "status": 4,
+      "color": "#FF8888",
+      "label": "",
+      "asImportant": true
+    },
+    {
+      "id": 6,
+      "status": 5,
+      "color": "#FF0000",
+      "label": "Emergency!",
+      "asImportant": true
+    }
+  ];
 
   function getOperator() {
     var operator = {
