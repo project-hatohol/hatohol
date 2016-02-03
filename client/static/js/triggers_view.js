@@ -31,6 +31,18 @@ var TriggersView = function(userProfile) {
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.rawSeverityRankData = {};
+  self.severityRanksMap = {};
+  self.defaultMinimumSeverity = "0";
+  var triggerPropertyChoices = {
+    severity: [
+      { value: "0", label: gettext("Not classified") },
+      { value: "1", label: gettext("Information") },
+      { value: "2", label: gettext("Warning") },
+      { value: "3", label: gettext("Average") },
+      { value: "4", label: gettext("High") },
+      { value: "5", label: gettext("Disaster") },
+    ],
+  };
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -75,8 +87,21 @@ var TriggersView = function(userProfile) {
       url: "/severity-rank",
       request: "GET",
       replyCallback: function(reply, parser) {
-        var severityRanks;
+        var i, severityRanks, rank;
+        var choices = triggerPropertyChoices.severity;
         self.rawSeverityRankData = reply;
+        self.severityRanksMap = {};
+        severityRanks = self.rawSeverityRankData["SeverityRanks"];
+        if (severityRanks) {
+          for (i = 0; i < severityRanks.length; i++) {
+            self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
+          }
+          for (i = 0; i < choices.length; i++) {
+            rank = self.severityRanksMap[choices[i].value];
+            if (rank && rank.label)
+              choices[i].label = rank.label;
+          }
+        }
         deferred.resolve();
       },
       parseErrorCallback: function() {
@@ -121,18 +146,29 @@ var TriggersView = function(userProfile) {
     });
   }
 
+  function resetTriggerPropertyFilter(type) {
+    var candidates = triggerPropertyChoices[type];
+    var option;
+    var currentId = $("#select-" + type).val();
+
+    $("#select-" + type).empty();
+
+    $.map(candidates, function(candidate) {
+      var option;
+
+      option = $("<option/>", {
+        text: candidate.label,
+        value: candidate.value
+      }).appendTo("#select-" + type);
+    });
+
+    $("#select-" + type).val(currentId);
+  }
+
   var status_choices = [
     gettext("OK"),
     gettext("Problem"),
     gettext("Unknown")
-  ];
-  var severity_choices = [
-    gettext("Not classified"),
-    gettext("Information"),
-    gettext("Warning"),
-    gettext("Average"),
-    gettext("High"),
-    gettext("Disaster")
   ];
 
   function setupFilterValues(servers, query) {
@@ -143,6 +179,7 @@ var TriggersView = function(userProfile) {
       query = self.lastQuery ? self.lastQuery : self.baseQuery;
 
     self.setupHostFilters(servers, query);
+    resetTriggerPropertyFilter("severity");
 
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
@@ -233,7 +270,7 @@ var TriggersView = function(userProfile) {
         + escapeHTML(nickName) + "</td>";
       html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
-        severity_choices[Number(severity)] + "</td>";
+        triggerPropertyChoices.severity[Number(severity)].label + "</td>";
       html += "<td class='status" + escapeHTML(status);
       if (severityClass) {
         html += " " + severityClass;
@@ -286,11 +323,20 @@ var TriggersView = function(userProfile) {
     return query;
   }
 
+  function getMinimumSeverityQuery() {
+    var severity = $("#select-severity").val();
+    if (severity) {
+      return severity;
+    } else {
+      return self.defaultMinimumSeverity;
+    }
+  }
+
   function getQuery(page) {
     if (isNaN(page))
       page = 0;
     var query = $.extend({}, self.baseQuery, {
-      minimumSeverity: $("#select-severity").val(),
+      minimumSeverity: getMinimumSeverityQuery(),
       status:          $("#select-status").val(),
       offset:          self.baseQuery.limit * page
     });
