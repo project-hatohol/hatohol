@@ -141,10 +141,10 @@ describe('TriggersView', function() {
     };
   }
 
-  function respond(config, triggers) {
+  function respond(config, triggers, severityRanks) {
     var header = { "Content-Type": "application/json" };
     this.requests[0].respond(200, header, config);
-    this.requests[1].respond(200, header, severityRanksJson(defaultSeverityRank));
+    this.requests[1].respond(200, header, severityRanks);
     this.requests[2].respond(200, header, triggers);
   }
 
