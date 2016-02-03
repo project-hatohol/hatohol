@@ -222,7 +222,7 @@ describe('TriggersView', function() {
       '</td>' +
       '<td class="">Zabbix_SELF</td>' +
       '<td class=""><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
-    respond('{}', triggersJson(defaultTriggers, defaultServers));
+    respond('{}', triggersJson(defaultTriggers, defaultServers), severityRanksJson(defaultSeverityRanks));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultTriggers.length + 1);
     expect($('tr').eq(1).html()).to.be(expected);
@@ -259,7 +259,7 @@ describe('TriggersView', function() {
       '<td class="severity5" ' + color + '><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
     var triggers = [$.extend({}, defaultTriggers[0])];
     triggers[0].status = hatohol.TRIGGER_STATUS_PROBLEM;
-    respond('{}', triggersJson(triggers, defaultServers));
+    respond('{}', triggersJson(triggers, defaultServers), severityRanksJson(defaultSeverityRanks));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(triggers.length + 1);
     expect($('tr').eq(1).html()).to.be(expected);
