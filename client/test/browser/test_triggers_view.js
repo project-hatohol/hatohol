@@ -72,7 +72,7 @@ describe('TriggersView', function() {
       "id": 2,
       "status": 1,
       "color": "#CCE2CC",
-      "label": "",
+      "label": "Info",
       "asImportant": false
     },
     {
