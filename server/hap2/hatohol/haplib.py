@@ -37,6 +37,7 @@ import calendar
 import math
 import copy
 from hatohol import hap
+from hatohol import hap2_common
 from hatohol import transporter
 from hatohol.rabbitmqconnector import OverCapacity
 
@@ -276,6 +277,7 @@ class MonitoringServerInfo:
         s += self.extended_info
         return s
 
+
 class ParsedMessage:
     def __init__(self):
         self.error_code = None
@@ -299,12 +301,12 @@ class ArmInfo:
 
     def success(self, status="OK"):
         self.last_status = status
-        self.last_success_time = Utils.get_current_hatohol_time()
+        self.last_success_time = hap2_common.get_current_hatohol_time()
         self.num_success += 1
 
     def fail(self, reason="", status="NG"):
         self.last_status = status
-        self.last_failure_time = Utils.get_current_hatohol_time()
+        self.last_failure_time = hap2_common.get_current_hatohol_time()
         self.num_failure += 1
         self.failure_reason = reason
 
@@ -405,6 +407,13 @@ class HapiProcessor:
     def set_event_last_info(self, event_last_info):
         self.__event_last_info = event_last_info
 
+    def __generate_request_id(self, component_code):
+        assert component_code <= 0x7f, \
+                "Invalid component code: " + str(component_code)
+        req_id = random.randint(1, 0xffffff)
+        req_id |= component_code << 24
+        return req_id
+
     def get_monitoring_server_info(self):
         """
         Get a MonitoringServerInfo from Hatohol server.
@@ -412,14 +421,14 @@ class HapiProcessor:
         @return A MonitoringServerInfo object.
         """
         params = ""
-        request_id = Utils.generate_request_id(self.__component_code)
+        request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("getMonitoringServerInfo", params, request_id)
         return MonitoringServerInfo(self.__wait_response(request_id))
 
     def get_last_info(self, element):
         params = element
-        request_id = Utils.generate_request_id(self.__component_code)
+        request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("getLastInfo", params, request_id)
 
@@ -428,7 +437,7 @@ class HapiProcessor:
     def exchange_profile(self, procedures, name="haplib", response_id=None):
         content = {"name": name, "procedures": procedures}
         if response_id is None:
-            request_id = Utils.generate_request_id(self.__component_code)
+            request_id = self.__generate_request_id(self.__component_code)
             self.__wait_acknowledge(request_id)
             self.__sender.request("exchangeProfile", content, request_id)
             self.__wait_response(request_id)
@@ -443,7 +452,7 @@ class HapiProcessor:
                   "numSuccess": arm_info.num_success,
                   "numFailure": arm_info.num_failure}
 
-        request_id = Utils.generate_request_id(self.__component_code)
+        request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("putArmInfo", params, request_id)
         self.__wait_response(request_id)
@@ -454,7 +463,7 @@ class HapiProcessor:
             logger.debug("hosts are not changed.")
             return
         hosts_params = {"updateType": "ALL", "hosts": hosts}
-        request_id = Utils.generate_request_id(self.__component_code)
+        request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("putHosts", hosts_params, request_id)
         self.__wait_response(request_id)
@@ -466,7 +475,7 @@ class HapiProcessor:
             logger.debug("Host groups are not changed.")
             return
         params = {"updateType": "ALL", "hostGroups": host_groups}
-        request_id = Utils.generate_request_id(self.__component_code)
+        request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("putHostGroups", params, request_id)
         self.__wait_response(request_id)
@@ -481,7 +490,7 @@ class HapiProcessor:
 
         hg_membership_params = {"updateType": "ALL",
                                 "hostGroupMembership": hg_membership}
-        request_id = Utils.generate_request_id(self.__component_code)
+        request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("putHostGroupMembership",
                               hg_membership_params, request_id)
@@ -497,7 +506,7 @@ class HapiProcessor:
         if fetch_id is not None:
             params["fetchId"] = fetch_id
 
-        request_id = Utils.generate_request_id(self.__component_code)
+        request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("putTriggers", params, request_id)
         self.__wait_response(request_id)
@@ -508,7 +517,7 @@ class HapiProcessor:
         return self.__event_last_info
 
     def generate_event_last_info(self, events):
-        return Utils.get_maximum_eventid(events)
+        return hap2_common.get_biggest_num_of_dict_array(events, "eventId")
 
     def __put_events(self, events, chunk_size, fetch_id=None, last_info_generator=None):
         """
@@ -553,7 +562,7 @@ class HapiProcessor:
             if num < count - 1:
                 params["mayMoreFlag"] = True
 
-            request_id = Utils.generate_request_id(self.__component_code)
+            request_id = self.__generate_request_id(self.__component_code)
             self.__wait_acknowledge(request_id)
             self.__sender.request("putEvents", params, request_id)
             del events[0: chunk_size]
@@ -577,14 +586,14 @@ class HapiProcessor:
 
     def put_items(self, items, fetch_id):
         params = {"fetchId": fetch_id, "items": items}
-        request_id = Utils.generate_request_id(self.__component_code)
+        request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("putItems", params, request_id)
         self.__wait_response(request_id)
 
     def put_history(self, samples, item_id, fetch_id):
         params = {"fetchId": fetch_id, "itemId": item_id, "samples": samples}
-        request_id = Utils.generate_request_id(self.__component_code)
+        request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("putHistory", params, request_id)
         self.__wait_response(request_id)
@@ -653,9 +662,132 @@ class Receiver(ChildProcess):
         ChildProcess.terminate(self)
         self.__connector.close()
 
+    def __is_allowed_procedure(self, procedure_name, allowed_procedures):
+        if procedure_name in allowed_procedures:
+            return
+        else:
+            return ERR_CODE_METHOD_NOT_FOUND
+
+    def __validate_arguments(self, method_name, params):
+        """
+        Validate arguemnts of the received RPC.
+        @method_name     A method name to be validated.
+        @paramter params A dictionary of the parameters to be validated.
+        @return
+        A tuple (errorcode, error_message) is returned. if no problem,
+        (None, None) is returned.
+        """
+        args_dict = PROCEDURES_DEFS[method_name]["args"]
+        for arg_name, arg_value in args_dict.iteritems():
+            try:
+                param = params[arg_name]
+
+                # check the paramter type
+                type_actual = type(param)
+                type_expect = type(arg_value["type"])
+                if type_expect != type_actual:
+                    msg = "Argument '%s': unexpected type: exp: %s, act: %s" \
+                          % (arg_name, type_expect, type_actual)
+                    return (ERR_CODE_INVALID_PARAMS, msg)
+
+                # check the paramter's length
+                max_len = arg_value.get("max_size")
+                if max_len is not None:
+                    length = len(param)
+                    if length > max_len:
+                        msg = "parameter: %s. Over the maixum length %d/%d" \
+                              % (arg_name, length, max_len)
+                        return (ERR_CODE_INVALID_PARAMS, msg)
+
+                # when the paramter should be one of the choices.
+                choices = arg_value.get("choices")
+                if choices is not None:
+                    if param not in choices:
+                        msg = "parameter: %s, value: %s: Not in choices." \
+                              % (arg_name, param)
+                        return (ERR_CODE_INVALID_PARAMS, msg)
+
+            except KeyError:
+                if arg_value["mandatory"]:
+                    msg = "Missing a mandatory paramter: %s" % arg_name
+                    return (ERR_CODE_INVALID_PARAMS, msg)
+        return (None, None)
+
+    def __parse_received_message(self, message, allowed_procedures):
+        """
+        Parse a received message.
+        @return A ParsedMessage object. Each attribute will be set as below.
+        - error_code If the parse is succeeded, this attribute is set to None.
+                     Othwerwise the error code is set.
+        - message_dict A dictionary that corresponds to the received message.
+                       If the parse fails, this attribute may be None.
+        - message_id A message ID if available. Or None.
+        - error_message An error message.
+        """
+
+        pm = ParsedMessage()
+        pm.error_code, pm.message_dict = self.__convert_json_to_dict(message)
+
+        # Failed to convert the message to a dictionary
+        if pm.error_code is not None:
+            return pm
+
+        pm.message_id = pm.message_dict.get("id")
+
+        if pm.message_dict.has_key("error"):
+            try:
+                self.__check_error_dict(pm.message_dict)
+                pm.error_message = pm.message_dict["error"]["message"]
+            except KeyError:
+                pm.error_message = "Invalid error message: " + message
+
+            return pm
+
+        # The case the message is a reply
+        need_id = True
+        should_reply = pm.message_dict.has_key("result")
+
+        if not should_reply:
+            method = pm.message_dict["method"]
+            pm.error_code = self.__is_allowed_procedure(method, allowed_procedures)
+            if pm.error_code is not None:
+                pm.error_message = "Unsupported method: '%s'" % method
+                return pm
+            if PROCEDURES_DEFS[method].get("notification"):
+                need_id = False
+
+        # 'id' is not included in the message.
+        if need_id and pm.message_id is None:
+            pm.error_code = ERR_CODE_INVALID_PARAMS
+            pm.error_message = "Not found: id"
+            return pm
+
+        if should_reply:
+            return pm
+
+        params = pm.message_dict["params"]
+        pm.error_code, pm.error_message = self.__validate_arguments(method, params)
+        if pm.error_code is not None:
+            return pm
+
+        return pm
+
+    def __convert_json_to_dict(self, json_string):
+        try:
+            json_dict = json.loads(json_string)
+        except ValueError:
+            return (ERR_CODE_PARSER_ERROR, None)
+        else:
+            return (None, json_dict)
+
+    def __check_error_dict(self, error_dict):
+        error_dict["id"]
+        error_dict["error"]["code"]
+        error_dict["error"]["message"]
+        error_dict["error"]["data"]
+
     def __messenger(self, ch, message):
-        parsed = Utils.parse_received_message(message,
-                                              self.__allowed_procedures)
+        parsed = self.__parse_received_message(message, self.__allowed_procedures)
         if parsed.message_id is None and parsed.error_message is not None:
             logger.error(parsed.error_message)
             return
@@ -829,7 +961,7 @@ class BaseMainPlugin(HapiProcessor):
             response_id=response_id, name=self.__plugin_name)
 
     def hap_exchange_profile(self, params, request_id):
-        Utils.optimize_server_procedures(SERVER_PROCEDURES,
+        self.__optimize_server_procedures(SERVER_PROCEDURES,
                                          params["procedures"])
         self.exchange_profile(response_id=request_id)
 
@@ -858,6 +990,13 @@ class BaseMainPlugin(HapiProcessor):
 
     def start_dispatcher(self):
         self.__dispatcher.daemonize()
+
+    def __optimize_server_procedures(self, valid_procedures_dict, procedures):
+        for name in valid_procedures_dict:
+            valid_procedures_dict[name] = False
+
+        for procedure in procedures:
+            valid_procedures_dict[procedure] = True
 
     def __call__(self):
         while True:
@@ -1015,226 +1154,3 @@ class BasePoller(HapiProcessor, ChildProcess):
             self.__command_queue.wait(sleep_time)
         except:
             hap.handle_exception()
-
-
-class Utils:
-    @staticmethod
-    def parse_received_message(message, allowed_procedures):
-        """
-        Parse a received message.
-        @return A ParsedMessage object. Each attribute will be set as below.
-        - error_code If the parse is succeeded, this attribute is set to None.
-                     Othwerwise the error code is set.
-        - message_dict A dictionary that corresponds to the received message.
-                       If the parse fails, this attribute may be None.
-        - message_id A message ID if available. Or None.
-        - error_message An error message.
-        """
-
-        pm = ParsedMessage()
-        pm.error_code, pm.message_dict = \
-          Utils.__convert_json_to_dict(message)
-
-        # Failed to convert the message to a dictionary
-        if pm.error_code is not None:
-            return pm
-
-        pm.message_id = pm.message_dict.get("id")
-
-        if pm.message_dict.has_key("error"):
-            try:
-                Utils.__check_error_dict(pm.message_dict)
-                pm.error_message = pm.message_dict["error"]["message"]
-            except KeyError:
-                pm.error_message = "Invalid error message: " + message
-
-            return pm
-
-        # The case the message is a reply
-        need_id = True
-        should_reply = pm.message_dict.has_key("result")
-
-        if not should_reply:
-            method = pm.message_dict["method"]
-            pm.error_code = Utils.is_allowed_procedure(method,
-                                                       allowed_procedures)
-            if pm.error_code is not None:
-                pm.error_message = "Unsupported method: '%s'" % method
-                return pm
-            if PROCEDURES_DEFS[method].get("notification"):
-                need_id = False
-
-        # 'id' is not included in the message.
-        if need_id and pm.message_id is None:
-            pm.error_code = ERR_CODE_INVALID_PARAMS
-            pm.error_message = "Not found: id"
-            return pm
-
-        if should_reply:
-            return pm
-
-        params = pm.message_dict["params"]
-        pm.error_code, pm.error_message = \
-          Utils.validate_arguments(method, params)
-        if pm.error_code is not None:
-            return pm
-
-        return pm
-
-    @staticmethod
-    def __convert_json_to_dict(json_string):
-        try:
-            json_dict = json.loads(json_string)
-        except ValueError:
-            return (ERR_CODE_PARSER_ERROR, None)
-        else:
-            return (None, json_dict)
-
-    @staticmethod
-    def __check_error_dict(error_dict):
-        error_dict["id"]
-        error_dict["error"]["code"]
-        error_dict["error"]["message"]
-        error_dict["error"]["data"]
-
-    @staticmethod
-    def is_allowed_procedure(procedure_name, allowed_procedures):
-        if procedure_name in allowed_procedures:
-            return
-        else:
-            return ERR_CODE_METHOD_NOT_FOUND
-
-    @staticmethod
-    def validate_arguments(method_name, params):
-        """
-        Validate arguemnts of the received RPC.
-        @method_name     A method name to be validated.
-        @paramter params A dictionary of the parameters to be validated.
-        @return
-        A tuple (errorcode, error_message) is returned. if no problem,
-        (None, None) is returned.
-        """
-        args_dict = PROCEDURES_DEFS[method_name]["args"]
-        for arg_name, arg_value in args_dict.iteritems():
-            try:
-                param = params[arg_name]
-
-                # check the paramter type
-                type_actual = type(param)
-                type_expect = type(arg_value["type"])
-                if type_expect != type_actual:
-                    msg = "Argument '%s': unexpected type: exp: %s, act: %s" \
-                          % (arg_name, type_expect, type_actual)
-                    return (ERR_CODE_INVALID_PARAMS, msg)
-
-                # check the paramter's length
-                max_len = arg_value.get("max_size")
-                if max_len is not None:
-                    length = len(param)
-                    if length > max_len:
-                        msg = "parameter: %s. Over the maixum length %d/%d" \
-                              % (arg_name, length, max_len)
-                        return (ERR_CODE_INVALID_PARAMS, msg)
-
-                # when the paramter should be one of the choices.
-                choices = arg_value.get("choices")
-                if choices is not None:
-                    if param not in choices:
-                        msg = "parameter: %s, value: %s: Not in choices." \
-                              % (arg_name, param)
-                        return (ERR_CODE_INVALID_PARAMS, msg)
-
-            except KeyError:
-                if arg_value["mandatory"]:
-                    msg = "Missing a mandatory paramter: %s" % arg_name
-                    return (ERR_CODE_INVALID_PARAMS, msg)
-        return (None, None)
-
-    @staticmethod
-    def generate_request_id(component_code):
-        assert component_code <= 0x7f, \
-                "Invalid component code: " + str(component_code)
-        req_id = random.randint(1, 0xffffff)
-        req_id |= component_code << 24
-        return req_id
-
-    @staticmethod
-    def translate_unix_time_to_hatohol_time(unix_time, ns=0):
-        """
-        Translate unix_time into a time string of HAPI 2.0.
-
-        @param unix_time An unix time (integer or string).
-        @param ns A nanosecnd part of the time (integer or string).
-        @return A timestamp string in HAPI2.0
-        """
-        utc_time = time.gmtime(int(unix_time))
-        hatohol_time = time.strftime("%Y%m%d%H%M%S", utc_time)
-        ns_int = int(ns)
-        if ns_int > 1000000000 or ns_int < 0:
-            raise ValueError("Invalid 'ns': %s" % ns)
-        return hatohol_time + ".%09d" % ns_int
-
-    @staticmethod
-    def translate_hatohol_time_to_unix_time(hatohol_time):
-        ns = int()
-        if "." in hatohol_time:
-            hatohol_time, ns = hatohol_time.split(".")
-        date_time = datetime.strptime(hatohol_time, "%Y%m%d%H%M%S")
-        unix_time =  calendar.timegm(date_time.timetuple())
-        return unix_time + int(ns) / float(10 ** 9)
-
-    @staticmethod
-    def optimize_server_procedures(valid_procedures_dict, procedures):
-        for name in valid_procedures_dict:
-            valid_procedures_dict[name] = False
-
-        for procedure in procedures:
-            valid_procedures_dict[procedure] = True
-
-    #This method is created on the basis of getting same number of digits under the decimal.
-
-    @staticmethod
-    def get_maximum_eventid(events):
-        return Utils.get_biggest_num_of_dict_array(events, "eventId")
-
-    @staticmethod
-    def get_biggest_num_of_dict_array(array, key):
-        last_info = None
-
-        digit = int()
-        for target_dict in array:
-            if isinstance(target_dict[key], int):
-                break
-            if digit < len(target_dict[key]):
-                digit = len(target_dict[key])
-
-        for target_dict in array:
-            target_value = target_dict[key]
-            if isinstance(target_value, str) or isinstance(target_value, unicode):
-                target_value = target_value.zfill(digit)
-
-            if last_info < target_value:
-                last_info = target_value
-
-        return last_info
-
-    @staticmethod
-    def get_current_hatohol_time():
-        utc_now = datetime.utcnow()
-        return utc_now.strftime("%Y%m%d%H%M%S.") + str(utc_now.microsecond)
-
-    @staticmethod
-    def conv_to_hapi_time(date_time, offset=timedelta()):
-        """
-        Convert a datetime object to a string formated for HAPI
-        @param date_time A datatime object
-        @param offset    An offset to the time
-        @return A string of the date and time in HAPI2.0
-        """
-        adjust_time = date_time + offset
-        return adjust_time.strftime("%Y%m%d%H%M%S.") \
-                    + "%06d" % adjust_time.microsecond
-
-    @staticmethod
-    def translate_int_to_decimal(nano_sec):
-        return float(nano_sec) / 10 ** (int(math.log10(nano_sec)) + 1)
