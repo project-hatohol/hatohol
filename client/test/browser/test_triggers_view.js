@@ -60,7 +60,7 @@ describe('TriggersView', function() {
       },
     },
   };
-  var defaultSeverityRank = [
+  var defaultSeverityRanks = [
     {
       "id": 1,
       "status": 0,
