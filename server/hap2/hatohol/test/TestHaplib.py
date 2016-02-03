@@ -18,17 +18,12 @@
   <http://www.gnu.org/licenses/>.
 """
 import unittest
-import haplib
 import time
 import re
 import testutils
 import transporter
-import os
 import json
-import multiprocessing
 import Queue
-import logging
-import datetime
 from hatohol import hap
 from hatohol import haplib
 from hatohol import hap2_common

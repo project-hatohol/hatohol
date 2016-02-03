@@ -32,9 +32,6 @@ import json
 from datetime import datetime
 from datetime import timedelta
 import random
-import argparse
-import calendar
-import math
 import copy
 from hatohol import hap
 from hatohol import hap2_common
