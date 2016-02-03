@@ -102,6 +102,11 @@ public:
 	TriggerStatusType getTriggerStatus(void) const;
 	void setExcludeFlags(const ExcludeFlags &flg);
 
+	void setBeginTime(const timespec &beginTime);
+	const timespec &getBeginTime(void);
+	void setEndTime(const timespec &endTime);
+	const timespec &getEndTime(void);
+
 private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;

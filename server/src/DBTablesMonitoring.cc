@@ -1333,12 +1333,16 @@ struct TriggersQueryOption::Impl {
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 	ExcludeFlags excludeFlags;
+	timespec beginTime;
+	timespec endTime;
 
 	Impl()
 	: targetId(ALL_TRIGGERS),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
-	  excludeFlags(NO_EXCLUDE_HOST)
+	  excludeFlags(NO_EXCLUDE_HOST),
+	  beginTime({0, 0}),
+	  endTime({0, 0})
 	{
 	}
 	bool shouldExcludeSelfMonitoring() {
@@ -1437,6 +1441,32 @@ string TriggersQueryOption::getCondition(void) const
 			m_impl->triggerStatus);
 	}
 
+	if (m_impl->beginTime.tv_sec != 0 || m_impl->beginTime.tv_nsec != 0) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"(%s>%ld OR (%s=%ld AND %s>=%ld))",
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
+			m_impl->beginTime.tv_sec,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
+			m_impl->beginTime.tv_sec,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS].columnName,
+			m_impl->beginTime.tv_nsec);
+	}
+
+	if (m_impl->endTime.tv_sec != 0 || m_impl->endTime.tv_nsec != 0) {
+		if (!condition.empty())
+			condition += " AND ";
+		condition += StringUtils::sprintf(
+			"(%s<%ld OR (%s=%ld AND %s<=%ld))",
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
+			m_impl->beginTime.tv_sec,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
+			m_impl->beginTime.tv_sec,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS].columnName,
+			m_impl->beginTime.tv_nsec);
+	}
+
 	return condition;
 }
 
@@ -1468,6 +1498,26 @@ void TriggersQueryOption::setTriggerStatus(const TriggerStatusType &status)
 TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
 {
 	return m_impl->triggerStatus;
+}
+
+void TriggersQueryOption::setBeginTime(const timespec &beginTime)
+{
+	m_impl->beginTime = beginTime;
+}
+
+const timespec &TriggersQueryOption::getBeginTime(void)
+{
+	return m_impl->beginTime;
+}
+
+void TriggersQueryOption::setEndTime(const timespec &endTime)
+{
+	m_impl->endTime = endTime;
+}
+
+const timespec &TriggersQueryOption::getEndTime(void)
+{
+	return m_impl->endTime;
 }
 
 //
