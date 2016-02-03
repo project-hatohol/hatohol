@@ -29,6 +29,7 @@ import signal
 from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
+from hatohol import hap2_common
 
 logger = getLogger("hatohol.hap2_fluentd")
 
@@ -126,7 +127,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         events = []
         events.append({
             "eventId": event_id,
-            "time": haplib.Utils.conv_to_hapi_time(timestamp),
+            "time": hap2_common.conv_to_hapi_time(timestamp),
             "type": hapi_event_type,
             "status": hapi_status,
             "severity": hapi_severity,
