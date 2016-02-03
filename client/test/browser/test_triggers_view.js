@@ -144,7 +144,7 @@ describe('TriggersView', function() {
   function respond(config, triggers) {
     var header = { "Content-Type": "application/json" };
     this.requests[0].respond(200, header, config);
-    this.requests[1].respond(200, header, severityRanksJson());
+    this.requests[1].respond(200, header, severityRanksJson(defaultSeverityRank));
     this.requests[2].respond(200, header, triggers);
   }
 
@@ -215,7 +215,7 @@ describe('TriggersView', function() {
     var eventURL = "ajax_events?serverId=1&amp;triggerId=18446744073709550616";
     var expected =
       '<td class="">Zabbix</td>' +
-      '<td class="" data-sort-value="5">Disaster</td>' +
+      '<td class="" data-sort-value="5">Emergency!</td>' +
       '<td class="status0" data-sort-value="0">OK</td>' +
       '<td class="" data-sort-value="1422584694">' +
       formatDate(1422584694) +
@@ -247,15 +247,16 @@ describe('TriggersView', function() {
   it('With a problem trigger', function() {
     var view = new TriggersView(getOperator());
     var eventURL = "ajax_events?serverId=1&amp;triggerId=18446744073709550616";
+    var color = 'style="background-color: rgb(255, 0, 0); "';
     var expected =
-      '<td class="severity5">Zabbix</td>' +
-      '<td class="severity5" data-sort-value="5">Disaster</td>' +
-      '<td class="status1 severity5" data-sort-value="1">Problem</td>' +
-      '<td class="severity5" data-sort-value="1422584694">' +
+      '<td class="severity5" ' + color + '>Zabbix</td>' +
+      '<td class="severity5" data-sort-value="5" ' + color + '>Emergency!</td>' +
+      '<td class="status1 severity5" data-sort-value="1" ' + color + '>Problem</td>' +
+      '<td class="severity5" data-sort-value="1422584694" ' + color + '>' +
       formatDate(1422584694) +
       '</td>' +
-      '<td class="severity5">Zabbix_SELF</td>' +
-      '<td class="severity5"><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
+      '<td class="severity5" ' + color + '>Zabbix_SELF</td>' +
+      '<td class="severity5" ' + color + '><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
     var triggers = [$.extend({}, defaultTriggers[0])];
     triggers[0].status = hatohol.TRIGGER_STATUS_PROBLEM;
     respond('{}', triggersJson(triggers, defaultServers));
