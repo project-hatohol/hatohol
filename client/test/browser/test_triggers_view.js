@@ -60,6 +60,50 @@ describe('TriggersView', function() {
       },
     },
   };
+  var defaultSeverityRanks = [
+    {
+      "id": 1,
+      "status": 0,
+      "color": "#BCBCBC",
+      "label": "Rank1",
+      "asImportant":false
+    },
+    {
+      "id": 2,
+      "status": 1,
+      "color": "#CCE2CC",
+      "label": "Info",
+      "asImportant": false
+    },
+    {
+      "id": 3,
+      "status": 2,
+      "color": "#FDFD96",
+      "label": "",
+      "asImportant": false
+    },
+    {
+      "id": 4,
+      "status": 3,
+      "color": "#DDAAAA",
+      "label": "",
+      "asImportant": true
+    },
+    {
+      "id": 5,
+      "status": 4,
+      "color": "#FF8888",
+      "label": "",
+      "asImportant": true
+    },
+    {
+      "id": 6,
+      "status": 5,
+      "color": "#FF0000",
+      "label": "Emergency!",
+      "asImportant": true
+    }
+  ];
 
   function getOperator() {
     var operator = {
@@ -97,10 +141,10 @@ describe('TriggersView', function() {
     };
   }
 
-  function respond(config, triggers) {
+  function respond(config, triggers, severityRanks) {
     var header = { "Content-Type": "application/json" };
     this.requests[0].respond(200, header, config);
-    this.requests[1].respond(200, header, severityRanksJson());
+    this.requests[1].respond(200, header, severityRanks);
     this.requests[2].respond(200, header, triggers);
   }
 
@@ -171,14 +215,14 @@ describe('TriggersView', function() {
     var eventURL = "ajax_events?serverId=1&amp;triggerId=18446744073709550616";
     var expected =
       '<td class="">Zabbix</td>' +
-      '<td class="" data-sort-value="5">Disaster</td>' +
+      '<td class="" data-sort-value="5">Emergency!</td>' +
       '<td class="status0" data-sort-value="0">OK</td>' +
       '<td class="" data-sort-value="1422584694">' +
       formatDate(1422584694) +
       '</td>' +
       '<td class="">Zabbix_SELF</td>' +
       '<td class=""><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
-    respond('{}', triggersJson(defaultTriggers, defaultServers));
+    respond('{}', triggersJson(defaultTriggers, defaultServers), severityRanksJson(defaultSeverityRanks));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultTriggers.length + 1);
     expect($('tr').eq(1).html()).to.be(expected);
@@ -203,18 +247,19 @@ describe('TriggersView', function() {
   it('With a problem trigger', function() {
     var view = new TriggersView(getOperator());
     var eventURL = "ajax_events?serverId=1&amp;triggerId=18446744073709550616";
+    var color = 'style="background-color: rgb(255, 0, 0); "';
     var expected =
-      '<td class="severity5">Zabbix</td>' +
-      '<td class="severity5" data-sort-value="5">Disaster</td>' +
-      '<td class="status1 severity5" data-sort-value="1">Problem</td>' +
-      '<td class="severity5" data-sort-value="1422584694">' +
+      '<td class="severity5" ' + color + '>Zabbix</td>' +
+      '<td class="severity5" data-sort-value="5" ' + color + '>Emergency!</td>' +
+      '<td class="status1 severity5" data-sort-value="1" ' + color + '>Problem</td>' +
+      '<td class="severity5" data-sort-value="1422584694" ' + color + '>' +
       formatDate(1422584694) +
       '</td>' +
-      '<td class="severity5">Zabbix_SELF</td>' +
-      '<td class="severity5"><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
+      '<td class="severity5" ' + color + '>Zabbix_SELF</td>' +
+      '<td class="severity5" ' + color + '><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
     var triggers = [$.extend({}, defaultTriggers[0])];
     triggers[0].status = hatohol.TRIGGER_STATUS_PROBLEM;
-    respond('{}', triggersJson(triggers, defaultServers));
+    respond('{}', triggersJson(triggers, defaultServers), severityRanksJson(defaultSeverityRanks));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(triggers.length + 1);
     expect($('tr').eq(1).html()).to.be(expected);
