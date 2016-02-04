@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-  Copyright (C) 2015 Project Hatohol
+  Copyright (C) 2016 Project Hatohol
 
   This file is part of Hatohol.
 
