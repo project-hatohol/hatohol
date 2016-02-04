@@ -28,31 +28,63 @@
 <div id="main">
   <h2>{% trans "Triggers" %}</h2>
 
+  <div class="pull-right">
+    <a href="#" id="hide" data-toggle="dropdown">
+      <span class="glyphicon glyphicon-chevron-down" id="filter-right-glyph"></span>
+      <span class="glyphicon glyphicon-chevron-up" id="filter-down-glyph" style="display: none;"></span>
+      {% trans "Filtering Options" %}
+    </a>
+  </div>
+  <br><br>
   <form class="form-inline hatohol-filter-toolbar">
-    <label>{% trans "Minimum Severity:" %}</label>
-    <select id="select-severity" class="form-control">
-    </select>
-    <label>{% trans "Status:" %}</label>
-    <select id="select-status" class="form-control">
-      <option value="-1">---------</option>
-      <option value="0">{% trans "OK" %}</option>
-      <option value="1">{% trans "Problem" %}</option>
-    </select>
-    <label>{% trans "Monitoring Server:" %}</label>
-    <select id="select-server" class="form-control">
-      <option value="">---------</option>
-    </select>
-    <label>{% trans "Group:" %}</label>
-    <select id="select-host-group" class="form-control">
-      <option value="">---------</option>
-    </select>
-    <label>{% trans "Host:" %}</label>
-    <select id="select-host" class="form-control">
-      <option value="">---------</option>
-    </select>
-    <label for="num-records-per-page">{% trans "# of triggers per page" %}</label>
-    <input type="text" id="num-records-per-page" class="form-control num-records-per-page" style="width:4em;">
-  </form>
+    <div id="hideDiv" style="display: none; margin-bottom: 16px;">
+      <div class="calendar-element">
+	<p><label>{% trans "Period:" %}</label></p>
+	<input type="text" id="begin-time" class="form-control filter-time-range">
+	<span class="clear-button glyphicon glyphicon-remove-circle form-control-feedback" style="display: none;"></span>
+      </div>
+      　～　
+      <div class="calendar-element">
+	<input type="text" id="end-time" class="form-control filter-time-range" placeholder="{% trans "Current time" %}">
+	<span class="clear-button glyphicon glyphicon-remove-circle form-control-feedback" style="display: none;"></span>
+      </div>
+      <br><br>
+      <div class="filter-element">
+	<label>{% trans "Minimum Severity:" %}</label>
+	<select id="select-severity" class="form-control">
+	</select>
+      </div>
+      <div class="filter-element">
+	<label>{% trans "Status:" %}</label>
+	<select id="select-status" class="form-control">
+	  <option value="-1">---------</option>
+	  <option value="0">{% trans "OK" %}</option>
+	  <option value="1">{% trans "Problem" %}</option>
+	</select>
+      </div>
+      <div class="filter-element">
+	<label>{% trans "Monitoring Server:" %}</label>
+	<select id="select-server" class="form-control">
+	  <option value="">---------</option>
+	</select>
+      </div>
+      <div class="filter-element">
+	<label>{% trans "Group:" %}</label>
+	<select id="select-host-group" class="form-control">
+	  <option value="">---------</option>
+	</select>
+      </div>
+      <div class="filter-element">
+	<label>{% trans "Host:" %}</label>
+	<select id="select-host" class="form-control">
+	  <option value="">---------</option>
+	</select>
+      </div>
+      <div class="filter-element">
+	<label for="num-records-per-page">{% trans "# of triggers per page" %}</label>
+	<input type="text" id="num-records-per-page" class="form-control num-records-per-page" style="width:4em;">
+      </div>
+    </div>
   <div class="hatohol-pager">
     <ul class="pagination">
     </ul>

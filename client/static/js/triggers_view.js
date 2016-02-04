@@ -208,6 +208,15 @@ var TriggersView = function(userProfile, options) {
     }
   }
 
+  function setupToggleFilter() {
+    $("#hideDiv").hide();
+    $('#hide').click(function(){
+      $("#hideDiv").slideToggle();
+      $("#filter-right-glyph").toggle();
+      $("#filter-down-glyph").toggle();
+    });
+  }
+
   function setupCallbacks() {
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
