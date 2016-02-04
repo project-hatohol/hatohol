@@ -1416,59 +1416,49 @@ string TriggersQueryOption::getCondition(void) const
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf(
+		addCondition(condition, StringUtils::sprintf(
 			"%s.%s=%s",
 			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
-			rhs(m_impl->targetId));
+			rhs(m_impl->targetId)));
 	}
 
 	if (m_impl->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf(
+		addCondition(condition, StringUtils::sprintf(
 			"%s.%s>=%d",
 			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
-			m_impl->minSeverity);
+			m_impl->minSeverity));
 	}
 
 	if (m_impl->triggerStatus != TRIGGER_STATUS_ALL) {
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf(
+		addCondition(condition, StringUtils::sprintf(
 			"%s.%s=%d",
 			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
-			m_impl->triggerStatus);
+			m_impl->triggerStatus));
 	}
 
 	if (m_impl->beginTime.tv_sec != 0 || m_impl->beginTime.tv_nsec != 0) {
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf(
+		addCondition(condition, StringUtils::sprintf(
 			"(%s>%ld OR (%s=%ld AND %s>=%ld))",
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
 			m_impl->beginTime.tv_sec,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
 			m_impl->beginTime.tv_sec,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS].columnName,
-			m_impl->beginTime.tv_nsec);
+			m_impl->beginTime.tv_nsec));
 	}
 
 	if (m_impl->endTime.tv_sec != 0 || m_impl->endTime.tv_nsec != 0) {
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf(
+		addCondition(condition, StringUtils::sprintf(
 			"(%s<%ld OR (%s=%ld AND %s<=%ld))",
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
 			m_impl->endTime.tv_sec,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
 			m_impl->endTime.tv_sec,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS].columnName,
-			m_impl->endTime.tv_nsec);
+			m_impl->endTime.tv_nsec));
 	}
 
 	return condition;
