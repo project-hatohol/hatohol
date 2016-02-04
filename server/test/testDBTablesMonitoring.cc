@@ -619,13 +619,13 @@ void test_getTriggerInfoListWithTimeRangeNotFound(void)
 {
 	loadTestDBTriggers();
 
-	TriggerInfo triggerInfo;
+	TriggerInfoList triggerInfoList;
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setBeginTime({1363000000, 0});
 	option.setEndTime({1389123457, 0});
-	cppcut_assert_equal(false,
-	                    dbMonitoring.getTriggerInfo(triggerInfo, option));
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+	cppcut_assert_equal(triggerInfoList.size(), static_cast<size_t>(0));
 }
 
 void data_getTriggerInfoListForOneServer(void)
