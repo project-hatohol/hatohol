@@ -22,6 +22,7 @@ import haplib
 import simple_server
 import logging
 import json
+import random
 
 class SimpleCaller:
 
@@ -73,8 +74,7 @@ class SimpleCaller:
         self.__notify(params)
 
     def __request(self, params):
-        __component_code = 0
-        request_id = haplib.Utils.generate_request_id(__component_code)
+        request_id = random.randint(1, 0xffffff)
         self.__sender.request(self.__curr_command, params, request_id)
 
     def __notify(self, params):
