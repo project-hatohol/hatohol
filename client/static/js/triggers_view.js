@@ -17,7 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-var TriggersView = function(userProfile) {
+var TriggersView = function(userProfile, options) {
   var self = this;
   var rawData;
 
@@ -33,6 +33,15 @@ var TriggersView = function(userProfile) {
   self.rawSeverityRankData = {};
   self.severityRanksMap = {};
   self.defaultMinimumSeverity = "0";
+  self.options = options || {};
+
+  setupToggleFilter();
+  if (self.options.disableTimeRangeFilter) {
+   // Don't enable datetimepicker for tests.
+  } else {
+    setupTimeRangeFilter();
+  }
+
   var triggerPropertyChoices = {
     severity: [
       { value: "0", label: gettext("Not classified") },
