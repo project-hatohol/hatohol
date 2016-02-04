@@ -1460,11 +1460,11 @@ string TriggersQueryOption::getCondition(void) const
 		condition += StringUtils::sprintf(
 			"(%s<%ld OR (%s=%ld AND %s<=%ld))",
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
-			m_impl->beginTime.tv_sec,
+			m_impl->endTime.tv_sec,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
-			m_impl->beginTime.tv_sec,
+			m_impl->endTime.tv_sec,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS].columnName,
-			m_impl->beginTime.tv_nsec);
+			m_impl->endTime.tv_nsec);
 	}
 
 	return condition;
