@@ -26,7 +26,7 @@ import json
 import Queue
 from hatohol import hap
 from hatohol import haplib
-from hatohol import hap2_common
+from hatohol import hapcommon
 
 class Gadget:
     def __init__(self):
@@ -153,9 +153,9 @@ class ArmInfo(unittest.TestCase):
 
     def test_success(self):
         arm_info = haplib.ArmInfo()
-        time0 = float(hap2_common.get_current_hatohol_time())
+        time0 = float(hapcommon.get_current_hatohol_time())
         arm_info.success()
-        time1 = float(hap2_common.get_current_hatohol_time())
+        time1 = float(hapcommon.get_current_hatohol_time())
         self.assertEquals(arm_info.last_status, "OK")
         self.assertEquals(arm_info.num_success, 1)
         arm_info_time = float(arm_info.last_success_time)
@@ -164,9 +164,9 @@ class ArmInfo(unittest.TestCase):
 
     def test_fail(self):
         arm_info = haplib.ArmInfo()
-        time0 = float(hap2_common.get_current_hatohol_time())
+        time0 = float(hapcommon.get_current_hatohol_time())
         arm_info.fail("Reason")
-        time1 = float(hap2_common.get_current_hatohol_time())
+        time1 = float(hapcommon.get_current_hatohol_time())
         self.assertEquals(arm_info.last_status, "NG")
         self.assertEquals(arm_info.failure_reason, "Reason")
         self.assertEquals(arm_info.num_failure, 1)
@@ -522,7 +522,7 @@ class Receiver(unittest.TestCase):
     def test_check_error_dict_failure(self):
         error_dict = {"error": {"code": 1, "message": "test_message"},"id": 1}
         try:
-            hap2_common.__check_error_dict(error_dict)
+            hapcommon.__check_error_dict(error_dict)
             raise
         except:
             pass

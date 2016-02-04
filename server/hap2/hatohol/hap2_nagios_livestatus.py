@@ -25,7 +25,7 @@ from logging import getLogger
 import datetime
 from hatohol import hap
 from hatohol import haplib
-from hatohol import hap2_common
+from hatohol import hapcommon
 from hatohol import standardhap
 import socket
 import uuid
@@ -134,7 +134,7 @@ class Common:
                 self.__trigger_last_info = self.get_last_info("trigger")
 
             if len(self.__trigger_last_info):
-                unix_timestamp = hap2_common.translate_hatohol_time_to_unix_time(self.__trigger_last_info)
+                unix_timestamp = hapcommon.translate_hatohol_time_to_unix_time(self.__trigger_last_info)
                 query = query.filter("last_state_change >= %s" % unix_timestamp)
                 update_type = "UPDATED"
 
@@ -146,8 +146,8 @@ class Common:
                 self.__parse_status_and_severity(service["state"])
 
             last_state_change = datetime.datetime.fromtimestamp(service["last_state_change"])
-            hapi_time = hap2_common.conv_to_hapi_time(last_state_change,
-                                                      self.__time_offset)
+            hapi_time = hapcommon.conv_to_hapi_time(last_state_change,
+                                                    self.__time_offset)
             triggers.append({
                 "triggerId": service["description"],
                 "status": hapi_status,
@@ -159,8 +159,8 @@ class Common:
                 "extendedInfo": ""
             })
         self.__trigger_last_info = \
-            hap2_common.get_biggest_num_of_dict_array(triggers,
-                                                      "lastChangeTime")
+            hapcommon.get_biggest_num_of_dict_array(triggers,
+                                                    "lastChangeTime")
         self.put_triggers(triggers, update_type=update_type,
                           last_info=self.__trigger_last_info,
                           fetch_id=fetch_id)
@@ -184,11 +184,11 @@ class Common:
             pass
         elif direction == "ASC":
             unix_timestamp = \
-              hap2_common.translate_hatohol_time_to_unix_time(last_info["time"])
+                hapcommon.translate_hatohol_time_to_unix_time(last_info["time"])
             query = query.filter("time >= %s" % unix_timestamp)
         elif direction == "DESC":
             unix_timestamp = \
-              hap2_common.translate_hatohol_time_to_unix_time(last_info["time"])
+                hapcommon.translate_hatohol_time_to_unix_time(last_info["time"])
             query = query.filter("time <= %s" % unix_timestamp)
 
         result = query.call()
@@ -214,8 +214,8 @@ class Common:
                 self.__parse_status_and_severity(event["state"])
 
             event_time = datetime.datetime.fromtimestamp(event["time"])
-            hapi_time = hap2_common.conv_to_hapi_time(event_time,
-                                                      self.__time_offset)
+            hapi_time = hapcommon.conv_to_hapi_time(event_time,
+                                                    self.__time_offset)
             events.append({
                 "eventId": str(uuid.uuid1()),
                 "time": hapi_time,

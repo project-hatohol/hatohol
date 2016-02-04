@@ -26,7 +26,7 @@ import Queue
 import argparse
 import time
 from logging import getLogger
-from hatohol import hap2_common
+from hatohol import hapcommon
 from hatohol import haplib
 from hatohol import zabbixapi
 from hatohol import standardhap
@@ -100,8 +100,8 @@ class ZabbixAPIConductor(object):
             return
 
         self.__trigger_last_info = \
-            hap2_common.get_biggest_num_of_dict_array(triggers,
-                                                      "lastChangeTime")
+            hapcommon.get_biggest_num_of_dict_array(triggers,
+                                                    "lastChangeTime")
         update_type = "ALL" if fetch_id is not None else "UPDATED"
 
         self.put_triggers(triggers, update_type=update_type,

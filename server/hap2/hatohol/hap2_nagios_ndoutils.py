@@ -27,7 +27,7 @@ import datetime
 from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
-from hatohol import hap2_common
+from hatohol import hapcommon
 
 logger = getLogger("hatohol.hap2_nagios_ndoutils")
 
@@ -210,8 +210,8 @@ class Common:
             hapi_status, hapi_severity = \
               self.__parse_status_and_severity(state)
 
-            hapi_time = hap2_common.conv_to_hapi_time(update_time,
-                                                      self.__time_offset)
+            hapi_time = hapcommon.conv_to_hapi_time(update_time,
+                                                    self.__time_offset)
             triggers.append({
                 "triggerId": str(trigger_id),
                 "status": hapi_status,
@@ -223,8 +223,8 @@ class Common:
                 "extendedInfo": ""
             })
         self.__trigger_last_info = \
-            hap2_common.get_biggest_num_of_dict_array(triggers,
-                                                      "lastChangeTime")
+            hapcommon.get_biggest_num_of_dict_array(triggers,
+                                                    "lastChangeTime")
         self.put_triggers(triggers, update_type=update_type,
                           last_info=self.__trigger_last_info,
                           fetch_id=fetch_id)
@@ -295,8 +295,8 @@ class Common:
             hapi_status, hapi_severity = \
               self.__parse_status_and_severity(state)
 
-            hapi_time = hap2_common.conv_to_hapi_time(event_time,
-                                                      self.__time_offset)
+            hapi_time = hapcommon.conv_to_hapi_time(event_time,
+                                                    self.__time_offset)
             events.append({
                 "eventId": str(event_id),
                 "time": hapi_time,

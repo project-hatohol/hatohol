@@ -30,7 +30,7 @@ import base64
 from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
-from hatohol import hap2_common
+from hatohol import hapcommon
 
 logger = getLogger("hatohol.hap2_ceilometer")
 
@@ -222,7 +222,7 @@ class Common:
         samples = []
         for history in response:
             timestamp = self.parse_time(history["timestamp"])
-            hapi_time = hap2_common.conv_to_hapi_time(timestamp)
+            hapi_time = hapcommon.conv_to_hapi_time(timestamp)
             samples.append({
                 "time": hapi_time,
                 "value": str(history["counter_volume"]),
@@ -247,7 +247,7 @@ class Common:
                 continue
 
             timestamp = self.parse_time(rc["timestamp"])
-            hapi_time = hap2_common.conv_to_hapi_time(timestamp)
+            hapi_time = hapcommon.conv_to_hapi_time(timestamp)
             counter_name = rc["counter_name"]
             items.append({
                 # Item ID must be unique so we generate it with the host ID
@@ -317,7 +317,7 @@ class Common:
 
             events.append({
                 "eventId": history["event_id"],
-                "time": hap2_common.conv_to_hapi_time(timestamp),
+                "time": hapcommon.conv_to_hapi_time(timestamp),
                 "type": hapi_event_type,
                 "triggerId": alarm_id,
                 "status": hapi_status,

@@ -23,7 +23,7 @@ import urllib2
 import json
 from logging import getLogger
 from hatohol import hap
-from hatohol import hap2_common
+from hatohol import hapcommon
 
 logger = getLogger("hatohol.zabbixapi")
 
@@ -96,7 +96,7 @@ class ZabbixAPI:
             self.expand_item_brief(item)
 
             time = \
-              hap2_common.translate_unix_time_to_hatohol_time(item["lastclock"],
+                hapcommon.translate_unix_time_to_hatohol_time(item["lastclock"],
                                                               item["lastns"])
             items.append({"itemId": item["itemid"],
                           "hostId": item["hostid"],
@@ -120,8 +120,8 @@ class ZabbixAPI:
                                      key_list[key_index-1])
 
     def get_history(self, item_id, begin_time, end_time):
-        begin_time = hap2_common.translate_hatohol_time_to_unix_time(begin_time)
-        end_time = hap2_common.translate_hatohol_time_to_unix_time(end_time)
+        begin_time = hapcommon.translate_hatohol_time_to_unix_time(begin_time)
+        end_time = hapcommon.translate_hatohol_time_to_unix_time(end_time)
         params = {"output": "extend", "itemids": item_id,
                   "history": self.get_item_value_type(item_id), "sortfield": "clock",
                   "sortorder": "ASC", "time_from": begin_time,
@@ -135,7 +135,7 @@ class ZabbixAPI:
         histories = list()
         def proc(history):
             time = \
-              hap2_common.translate_unix_time_to_hatohol_time(history["clock"],
+                hapcommon.translate_unix_time_to_hatohol_time(history["clock"],
                                                               history["ns"])
             histories.append({"value": history["value"], "time": time})
         self.__iterate_in_try_block(res_dict["result"], proc)
@@ -198,7 +198,7 @@ class ZabbixAPI:
         last_change_since = int()
         if requestSince:
             last_change_since = \
-                hap2_common.translate_hatohol_time_to_unix_time(requestSince)
+                hapcommon.translate_hatohol_time_to_unix_time(requestSince)
             params["lastChangeSince"] = last_change_since
         if host_ids is not None:
             params["hostids"] = host_ids
@@ -223,7 +223,7 @@ class ZabbixAPI:
         def proc(trigger):
             description = find_description(trigger["triggerid"])
             lastchange = trigger["lastchange"]
-            time = hap2_common.translate_unix_time_to_hatohol_time(lastchange)
+            time = hapcommon.translate_unix_time_to_hatohol_time(lastchange)
             triggers.append({"triggerId": trigger["triggerid"],
                              "status": TRIGGER_STATUS[trigger["value"]],
                              "severity": TRIGGER_SEVERITY[trigger["priority"]],
@@ -280,8 +280,8 @@ class ZabbixAPI:
         def proc(event):
             trigger = self.get_select_trigger(event["objectid"])
             time = \
-                hap2_common.translate_unix_time_to_hatohol_time(event["clock"],
-                                                                event["ns"])
+                hapcommon.translate_unix_time_to_hatohol_time(event["clock"],
+                                                              event["ns"])
             events.append({"eventId": event["eventid"],
                            "time": time,
                            "type": EVENT_TYPE[event["value"]],

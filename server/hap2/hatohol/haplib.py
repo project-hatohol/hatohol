@@ -34,7 +34,7 @@ from datetime import timedelta
 import random
 import copy
 from hatohol import hap
-from hatohol import hap2_common
+from hatohol import hapcommon
 from hatohol import transporter
 from hatohol.rabbitmqconnector import OverCapacity
 
@@ -298,12 +298,12 @@ class ArmInfo:
 
     def success(self, status="OK"):
         self.last_status = status
-        self.last_success_time = hap2_common.get_current_hatohol_time()
+        self.last_success_time = hapcommon.get_current_hatohol_time()
         self.num_success += 1
 
     def fail(self, reason="", status="NG"):
         self.last_status = status
-        self.last_failure_time = hap2_common.get_current_hatohol_time()
+        self.last_failure_time = hapcommon.get_current_hatohol_time()
         self.num_failure += 1
         self.failure_reason = reason
 
@@ -514,7 +514,7 @@ class HapiProcessor:
         return self.__event_last_info
 
     def generate_event_last_info(self, events):
-        return hap2_common.get_biggest_num_of_dict_array(events, "eventId")
+        return hapcommon.get_biggest_num_of_dict_array(events, "eventId")
 
     def __put_events(self, events, chunk_size, fetch_id=None, last_info_generator=None):
         """

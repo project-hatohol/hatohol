@@ -23,41 +23,41 @@ import unittest
 import datetime
 import testutils
 from hatohol import haplib
-from hatohol import hap2_common
+from hatohol import hapcommon
 import inspect
 
-class Utils(unittest.TestCase):
+class HapCommon(unittest.TestCase):
     def test_translate_unix_time_to_hatohol_time(self):
-        result = hap2_common.translate_unix_time_to_hatohol_time(0)
+        result = hapcommon.translate_unix_time_to_hatohol_time(0)
         self.assertEquals(result, "19700101000000.000000000")
-        result = hap2_common.translate_unix_time_to_hatohol_time("0")
+        result = hapcommon.translate_unix_time_to_hatohol_time("0")
         self.assertEquals(result, "19700101000000.000000000")
-        result = hap2_common.translate_unix_time_to_hatohol_time(0, 123456789)
+        result = hapcommon.translate_unix_time_to_hatohol_time(0, 123456789)
         self.assertEquals(result, "19700101000000.123456789")
-        result = hap2_common.translate_unix_time_to_hatohol_time(0, 123456)
+        result = hapcommon.translate_unix_time_to_hatohol_time(0, 123456)
         self.assertEquals(result, "19700101000000.000123456")
-        result = hap2_common.translate_unix_time_to_hatohol_time("0", "123456789")
+        result = hapcommon.translate_unix_time_to_hatohol_time("0", "123456789")
         self.assertEquals(result, "19700101000000.123456789")
 
-        result = hap2_common.translate_unix_time_to_hatohol_time("0", "999999999")
+        result = hapcommon.translate_unix_time_to_hatohol_time("0", "999999999")
         self.assertEquals(result, "19700101000000.999999999")
 
     def test_translate_unix_time_to_hatohol_time_with_errors(self):
         self.assertRaises(
             ValueError,
-            hap2_common.translate_unix_time_to_hatohol_time, 0, -1)
+            hapcommon.translate_unix_time_to_hatohol_time, 0, -1)
 
         self.assertRaises(
             ValueError,
-            hap2_common.translate_unix_time_to_hatohol_time, 0, 10000000000)
+            hapcommon.translate_unix_time_to_hatohol_time, 0, 10000000000)
 
         self.assertRaises(
             ValueError,
-            hap2_common.translate_unix_time_to_hatohol_time, 0, "")
+            hapcommon.translate_unix_time_to_hatohol_time, 0, "")
 
 
     def test_translate_hatohol_time_to_unix_time(self):
-        result = hap2_common.translate_hatohol_time_to_unix_time("19700101000000.123456789")
+        result = hapcommon.translate_hatohol_time_to_unix_time("19700101000000.123456789")
         # This result is utc time
         self.assertAlmostEquals(result, 0.123456789, delta=0.000000001)
 
@@ -65,12 +65,12 @@ class Utils(unittest.TestCase):
         test_target_array = [{"test_value": 3},
                              {"test_value": 7},
                              {"test_value": 9}]
-        result = hap2_common.get_biggest_num_of_dict_array(test_target_array,
-                                                            "test_value")
+        result = hapcommon.get_biggest_num_of_dict_array(test_target_array,
+                                                         "test_value")
         self.assertEquals(result, 9)
 
     def test_get_current_hatohol_time(self):
-        result = hap2_common.get_current_hatohol_time()
+        result = hapcommon.get_current_hatohol_time()
 
         self.assertTrue(14 < len(result) < 22)
         ns = int(result[15: 21])
@@ -78,22 +78,22 @@ class Utils(unittest.TestCase):
 
     def test_conv_to_hapi_time(self):
         dt = datetime.datetime(2015, 6, 28, 9, 35, 11, 123456)
-        self.assertEquals(hap2_common.conv_to_hapi_time(dt),
+        self.assertEquals(hapcommon.conv_to_hapi_time(dt),
                           "20150628093511.123456")
 
     def test_conv_to_hapi_time_with_offset(self):
         dt = datetime.datetime(2015, 6, 28, 9, 35, 11, 123456)
         ofs = -datetime.timedelta(hours=1, minutes=35, seconds=1)
-        self.assertEquals(hap2_common.conv_to_hapi_time(dt, ofs),
+        self.assertEquals(hapcommon.conv_to_hapi_time(dt, ofs),
                           "20150628080010.123456")
 
     def test_translate_int_to_decimal(self):
         test_nano_sec = 123456789
         expect_result = 0.123456789
-        result = hap2_common.translate_int_to_decimal(test_nano_sec)
+        result = hapcommon.translate_int_to_decimal(test_nano_sec)
 
         self.assertEquals(result, expect_result)
 
     def test_get_top_file_name(self):
         expect_result = "runpy.pyc"
-        self.assertEquals(hap2_common.get_top_file_name(), expect_result)
+        self.assertEquals(hapcommon.get_top_file_name(), expect_result)
