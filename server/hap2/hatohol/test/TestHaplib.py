@@ -415,7 +415,7 @@ class ChildProcess(unittest.TestCase):
 
     def test_daemonize(self):
         cp = ChildProcess.TestChild()
-        cp.daemonize()
+        cp.daemonize("TestProcess")
         self.assertNotEquals(cp.get_process(), None)
 
     def test_terminate_before_daemonize(self):
@@ -424,7 +424,7 @@ class ChildProcess(unittest.TestCase):
 
     def test_terminate(self):
         cp = ChildProcess.TestChild()
-        cp.daemonize()
+        cp.daemonize("TestProcess")
         cp.terminate()
 
 
@@ -447,7 +447,7 @@ class Receiver(unittest.TestCase):
         testutils.assertNotRaises(self.receiver.__call__)
 
     def test_daemonize(self):
-        testutils.assertNotRaises(self.receiver.daemonize)
+        testutils.assertNotRaises(self.receiver.daemonize, "TestProcess")
 
     def test_parse_received_message_invalid_json(self):
         test_message = "invalid_message"
@@ -647,7 +647,7 @@ class Dispatcher(unittest.TestCase):
 
     def test_daemonize(self):
         dispatcher = DispatcherForTest()
-        testutils.assertNotRaises(dispatcher.daemonize)
+        testutils.assertNotRaises(dispatcher.daemonize, "TestProcess")
 
     def test_call(self):
         dispatcher = DispatcherForTest()

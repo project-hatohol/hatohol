@@ -185,7 +185,7 @@ class StandardHap:
         self.on_got_monitoring_server_info(ms_info)
 
         if self.__poller is not None:
-            self.__poller.daemonize()
+            self.__poller.daemonize("Poller")
             logger.info("started poller plugin.")
 
         self.__main_plugin()
