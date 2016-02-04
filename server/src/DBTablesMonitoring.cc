@@ -1335,6 +1335,8 @@ struct TriggersQueryOption::Impl {
 	ExcludeFlags excludeFlags;
 	timespec beginTime;
 	timespec endTime;
+	SortType sortType;
+	SortDirection sortDirection;
 
 	Impl()
 	: targetId(ALL_TRIGGERS),
@@ -1342,7 +1344,9 @@ struct TriggersQueryOption::Impl {
 	  triggerStatus(TRIGGER_STATUS_ALL),
 	  excludeFlags(NO_EXCLUDE_HOST),
 	  beginTime({0, 0}),
-	  endTime({0, 0})
+	  endTime({0, 0}),
+	  sortType(SORT_ID),
+	  sortDirection(SORT_DONT_CARE)
 	{
 	}
 	bool shouldExcludeSelfMonitoring() {
@@ -1518,6 +1522,55 @@ void TriggersQueryOption::setEndTime(const timespec &endTime)
 const timespec &TriggersQueryOption::getEndTime(void)
 {
 	return m_impl->endTime;
+}
+
+void TriggersQueryOption::setSortType(
+  const SortType &type, const SortDirection &direction)
+{
+	m_impl->sortType = type;
+	m_impl->sortDirection = direction;
+
+	switch (type) {
+	case SORT_ID:
+	{
+		SortOrder order(
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
+		  direction);
+		setSortOrder(order);
+		break;
+	}
+	case SORT_TIME:
+	{
+		SortOrderVect sortOrderVect;
+		SortOrder order1(
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
+		  direction);
+		SortOrder order2(
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS].columnName,
+		  direction);
+		SortOrder order3(
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
+		  direction);
+		sortOrderVect.reserve(3);
+		sortOrderVect.push_back(order1);
+		sortOrderVect.push_back(order2);
+		sortOrderVect.push_back(order3);
+		setSortOrderVect(sortOrderVect);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+TriggersQueryOption::SortType TriggersQueryOption::getSortType(void) const
+{
+	return m_impl->sortType;
+}
+
+DataQueryOption::SortDirection TriggersQueryOption::getSortDirection(void) const
+{
+	return m_impl->sortDirection;
 }
 
 //
