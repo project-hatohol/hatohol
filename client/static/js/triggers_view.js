@@ -208,6 +208,39 @@ var TriggersView = function(userProfile, options) {
     }
   }
 
+  function setupTimeRangeFilter() {
+    $('#begin-time').datetimepicker({
+      format: 'Y/m/d H:i:s',
+      closeOnDateSelect: true,
+      onSelectDate: function(currentTime, $input) {
+        $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+      onSelectTime: function(currentTime, $input) {
+        $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+    });
+
+    $('#end-time').datetimepicker({
+      format: 'Y/m/d H:i:s',
+      closeOnDateSelect: true,
+      onDateTime: function(currentTime, $input) {
+        $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+      onSelectTime: function(currentTime, $input) {
+        $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
+      },
+    });
+
+    $(".filter-time-range").change(function () {
+      var input = $(this);
+      input.next('span').toggle(!!(input.val()));
+    });
+    $(".clear-button").click(function(){
+      $(this).prev('input').val('');
+      $(this).hide();
+    });
+  }
+
   function setupToggleFilter() {
     $("#hideDiv").hide();
     $('#hide').click(function(){
@@ -221,6 +254,12 @@ var TriggersView = function(userProfile, options) {
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host');
     $("#select-severity, #select-status").change(function() {
+      load();
+    });
+    $("#begin-time").change(function() {
+      load();
+    });
+    $("#end-time").change(function() {
       load();
     });
   }
@@ -362,11 +401,33 @@ var TriggersView = function(userProfile, options) {
       status:          $("#select-status").val(),
       offset:          self.baseQuery.limit * page
     });
+    var beginTime, endTime;
+    if ($('#begin-time').val()) {
+      beginTime = new Date($('#begin-time').val());
+      query.beginTime = parseInt(beginTime.getTime() / 1000);
+    }
+    if ($('#end-time').val()) {
+      endTime = new Date($('#end-time').val());
+      query.endTime = parseInt(endTime.getTime() / 1000);
+    }
     if (self.lastQuery)
       $.extend(query, self.getHostFilterQuery());
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
   };
+
+  function formatDateTimeWithZeroSecond(d) {
+    var t = "" + d.getFullYear() + "/";
+    t += padDigit((d.getMonth() + 1), 2);
+    t += "/";
+    t += padDigit(d.getDate(), 2);
+    t += " ";
+    t += padDigit(d.getHours(), 2);
+    t += ":";
+    t += padDigit(d.getMinutes(), 2);
+    t += ":00";
+    return t;
+  }
 
   function load(page) {
     self.displayUpdateTime();
