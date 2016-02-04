@@ -227,12 +227,16 @@ var TriggersView = function(userProfile, options) {
 
   function setLoading(loading) {
     if (loading) {
+      $("#begin-time").attr("disabled", "disabled");
+      $("#end-time").attr("disabled", "disabled");
       $("#select-severity").attr("disabled", "disabled");
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-hostgroup").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
     } else {
+      $("#begin-time").removeAttr("disabled");
+      $("#end-time").removeAttr("disabled");
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
