@@ -585,6 +585,49 @@ void test_getTriggerInfoList(gconstpointer data)
 	assertGetTriggerInfoList(data, ALL_SERVERS);
 }
 
+void test_getTriggerInfoListWithTimeRange(void)
+{
+	loadTestDBTriggers();
+
+	TriggerInfoList triggerInfoList;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setBeginTime({1362957197, 0});
+	option.setEndTime({1362957200, 0});
+	option.setSortType(TriggersQueryOption::SORT_TIME,
+	                   DataQueryOption::SORT_ASCENDING);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+	cppcut_assert_equal(triggerInfoList.size(), static_cast<size_t>(5));
+	TriggerInfo expectedTriggerInfo[] = {
+		testTriggerInfo[0],
+		testTriggerInfo[3],
+		testTriggerInfo[1],
+		testTriggerInfo[4],
+		testTriggerInfo[5],
+	};
+
+	{
+		size_t i = 0;
+		for (auto triggerInfo : triggerInfoList) {
+			assertTriggerInfo(expectedTriggerInfo[i], triggerInfo);
+			++i;
+		}
+	}
+}
+
+void test_getTriggerInfoListWithTimeRangeNotFound(void)
+{
+	loadTestDBTriggers();
+
+	TriggerInfoList triggerInfoList;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setBeginTime({1363000000, 0});
+	option.setEndTime({1389123457, 0});
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+	cppcut_assert_equal(triggerInfoList.size(), static_cast<size_t>(0));
+}
+
 void data_getTriggerInfoListForOneServer(void)
 {
 	prepareTestDataExcludeDefunctServers();

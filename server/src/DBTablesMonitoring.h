@@ -87,6 +87,12 @@ private:
 
 class TriggersQueryOption : public HostResourceQueryOption {
 public:
+	enum SortType {
+		SORT_ID,
+		SORT_TIME,
+		NUM_SORT_TYPES
+	};
+
 	TriggersQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	TriggersQueryOption(DataQueryContext *dataQueryContext);
 	TriggersQueryOption(const TriggersQueryOption &src);
@@ -101,6 +107,15 @@ public:
 	void setTriggerStatus(const TriggerStatusType &status);
 	TriggerStatusType getTriggerStatus(void) const;
 	void setExcludeFlags(const ExcludeFlags &flg);
+
+	void setBeginTime(const timespec &beginTime);
+	const timespec &getBeginTime(void);
+	void setEndTime(const timespec &endTime);
+	const timespec &getEndTime(void);
+
+	void setSortType(const SortType &type, const SortDirection &direction);
+	SortType getSortType(void) const;
+	SortDirection getSortDirection(void) const;
 
 private:
 	struct Impl;

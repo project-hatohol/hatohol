@@ -1333,12 +1333,20 @@ struct TriggersQueryOption::Impl {
 	TriggerSeverityType minSeverity;
 	TriggerStatusType triggerStatus;
 	ExcludeFlags excludeFlags;
+	timespec beginTime;
+	timespec endTime;
+	SortType sortType;
+	SortDirection sortDirection;
 
 	Impl()
 	: targetId(ALL_TRIGGERS),
 	  minSeverity(TRIGGER_SEVERITY_UNKNOWN),
 	  triggerStatus(TRIGGER_STATUS_ALL),
-	  excludeFlags(NO_EXCLUDE_HOST)
+	  excludeFlags(NO_EXCLUDE_HOST),
+	  beginTime({0, 0}),
+	  endTime({0, 0}),
+	  sortType(SORT_ID),
+	  sortDirection(SORT_DONT_CARE)
 	{
 	}
 	bool shouldExcludeSelfMonitoring() {
@@ -1408,33 +1416,49 @@ string TriggersQueryOption::getCondition(void) const
 
 	if (m_impl->targetId != ALL_TRIGGERS) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf(
+		addCondition(condition, StringUtils::sprintf(
 			"%s.%s=%s",
 			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
-			rhs(m_impl->targetId));
+			rhs(m_impl->targetId)));
 	}
 
 	if (m_impl->minSeverity != TRIGGER_SEVERITY_UNKNOWN) {
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf(
+		addCondition(condition, StringUtils::sprintf(
 			"%s.%s>=%d",
 			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_SEVERITY].columnName,
-			m_impl->minSeverity);
+			m_impl->minSeverity));
 	}
 
 	if (m_impl->triggerStatus != TRIGGER_STATUS_ALL) {
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf(
+		addCondition(condition, StringUtils::sprintf(
 			"%s.%s=%d",
 			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_STATUS].columnName,
-			m_impl->triggerStatus);
+			m_impl->triggerStatus));
+	}
+
+	if (m_impl->beginTime.tv_sec != 0 || m_impl->beginTime.tv_nsec != 0) {
+		addCondition(condition, StringUtils::sprintf(
+			"(%s>%ld OR (%s=%ld AND %s>=%ld))",
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
+			m_impl->beginTime.tv_sec,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
+			m_impl->beginTime.tv_sec,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS].columnName,
+			m_impl->beginTime.tv_nsec));
+	}
+
+	if (m_impl->endTime.tv_sec != 0 || m_impl->endTime.tv_nsec != 0) {
+		addCondition(condition, StringUtils::sprintf(
+			"(%s<%ld OR (%s=%ld AND %s<=%ld))",
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
+			m_impl->endTime.tv_sec,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
+			m_impl->endTime.tv_sec,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS].columnName,
+			m_impl->endTime.tv_nsec));
 	}
 
 	return condition;
@@ -1468,6 +1492,75 @@ void TriggersQueryOption::setTriggerStatus(const TriggerStatusType &status)
 TriggerStatusType TriggersQueryOption::getTriggerStatus(void) const
 {
 	return m_impl->triggerStatus;
+}
+
+void TriggersQueryOption::setBeginTime(const timespec &beginTime)
+{
+	m_impl->beginTime = beginTime;
+}
+
+const timespec &TriggersQueryOption::getBeginTime(void)
+{
+	return m_impl->beginTime;
+}
+
+void TriggersQueryOption::setEndTime(const timespec &endTime)
+{
+	m_impl->endTime = endTime;
+}
+
+const timespec &TriggersQueryOption::getEndTime(void)
+{
+	return m_impl->endTime;
+}
+
+void TriggersQueryOption::setSortType(
+  const SortType &type, const SortDirection &direction)
+{
+	m_impl->sortType = type;
+	m_impl->sortDirection = direction;
+
+	switch (type) {
+	case SORT_ID:
+	{
+		SortOrder order(
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
+		  direction);
+		setSortOrder(order);
+		break;
+	}
+	case SORT_TIME:
+	{
+		SortOrderVect sortOrderVect;
+		SortOrder order1(
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
+		  direction);
+		SortOrder order2(
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS].columnName,
+		  direction);
+		SortOrder order3(
+		  COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_ID].columnName,
+		  direction);
+		sortOrderVect.reserve(3);
+		sortOrderVect.push_back(order1);
+		sortOrderVect.push_back(order2);
+		sortOrderVect.push_back(order3);
+		setSortOrderVect(sortOrderVect);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+TriggersQueryOption::SortType TriggersQueryOption::getSortType(void) const
+{
+	return m_impl->sortType;
+}
+
+DataQueryOption::SortDirection TriggersQueryOption::getSortDirection(void) const
+{
+	return m_impl->sortDirection;
 }
 
 //
