@@ -25,7 +25,7 @@ from logging import getLogger
 from hatohol import hap
 from hatohol import hapcommon
 
-logger = getLogger("hatohol.zabbixapi")
+logger = getLogger("hatohol.zabbixapi:%s" % hapcommon.get_top_file_name())
 
 TRIGGER_SEVERITY = {"-1": "ALL", "0": "UNKNOWN", "1": "INFO", "2": "WARNING",
                     "3": "ERROR", "4": "CRITICAL", "5": "EMERGENCY"}

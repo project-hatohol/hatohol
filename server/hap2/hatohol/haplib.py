@@ -38,7 +38,7 @@ from hatohol import hapcommon
 from hatohol import transporter
 from hatohol.rabbitmqconnector import OverCapacity
 
-logger = getLogger(__name__)
+logger = getLogger("hatohol.haplib:%s" % hapcommon.get_top_file_name())
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,

@@ -31,7 +31,7 @@ from hatohol import haplib
 from hatohol import zabbixapi
 from hatohol import standardhap
 
-logger = getLogger("hatohol.hap2_zabbix_api")
+logger = getLogger("hatohol.hap2_zabbix_api:%s" % hapcommon.get_top_file_name())
 MAX_NUMBER_OF_EVENTS_FROM_ZABBIX = 1000
 MAX_NUMBER_OF_EVENTS_OF_HAPI2 = 1000
 

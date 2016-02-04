@@ -31,7 +31,7 @@ from hatohol import haplib
 from hatohol import standardhap
 from hatohol import hapcommon
 
-logger = getLogger("hatohol.hap2_fluentd")
+logger = getLogger("hatohol.hap2_fluentd:%s" % hapcommon.get_top_file_name())
 
 class Hap2FluentdMain(haplib.BaseMainPlugin):
 

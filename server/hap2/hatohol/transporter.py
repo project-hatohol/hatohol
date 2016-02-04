@@ -22,12 +22,13 @@ from logging import getLogger
 import sys
 import os
 import imp
+from hatohol import hapcommon
 
 DIR_BOTH = 0
 DIR_SEND = 1
 DIR_RECV = 2
 
-logger = getLogger(__name__)
+logger = getLogger("hatohol.transporter:%s" % hapcommon.get_top_file_name())
 
 class Transporter:
     """
