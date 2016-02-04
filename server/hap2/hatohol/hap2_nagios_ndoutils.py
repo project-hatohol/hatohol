@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: UTF-8
 """
-  Copyright (C) 2015 Project Hatohol
+  Copyright (C) 2016 Project Hatohol
 
   This file is part of Hatohol.
 
@@ -27,6 +27,7 @@ import datetime
 from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
+from hatohol import hapcommon
 
 logger = getLogger("hatohol.hap2_nagios_ndoutils")
 
@@ -209,8 +210,8 @@ class Common:
             hapi_status, hapi_severity = \
               self.__parse_status_and_severity(state)
 
-            hapi_time = haplib.Utils.conv_to_hapi_time(update_time,
-                                                       self.__time_offset)
+            hapi_time = hapcommon.conv_to_hapi_time(update_time,
+                                                    self.__time_offset)
             triggers.append({
                 "triggerId": str(trigger_id),
                 "status": hapi_status,
@@ -222,8 +223,8 @@ class Common:
                 "extendedInfo": ""
             })
         self.__trigger_last_info = \
-            haplib.Utils.get_biggest_num_of_dict_array(triggers,
-                                                       "lastChangeTime")
+            hapcommon.get_biggest_num_of_dict_array(triggers,
+                                                    "lastChangeTime")
         self.put_triggers(triggers, update_type=update_type,
                           last_info=self.__trigger_last_info,
                           fetch_id=fetch_id)
@@ -256,7 +257,7 @@ class Common:
         if raw_last_info is not None \
             and raw_last_info != self.INITIAL_LAST_INFO:
             # The form of 'last_info' depends on a plugin. So the validation
-            # of it cannot be completed in haplib.Utils.validate_arguments().
+            # of it cannot be completed in haplib.Receiver.__validate_arguments().
             # Since it is inserted into the SQL statement, we have to strictly
             # validate it here.
             last_cond = self.__extract_validated_event_last_info(raw_last_info)
@@ -294,8 +295,8 @@ class Common:
             hapi_status, hapi_severity = \
               self.__parse_status_and_severity(state)
 
-            hapi_time = haplib.Utils.conv_to_hapi_time(event_time,
-                                                       self.__time_offset)
+            hapi_time = hapcommon.conv_to_hapi_time(event_time,
+                                                    self.__time_offset)
             events.append({
                 "eventId": str(event_id),
                 "time": hapi_time,

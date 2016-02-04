@@ -2,6 +2,7 @@ noinst_SCRIPTS = \
 	__init__.py \
 	hap.py \
 	haplib.py \
+	hapcommon.py \
 	transporter.py \
 	standardhap.py \
 	rabbitmqconnector.py \
