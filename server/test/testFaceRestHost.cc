@@ -159,7 +159,10 @@ static void _assertHosts(const string &path, const string &callbackName = "",
 static void _assertTriggers(
   const string &path, const string &callbackName = "",
   const ServerIdType &serverId = ALL_SERVERS,
-  const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS)
+  const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS,
+  const timespec &beginTime = {0, 0},
+  const timespec &endTime = {0, 0},
+  const size_t expectedNumTrig = -1)
 {
 	loadTestDBArmPlugin();
 	loadTestDBTriggers();
@@ -175,17 +178,19 @@ static void _assertTriggers(
 	ServerIdTriggerIdIdxMapIterator indexMapIt;
 	TriggerIdIdxMapIterator         trigIdIdxIt;
 	getTestTriggersIndexes(indexMap, serverId, hostIdInServer);
-	size_t expectedNumTrig = 0;
-	indexMapIt = indexMap.begin();
-	while (indexMapIt != indexMap.end()) {
-		// Remove element whose key points a defunct server.
-		const ServerIdType serverId = indexMapIt->first;
-		if (!dqCtxPtr->isValidServer(serverId)) {
-			indexMap.erase(indexMapIt++); // must be post-increment
-			continue;
+	if (expectedNumTrig < 0) {
+		size_t expectedNumTrig = 0;
+		indexMapIt = indexMap.begin();
+		while (indexMapIt != indexMap.end()) {
+			// Remove element whose key points a defunct server.
+			const ServerIdType serverId = indexMapIt->first;
+			if (!dqCtxPtr->isValidServer(serverId)) {
+				indexMap.erase(indexMapIt++); // must be post-increment
+				continue;
+			}
+			expectedNumTrig += indexMapIt->second.size();
+			++indexMapIt;
 		}
-		expectedNumTrig += indexMapIt->second.size();
-		++indexMapIt;
 	}
 
 	// request
@@ -196,6 +201,12 @@ static void _assertTriggers(
 	}
 	if (hostIdInServer != ALL_LOCAL_HOSTS)
 		queryMap["hostId"] = hostIdInServer;
+	if (beginTime.tv_sec != 0 || beginTime.tv_nsec != 0) {
+		queryMap["beginTime"] = StringUtils::sprintf("%ld", beginTime.tv_sec);
+	}
+	if (endTime.tv_sec != 0 || endTime.tv_nsec != 0) {
+		queryMap["endTime"] = StringUtils::sprintf("%ld", endTime.tv_sec);
+	}
 	arg.parameters = queryMap;
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
