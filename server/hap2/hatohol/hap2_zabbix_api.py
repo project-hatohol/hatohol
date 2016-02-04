@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # coding: UTF-8
 """
-  Copyright (C) 2015 Project Hatohol
+  Copyright (C) 2015-2016 Project Hatohol
 
   This file is part of Hatohol.
 
@@ -26,7 +26,7 @@ import Queue
 import argparse
 import time
 from logging import getLogger
-from hatohol.haplib import Utils
+from hatohol import hapcommon
 from hatohol import haplib
 from hatohol import zabbixapi
 from hatohol import standardhap
@@ -100,8 +100,8 @@ class ZabbixAPIConductor(object):
             return
 
         self.__trigger_last_info = \
-            Utils.get_biggest_num_of_dict_array(triggers,
-                                                "lastChangeTime")
+            hapcommon.get_biggest_num_of_dict_array(triggers,
+                                                    "lastChangeTime")
         update_type = "ALL" if fetch_id is not None else "UPDATED"
 
         self.put_triggers(triggers, update_type=update_type,

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # coding: UTF-8
 """
-  Copyright (C) 2015 Project Hatohol
+  Copyright (C) 2015-2016 Project Hatohol
 
   This file is part of Hatohol.
 
@@ -29,6 +29,7 @@ import signal
 from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
+from hatohol import hapcommon
 
 logger = getLogger("hatohol.hap2_fluentd")
 
@@ -126,7 +127,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         events = []
         events.append({
             "eventId": event_id,
-            "time": haplib.Utils.conv_to_hapi_time(timestamp),
+            "time": hapcommon.conv_to_hapi_time(timestamp),
             "type": hapi_event_type,
             "status": hapi_status,
             "severity": hapi_severity,
