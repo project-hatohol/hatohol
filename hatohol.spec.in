@@ -286,6 +286,9 @@ rm -rf %{buildroot}
 %{python_sitelib}/hatohol/haplib.py
 %{python_sitelib}/hatohol/haplib.pyc
 %{python_sitelib}/hatohol/haplib.pyo
+%{python_sitelib}/hatohol/hapcommon.py
+%{python_sitelib}/hatohol/hapcommon.pyc
+%{python_sitelib}/hatohol/hapcommon.pyo
 %{python_sitelib}/hatohol/standardhap.py
 %{python_sitelib}/hatohol/standardhap.pyc
 %{python_sitelib}/hatohol/standardhap.pyo
