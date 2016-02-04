@@ -569,6 +569,14 @@ void test_triggersForOneServerOneHost(void)
 	               testTriggerInfo[1].hostIdInServer);
 }
 
+void test_triggersWithTimeRange(void)
+{
+	timespec beginTime = {1362957197,0}, endTime = {1362957200,0};
+	size_t numExpectedTriggers = 5;
+	assertTriggers("/trigger", "foo", ALL_SERVERS, ALL_LOCAL_HOSTS,
+		       beginTime, endTime, numExpectedTriggers);
+}
+
 void test_events(void)
 {
 	assertEvents("/event");
