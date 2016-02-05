@@ -1,7 +1,6 @@
 if WITH_JS_TEST
 
 TARGET_FILES = \
-	node_modules \
 	browser/mocha.js browser/mocha.css browser/expect.js browser/sinon.js
 
 noinst_DATA = $(TARGET_FILES)
@@ -64,20 +63,17 @@ EXTRA_DIST = \
 	python/utils.py \
 	python/hatohol_server_emulator.py
 
-node_modules:
-	ln -sf `npm root`
-
 browser/mocha.js:
-	ln -sf ../node_modules/mocha/mocha.js $@
+	ln -sf `npm root`/mocha/mocha.js $@
 
 browser/mocha.css:
-	ln -sf ../node_modules/mocha/mocha.css $@
+	ln -sf `npm root`/mocha/mocha.css $@
 
 browser/expect.js:
-	ln -sf ../node_modules/expect.js/index.js $@
+	ln -sf `npm root`/expect.js/index.js $@
 
 browser/sinon.js:
-	ln -sf ../node_modules/sinon/pkg/sinon.js $@
+	ln -sf `npm root`/sinon/pkg/sinon.js $@
 
 clean-local:
 	-rm -fr $(TARGET_FILES)

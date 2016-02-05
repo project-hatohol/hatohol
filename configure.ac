@@ -211,8 +211,9 @@ dnl **************************************************************
 dnl Mocha, expect.js, and npm (indirectly node.js)
 dnl **************************************************************
 have_js_test_tools=yes
-AC_CHECK_PROG([have_mocha], [mocha], [yes], [no])
+NODE_MODULES_PATH=$(npm bin)
 AC_CHECK_PROG([have_npm], [npm], [yes], [no])
+AC_CHECK_PROG([have_mocha], [mocha], [yes], [no], [$NODE_MODULES_PATH])
 have_expect_js=no
 if test "$have_npm" = "yes"; then
   expect_js_ver=`npm ls | grep expect.js | awk '{ print $2 }' FS=@`
