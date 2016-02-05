@@ -32,7 +32,7 @@ from hatohol import haplib
 from hatohol import standardhap
 from hatohol import hapcommon
 
-logger = getLogger("hatohol.hap2_ceilometer")
+logger = getLogger("hatohol.hap2_ceilometer:%s" % hapcommon.get_top_file_name())
 
 class Common:
 

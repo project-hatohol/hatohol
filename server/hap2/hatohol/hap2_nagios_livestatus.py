@@ -32,7 +32,7 @@ import uuid
 import json
 from mk_livestatus import Socket
 
-logger = getLogger("hatohol.hap2_nagios_livestatus")
+logger = getLogger("hatohol.hap2_nagios_livestatus:%s" % hapcommon.get_top_file_name())
 
 
 class Common:

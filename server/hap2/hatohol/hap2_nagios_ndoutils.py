@@ -29,7 +29,7 @@ from hatohol import haplib
 from hatohol import standardhap
 from hatohol import hapcommon
 
-logger = getLogger("hatohol.hap2_nagios_ndoutils")
+logger = getLogger("hatohol.hap2_nagios_ndoutils:%s" % hapcommon.get_top_file_name())
 
 class Common:
 

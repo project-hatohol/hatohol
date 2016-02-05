@@ -38,7 +38,7 @@ from hatohol import hapcommon
 from hatohol import transporter
 from hatohol.rabbitmqconnector import OverCapacity
 
-logger = getLogger(__name__)
+logger = getLogger("hatohol.haplib:%s" % hapcommon.get_top_file_name())
 
 SERVER_PROCEDURES = {"exchangeProfile": True,
                      "getMonitoringServerInfo": True,
@@ -630,8 +630,8 @@ class ChildProcess:
     def get_process(self):
         return self.__process
 
-    def daemonize(self):
-        self.__process = multiprocessing.Process(target=self)
+    def daemonize(self, name):
+        self.__process = multiprocessing.Process(target=self, name=name)
         self.__process.daemon = True
         self.__process.start()
         logger.info("deamonized: %s (%s)" % \
@@ -983,10 +983,10 @@ class BaseMainPlugin(HapiProcessor):
         Launch the process for receiving data from the transporter.
         This method shall be called once before calling __call__().
         """
-        self.__receiver.daemonize()
+        self.__receiver.daemonize("Receiver")
 
     def start_dispatcher(self):
-        self.__dispatcher.daemonize()
+        self.__dispatcher.daemonize("Dispatcher")
 
     def __optimize_server_procedures(self, valid_procedures_dict, procedures):
         for name in valid_procedures_dict:

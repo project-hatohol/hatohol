@@ -23,8 +23,9 @@ import os
 import pika
 import hap
 from hatohol.transporter import Transporter
+from hatohol import hapcommon
 
-logger = getLogger(__name__)
+logger = getLogger("hatohol.rabbitmqconnector:%s" % hapcommon.get_top_file_name())
 
 MAX_BODY_SIZE = 50000
 MAX_FRAME_SIZE = 131072

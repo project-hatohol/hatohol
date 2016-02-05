@@ -33,8 +33,9 @@ import errno
 import time
 import traceback
 import multiprocessing
+from hatohol import hapcommon
 
-logger = getLogger(__name__)
+logger = getLogger("hatohol.hap:%s" % hapcommon.get_top_file_name())
 
 def initialize_logger(parser=None):
     """

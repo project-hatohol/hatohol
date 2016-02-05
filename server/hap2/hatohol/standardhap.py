@@ -27,8 +27,9 @@ import signal
 from hatohol import hap
 from hatohol import haplib
 from hatohol import transporter
+from hatohol import hapcommon
 
-logger = getLogger(__name__)
+logger = getLogger("hatohol.hap:%s" % hapcommon.get_top_file_name())
 
 class StandardHap:
     def __init__(self, default_transporter="RabbitMQHapiConnector"):
@@ -185,7 +186,7 @@ class StandardHap:
         self.on_got_monitoring_server_info(ms_info)
 
         if self.__poller is not None:
-            self.__poller.daemonize()
+            self.__poller.daemonize("Poller")
             logger.info("started poller plugin.")
 
         self.__main_plugin()
