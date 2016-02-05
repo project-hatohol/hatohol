@@ -112,6 +112,20 @@ static HatoholError parseTriggerParameter(TriggersQueryOption &option,
 		return err;
 	option.setTriggerStatus(status);
 
+	// begin time
+	timespec beginTime = { 0, 0 };
+	err = getParam<time_t>(query, "beginTime", "%ld", beginTime.tv_sec);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setBeginTime(beginTime);
+
+	// end time
+	timespec endTime = { 0, 0 };
+	err = getParam<time_t>(query, "endTime", "%ld", endTime.tv_sec);
+	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
+		return err;
+	option.setEndTime(endTime);
+
 	return HatoholError(HTERR_OK);
 }
 
