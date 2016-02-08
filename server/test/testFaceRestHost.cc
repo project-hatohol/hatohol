@@ -162,7 +162,7 @@ static void _assertTriggers(
   const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS,
   const timespec &beginTime = {0, 0},
   const timespec &endTime = {0, 0},
-  const size_t expectedNumTrig = -1)
+  const size_t expectedNumTrigger = -1)
 {
 	loadTestDBArmPlugin();
 	loadTestDBTriggers();
@@ -172,14 +172,14 @@ static void _assertTriggers(
 	RequestArg arg(path, callbackName);
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	DataQueryContextPtr dqCtxPtr(new DataQueryContext(arg.userId), false);
+	size_t expectedNumTrig = 0, allNumTrig = -1;
 
 	// calculate the expected test triggers
 	ServerIdTriggerIdIdxMap         indexMap;
 	ServerIdTriggerIdIdxMapIterator indexMapIt;
 	TriggerIdIdxMapIterator         trigIdIdxIt;
 	getTestTriggersIndexes(indexMap, serverId, hostIdInServer);
-	if (expectedNumTrig < 0) {
-		size_t expectedNumTrig = 0;
+	if (expectedNumTrigger == allNumTrig) {
 		indexMapIt = indexMap.begin();
 		while (indexMapIt != indexMap.end()) {
 			// Remove element whose key points a defunct server.
@@ -191,6 +191,8 @@ static void _assertTriggers(
 			expectedNumTrig += indexMapIt->second.size();
 			++indexMapIt;
 		}
+	} else {
+		expectedNumTrig = expectedNumTrigger;
 	}
 
 	// request
