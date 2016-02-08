@@ -28,6 +28,7 @@ var TriggersView = function(userProfile, options) {
   };
   $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
+  self.lastQuickFilter = {};
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.rawSeverityRankData = {};
@@ -150,7 +151,7 @@ var TriggersView = function(userProfile, options) {
           self.baseQuery.limit = self.pager.numRecordsPerPage;
           saveConfig({'num-triggers-per-page': self.baseQuery.limit});
         }
-        load(page);
+        load({page: page});
       }
     });
   }
@@ -265,11 +266,11 @@ var TriggersView = function(userProfile, options) {
     $('button.reset-apply-all-filter').click(function() {
       resetTimeRangeFilter();
       resetQuickFilter();
-      load();
+      load({applyFilter: true});
     });
 
     $('button.btn-apply-all-filter').click(function() {
-      load();
+      load({applyFilter: true});
     });
   }
 
@@ -393,31 +394,43 @@ var TriggersView = function(userProfile, options) {
     return query;
   }
 
-  function getMinimumSeverityQuery() {
+  function getMinimumSeverityQuery(options) {
     var severity = $("#select-severity").val();
-    if (severity) {
+    if (severity && options.applyFilter) {
       return severity;
     } else {
       return self.defaultMinimumSeverity;
     }
   }
 
-  function getQuery(page) {
-    if (isNaN(page))
-      page = 0;
-    var query = $.extend({}, self.baseQuery, {
-      minimumSeverity: getMinimumSeverityQuery(),
-      status:          $("#select-status").val(),
-      offset:          self.baseQuery.limit * page
-    });
+  function getQuickFilter() {
+    var query = {};
+    if ($("#select-status").val())
+      query.status = $("#select-status").val();
+
     var beginTime, endTime;
     if ($('#begin-time').val()) {
       beginTime = new Date($('#begin-time').val());
       query.beginTime = parseInt(beginTime.getTime() / 1000);
     }
+
     if ($('#end-time').val()) {
-      endTime = new Date($('#end-time').val());
+        endTime = new Date($('#end-time').val());
       query.endTime = parseInt(endTime.getTime() / 1000);
+    }
+  }
+
+  function getQuery(options) {
+    options = options || {};
+    if (isNaN(options.page))
+      options.page = 0;
+    var query = $.extend({}, self.baseQuery, {
+      minimumSeverity: getMinimumSeverityQuery(options),
+      offset:          self.baseQuery.limit * options.page
+    });
+    if (options.applyFilter) {
+      self.lastQuickFilter = getQuickFilter();
+      $.extend(query, self.lastQuickFilter);
     }
     if (self.lastQuery)
       $.extend(query, self.getHostFilterQuery());
@@ -451,13 +464,14 @@ var TriggersView = function(userProfile, options) {
     return t;
   }
 
-  function load(page) {
+  function load(options) {
+    options = options || {};
     self.displayUpdateTime();
     setLoading(true);
-    if (!isNaN(page)) {
-      self.currentPage = page;
+    if (!isNaN(options.page)) {
+      self.currentPage = options.page;
     }
-    self.startConnection(getQuery(self.currentPage), updateCore);
+    self.startConnection(getQuery(options), updateCore);
     self.pager.update({ currentPage: self.currentPage });
     $(document.body).scrollTop(0);
   }
