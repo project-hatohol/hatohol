@@ -263,6 +263,7 @@ var TriggersView = function(userProfile, options) {
       }
     });
     $('button.reset-apply-all-filter').click(function() {
+      resetTimeRangeFilter();
       resetQuickFilter();
       load();
     });
@@ -423,6 +424,11 @@ var TriggersView = function(userProfile, options) {
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
   };
+
+  function resetTimeRangeFilter() {
+    $("#begin-time").next(".clear-button").trigger('click');
+    $("#end-time").next(".clear-button").trigger('click');
+  }
 
   function resetQuickFilter() {
     $("#select-severity").val("");
