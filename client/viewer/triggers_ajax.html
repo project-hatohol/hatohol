@@ -84,6 +84,14 @@
 	<p><label for="num-records-per-page">{% trans "# of triggers per page" %}</label></p>
 	<input type="text" id="num-records-per-page" class="form-control num-records-per-page" style="width:4em;">
       </div>
+      <div style="text-align:center;">
+        <button id="reset-all-filter" type="button" class="btn btn-default reset-apply-all-filter">
+          {% trans "Reset" %}
+        </button>　
+	<button id="apply-all-filter" type="button" class="btn btn-info btn-apply-all-filter">
+	  {% trans "Filter" %}
+	</button>
+      </div>
     </div>
   <div class="hatohol-pager">
     <ul class="pagination">

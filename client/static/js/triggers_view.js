@@ -251,15 +251,23 @@ var TriggersView = function(userProfile, options) {
   }
 
   function setupCallbacks() {
-    self.setupHostQuerySelectorCallback(
-      load, '#select-server', '#select-host-group', '#select-host');
-    $("#select-severity, #select-status").change(function() {
+    $('#select-server').change(function() {
+      resetHostQuerySelector('#select-host-group');
+      resetHostQuerySelector('#select-host');
+      setupFilterValues();
+
+      function resetHostQuerySelector(selectorId) {
+        if (!selectorId)
+          return;
+        $(selectorId).val("---------");
+      }
+    });
+    $('button.reset-apply-all-filter').click(function() {
+      resetQuickFilter();
       load();
     });
-    $("#begin-time").change(function() {
-      load();
-    });
-    $("#end-time").change(function() {
+
+    $('button.btn-apply-all-filter').click(function() {
       load();
     });
   }
@@ -415,6 +423,14 @@ var TriggersView = function(userProfile, options) {
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
   };
+
+  function resetQuickFilter() {
+    $("#select-severity").val("");
+    $("#select-status").val("-1");
+    $("#select-server").val("");
+    $("#select-host-group").val("");
+    $("#select-host").val("");
+  }
 
   function formatDateTimeWithZeroSecond(d) {
     var t = "" + d.getFullYear() + "/";
