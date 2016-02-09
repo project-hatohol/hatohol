@@ -414,7 +414,7 @@ var TriggersView = function(userProfile, options) {
     }
 
     if ($('#end-time').val()) {
-        endTime = new Date($('#end-time').val());
+      endTime = new Date($('#end-time').val());
       query.endTime = parseInt(endTime.getTime() / 1000);
     }
 
