@@ -138,15 +138,17 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
 
   function replyCallback(reply, parser) {
     var type;
+    var serverTypes = reply.serverType
 
-    if (!(reply.serverType instanceof Array)) {
+    if (!(serverTypes instanceof Array)) {
       hatoholErrorMsgBox("[Malformed reply] Not found array: serverType");
       return;
     }
+    prioritySort(serverTypes)
     self.paramArray = [];
     self.uuidArray = [];
-    for (var i = 0; i < reply.serverType.length; i ++) {
-      var serverTypeInfo = reply.serverType[i];
+    for (var i = 0; i < serverTypes.length; i ++) {
+      var serverTypeInfo = serverTypes[i];
       var name = serverTypeInfo.name;
       if (!name) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: name");
