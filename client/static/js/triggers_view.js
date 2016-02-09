@@ -32,7 +32,6 @@ var TriggersView = function(userProfile, options) {
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.rawSeverityRankData = {};
   self.severityRanksMap = {};
-  self.defaultMinimumSeverity = "-1";
   self.options = options || {};
 
   setupToggleFilter();
