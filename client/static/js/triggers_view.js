@@ -32,7 +32,7 @@ var TriggersView = function(userProfile, options) {
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.rawSeverityRankData = {};
   self.severityRanksMap = {};
-  self.defaultMinimumSeverity = "0";
+  self.defaultMinimumSeverity = "-1";
   self.options = options || {};
 
   setupToggleFilter();
@@ -161,6 +161,13 @@ var TriggersView = function(userProfile, options) {
     var currentId = $("#select-" + type).val();
 
     $("#select-" + type).empty();
+
+    $("#select-" + type).empty();
+
+    option = $("<option/>", {
+      text: "---------",
+      value: "-1",
+    }).appendTo("#select-" + type);
 
     $.map(candidates, function(candidate) {
       var option;
@@ -393,17 +400,11 @@ var TriggersView = function(userProfile, options) {
     return query;
   }
 
-  function getMinimumSeverityQuery(options) {
-    var severity = $("#select-severity").val();
-    if (severity && options.applyFilter) {
-      return severity;
-    } else {
-      return self.defaultMinimumSeverity;
-    }
-  }
-
   function getQuickFilter() {
     var query = {};
+    if ($("#select-severity").val())
+      query.minimumSeverity = $("#select-severity").val();
+
     if ($("#select-status").val())
       query.status = $("#select-status").val();
 
@@ -428,7 +429,6 @@ var TriggersView = function(userProfile, options) {
     if (isNaN(options.page))
       options.page = 0;
     var query = $.extend({}, self.baseQuery, {
-      minimumSeverity: getMinimumSeverityQuery(options),
       offset:          self.baseQuery.limit * options.page
     });
     if (options.applyFilter) {
@@ -445,7 +445,7 @@ var TriggersView = function(userProfile, options) {
   }
 
   function resetQuickFilter() {
-    $("#select-severity").val("");
+    $("#select-severity").val("-1");
     $("#select-status").val("-1");
     $("#select-server").val("");
     $("#select-host-group").val("");
