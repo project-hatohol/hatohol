@@ -254,7 +254,9 @@ rm -rf %{buildroot}
 %{_tmpfilesdir}/hatohol.conf
 %endif
 %{_datadir}/hatohol/sql/init-user.sql
-%{_datadir}/hatohol/sql/server-type-*.sql
+%{_datadir}/hatohol/sql/server-type-zabbix.sql
+%{_datadir}/hatohol/sql/server-type-nagios.sql
+%{_datadir}/hatohol/sql/server-type-hapi-json.sql
 %{_datadir}/hatohol/sql/severity-ranks.sql
 %{_datadir}/hatohol/sql/custom-incident-statuses.sql
 %{_datadir}/hatohol/sql/actions.sql
@@ -312,6 +314,7 @@ rm -rf %{buildroot}
 %{python_sitelib}/hatohol/transporters/rabbitmqhapiconnector.pyo
 
 %files hap2-zabbix
+%{_datadir}/hatohol/sql/server-type-hap2-zabbix.sql
 %{python_sitelib}/hatohol/zabbixapi.py
 %{python_sitelib}/hatohol/zabbixapi.pyc
 %{python_sitelib}/hatohol/zabbixapi.pyo
@@ -321,24 +324,28 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.pyo
 
 %files hap2-nagios-ndoutils
+%{_datadir}/hatohol/sql/server-type-hap2-nagios-ndoutils.sql
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-nagios-ndoutils.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyo
 
 %files hap2-nagios-livestatus
+%{_datadir}/hatohol/sql/server-type-hap2-nagios-livestatus.sql
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-nagios-livestatus.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.pyo
 
 %files hap2-fluentd
+%{_datadir}/hatohol/sql/server-type-hap2-fluentd.sql
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-fluentd.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.pyo
 
 %files hap2-ceilometer
+%{_datadir}/hatohol/sql/server-type-hap2-ceilometer.sql
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-ceilometer.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.pyc
