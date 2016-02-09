@@ -389,6 +389,23 @@ function hasFlags(flags, flagNumbers) {
   return true;
 }
 
+function sortObjectArray(obj, key, order){
+  var num_a = -1;
+  var num_b = 1;
+  if(order === 'asc'){
+    num_a = 1;
+    num_b = -1;
+  }
+
+  obj = obj.sort(function(value1, value2){
+    if (value1[key] > value2[key]) {
+      return num_a;
+    } else {
+      return num_b;
+    }
+  });
+}
+
 (function(global) {
   function Namespace(str) {
     var spaces = str.split('.');
