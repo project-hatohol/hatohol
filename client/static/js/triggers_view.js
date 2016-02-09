@@ -26,7 +26,6 @@ var TriggersView = function(userProfile, options) {
   self.baseQuery = {
     limit: 50,
   };
-  $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
   self.lastQuickFilter = {};
   self.showToggleAutoRefreshButton();
@@ -418,6 +417,10 @@ var TriggersView = function(userProfile, options) {
         endTime = new Date($('#end-time').val());
       query.endTime = parseInt(endTime.getTime() / 1000);
     }
+
+    $.extend(query, self.getHostFilterQuery());
+
+    return query;
   }
 
   function getQuery(options) {
@@ -430,10 +433,8 @@ var TriggersView = function(userProfile, options) {
     });
     if (options.applyFilter) {
       self.lastQuickFilter = getQuickFilter();
-      $.extend(query, self.lastQuickFilter);
+      $.extend(query, self.lastQuickFilter, getTriggersQueryInURI());
     }
-    if (self.lastQuery)
-      $.extend(query, self.getHostFilterQuery());
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
   };
