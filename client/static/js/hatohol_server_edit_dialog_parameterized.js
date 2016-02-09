@@ -155,7 +155,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
 
       type = serverTypeInfo.type;
       if (type == hatohol.MONITORING_SYSTEM_HAPI2)
-        type = serverTypeInfo.uuid;
+        type = getServerTypeId(serverTypeInfo);
       if (type == undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: type");
         return;
