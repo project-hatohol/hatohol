@@ -253,6 +253,7 @@ rm -rf %{buildroot}
 %{_unitdir}/hatohol.service
 %{_tmpfilesdir}/hatohol.conf
 %endif
+%exclude %{_datadir}/hatohol/sql/create-db.sql
 %{_datadir}/hatohol/sql/init-user.sql
 %{_datadir}/hatohol/sql/server-type-zabbix.sql
 %{_datadir}/hatohol/sql/server-type-nagios.sql
