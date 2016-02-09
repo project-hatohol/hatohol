@@ -1,15 +1,11 @@
 Install packages (for Ubuntu 12.04)
 -----------------------------------
 
-    # apt-get install npm
-    # npm install -g mocha
-    # npm install -g expect.js
-    # npm install -g sinon
-    # apt-get install nodejs-legacy
-    # npm install -g mocha-phantomjs phantomjs
-    # npm install -g casperjs
+    # apt-get install npm nodejs-legacy
     # pip install django==1.5.4
     # pip install mysql-python
+    $ cd /path/to/hatohol-source-directory
+    $ npm install
 
 Install packages (for Debian 7)
 -------------------------------
@@ -23,11 +19,9 @@ Install packages (for Debian 7)
 
 The above instruction is an excerpt from https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
 
-    # npm install -g mocha
-    # npm install -g expect.js
-    # npm install -g mocha-phantomjs phantomjs
-    # npm install -g casperjs
     # pip install django==1.5.4
+    $ cd /path/to/hatohol-source-directory
+    $ npm install
 
 make symbolic links
 -------------------
