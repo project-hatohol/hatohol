@@ -407,10 +407,11 @@ function hasFlags(flags, flagNumbers) {
   hatohol.addNamespace = Namespace;
   hatohol.isIPv4 = isIPv4;
   hatohol.escapeHTML = escapeHTML;
-  hatohol.registerPlugin = function(type, label) {
+  hatohol.registerPlugin = function(type, label, sortPriority) {
     var self = hatohol.addNamespace("hatohol.hap_" + type);
     self.type = type;
     self.label = label;
+    self.sortPriority = sortPriority;
     return self;
   };
 }(this));
