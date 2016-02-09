@@ -253,7 +253,6 @@ rm -rf %{buildroot}
 %{_unitdir}/hatohol.service
 %{_tmpfilesdir}/hatohol.conf
 %endif
-%{_datadir}/hatohol/sql/create-db.sql
 %{_datadir}/hatohol/sql/init-user.sql
 %{_datadir}/hatohol/sql/server-type-*.sql
 %{_datadir}/hatohol/sql/severity-ranks.sql
