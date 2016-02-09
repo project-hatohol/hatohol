@@ -119,6 +119,11 @@ function getPlugin(server) {
   return hatohol["hap_" + type];
 }
 
+function addPriority(server) {
+  plugin = getPlugin(server)
+  server.priority =  plugin.sortPriority
+}
+
 function getServerLocation(server) {
   var plugin = getPlugin(server);
   if (!plugin || !plugin.getTopURL)

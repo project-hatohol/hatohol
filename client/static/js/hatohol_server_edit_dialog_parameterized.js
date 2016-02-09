@@ -192,6 +192,13 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
     mainDiv.append('<form id="add-server-param-form" class="form-horizontal" role="form" autocomplete="off">');
     return mainDiv;
   }
+
+  function prioritySort(serverTypes) {
+    for (var i = 0; i < serverTypes.length; i++) {
+      addPriority(serverTypes[i]);
+    }
+    sortObjectArray(serverTypes, 'priority')
+  }
 };
 
 HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function () {
