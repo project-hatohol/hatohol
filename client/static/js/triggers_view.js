@@ -296,6 +296,7 @@ var TriggersView = function(userProfile, options) {
       $("#select-server").attr("disabled", "disabled");
       $("#select-hostgroup").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
+      $(".latest-button").attr("disabled", "disabled");
     } else {
       $("#begin-time").removeAttr("disabled");
       $("#end-time").removeAttr("disabled");
@@ -306,6 +307,7 @@ var TriggersView = function(userProfile, options) {
         $("#select-hostgroup").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
+      $(".latest-button").removeAttr("disabled");
     }
   }
 
