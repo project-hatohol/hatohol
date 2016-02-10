@@ -203,6 +203,13 @@ void HatoholError::init(void)
 	// DBTablesConfig
 	DEFINE_ERR(OBSOLETE_ARM_PLUGIN_TYPE,
 		   "The plugin type is already obsoleted.");
+
+	// 16.04
+	DEFINE_ERR(DUPLICATE_QUEUE_NAME,
+		   "Input queue name has been used by other plugin.");
+	DEFINE_ERR(RESERVED_QUEUE_NAME,
+		   "Input queue name has been reserved by Hatohol server.");
+
 }
 
 void HatoholError::defineError(const HatoholErrorCode errorCode,
