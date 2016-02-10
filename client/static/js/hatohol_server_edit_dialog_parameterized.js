@@ -144,7 +144,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
       hatoholErrorMsgBox("[Malformed reply] Not found array: serverType");
       return;
     }
-    prioritySort(serverTypes)
+    sortByPriority(serverTypes)
     self.paramArray = [];
     self.uuidArray = [];
     for (var i = 0; i < serverTypes.length; i ++) {
@@ -195,7 +195,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
     return mainDiv;
   }
 
-  function prioritySort(serverTypes) {
+  function sortByPriority(serverTypes) {
     for (var i = 0; i < serverTypes.length; i++) {
       addPriority(serverTypes[i]);
     }

@@ -394,7 +394,7 @@ function hasFlags(flags, flagNumbers) {
   return true;
 }
 
-function sortObjectArray(obj, key, order){
+function sortObjectArray(obj, key, order) {
   var num_a = -1;
   var num_b = 1;
   if(order === 'asc'){
@@ -402,7 +402,7 @@ function sortObjectArray(obj, key, order){
     num_b = -1;
   }
 
-  obj = obj.sort(function(value1, value2){
+  obj = obj.sort(function(value1, value2) {
     if (value1[key] > value2[key]) {
       return num_a;
     } else {
