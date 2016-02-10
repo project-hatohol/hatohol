@@ -63,6 +63,15 @@ Makefile.in
 /server/tools/tls/hatohol-ca-sign-client-certificate
 /server/tools/tls/hatohol-ca-sign-server-certificate
 /server/benchmark/bench-string-join
+/server/data/init-user.sql
+/server/data/server-type-hapi-json.sql
+/server/data/server-type-nagios.sql
+/server/data/server-type-zabbix.sql
+/server/hap2/build/
+/server/hap2/common-files.txt
+/server/hap2/hap2-control-functions.sh
+/server/hap2/rabbitmqconnector-files.txt
+/server/hap2/zabbixapi-files.txt
 /setup-with-ansible/.vagrant/
 /setup-with-ansible/vagrant_ansible_inventory_*
 /stamp-h1
