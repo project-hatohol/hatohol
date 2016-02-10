@@ -28,11 +28,11 @@ var TriggersView = function(userProfile, options) {
   };
   $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
+  self.lastQuickFilter = {};
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.rawSeverityRankData = {};
   self.severityRanksMap = {};
-  self.defaultMinimumSeverity = "0";
   self.options = options || {};
 
   setupToggleFilter();
@@ -150,7 +150,7 @@ var TriggersView = function(userProfile, options) {
           self.baseQuery.limit = self.pager.numRecordsPerPage;
           saveConfig({'num-triggers-per-page': self.baseQuery.limit});
         }
-        load(page);
+        load({page: page});
       }
     });
   }
@@ -161,6 +161,13 @@ var TriggersView = function(userProfile, options) {
     var currentId = $("#select-" + type).val();
 
     $("#select-" + type).empty();
+
+    $("#select-" + type).empty();
+
+    option = $("<option/>", {
+      text: "---------",
+      value: "",
+    }).appendTo("#select-" + type);
 
     $.map(candidates, function(candidate) {
       var option;
@@ -251,16 +258,32 @@ var TriggersView = function(userProfile, options) {
   }
 
   function setupCallbacks() {
-    self.setupHostQuerySelectorCallback(
-      load, '#select-server', '#select-host-group', '#select-host');
-    $("#select-severity, #select-status").change(function() {
-      load();
+    $('#select-server').change(function() {
+      resetHostQuerySelector('#select-host-group');
+      resetHostQuerySelector('#select-host');
+      setupFilterValues();
+
+      function resetHostQuerySelector(selectorId) {
+        if (!selectorId)
+          return;
+        $(selectorId).val("---------");
+      }
     });
-    $("#begin-time").change(function() {
-      load();
+
+    $('button.latest-button').click(function() {
+      $("#end-time").val("");
+      $("#end-time").next(".clear-button").hide();
+      load({ applyFilter: true });
     });
-    $("#end-time").change(function() {
-      load();
+
+    $('button.reset-apply-all-filter').click(function() {
+      resetTimeRangeFilter();
+      resetQuickFilter();
+      load({applyFilter: true});
+    });
+
+    $('button.btn-apply-all-filter').click(function() {
+      load({applyFilter: true});
     });
   }
 
@@ -273,6 +296,7 @@ var TriggersView = function(userProfile, options) {
       $("#select-server").attr("disabled", "disabled");
       $("#select-hostgroup").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
+      $(".latest-button").attr("disabled", "disabled");
     } else {
       $("#begin-time").removeAttr("disabled");
       $("#end-time").removeAttr("disabled");
@@ -283,6 +307,7 @@ var TriggersView = function(userProfile, options) {
         $("#select-hostgroup").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
+      $(".latest-button").removeAttr("disabled");
     }
   }
 
@@ -384,37 +409,57 @@ var TriggersView = function(userProfile, options) {
     return query;
   }
 
-  function getMinimumSeverityQuery() {
-    var severity = $("#select-severity").val();
-    if (severity) {
-      return severity;
-    } else {
-      return self.defaultMinimumSeverity;
-    }
-  }
+  function getQuickFilter() {
+    var query = {};
+    if ($("#select-severity").val())
+      query.minimumSeverity = $("#select-severity").val();
 
-  function getQuery(page) {
-    if (isNaN(page))
-      page = 0;
-    var query = $.extend({}, self.baseQuery, {
-      minimumSeverity: getMinimumSeverityQuery(),
-      status:          $("#select-status").val(),
-      offset:          self.baseQuery.limit * page
-    });
+    if ($("#select-status").val())
+      query.status = $("#select-status").val();
+
     var beginTime, endTime;
     if ($('#begin-time').val()) {
       beginTime = new Date($('#begin-time').val());
       query.beginTime = parseInt(beginTime.getTime() / 1000);
     }
+
     if ($('#end-time').val()) {
       endTime = new Date($('#end-time').val());
       query.endTime = parseInt(endTime.getTime() / 1000);
     }
-    if (self.lastQuery)
-      $.extend(query, self.getHostFilterQuery());
+
+    $.extend(query, self.getHostFilterQuery());
+
+    return query;
+  }
+
+  function getQuery(options) {
+    options = options || {};
+    if (isNaN(options.page))
+      options.page = 0;
+    var query = $.extend({}, self.baseQuery, {
+      offset: self.baseQuery.limit * options.page
+    });
+    if (options.applyFilter) {
+      self.lastQuickFilter = getQuickFilter();
+    }
+    $.extend(query, self.lastQuickFilter);
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
   };
+
+  function resetTimeRangeFilter() {
+    $("#begin-time").next(".clear-button").trigger('click');
+    $("#end-time").next(".clear-button").trigger('click');
+  }
+
+  function resetQuickFilter() {
+    $("#select-severity").val("");
+    $("#select-status").val("");
+    $("#select-server").val("");
+    $("#select-host-group").val("");
+    $("#select-host").val("");
+  }
 
   function formatDateTimeWithZeroSecond(d) {
     var t = "" + d.getFullYear() + "/";
@@ -429,13 +474,14 @@ var TriggersView = function(userProfile, options) {
     return t;
   }
 
-  function load(page) {
+  function load(options) {
+    options = options || {};
     self.displayUpdateTime();
     setLoading(true);
-    if (!isNaN(page)) {
-      self.currentPage = page;
+    if (!isNaN(options.page)) {
+      self.currentPage = options.page;
     }
-    self.startConnection(getQuery(self.currentPage), updateCore);
+    self.startConnection(getQuery(options), updateCore);
     self.pager.update({ currentPage: self.currentPage });
     $(document.body).scrollTop(0);
   }

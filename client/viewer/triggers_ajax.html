@@ -41,27 +41,14 @@
       <div class="calendar-element">
 	<p><label>{% trans "Period:" %}</label></p>
 	<input type="text" id="begin-time" class="form-control filter-time-range">
-	<span class="clear-button glyphicon glyphicon-remove-circle form-control-feedback" style="display: none;"></span>
+	<span class="clear-button glyphicon glyphicon-remove-circle" style="display: none;"></span>
       </div>
       　～　
       <div class="calendar-element">
 	<input type="text" id="end-time" class="form-control filter-time-range" placeholder="{% trans "Current time" %}">
-	<span class="clear-button glyphicon glyphicon-remove-circle form-control-feedback" style="display: none;"></span>
+	<span class="clear-button glyphicon glyphicon-remove-circle" style="display: none;"></span>
       </div>
       <br><br>
-      <div class="filter-element">
-	<p><label>{% trans "Minimum Severity:" %}</label></p>
-	<select id="select-severity" class="form-control">
-	</select>
-      </div>
-      <div class="filter-element">
-	<p><label>{% trans "Status:" %}</label></p>
-	<select id="select-status" class="form-control">
-	  <option value="-1">---------</option>
-	  <option value="0">{% trans "OK" %}</option>
-	  <option value="1">{% trans "Problem" %}</option>
-	</select>
-      </div>
       <div class="filter-element">
 	<p><label>{% trans "Monitoring Server:" %}</label></p>
 	<select id="select-server" class="form-control">
@@ -81,8 +68,40 @@
 	</select>
       </div>
       <div class="filter-element">
-	<p><label for="num-records-per-page">{% trans "# of triggers per page" %}</label></p>
-	<input type="text" id="num-records-per-page" class="form-control num-records-per-page" style="width:4em;">
+	<p><label>{% trans "Minimum Severity:" %}</label></p>
+	<select id="select-severity" class="form-control">
+	  <option value="">---------</option>
+	</select>
+      </div>
+      <div class="filter-element">
+	<p><label>{% trans "Status:" %}</label></p>
+	<select id="select-status" class="form-control">
+	  <option value="">---------</option>
+	  <option value="0">{% trans "OK" %}</option>
+	  <option value="1">{% trans "Problem" %}</option>
+	</select>
+      </div>
+
+      <div style="text-align:center;">
+        <button id="reset-all-filter" type="button" class="btn btn-default reset-apply-all-filter">
+          {% trans "Reset" %}
+        </button>　
+	<button id="apply-all-filter" type="button" class="btn btn-info btn-apply-all-filter">
+	  {% trans "Filter" %}
+	</button>
+      </div>
+
+    </div>
+    <div class="outer-accordion-container">
+      <div class="pull-left">
+        <label for="num-records-per-page">{% trans "# of triggers per page" %}</label>
+        <input type="text" id="num-records-per-page" class="form-control num-records-per-page" style="width:4em;">
+      </div>
+      <div class="pull-right">
+        <button type="button" class="btn btn-info latest-button">
+          <span class="glyphicon glyphicon-refresh"></span>
+          {% trans "Update" %}
+        </button>
       </div>
     </div>
   <div class="hatohol-pager">
