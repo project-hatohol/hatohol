@@ -438,7 +438,7 @@ var TriggersView = function(userProfile, options) {
     if (isNaN(options.page))
       options.page = 0;
     var query = $.extend({}, self.baseQuery, {
-      offset:          self.baseQuery.limit * options.page
+      offset: self.baseQuery.limit * options.page
     });
     if (options.applyFilter) {
       self.lastQuickFilter = getQuickFilter();
