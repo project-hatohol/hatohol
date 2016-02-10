@@ -205,13 +205,7 @@ def get_default_sql_dir():
 
 if __name__ == '__main__':
     init_config_map()
-
     default_sql_dir = get_default_sql_dir()
-    if "--sql-dir" in sys.argv:
-        target_dir = sys.argv[sys.argv.index("--sql-dir")+1]
-    else:
-        target_dir = default_sql_dir
-    target_list = os.listdir(target_dir)
 
     parser = argparse.ArgumentParser(description='Hatohol DB Initiator')
     parser.add_argument('--db-name', type=str,
@@ -251,7 +245,13 @@ if __name__ == '__main__':
                         help="Show target sql file list(s).")
     args = parser.parse_args()
 
+    if "--sql-dir" in sys.argv:
+        target_dir = sys.argv[sys.argv.index("--sql-dir")+1]
+    else:
+        target_dir = default_sql_dir
+
     if args.show_target:
+        target_list = os.listdir(target_dir)
         print "\n==TARGET LIST=="
         target_list.sort()
         for target in target_list:
