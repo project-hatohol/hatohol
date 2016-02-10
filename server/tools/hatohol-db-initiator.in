@@ -240,7 +240,7 @@ if __name__ == '__main__':
                         'By default, this tool skips to insert data if the table is not empty.')
     parser.add_argument('-t', '--target',
                         help='Only the specified table is initialized. '
-                        'Please check available targets by "$hatohol-db-initiator --show-target"')
+                        'Please check available targets by "$hatohol-db-initiator --target-list"')
     parser.add_argument('--target-list', action="store_true",
                         help="Show target sql file list(s).")
     args = parser.parse_args()
@@ -250,7 +250,7 @@ if __name__ == '__main__':
     else:
         target_dir = default_sql_dir
 
-    if args.show_target:
+    if args.target_list:
         target_list = os.listdir(target_dir)
         print "\n==TARGET LIST=="
         target_list.sort()
