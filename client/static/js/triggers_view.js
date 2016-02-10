@@ -433,8 +433,8 @@ var TriggersView = function(userProfile, options) {
     });
     if (options.applyFilter) {
       self.lastQuickFilter = getQuickFilter();
-      $.extend(query, self.lastQuickFilter);
     }
+    $.extend(query, self.lastQuickFilter);
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
   };
