@@ -269,6 +269,13 @@ var TriggersView = function(userProfile, options) {
         $(selectorId).val("---------");
       }
     });
+
+    $('button.latest-button').click(function() {
+      $("#end-time").val("");
+      $("#end-time").next(".clear-button").hide();
+      load({ applyFilter: true });
+    });
+
     $('button.reset-apply-all-filter').click(function() {
       resetTimeRangeFilter();
       resetQuickFilter();

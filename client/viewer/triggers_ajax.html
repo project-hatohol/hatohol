@@ -81,10 +81,7 @@
 	  <option value="1">{% trans "Problem" %}</option>
 	</select>
       </div>
-      <div class="filter-element">
-	<p><label for="num-records-per-page">{% trans "# of triggers per page" %}</label></p>
-	<input type="text" id="num-records-per-page" class="form-control num-records-per-page" style="width:4em;">
-      </div>
+
       <div style="text-align:center;">
         <button id="reset-all-filter" type="button" class="btn btn-default reset-apply-all-filter">
           {% trans "Reset" %}
@@ -92,6 +89,19 @@
 	<button id="apply-all-filter" type="button" class="btn btn-info btn-apply-all-filter">
 	  {% trans "Filter" %}
 	</button>
+      </div>
+
+    </div>
+    <div class="outer-accordion-container">
+      <div class="pull-left">
+        <label for="num-records-per-page">{% trans "# of triggers per page" %}</label>
+        <input type="text" id="num-records-per-page" class="form-control num-records-per-page" style="width:4em;">
+      </div>
+      <div class="pull-right">
+        <button type="button" class="btn btn-info latest-button">
+          <span class="glyphicon glyphicon-refresh"></span>
+          {% trans "Update" %}
+        </button>
       </div>
     </div>
   <div class="hatohol-pager">
