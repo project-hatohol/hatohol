@@ -166,7 +166,7 @@ var TriggersView = function(userProfile, options) {
 
     option = $("<option/>", {
       text: "---------",
-      value: "-1",
+      value: "",
     }).appendTo("#select-" + type);
 
     $.map(candidates, function(candidate) {
@@ -445,8 +445,8 @@ var TriggersView = function(userProfile, options) {
   }
 
   function resetQuickFilter() {
-    $("#select-severity").val("-1");
-    $("#select-status").val("-1");
+    $("#select-severity").val("");
+    $("#select-status").val("");
     $("#select-server").val("");
     $("#select-host-group").val("");
     $("#select-host").val("");
