@@ -1,5 +1,4 @@
 sql_DATA = \
-	create-db.sql \
 	init-user.sql \
 	server-type-zabbix.sql \
 	server-type-nagios.sql \
@@ -13,6 +12,8 @@ sql_DATA = \
 	custom-incident-statuses.sql \
 	incident-trackers.sql \
 	actions.sql
+
+noinst_DATA = create-db.sql
 
 sqldir = $(pkgdatadir)/sql
 
@@ -35,7 +36,8 @@ pkgsysconfdir = $(sysconfdir)/$(PACKAGE)
 
 EXTRA_DIST = \
 	$(pkgsysconf_DATA) \
-	$(sql_DATA)
+	$(sql_DATA) \
+	$(noinst_DATA)
 
 CLEANFILES = \
 	server-type-zabbix.sql \
