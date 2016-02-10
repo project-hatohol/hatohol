@@ -119,6 +119,12 @@ function getPlugin(server) {
   return hatohol["hap_" + type];
 }
 
+function addPriority(server) {
+  plugin = getPlugin(server)
+  server.hoge =  plugin.label
+  server.priority =  plugin.sortPriority
+}
+
 function getServerLocation(server) {
   var plugin = getPlugin(server);
   if (!plugin || !plugin.getTopURL)
@@ -389,6 +395,23 @@ function hasFlags(flags, flagNumbers) {
   return true;
 }
 
+function sortObjectArray(obj, key, order){
+  var num_a = -1;
+  var num_b = 1;
+  if(order === 'asc'){
+    num_a = 1;
+    num_b = -1;
+  }
+
+  obj = obj.sort(function(value1, value2){
+    if (value1[key] > value2[key]) {
+      return num_a;
+    } else {
+      return num_b;
+    }
+  });
+}
+
 (function(global) {
   function Namespace(str) {
     var spaces = str.split('.');
@@ -407,10 +430,11 @@ function hasFlags(flags, flagNumbers) {
   hatohol.addNamespace = Namespace;
   hatohol.isIPv4 = isIPv4;
   hatohol.escapeHTML = escapeHTML;
-  hatohol.registerPlugin = function(type, label) {
+  hatohol.registerPlugin = function(type, label, sortPriority) {
     var self = hatohol.addNamespace("hatohol.hap_" + type);
     self.type = type;
     self.label = label;
+    self.sortPriority = sortPriority;
     return self;
   };
 }(this));

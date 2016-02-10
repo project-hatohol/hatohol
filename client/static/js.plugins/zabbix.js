@@ -1,6 +1,6 @@
 (function(hatohol) {
   var self = hatohol.registerPlugin(hatohol.MONITORING_SYSTEM_ZABBIX,
-                                    "Zabbix");
+                                    "Zabbix", 100);
 
   self.getTopURL = function(server) {
     var ipAddress, port, url;
