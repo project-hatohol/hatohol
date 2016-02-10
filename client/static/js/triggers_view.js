@@ -26,6 +26,7 @@ var TriggersView = function(userProfile, options) {
   self.baseQuery = {
     limit: 50,
   };
+  $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
   self.lastQuickFilter = {};
   self.showToggleAutoRefreshButton();
@@ -432,7 +433,7 @@ var TriggersView = function(userProfile, options) {
     });
     if (options.applyFilter) {
       self.lastQuickFilter = getQuickFilter();
-      $.extend(query, self.lastQuickFilter, getTriggersQueryInURI());
+      $.extend(query, self.lastQuickFilter);
     }
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
