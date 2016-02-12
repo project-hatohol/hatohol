@@ -7,5 +7,6 @@
 
   // Relaxing Options
   "eqnull" : true,  // == null を許可
-  "expr" : true  // x || (x = 1); とかができるようにする
+  "expr" : true,  // x || (x = 1); とかができるようにする
+  "loopfunc": true
 }
