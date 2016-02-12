@@ -120,8 +120,8 @@ function getPlugin(server) {
 }
 
 function addPriority(server) {
-  plugin = getPlugin(server)
-  server.priority =  plugin.sortPriority
+  var plugin = getPlugin(server);
+  server.priority = plugin.sortPriority;
 }
 
 function getServerLocation(server) {
@@ -175,11 +175,11 @@ function getHostName(server, hostId) {
   };
 
   if (server) {
-    plugin = getPlugin(server)
+    var plugin = getPlugin(server);
     if (plugin && plugin.getHostName)
-        hostName = plugin.getHostName(server, hostId)
+        hostName = plugin.getHostName(server, hostId);
         if (hostName != null)
-            return hostName
+            return hostName;
   }
 
   if (!server || !server["hosts"] || !(hostId in server["hosts"]))
