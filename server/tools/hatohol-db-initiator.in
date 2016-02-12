@@ -19,52 +19,11 @@
 """
 import sys
 import os
+import re
 import argparse
 import MySQLdb
 from ctypes import *
 import ConfigParser
-
-sql_file_list = [
-    {'table_name': 'users',
-     'file_name': 'init-user.sql',
-     'target': 'users'},
-    {'table_name': 'server_types',
-     'file_name': 'server-type-zabbix.sql',
-     'target': 'zabbix'},
-    {'table_name': 'server_types',
-     'file_name': 'server-type-nagios.sql',
-     'target': 'nagios'},
-    {'table_name': 'server_types',
-     'file_name': 'server-type-hapi-json.sql',
-     'target': 'hapi-json'},
-    {'table_name': 'server_types',
-     'file_name': 'server-type-hap2-ceilometer.sql',
-     'target': 'hapi2-ceilometer'},
-    {'table_name': 'server_types',
-     'file_name': 'server-type-hap2-fluentd.sql',
-     'target': 'hapi2-fluentd'},
-    {'table_name': 'server_types',
-     'file_name': 'server-type-hap2-nagios-ndoutils.sql',
-     'target': 'hapi2-nagios-ndoutils'},
-    {'table_name': 'server_types',
-     'file_name': 'server-type-hap2-nagios-livestatus.sql',
-     'target': 'hapi2-nagios-livestatus'},
-    {'table_name': 'server_types',
-     'file_name': 'server-type-hap2-zabbix.sql',
-     'target': 'hapi2-zabbix'},
-    {'table_name': 'severity_ranks',
-     'file_name': 'severity-ranks.sql',
-     'target': 'severity-ranks'},
-    {'table_name': 'custom_incident_statuses',
-     'file_name': 'custom-incident-statuses.sql',
-     'target': 'custom-incident-statuses'},
-    {'table_name': 'incident_trackers',
-     'file_name': 'incident-trackers.sql',
-     'target': 'incident-trackers'},
-    {'table_name': 'actions',
-     'file_name': 'actions.sql',
-     'target': 'actions'},
-]
 
 config_map = {
     'db_login_user': 'root',
@@ -183,28 +142,31 @@ def load_data_from_file(cursor, args, table_name, file_path):
     execute_sql_statements_from_file(cursor, file_path)
 
 
-def check_sql_file(args, sql_file_list):
-    for sql_file in sql_file_list:
-        path = sql_file['file_name']
-        if not os.path.isfile(path):
-            print 'Error: Not found: %s' % path
-            print 'You can specifiy the SQL directory by --sql-dir option.'
-            sys.exit(-1)
-
-
-def add_sql_directory(args, sql_file_list):
-    for sql_file in sql_file_list:
-        sql_file['file_name'] = args.sql_dir + '/' + sql_file['file_name']
+def add_sql_directory(args, sql_file):
+    return args.sql_dir + '/' + sql_file
 
 
 def get_default_conf_item(item_name):
     return config_map.get(item_name)
 
 
-def start(args):
+def get_table_name_from_sql(sql_file_path):
+    with open(sql_file_path, 'r') as sql_file:
+        for line in sql_file:
+            match = re.search("INTO" , line, re.I)
+            if not match:
+                match = re.search("INSERT" , line, re.I)
+                if not match: continue
 
-    add_sql_directory(args, sql_file_list)
-    check_sql_file(args, sql_file_list)
+            start_index = match.end() + 1
+            end_index = line.find(" ", start_index)
+
+            return line[start_index: end_index]
+
+    print "Not found table name in %s" % sql_file_path
+
+
+def start(args):
 
     try:
         db = MySQLdb.connect(host=args.host,
@@ -218,14 +180,19 @@ def start(args):
     create_hatohol_tables(args)
 
     try:
-        for sql_file in sql_file_list:
-            if args.target and args.target != sql_file['target']:
+        for sql_file in os.listdir(args.sql_dir):
+            if args.target and args.target != sql_file:
                 continue
+            sql_file_path = add_sql_directory(args, sql_file)
+            table_name = get_table_name_from_sql(sql_file_path)
+            if not table_name: continue
             load_data_from_file(cursor, args,
-                                sql_file['table_name'], sql_file['file_name'])
+                                table_name, sql_file_path)
         db.commit()
-    except:
+    except Exception as e:
+        print "Happend error:",  sys.exc_info()[0]
         db.rollback()
+        print "Executed rollback of DB."
 
     cursor.close()
     db.close()
@@ -235,13 +202,10 @@ def get_default_sql_dir():
     return os.path.dirname(__file__) + '/../share/hatohol/sql'
 
 
-def get_target_list():
-    target_list = []
-    [target_list.append(elem['target']) for elem in sql_file_list]
-    return target_list
 
 if __name__ == '__main__':
     init_config_map()
+    default_sql_dir = get_default_sql_dir()
 
     parser = argparse.ArgumentParser(description='Hatohol DB Initiator')
     parser.add_argument('--db-name', type=str,
@@ -260,7 +224,7 @@ if __name__ == '__main__':
                         default=get_default_conf_item('port'),
                         help='A database port.')
     parser.add_argument('--sql-dir', type=str,
-                        default=get_default_sql_dir(),
+                        default=default_sql_dir,
                         help='A directory that contains SQL files.')
     parser.add_argument('--hatohol-db-user', type=str,
                         default=get_default_conf_item('user'),
@@ -274,8 +238,25 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--force', action='store_true',
                         help='Delete existing data in a table before the initial data are inserted. '
                         'By default, this tool skips to insert data if the table is not empty.')
-    parser.add_argument('-t', '--target', choices=get_target_list(),
-                        help='Only the specified table is initialized.')
+    parser.add_argument('-t', '--target',
+                        help='Only the specified table is initialized. '
+                        'Please check available targets by "$hatohol-db-initiator --target-list"')
+    parser.add_argument('--target-list', action="store_true",
+                        help="Show target sql file list(s).")
     args = parser.parse_args()
+
+    if "--sql-dir" in sys.argv:
+        target_dir = sys.argv[sys.argv.index("--sql-dir")+1]
+    else:
+        target_dir = default_sql_dir
+
+    if args.target_list:
+        target_list = os.listdir(target_dir)
+        print "\n==TARGET LIST=="
+        target_list.sort()
+        for target in target_list:
+            print target
+        print ""
+        sys.exit()
 
     start(args)
