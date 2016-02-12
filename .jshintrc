@@ -1,0 +1,11 @@
+{
+  "indent" : 2,  // インデントの深さ
+  "maxlen" : 100,  // 一行の最大長
+  "sub": true,
+  "eqeqeq": false,
+  "lastsemic": true,
+
+  // Relaxing Options
+  "eqnull" : true,  // == null を許可
+  "expr" : true  // x || (x = 1); とかができるようにする
+}
