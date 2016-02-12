@@ -112,6 +112,8 @@ public:
 	const timespec &getBeginTime(void);
 	void setEndTime(const timespec &endTime);
 	const timespec &getEndTime(void);
+	void setHostname(const std::string &hostname);
+	const std::string getHostname(void);
 
 	void setSortType(const SortType &type, const SortDirection &direction);
 	SortType getSortType(void) const;

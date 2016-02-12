@@ -1335,6 +1335,7 @@ struct TriggersQueryOption::Impl {
 	ExcludeFlags excludeFlags;
 	timespec beginTime;
 	timespec endTime;
+	string hostname;
 	SortType sortType;
 	SortDirection sortDirection;
 
@@ -1345,6 +1346,7 @@ struct TriggersQueryOption::Impl {
 	  excludeFlags(NO_EXCLUDE_HOST),
 	  beginTime({0, 0}),
 	  endTime({0, 0}),
+	  hostname(""),
 	  sortType(SORT_ID),
 	  sortDirection(SORT_DONT_CARE)
 	{
@@ -1461,6 +1463,14 @@ string TriggersQueryOption::getCondition(void) const
 			m_impl->endTime.tv_nsec));
 	}
 
+	if (!m_impl->hostname.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		addCondition(condition, StringUtils::sprintf(
+			"%s = %s",
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].columnName,
+			rhs(m_impl->hostname)));
+	}
+
 	return condition;
 }
 
@@ -1512,6 +1522,16 @@ void TriggersQueryOption::setEndTime(const timespec &endTime)
 const timespec &TriggersQueryOption::getEndTime(void)
 {
 	return m_impl->endTime;
+}
+
+void TriggersQueryOption::setHostname(const string &hostname)
+{
+	m_impl->hostname = hostname;
+}
+
+const string TriggersQueryOption::getHostname(void)
+{
+	return m_impl->hostname;
 }
 
 void TriggersQueryOption::setSortType(
