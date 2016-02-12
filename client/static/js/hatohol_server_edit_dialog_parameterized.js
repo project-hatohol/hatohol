@@ -138,15 +138,17 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
 
   function replyCallback(reply, parser) {
     var type;
+    var serverTypes = reply.serverType
 
-    if (!(reply.serverType instanceof Array)) {
+    if (!(serverTypes instanceof Array)) {
       hatoholErrorMsgBox("[Malformed reply] Not found array: serverType");
       return;
     }
+    sortByPriority(serverTypes)
     self.paramArray = [];
     self.uuidArray = [];
-    for (var i = 0; i < reply.serverType.length; i ++) {
-      var serverTypeInfo = reply.serverType[i];
+    for (var i = 0; i < serverTypes.length; i ++) {
+      var serverTypeInfo = serverTypes[i];
       var name = serverTypeInfo.name;
       if (!name) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: name");
@@ -155,7 +157,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
 
       type = serverTypeInfo.type;
       if (type == hatohol.MONITORING_SYSTEM_HAPI2)
-        type = serverTypeInfo.uuid;
+        type = getServerTypeId(serverTypeInfo);
       if (type == undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: type");
         return;
@@ -191,6 +193,13 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
     select.append($('<option>').html(gettext('Please select')).val('_header'));
     mainDiv.append('<form id="add-server-param-form" class="form-horizontal" role="form" autocomplete="off">');
     return mainDiv;
+  }
+
+  function sortByPriority(serverTypes) {
+    for (var i = 0; i < serverTypes.length; i++) {
+      addPriority(serverTypes[i]);
+    }
+    sortObjectArray(serverTypes, 'priority')
   }
 };
 
