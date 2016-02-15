@@ -2431,6 +2431,8 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
 		MLPL_ERR("Obsoleted type: %d\n", armPluginInfo.type);
 		return HTERR_OBSOLETE_ARM_PLUGIN_TYPE;
 	}
+	if (StringUtils::hasPrefix(armPluginInfo.staticQueueAddress, "hap2."))
+		return HTERR_RESERVED_QUEUE_NAME;
 
 	condition = StringUtils::sprintf(
 	  "%s=%d",
