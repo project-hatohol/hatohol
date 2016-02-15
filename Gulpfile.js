@@ -7,3 +7,5 @@ gulp.task("lint", function() {
     .pipe(jshint())
     .pipe(jshint.reporter("default"));
 });
+
+gulp.task('default', ['lint']);
