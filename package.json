@@ -8,7 +8,9 @@
     "sinon": "~1.15.4",
     "phantomjs": "1.9.7-15",
     "mocha-phantomjs": "~3.6.0",
-    "casperjs": "~1.1.0-beta4"
+    "casperjs": "~1.1.0-beta4",
+    "gulp": "~3.9.1",
+    "gulp-jshint": "~2.0.0"
   },
   "dependencies": {
     "npm-check-updates": "~1.5.1"
