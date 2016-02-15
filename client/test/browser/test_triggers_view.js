@@ -249,8 +249,12 @@ describe('TriggersView', function() {
 
   it('With a problem trigger', function() {
     var view = new TriggersView(getOperator(), testOptions);
-    var eventURL = "ajax_events?serverId=1&amp;triggerId=18446744073709550616";
-    var color = 'style="background-color: rgb(255, 0, 0); "';
+
+    // Some platofrom such as Ubuntu 14.04.2, the obtained string has a space
+    // at the tail of the following style line. However, other platform
+    // such as TravisCI doesn't. So we use regular expression here.
+    var eventURL = "ajax_events\\?serverId=1&amp;triggerId=18446744073709550616";
+    var color = 'style="background-color: rgb\\(255, 0, 0\\); ?"';
     var expected =
       '<td class="severity5" ' + color + '>Zabbix</td>' +
       '<td class="severity5" data-sort-value="5" ' + color + '>Emergency!</td>' +
@@ -265,6 +269,6 @@ describe('TriggersView', function() {
     respond('{}', triggersJson(triggers, defaultServers), severityRanksJson(defaultSeverityRanks));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(triggers.length + 1);
-    expect($('tr').eq(1).html()).to.be(expected);
+    expect($('tr').eq(1).html()).to.match(new RegExp(expected));
   });
 });
