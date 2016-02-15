@@ -585,6 +585,31 @@ void test_getTriggerInfoList(gconstpointer data)
 	assertGetTriggerInfoList(data, ALL_SERVERS);
 }
 
+void test_getTriggerInfoListWithHostname(void){
+	loadTestDBTriggers();
+
+	TriggerInfoList triggerInfoList;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setHostname("hostX1");
+	option.setSortType(TriggersQueryOption::SORT_ID,
+	                   DataQueryOption::SORT_ASCENDING);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+		TriggerInfo expectedTriggerInfo[] = {
+		testTriggerInfo[0],
+		testTriggerInfo[1],
+		testTriggerInfo[3],
+	};
+
+	{
+		size_t i = 0;
+		for (auto triggerInfo : triggerInfoList) {
+			assertTriggerInfo(expectedTriggerInfo[i], triggerInfo);
+			++i;
+		}
+	}
+}
+
 void test_getTriggerInfoListWithTimeRange(void)
 {
 	loadTestDBTriggers();
