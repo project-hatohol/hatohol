@@ -1120,13 +1120,13 @@ var EventsView = function(userProfile, options) {
     html += "<td class='" + getSeverityClass(event) + "'>";
     if (serverURL && serverURL.indexOf("zabbix") >= 0 &&
         !isSelfMonitoringHost(hostId)) {
-      html += "<a href='" + serverURL + "latest.php?&hostid="
-              + hostId + "' target='_blank'>" + escapeHTML(hostName)
-              + "</a></td>";
+      html += "<a href='" + serverURL + "latest.php?&hostid=" +
+              hostId + "' target='_blank'>" + escapeHTML(hostName) +
+              "</a></td>";
     } else if (serverURL && serverURL.indexOf("nagios") >= 0 &&
                !isSelfMonitoringHost(hostId)) {
-      html += "<a href='" + serverURL + "cgi-bin/status.cgi?host="
-        + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
+      html += "<a href='" + serverURL + "cgi-bin/status.cgi?host=" +
+        hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
     } else {
       html += escapeHTML(hostName) + "</td>";
     }
@@ -1213,8 +1213,7 @@ var EventsView = function(userProfile, options) {
     if (!incident.location)
       return html + getIncidentStatusLabel(event) + "</td>";
 
-    html += "<a href='" + escapeHTML(incident.location)
-      + "' target='_blank'>";
+    html += "<a href='" + escapeHTML(incident.location) + "' target='_blank'>";
     html += getIncidentStatusLabel(event) + "</a>";
     html += "</td>";
 
