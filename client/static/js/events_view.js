@@ -239,7 +239,7 @@ var EventsView = function(userProfile, options) {
         eventPropertyChoices.incident = [];
         for (i = 0; i < incidentStatuses.length; i++) {
           status = incidentStatuses[i];
-          if (status.label == "") {
+          if (status.label === "") {
             if (defaultIncidentLabelMap[status.code]) {
               label = defaultIncidentLabelMap[status.code];
             } else {
@@ -744,7 +744,7 @@ var EventsView = function(userProfile, options) {
     if (promises.length > 0) {
       hatoholInfoMsgBox(gettext("Appling the handling..."));
       $.when.apply($, promises).done(function() {
-        if (errors.length == 0) {
+        if (errors.length === 0) {
           hatoholInfoMsgBox(gettext("Successfully updated."));
         } else {
           errorMessage = gettext("Failed to update handling");
@@ -1279,7 +1279,7 @@ var EventsView = function(userProfile, options) {
         continue;
       }
 
-      isIncident = (columnName.indexOf("incident") == 0);
+      isIncident = (columnName.indexOf("incident") === 0);
 
       header += '<th';
       header += ' id="column_' + columnName + '"';
@@ -1440,7 +1440,7 @@ var EventsView = function(userProfile, options) {
     updatePager();
     updateFilteringResult();
     setLoading(false);
-    if (self.currentPage == 0)
+    if (self.currentPage === 0)
       self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 };
