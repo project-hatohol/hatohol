@@ -55,17 +55,18 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
       s += errorMsg;
       s += "<hr>";
     }
-    s += gettext("Try to reconnect after ") + self.timeToReconnect + pgettext("ReconnectionModal", " sec.");
+    s += gettext("Try to reconnect after ") + self.timeToReconnect +
+      pgettext("ReconnectionModal", " sec.");
     s += "</p>";
     return s;
-  };
+  }
 
   function getFooterHTML() {
     var label = gettext("Retry now");
     var s = '<button type="button" class="btn btn-primary"';
     s += 'id="reconn-retry-button">' + label + '</button>';
     return s;
-  };
+  }
 
   function retryAllTasks() {
     // Some tasks invoked in the following loop may push a task again and
@@ -75,11 +76,11 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
     HatoholReconnectModalVars.taskList = [];
     for (var i = 0; i < taskList.length;i++)
         taskList[i]();
-  };
+  }
 
   self.countdown = function() {
     self.timeToReconnect -= 1;
-    if (self.timeToReconnect == 0) {
+    if (self.timeToReconnect === 0) {
       self.close(retryAllTasks);
     } else {
       self.updateBody($(getBodyHTML()));
