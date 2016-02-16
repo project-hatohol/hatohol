@@ -153,8 +153,8 @@ var EventsView = function(userProfile, options) {
     var labelMap = {};
     $.map(array, function(obj, i) {
       if (obj.value)
-        labelMap[obj.value] = obj.label
-    })
+        labelMap[obj.value] = obj.label;
+    });
     return labelMap;
   }
 
@@ -288,13 +288,13 @@ var EventsView = function(userProfile, options) {
         text: filter.name,
       }).val(filter.id).appendTo("#select-filter");
       if (filter.id == defaultFilterId)
-        option.attr("selected", true)
+        option.attr("selected", true);
 
       option = $("<option/>", {
         text: filter.name,
       }).val(filter.id).appendTo("#select-summary-filter");
       if (filter.id == defaultSummaryFilterId)
-        option.attr("selected", true)
+        option.attr("selected", true);
     });
     setupFilterValues();
     resetQuickFilter();
@@ -451,7 +451,7 @@ var EventsView = function(userProfile, options) {
     $("#begin-time").attr("placeholder", beginTimeString);
 
     return 'events?' + $.param(query);
-  };
+  }
 
   function getSummaryQuery() {
     var query = {}, baseFilterId, baseFilter;
@@ -1045,7 +1045,7 @@ var EventsView = function(userProfile, options) {
     } else {
       return name ? name : event["brief"];
     }
-  };
+  }
 
   function getIncident(event) {
     if (!self.rawData["haveIncident"])
@@ -1305,7 +1305,7 @@ var EventsView = function(userProfile, options) {
       serverId = event["serverId"];
       server = self.rawData["servers"][serverId];
 
-      html += "<tr>"
+      html += "<tr>";
       for (y = 0; y < self.columnNames.length; y++) {
         columnName = self.columnNames[y];
         definition = columnDefinitions[columnName];
