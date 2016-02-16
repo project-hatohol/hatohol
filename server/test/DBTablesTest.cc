@@ -1010,7 +1010,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"#PASSIVE_PLUGIN#",                    // path
 	"",                              // brokerUrl
 	"testQueue",                     // staticQueueAddress
-	4,                               // serverId
+	5,                               // serverId
 	"",                              // tlsCertificatePath
 	"",                              // tlsKeyPath
 	"",                              // tlsCACertificatePath
