@@ -709,7 +709,7 @@ var EventsView = function(userProfile, options) {
     var incidents = $(".incident.selected");
     var promise, promises = [], errors = [];
     var errorMessage;
-    var selectedTrackerId = undefined;
+    var selectedTrackerId;
     var i;
 
     if (!status)
