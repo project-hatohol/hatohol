@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -128,6 +128,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 {
 	ADD_LINE(s, langType, TRIGGER_STATUS_OK);
 	ADD_LINE(s, langType, TRIGGER_STATUS_PROBLEM);
+	ADD_LINE(s, langType, TRIGGER_STATUS_UNKNOWN);
 	APPEND(s, "\n");
 
 	ADD_LINE(s, langType, EVENT_TYPE_GOOD);

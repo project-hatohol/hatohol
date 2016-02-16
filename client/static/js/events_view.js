@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -66,6 +66,7 @@ var EventsView = function(userProfile, options) {
     status: [
       { value: "0", label: gettext('OK') },
       { value: "1", label: gettext('Problem') },
+      { value: "2", label: gettext('Unknown') },
     ],
     type: [
       { value: "0", label: gettext("OK") },
