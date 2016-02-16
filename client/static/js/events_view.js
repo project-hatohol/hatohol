@@ -637,6 +637,8 @@ var EventsView = function(userProfile, options) {
           hasIncidentTypeHatohol = true;
           break;
         case hatohol.INCIDENT_TRACKER_REDMINE:
+          hasIncidentTypeOthers = true;
+          break;
         default:
           hasIncidentTypeOthers = true;
           break;
