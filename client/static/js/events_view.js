@@ -169,7 +169,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function loadUserConfig() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     self.userConfig = new HatoholEventsViewConfig({
       columnDefinitions: columnDefinitions,
       filterCandidates: eventPropertyChoices,
@@ -189,7 +189,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function loadSeverityRank() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     new HatoholConnector({
       url: "/severity-rank",
       request: "GET",
@@ -222,7 +222,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function loadCustomIncidentStatus() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     new HatoholConnector({
       url: "/custom-incident-status",
       request: "GET",
@@ -774,7 +774,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function addIncident(eventId, trackerId, status, errors) {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     new HatoholConnector({
       url: "/incident",
       request: "POST",
@@ -812,7 +812,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function applyIncidentStatus(incidentId, status, errors) {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     var url = "/incident";
     url += "/" + incidentId;
     new HatoholConnector({
