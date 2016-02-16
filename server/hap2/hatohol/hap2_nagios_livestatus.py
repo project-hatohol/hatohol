@@ -93,21 +93,21 @@ class Common:
         query = self.__socket.hosts.columns("name", "alias")
         result = query.call()
         hosts = [{"hostId": host["name"], "hostName": host["alias"]} for host in result]
-        self.put_hosts(hosts)
+        self.put_procedure(self.put_hosts, hosts)
 
     def collect_host_groups_and_put(self):
         query = self.__socket.hostgroups.columns("name", "alias")
         result = query.call()
         groups = \
             [{"groupId": group["name"], "groupName": group["alias"]} for group in result]
-        self.put_host_groups(groups)
+        self.put_procedure(self.put_host_groups, groups)
 
     def collect_host_group_membership_and_put(self):
         query = self.__socket.hosts.columns("name", "groups")
         result = query.call()
         membership = [{"hostId": host["name"], "groupIds": host["groups"]} for host in result]
 
-        self.put_host_group_membership(membership)
+        self.put_procedure(self.put_host_group_membership, membership)
 
     def collect_triggers_and_put(self, fetch_id=None, host_ids=None):
         query = self.__socket.services.columns("plugin_output",
@@ -161,9 +161,10 @@ class Common:
         self.__trigger_last_info = \
             hapcommon.get_biggest_num_of_dict_array(triggers,
                                                     "lastChangeTime")
-        self.put_triggers(triggers, update_type=update_type,
-                          last_info=self.__trigger_last_info,
-                          fetch_id=fetch_id)
+        self.put_procedure(self.put_triggers, triggers,
+                           update_type=update_type,
+                           last_info=self.__trigger_last_info,
+                           fetch_id=fetch_id)
 
     def collect_events_and_put(self, fetch_id=None, last_info=None,
                                count=None, direction="ASC"):
@@ -233,8 +234,8 @@ class Common:
             # livestatus return a sorted list.
             # result[0] is latest statehist.
             self.__latest_statehist = json.dumps(result[0])
-        self.put_events(events, fetch_id=fetch_id,
-                        last_info_generator=self.return_latest_statehist)
+        self.put_procedure(self.put_events, events, fetch_id=fetch_id,
+                           last_info_generator=self.return_latest_statehist)
 
     def return_latest_statehist(self, events):
         # livestatus plugins does not use events.
