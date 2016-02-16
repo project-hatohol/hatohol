@@ -75,6 +75,9 @@ class CommonForTest(Common):
         self.stores["fetch_id"] = fetch_id
         self.stores["last_info_generator"] = last_info_generator
 
+    def put_procedure(self, put_func, contents, *args, **kwargs):
+        put_func(contents, *args, **kwargs)
+
 
 class TestCommon(unittest.TestCase):
     def test_constructor(self):

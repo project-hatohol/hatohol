@@ -53,6 +53,9 @@ class Hap2FluentdMainTestee(hap2_fluentd.Hap2FluentdMain):
         self.stores["fetch_id"] = fetch_id
         self.stores["last_info_generator"] = last_info_generator
 
+    def put_procedure(self, put_func, contents, *args, **kwargs):
+        put_func(contents, *args, **kwargs)
+
 class Hap2FluentdMain(unittest.TestCase):
     def test_constructor(self):
         main = hap2_fluentd.Hap2FluentdMain()
