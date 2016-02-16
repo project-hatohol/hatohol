@@ -182,7 +182,7 @@ TRIGGER_STATUS = frozenset(("OK", "NG", "UNKNOWN"))
 TRIGGER_SEVERITY = frozenset(
     ("UNKNOWN", "INFO", "WARNING", "ERROR", "CRITICAL", "EMERGENCY"))
 
-DEFAULT_MAX_EVENT_CHUNK_SIZE = 100
+DEFAULT_MAX_CHUNK_SIZE = 100
 MAX_LAST_INFO_SIZE = 32767
 
 class Callback:
@@ -516,26 +516,7 @@ class HapiProcessor:
     def generate_event_last_info(self, events):
         return hapcommon.get_biggest_num_of_dict_array(events, "eventId")
 
-    def __put_events(self, events, chunk_size, fetch_id=None, last_info_generator=None):
-        """
-        This method calls putEvents() and wait for a reply.
-        It divide events if the size is beyond the limitation.
-        It also calculates lastInfo for the divided events,
-        remebers it in this object and provide lastInfo via
-        get_cached_event_last_info().
-        This method overwrites events object. Event elements
-        sent successfully are removed from this sequence.
-        When you call this method, you be careful this point.
-
-        @param events A list of event (dictionary).
-        @param fetch_id A fetch ID.
-        @param last_info_generator
-        A callable object whose argument is the list of the devided events.
-        It this parameter is None, generate_event_last_info() is called.
-        """
-
-        num_events = len(events)
-        count = num_events / chunk_size
+    def put_events(self, events, fetch_id=None, last_info_generator=None):
         if num_events % chunk_size != 0:
             count += 1
         if count == 0:
@@ -568,19 +549,6 @@ class HapiProcessor:
         if fetch_id is None:
             self.set_event_last_info(last_info)
 
-    def put_events(self, events, fetch_id=None, last_info_generator=None):
-        chunk_size = DEFAULT_MAX_EVENT_CHUNK_SIZE
-        # __put_events method removes elements in events given as an argument.
-
-        copy_events = copy.copy(events)
-        while True:
-            try:
-                self.__put_events(copy_events, chunk_size, fetch_id, last_info_generator)
-                break
-            except OverCapacity:
-                chunk_size = chunk_size * 3 / 4
-                continue
-
     def put_items(self, items, fetch_id):
         params = {"fetchId": fetch_id, "items": items}
         request_id = self.__generate_request_id(self.__component_code)
@@ -594,6 +562,27 @@ class HapiProcessor:
         self.__wait_acknowledge(request_id)
         self.__sender.request("putHistory", params, request_id)
         self.__wait_response(request_id)
+
+    def put_procedure(self, put_func, contents, *args, **kwargs):
+        chunk_size = DEFAULT_MAX_CHUNK_SIZE
+        copy_contents = copy.copy(contents)
+
+        while True:
+            num_contents = len(copy_contents)
+            if num_contents == 0:
+                return
+            try:
+                count = num_contents / chunk_size
+                if num_contents % chunk_size != 0:
+                    count += 1
+
+                for num in range(0, count):
+                    chunk_contents = copy_contents[0: chunk_size]
+                    put_func(chunk_contents, *args, **kwargs)
+                    del copy_contents[0: chunk_size]
+            except OverCapacity:
+                chunk_size = chunk_size * 3 / 4
+                continue
 
     def __wait_acknowledge(self, request_id):
         self.__dispatch_queue.put((self.__process_id, request_id))
