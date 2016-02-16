@@ -5,7 +5,8 @@ gulp.task("lint", function() {
   gulp.src(["./client/static/js/*.js", "./client/static/js.plugins/*.js",
             "!./client/static/js/hatohol_def.js"])
     .pipe(jshint())
-    .pipe(jshint.reporter("default"));
+    .pipe(jshint.reporter("default"))
+    .pipe(jshint.reporter("fail"));
 });
 
 gulp.task('default', ['lint']);
