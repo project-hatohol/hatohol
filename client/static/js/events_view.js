@@ -154,8 +154,8 @@ var EventsView = function(userProfile, options) {
     var labelMap = {};
     $.map(array, function(obj, i) {
       if (obj.value)
-        labelMap[obj.value] = obj.label
-    })
+        labelMap[obj.value] = obj.label;
+    });
     return labelMap;
   }
 
@@ -170,7 +170,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function loadUserConfig() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     self.userConfig = new HatoholEventsViewConfig({
       columnDefinitions: columnDefinitions,
       filterCandidates: eventPropertyChoices,
@@ -190,7 +190,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function loadSeverityRank() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     new HatoholConnector({
       url: "/severity-rank",
       request: "GET",
@@ -223,7 +223,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function loadCustomIncidentStatus() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     new HatoholConnector({
       url: "/custom-incident-status",
       request: "GET",
@@ -240,7 +240,7 @@ var EventsView = function(userProfile, options) {
         eventPropertyChoices.incident = [];
         for (i = 0; i < incidentStatuses.length; i++) {
           status = incidentStatuses[i];
-          if (status.label == "") {
+          if (status.label === "") {
             if (defaultIncidentLabelMap[status.code]) {
               label = defaultIncidentLabelMap[status.code];
             } else {
@@ -289,13 +289,13 @@ var EventsView = function(userProfile, options) {
         text: filter.name,
       }).val(filter.id).appendTo("#select-filter");
       if (filter.id == defaultFilterId)
-        option.attr("selected", true)
+        option.attr("selected", true);
 
       option = $("<option/>", {
         text: filter.name,
       }).val(filter.id).appendTo("#select-summary-filter");
       if (filter.id == defaultSummaryFilterId)
-        option.attr("selected", true)
+        option.attr("selected", true);
     });
     setupFilterValues();
     resetQuickFilter();
@@ -452,7 +452,7 @@ var EventsView = function(userProfile, options) {
     $("#begin-time").attr("placeholder", beginTimeString);
 
     return 'events?' + $.param(query);
-  };
+  }
 
   function getSummaryQuery() {
     var query = {}, baseFilterId, baseFilter;
@@ -638,6 +638,8 @@ var EventsView = function(userProfile, options) {
           hasIncidentTypeHatohol = true;
           break;
         case hatohol.INCIDENT_TRACKER_REDMINE:
+          hasIncidentTypeOthers = true;
+          break;
         default:
           hasIncidentTypeOthers = true;
           break;
@@ -710,7 +712,7 @@ var EventsView = function(userProfile, options) {
     var incidents = $(".incident.selected");
     var promise, promises = [], errors = [];
     var errorMessage;
-    var selectedTrackerId = undefined;
+    var selectedTrackerId;
     var i;
 
     if (!status)
@@ -745,7 +747,7 @@ var EventsView = function(userProfile, options) {
     if (promises.length > 0) {
       hatoholInfoMsgBox(gettext("Appling the handling..."));
       $.when.apply($, promises).done(function() {
-        if (errors.length == 0) {
+        if (errors.length === 0) {
           hatoholInfoMsgBox(gettext("Successfully updated."));
         } else {
           errorMessage = gettext("Failed to update handling");
@@ -775,7 +777,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function addIncident(eventId, trackerId, status, errors) {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     new HatoholConnector({
       url: "/incident",
       request: "POST",
@@ -813,7 +815,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function applyIncidentStatus(incidentId, status, errors) {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     var url = "/incident";
     url += "/" + incidentId;
     new HatoholConnector({
@@ -836,7 +838,8 @@ var EventsView = function(userProfile, options) {
       },
       connectErrorCallback: function() {
         var message =
-          gettext("Failed to connect to Hatohol server on changing handling of an event with ID: ") +
+          gettext("Failed to connect to Hatohol server on \
+                  changing handling of an event with ID: ") +
           eventId;
         errors.push(message);
       },
@@ -1046,7 +1049,7 @@ var EventsView = function(userProfile, options) {
     } else {
       return name ? name : event["brief"];
     }
-  };
+  }
 
   function getIncident(event) {
     if (!self.rawData["haveIncident"])
@@ -1121,13 +1124,13 @@ var EventsView = function(userProfile, options) {
     html += "<td class='" + getSeverityClass(event) + "'>";
     if (serverURL && serverURL.indexOf("zabbix") >= 0 &&
         !isSelfMonitoringHost(hostId)) {
-      html += "<a href='" + serverURL + "latest.php?&hostid="
-              + hostId + "' target='_blank'>" + escapeHTML(hostName)
-              + "</a></td>";
+      html += "<a href='" + serverURL + "latest.php?&hostid=" +
+              hostId + "' target='_blank'>" + escapeHTML(hostName) +
+              "</a></td>";
     } else if (serverURL && serverURL.indexOf("nagios") >= 0 &&
                !isSelfMonitoringHost(hostId)) {
-      html += "<a href='" + serverURL + "cgi-bin/status.cgi?host="
-        + hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
+      html += "<a href='" + serverURL + "cgi-bin/status.cgi?host=" +
+        hostName + "' target='_blank'>" + escapeHTML(hostName) + "</a></td>";
     } else {
       html += escapeHTML(hostName) + "</td>";
     }
@@ -1214,8 +1217,7 @@ var EventsView = function(userProfile, options) {
     if (!incident.location)
       return html + getIncidentStatusLabel(event) + "</td>";
 
-    html += "<a href='" + escapeHTML(incident.location)
-      + "' target='_blank'>";
+    html += "<a href='" + escapeHTML(incident.location) + "' target='_blank'>";
     html += getIncidentStatusLabel(event) + "</a>";
     html += "</td>";
 
@@ -1280,7 +1282,7 @@ var EventsView = function(userProfile, options) {
         continue;
       }
 
-      isIncident = (columnName.indexOf("incident") == 0);
+      isIncident = (columnName.indexOf("incident") === 0);
 
       header += '<th';
       header += ' id="column_' + columnName + '"';
@@ -1306,7 +1308,7 @@ var EventsView = function(userProfile, options) {
       serverId = event["serverId"];
       server = self.rawData["servers"][serverId];
 
-      html += "<tr>"
+      html += "<tr>";
       for (y = 0; y < self.columnNames.length; y++) {
         columnName = self.columnNames[y];
         definition = columnDefinitions[columnName];
@@ -1404,7 +1406,8 @@ var EventsView = function(userProfile, options) {
         (numOfImportantEventOccurredHosts / numOfAllHosts * 100)
         .toFixed(2);
     $("#importantEventOccurredHostsPercentage").text(importantEventOccurredHostsPercentage+"%");
-    $("#importantEventOccurredHostsPercentage").css("width", importantEventOccurredHostsPercentage+"%");
+    $("#importantEventOccurredHostsPercentage")
+      .css("width", importantEventOccurredHostsPercentage+"%");
   }
 
   function setupTableColor() {
@@ -1441,7 +1444,7 @@ var EventsView = function(userProfile, options) {
     updatePager();
     updateFilteringResult();
     setLoading(false);
-    if (self.currentPage == 0)
+    if (self.currentPage === 0)
       self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 };
