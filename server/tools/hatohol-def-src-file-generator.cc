@@ -128,6 +128,7 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 {
 	ADD_LINE(s, langType, TRIGGER_STATUS_OK);
 	ADD_LINE(s, langType, TRIGGER_STATUS_PROBLEM);
+	ADD_LINE(s, langType, TRIGGER_STATUS_UNKNOWN);
 	APPEND(s, "\n");
 
 	ADD_LINE(s, langType, EVENT_TYPE_GOOD);
