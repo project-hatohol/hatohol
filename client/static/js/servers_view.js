@@ -192,10 +192,10 @@ var ServersView = function(userProfile) {
            ">" + escapeHTML(gettext("Checking")) + "</td>";
       s += "<td>" + makeMonitoringSystemTypeLabel(o) + "</td>";
       if (serverURL) {
-        s += "<td class='server-url-link'><a href='" + serverURL + "' target='_blank'>"
-             + escapeHTML(o["hostName"])  + "</a></td>";
-        s += "<td class='server-ip-link'><a href='" + serverURL + "' target='_blank'>"
-             + escapeHTML(ip) + "</a></td>";
+        s += "<td class='server-url-link'><a href='" + serverURL +
+          "' target='_blank'>" + escapeHTML(o["hostName"])  + "</a></td>";
+        s += "<td class='server-ip-link'><a href='" + serverURL +
+          "' target='_blank'>" + escapeHTML(ip) + "</a></td>";
       } else if (o["type"] == hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER){
         s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
         s += "<td>N/A</td>";
@@ -205,8 +205,8 @@ var ServersView = function(userProfile) {
       }
       s += "<td>" + escapeHTML(o["nickname"])  + "</td>";
       if (mapsURL) {
-        s += "<td><a href='" + mapsURL + "' target='_blank'>"
-             + gettext('Show Maps') + "</a></td>";
+        s += "<td><a href='" + mapsURL + "' target='_blank'>" +
+          gettext('Show Maps') + "</a></td>";
       } else {
         s += "<td></td>";
       }
@@ -335,7 +335,8 @@ var ServersView = function(userProfile) {
           var serverType = this.getAttribute("serverType");
           var paramsArray = paramsArrayMap[serverType];
           var s = "";
-          s += gettext('Monitoring server type') + ": " + makeMonitoringSystemTypeLabel(server) + "</br>";
+          s += gettext('Monitoring server type') + ": " +
+            makeMonitoringSystemTypeLabel(server) + "</br>";
           for (var j = 0; j < paramsArray.length; j++) {
             var param = paramsArray[j];
             var value;
