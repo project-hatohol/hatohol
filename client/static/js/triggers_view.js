@@ -70,7 +70,7 @@ var TriggersView = function(userProfile, options) {
   }
 
   function loadUserConfig() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     self.userConfig.get({
       itemNames:['num-triggers-per-page'],
       successCallback: function(conf) {
@@ -91,7 +91,7 @@ var TriggersView = function(userProfile, options) {
   }
 
   function loadSeverityRank() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     new HatoholConnector({
       url: "/severity-rank",
       request: "GET",
