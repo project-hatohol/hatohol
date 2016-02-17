@@ -43,10 +43,9 @@ describe('isInt', function() {
 describe('getServerLocation', function() {
   it('with valid zabbix server', function() {
     var server = {
-      "type": hatohol.MONITORING_SYSTEM_ZABBIX,
-      "ipAddress": "127.0.0.1",
-      "name": "localhost",
-      "port": 80
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "baseURL": "http://127.0.0.1/zabbix/api_jsonrpc.php",
+      "uuid": "8e632c14-d1f7-11e4-8350-d43d7e3146fb"
     };
     var expected = "http://127.0.0.1/zabbix/";
     expect(getServerLocation(server)).to.be(expected);
@@ -54,10 +53,9 @@ describe('getServerLocation', function() {
 
   it('zabbix server with port', function() {
     var server = {
-      "type": hatohol.MONITORING_SYSTEM_ZABBIX,
-      "ipAddress": "127.0.0.1",
-      "name": "localhost",
-      "port": 8080
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "baseURL": "http://127.0.0.1:8080/zabbix/api_jsonrpc.php",
+      "uuid": "8e632c14-d1f7-11e4-8350-d43d7e3146fb"
     };
     var expected = "http://127.0.0.1:8080/zabbix/";
     expect(getServerLocation(server)).to.be(expected);
@@ -65,10 +63,9 @@ describe('getServerLocation', function() {
 
   it('ipv6 zabbix server', function() {
     var server = {
-      "type": hatohol.MONITORING_SYSTEM_ZABBIX,
-      "ipAddress": "::1",
-      "name": "localhost",
-      "port": 8080
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "baseURL": "http://[::1]:8080/zabbix/api_jsonrpc.php",
+      "uuid": "8e632c14-d1f7-11e4-8350-d43d7e3146fb"
     };
     var expected = "http://[::1]:8080/zabbix/";
     expect(getServerLocation(server)).to.be(expected);
@@ -76,11 +73,12 @@ describe('getServerLocation', function() {
 
   it('with valid nagios server', function() {
     var server = {
-      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
-      "ipAddress": "127.0.0.1",
-      "name": "localhost"
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "ipAddress": "",
+      "baseURL": "127.0.0.1/ndoutils",
+      "uuid": "902d955c-d1f7-11e4-80f9-d43d7e3146fb",
     };
-    // issue #839
+    // Currently Naigos JS plugin doesn't have getTopURL()
     //var expected = "http://127.0.0.1/nagios/";
     var expected = undefined;
     expect(getServerLocation(server)).to.be(expected);
@@ -88,36 +86,27 @@ describe('getServerLocation', function() {
 
   it('nagios server with port', function() {
     var server = {
-      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
-      "ipAddress": "127.0.0.1",
-      "name": "localhost",
-      "port": 8080
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "ipAddress": "",
+      "port": 8080,
+      "ipAddress": "",
+      "baseURL": "127.0.0.1/ndoutils",
+      "uuid": "902d955c-d1f7-11e4-80f9-d43d7e3146fb",
     };
-    // issue #839
+    // Currently Naigos JS plugin doesn't have getTopURL()
     //var expected = "http://127.0.0.1:8080/nagios/";
     var expected = undefined;
     expect(getServerLocation(server)).to.be(expected);
   });
 
-  it('nagios server with baseURL', function() {
-    var server = {
-      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
-      "ipAddress": "127.0.0.1",
-      "name": "localhost",
-      "port": 8080,
-      "baseURL": "http://127.0.0.1/nagios3/"
-    };
-    var expected = "http://127.0.0.1/nagios3/";
-    expect(getServerLocation(server)).to.be(expected);
-  });
-
   it('ipv6 nagios server', function() {
     var server = {
-      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
-      "ipAddress": "::1",
-      "name": "localhost"
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "ipAddress": "",
+      "baseURL": "127.0.0.1/ndoutils",
+      "uuid": "902d955c-d1f7-11e4-80f9-d43d7e3146fb",
     };
-    // issue #839
+    // Currently Naigos JS plugin doesn't have getTopURL()
     //var expected = "http://[::1]/nagios/";
     var expected = undefined;
     expect(getServerLocation(server)).to.be(expected);
@@ -145,9 +134,9 @@ describe('getServerLocation', function() {
 describe('getItemGraphLocation', function() {
   it('with valid zabbix server', function() {
     var server = {
-      "type": hatohol.MONITORING_SYSTEM_ZABBIX,
-      "ipAddress": "127.0.0.1",
-      "name": "localhost"
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "baseURL": "http://127.0.0.1/zabbix/api_jsonrpc.php",
+      "uuid": "8e632c14-d1f7-11e4-8350-d43d7e3146fb"
     };
     var itemId = 1129;
     var expected =
@@ -157,9 +146,10 @@ describe('getItemGraphLocation', function() {
 
   it('with valid nagios server', function() {
     var server = {
-      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
-      "ipAddress": "127.0.0.1",
-      "name": "localhost"
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "ipAddress": "",
+      "baseURL": "127.0.0.1/ndoutils",
+      "uuid": "902d955c-d1f7-11e4-80f9-d43d7e3146fb",
     };
     var itemId = 1129;
     expect(getItemGraphLocation(server, itemId)).to.be(undefined);
@@ -189,9 +179,9 @@ describe('getItemGraphLocation', function() {
 describe('getMapsLocation', function() {
   it('with valid zabbix server', function() {
     var server = {
-      "type": hatohol.MONITORING_SYSTEM_ZABBIX,
-      "ipAddress": "192.168.23.119",
-      "name": "localhost"
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "baseURL": "http://192.168.23.119/zabbix/api_jsonrpc.php",
+      "uuid": "8e632c14-d1f7-11e4-8350-d43d7e3146fb"
     };
     var expected = "http://192.168.23.119/zabbix/maps.php";
     expect(getMapsLocation(server)).to.be(expected);
@@ -199,9 +189,9 @@ describe('getMapsLocation', function() {
 
   it('with valid nagios server', function() {
     var server = {
-      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
-      "ipAddress": "192.168.22.118",
-      "name": "localhost"
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "baseURL": "127.0.1.1/ndoutils",
+      "uuid": "902d955c-d1f7-11e4-80f9-d43d7e3146fb",
     };
     expect(getMapsLocation(server)).to.be(undefined);
   });
@@ -219,17 +209,19 @@ describe('getMapsLocation', function() {
 describe('makeMonitoringSystemTypeLabel', function() {
   it('with valid zabbix server', function() {
     var server = {
-        "type": hatohol.MONITORING_SYSTEM_ZABBIX
+        "type": hatohol.MONITORING_SYSTEM_HAPI2,
+        "uuid": "8e632c14-d1f7-11e4-8350-d43d7e3146fb"
     };
-    var expected = "Zabbix";
+    var expected = "Zabbix (HAPI2)";
     expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
   });
 
   it('with valid nagios server', function() {
     var server = {
-        "type": hatohol.MONITORING_SYSTEM_NAGIOS
+        "type": hatohol.MONITORING_SYSTEM_HAPI2,
+        "uuid": "902d955c-d1f7-11e4-80f9-d43d7e3146fb",
     };
-    var expected = "Nagios";
+    var expected = "Nagios NDOUtils (HAPI2)";
     expect(makeMonitoringSystemTypeLabel(server)).to.be(expected);
   });
 

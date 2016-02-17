@@ -4,45 +4,68 @@ describe('ServerView', function() {
   var defaultServers = [
     {
       "id": 1,
-      "type": hatohol.MONITORING_SYSTEM_ZABBIX,
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
       "hostName": "Test Zabbix",
-      "ipAddress": "127.0.0.1",
+      "ipAddress": "",
       "nickname": "Test Zabbix",
-      "port": 80,
+      "port": 0,
       "pollinInterval": 30,
       "retryInterval": 10,
       "userName": "TestZabbixUser",
       "passowrd": "zabbix",
       "dbName": "",
-      "baseURL": ""
+      "passiveMode": false,
+      "baseURL": "http://127.0.1.1/zabbix/api_jsonrpc.php",
+      "brokerURL": "amqp://test_user:test_password@localhost:5673/test",
+      "staticQueueAddress": "",
+      "tlsCertificatePath": "",
+      "tlsKeyPath": "",
+      "tlsCACertificatePath": "",
+      "tlsEnableVerify": "",
+      "uuid": "8e632c14-d1f7-11e4-8350-d43d7e3146fb"
     },
     {
       "id": 2,
-      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
       "hostName": "Test Nagios",
-      "ipAddress": "127.0.1.1",
+      "ipAddress": "",
       "nickname": "Test Nagios",
-      "port": 3306,
+      "port": 0,
       "pollinInterval": 60,
       "retryInterval": 10,
       "userName": "TestNagiosUser",
       "passowrd": "nagiosadministrator",
-      "dbName": "nagiosndoutils",
-      "baseURL": "http://127.0.1.1/nagios3"
+      "dbName": "",
+      "passiveMode": false,
+      "baseURL": "127.0.1.1/ndoutils",
+      "brokerURL": "amqp://test_user:test_password@localhost:5673/test",
+      "staticQueueAddress": "",
+      "tlsCertificatePath": "",
+      "tlsKeyPath": "",
+      "tlsCACertificatePath": "",
+      "tlsEnableVerify": "",
+      "uuid": "902d955c-d1f7-11e4-80f9-d43d7e3146fb",
     },
     {
       "id": 3,
-      "type": hatohol.MONITORING_SYSTEM_NAGIOS,
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
       "hostName": "Test Nagios2",
-      "ipAddress": "10.0.0.10",
+      "ipAddress": "",
       "nickname": "Test Nagios2",
-      "port": 3306,
+      "port": 0,
       "pollinInterval": 60,
       "retryInterval": 10,
       "userName": "TestNagiosUser2",
       "passowrd": "nagiosadministrator",
-      "dbName": "nagios-ndoutils",
-      "baseURL": ""
+      "dbName": "",
+      "passiveMode": false,
+      "baseURL": "10.0.0.1/ndoutils",
+      "staticQueueAddress": "",
+      "tlsCertificatePath": "",
+      "tlsKeyPath": "",
+      "tlsCACertificatePath": "",
+      "tlsEnableVerify": "",
+      "uuid": "902d955c-d1f7-11e4-80f9-d43d7e3146fb",
     },
   ];
 
@@ -327,7 +350,7 @@ describe('ServerView', function() {
     expectEditButtonVisibility(operator, expected);
   });
 
-  it('without update privilege', function() {
+  it('without update privilege: edit button visibility', function() {
     var operator = {
       "userId": 2,
       "name": "guest",
@@ -337,13 +360,15 @@ describe('ServerView', function() {
     expectEditButtonVisibility(operator, expected);
   });
 
-  it('without update privilege', function() {
+  it('without update privilege: link visibility', function() {
     var operator = {
       "userId": 2,
       "name": "guest",
       "flags": 0
     };
-    var expectedVisibleLinkNums = 2;
+    // Currently js.plugins/hap2-nagios-ndoutils.js doesn't have getTopURL()
+    // So only the first server makes a link.
+    var expectedVisibleLinkNums = 1;
     expectLinkVisibility(operator, expectedVisibleLinkNums);
   });
 });

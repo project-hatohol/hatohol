@@ -175,13 +175,15 @@ describe('EventsView', function() {
     respondSummary(JSON.stringify(dummySummary));
   }
 
-  function getDummyServerInfo(type){
+  function getDummyServerInfo(type, uuid, baseURL){
+
     var dummyServerInfo = {
       "1": {
         "nickname" : "Server",
         "type": type,
-        "ipAddress": "192.168.1.100",
-        "baseURL": "http://192.168.1.100/base/",
+        "baseURL": baseURL,
+        "ipAddress": "",
+        "uuid": uuid,
         "hosts": {
           "10105": {
             "name": "Host",
@@ -193,6 +195,20 @@ describe('EventsView', function() {
       },
     };
     return dummyServerInfo;
+  }
+
+  function getDummyHAPI2ZabbixServerInfo() {
+    return getDummyServerInfo(
+             hatohol.MONITORING_SYSTEM_HAPI2,
+             "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
+             "http://192.168.1.100/zabbix/api_jsonrpc.php");
+  }
+
+  function getDummyHAPI2NagiosNDOUtilsServerInfo() {
+    return getDummyServerInfo(
+             hatohol.MONITORING_SYSTEM_HAPI2,
+             "902d955c-d1f7-11e4-80f9-d43d7e3146fb",
+             "192.168.1.100/ndoutils");
   }
 
   function getEventTimeString(event) {
@@ -336,7 +352,8 @@ describe('EventsView', function() {
       "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
     var params =
       {eventURL: "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332"};
-    testTableContents(zabbixURL, zabbixLatestURL, getDummyServerInfo(0), params);
+    testTableContents(zabbixURL, zabbixLatestURL,
+                      getDummyHAPI2ZabbixServerInfo(), params);
   });
 
   it('new with fake zabbix data included expanded description', function() {
@@ -346,21 +363,23 @@ describe('EventsView', function() {
     var params =
       {eventURL: "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=18483"};
     testTableContentsWithExpandedDescription(zabbixURL, zabbixLatestURL,
-                                             getDummyServerInfo(0), params);
+                                             getDummyHAPI2ZabbixServerInfo(),
+                                             params);
   });
 
   it('new with nagios data without baseURL', function() {
     var nagiosURL = undefined;
     var nagiosStatusURL = undefined;
-    var serverInfo = getDummyServerInfo(1);
+    var serverInfo = getDummyHAPI2NagiosNDOUtilsServerInfo();
     serverInfo["1"]["baseURL"] = undefined;
     testTableContents(nagiosURL, nagiosStatusURL, serverInfo);
   });
 
   it('new with nagios data included baseURL', function() {
-    var nagiosURL = "http://192.168.1.100/base/";
+    var nagiosURL = undefined;
     var nagiosStatusURL = undefined;
-    testTableContents(nagiosURL, nagiosStatusURL, getDummyServerInfo(1));
+    testTableContents(nagiosURL, nagiosStatusURL,
+                      getDummyHAPI2NagiosNDOUtilsServerInfo());
   });
 
   it('With a good event', function() {
@@ -386,7 +405,7 @@ describe('EventsView', function() {
 	  status: hatohol.TRIGGER_STATUS_PROBLEM,
       })
     ];
-    respond(eventsJson(events, getDummyServerInfo(0)));
+    respond(eventsJson(events, getDummyHAPI2ZabbixServerInfo()));
     expect($('#table')).to.have.length(1);
     expect($('#table tr')).to.have.length(events.length + 1);
     expect($('tr').eq(1).html()).to.contain(expected);
@@ -394,7 +413,7 @@ describe('EventsView', function() {
 
   it('Default columns', function() {
     var view = new EventsView(getOperator(), testOptions);
-    respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)));
+    respond(eventsJson(dummyEventInfo, getDummyHAPI2ZabbixServerInfo()));
     expect($('tr').eq(0).text()).to.be(
       "HandlingStatusSeverityPeriod Monitoring ServerHostBrief");
     expect($('tr').eq(1).text()).to.be(
@@ -407,7 +426,7 @@ describe('EventsView', function() {
     var configJson =
       '{"events.columns":"duration,severity,type,description,' +
       'hostName,time,monitoringServerName"}';
-    respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)),
+    respond(eventsJson(dummyEventInfo, getDummyHAPI2ZabbixServerInfo()),
 	    configJson);
     expect($('tr').eq(0).text()).to.be(
       "DurationSeverityStatusBriefHostPeriod Monitoring Server");
@@ -432,7 +451,7 @@ describe('EventsView', function() {
     var configJson =
       '{"events.columns":"eventId,' +
       'incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio"}';
-    respond(eventsJson(events, getDummyServerInfo(0)),
+    respond(eventsJson(events,getDummyHAPI2ZabbixServerInfo()),
 	    configJson);
     expect($('tr').eq(0).text()).to.be(
       "Event IDHandlingPriorityAssignee% Done");
@@ -455,8 +474,7 @@ describe('EventsView', function() {
     var configJson =
       '{"events.columns":"eventId,' +
       'incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio"}';
-    respond(eventsJson(events, getDummyServerInfo(0)),
-            configJson);
+    respond(eventsJson(events,getDummyHAPI2ZabbixServerInfo()), configJson);
     expect($('tr').eq(0).text()).to.be(
       "Event IDHandlingPriorityAssignee% Done");
     expect($('tr').eq(1).text()).to.be(
