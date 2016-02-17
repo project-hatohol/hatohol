@@ -446,7 +446,7 @@ var TriggersView = function(userProfile, options) {
     $.extend(query, self.lastQuickFilter);
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
-  };
+  }
 
   function resetTimeRangeFilter() {
     $("#begin-time").next(".clear-button").trigger('click');
