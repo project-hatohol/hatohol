@@ -595,7 +595,7 @@ void test_getTriggerInfoListWithHostname(void){
 	option.setSortType(TriggersQueryOption::SORT_ID,
 	                   DataQueryOption::SORT_ASCENDING);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
-		TriggerInfo expectedTriggerInfo[] = {
+	TriggerInfo expectedTriggerInfo[] = {
 		testTriggerInfo[0],
 		testTriggerInfo[1],
 		testTriggerInfo[3],
