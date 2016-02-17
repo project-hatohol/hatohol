@@ -87,7 +87,7 @@ function makeMonitoringSystemTypeLabel(server) {
   var type = getServerTypeId(server);
   var pluginName;
 
-  if (type == null || type == undefined)
+  if (type === null || type === undefined)
     return "Invalid";
 
   pluginName = "hap_" + type;
@@ -113,7 +113,7 @@ function getServerTypeId(server) {
 function getPlugin(server) {
   var type = getServerTypeId(server);
 
-  if (type == null || type == undefined)
+  if (type === null || type === undefined)
     return undefined;
 
   return hatohol["hap_" + type];
@@ -281,7 +281,7 @@ function formatMetricPrefix(value, unit, step, pow, digits) {
   if (!digits)
     digits = 4;
 
-  if (pow == 0 && value.match(/^-?\d+$/))
+  if (pow === 0 && value.match(/^-?\d+$/))
     return value + " " + escapeHTML(unit);
 
   text = value / Math.pow(step, pow);
