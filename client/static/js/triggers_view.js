@@ -352,8 +352,8 @@ var TriggersView = function(userProfile, options) {
       severityClass = getSeverityClass(trigger);
       triggerName = getTriggerName(trigger);
 
-      html += "<tr><td class='" + severityClass +"'>"
-        + escapeHTML(nickName) + "</td>";
+      html += "<tr><td class='" + severityClass +"'>" +
+        escapeHTML(nickName) + "</td>";
       html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
         triggerPropertyChoices.severity[Number(severity)].label + "</td>";
@@ -368,11 +368,11 @@ var TriggersView = function(userProfile, options) {
         formatDate(clock) + "</td>";
       html += "<td class='" + severityClass + "'>" +
         escapeHTML(hostName) + "</td>";
-      html += "<td class='" + severityClass + "'>"
-	+ "<a href='ajax_events?serverId=" + escapeHTML(serverId)
-	+ "&triggerId=" + escapeHTML(trigger["id"]) + "'>"
-	+ escapeHTML(triggerName)
-	+ "</a></td>";
+      html += "<td class='" + severityClass + "'>" +
+	"<a href='ajax_events?serverId=" + escapeHTML(serverId) +
+	"&triggerId=" + escapeHTML(trigger["id"]) + "'>" +
+	escapeHTML(triggerName) +
+	"</a></td>";
       html += "</tr>";
     }
 
