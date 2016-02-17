@@ -9,19 +9,29 @@ casper.on("page.error", function(msg, trace) {
   }
 });
 
+casper.on('remote.message', function(msg) {
+  this.echo(msg);
+})
+
 casper.test.begin('Register/Unregister server test', function(test) {
-  var server = {serverType: 0, // Zabbix
-                nickName: "test",
-                serverName: "testhost",
-                ipAddress: "127.0.0.1",
-                userName: "admin",
-                userPassword: "zabbix-admin"};
-  var editedServer = {serverType: 0, // Zabbix
-                      nickName: "edited-test",
-                      serverName: "editedhost",
-                      ipAddress: "127.0.1.1",
-                      userName: "edited-admin",
-                      userPassword: "edited-zabbix-admin"};
+  var server = {
+        serverType: "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
+        baseURL: "http://127.0.0.1/zabbix/api_jsonrpc.php",
+        nickName: "test",
+        serverName: "testhost",
+        brokerURL: "amqp://test_user:test_password@localhost:5673/test",
+        userName: "admin",
+        userPassword: "zabbix-admin"
+  };
+  var editedServer = {
+        serverType: "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
+        baseURL: "http://127.0.0.1/zabbix/api_jsonrpc.php",
+        nickName: "edited-test",
+        serverName: "editedhost",
+        brokerURL: "amqp://test_user:test_password@localhost:5673/test",
+        userName: "edited-admin",
+        userPassword: "edited-zabbix-admin"
+  };
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   // move to servers page
@@ -71,31 +81,31 @@ casper.test.begin('Register/Unregister server test', function(test) {
     });
   casper.waitForSelector("input#server-edit-dialog-param-form-1",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-1", server.serverName);
+      this.sendKeys("input#server-edit-dialog-param-form-1", server.baseURL);
     },
     function fail() {
       test.assertExists("input#server-edit-dialog-param-form-1");
     });
   casper.waitForSelector("input#server-edit-dialog-param-form-2",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-2", server.ipAddress);
+      this.sendKeys("input#server-edit-dialog-param-form-2", server.userName);
     },
     function fail() {
       test.assertExists("input#server-edit-dialog-param-form-2");
     });
-  casper.waitForSelector("input#server-edit-dialog-param-form-4",
+  casper.waitForSelector("input#server-edit-dialog-param-form-3",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-4", server.userName);
+      this.sendKeys("input#server-edit-dialog-param-form-3", server.userPassword);
     },
     function fail() {
-      test.assertExists("input#server-edit-dialog-param-form-4");
+      test.assertExists("input#server-edit-dialog-param-form-3");
     });
-  casper.waitForSelector("input#server-edit-dialog-param-form-5",
+  casper.waitForSelector("input#server-edit-dialog-param-form-7",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-5", server.userPassword);
+      this.sendKeys("input#server-edit-dialog-param-form-7", server.brokerURL);
     },
     function fail() {
-      test.assertExists("input#server-edit-dialog-param-form-5");
+      test.assertExists("input#server-edit-dialog-param-form-7");
     });
   casper.waitForSelector(".ui-dialog-buttonset > button",
     function success() {
@@ -117,23 +127,18 @@ casper.test.begin('Register/Unregister server test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-  // check DOMNodeInserted event
+  // Wait for the response and the addition of the registered server.
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return $(document).on("DOMNodeInserted",
-                            "table tr",
-                            function() {return true;});
+      return $("tr").length >= 2;
     });
   }, function then() {
     test.assertTextExists(server.nickName,
                           "Registered server's nickName \""
                           + server.nickName +
                           "\" exists in the monitoring servers table.");
-    this.evaluate(function() {
-      $(document).off("DOMNodeInserted", "table tr");
-    });
   }, function timeout() {
-    this.echo("Oops, confirmation dialog dose not to be closed.");
+    this.fail("Oops, confirmation dialog dose not to be closed.");
   });
   // edit monitoring server
   casper.waitFor(function() {
@@ -147,7 +152,7 @@ casper.test.begin('Register/Unregister server test', function(test) {
                         "\" exists in the edit monitoring server dialog"+
                         " input#server-edit-dialog-param-form-0.");
   }, function timeout() {
-    this.echo("Oops, edit monitoring server dialog is not opened.");
+    this.fail("Oops, edit monitoring server dialog is not opened.");
   });
   casper.waitForSelector("input#server-edit-dialog-param-form-0",
     function success() {
@@ -177,21 +182,13 @@ casper.test.begin('Register/Unregister server test', function(test) {
     function fail() {
       test.assertExists("div.ui-dialog-buttonset > button");
     });
-  // assert edit action command
-  casper.waitFor(function() {
-    return this.evaluate(function() {
-      return $(document).on("DOMSubtreeModified", "table tr",
-                            function() {return true;});
-    });
-  }, function then() {
+  // Wait for the response and the addition of the registered server.
+  casper.waitForText(editedServer.nickName, function then() {
     test.assertTextExists(editedServer.nickName,
                           "Edited monitoring server's nickName \"" +
                           editedServer.nickName + "\" text exists.");
-    this.evaluate(function() {
-      $(document).off("DOMSubtreeModified", "table tr");
-    });
   }, function timeout() {
-    this.echo("Oops, it seems not to be logged in.");
+    this.fail("Oops, it seems not to be logged in.");
   });
   // start to delete monitoring server
   casper.then(function() {
@@ -232,20 +229,15 @@ casper.test.begin('Register/Unregister server test', function(test) {
     });
   casper.waitFor(function() {
     return this.evaluate(function() {
-      return $(document).on("DOMNodeRemoved",
-                            "table tr",
-                            function() {return true;});
+      return $("tr").length == 1;
     });
   }, function then() {
     test.assertTextDoesntExist(editedServer.nickName,
                                "Registered server's nickName \""
                                + editedServer.nickName +
-                               "\" does not exists in the monitoring servers table.");
-    this.evaluate(function() {
-      $(document).off("DOMNodeRemoved", "table tr");
-    });
+                               "\" does not exist in the monitoring servers table.");
   }, function timeout() {
-    this.echo("Oops, newly created table element does not to be deleted.");
+    this.fail("Oops, newly created table element does not to be deleted.");
   });
   casper.then(function() {util.logout(test);});
   casper.run(function() {test.done();});

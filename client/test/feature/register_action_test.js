@@ -9,6 +9,10 @@ casper.on("page.error", function(msg, trace) {
   }
 });
 
+casper.on('remote.message', function(msg) {
+  this.echo(msg);
+});
+
 casper.test.begin('Register/Unregister action test', function(test) {
   var actionCommand = "getlog";
   var editActionCommand = "editlog";
@@ -17,13 +21,15 @@ casper.test.begin('Register/Unregister action test', function(test) {
   casper.then(function() {
     util.moveToServersPage(test);
     casper.then(function() {
-      util.registerMonitoringServer(test,
-                                    {serverType: 0,
-                                     nickName: "test",
-                                     serverName: "test",
-                                     ipAddress: "127.0.0.1",
-                                     userName: "admin",
-                                     userPassword: "zabbix-admin"});
+      util.registerMonitoringServer(test, {
+        serverType: "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
+        baseURL: "http://127.0.0.1/zabbix/api_jsonrpc.php",
+        brokerURL: "amqp://test_user:test_password@localhost:5673/test",
+        nickName: "test",
+        serverName: "test",
+        userName: "admin",
+        userPassword: "zabbix-admin"
+      });
     });
   });
   // move to actions page

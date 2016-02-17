@@ -66,6 +66,8 @@ function registerMonitoringServer(test, params) {
     });
 
   // emulate actual inputs
+  // TODO: These can be use only for Zabbix (HAPI2). We should support
+  //       other types.
   casper.waitForSelector("input#server-edit-dialog-param-form-0",
     function success() {
       this.sendKeys("input#server-edit-dialog-param-form-0", params.nickName);
@@ -75,31 +77,31 @@ function registerMonitoringServer(test, params) {
     });
   casper.waitForSelector("input#server-edit-dialog-param-form-1",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-1", params.serverName);
+      this.sendKeys("input#server-edit-dialog-param-form-1", params.baseURL);
     },
     function fail() {
       test.assertExists("input#server-edit-dialog-param-form-1");
     });
   casper.waitForSelector("input#server-edit-dialog-param-form-2",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-2", params.ipAddress);
+      this.sendKeys("input#server-edit-dialog-param-form-2", params.userName);
     },
     function fail() {
       test.assertExists("input#server-edit-dialog-param-form-2");
     });
-  casper.waitForSelector("input#server-edit-dialog-param-form-4",
+  casper.waitForSelector("input#server-edit-dialog-param-form-3",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-4", params.userName);
+      this.sendKeys("input#server-edit-dialog-param-form-3", params.userPassword);
     },
     function fail() {
-      test.assertExists("input#server-edit-dialog-param-form-4");
+      test.assertExists("input#server-edit-dialog-param-form-3");
     });
-  casper.waitForSelector("input#server-edit-dialog-param-form-5",
+  casper.waitForSelector("input#server-edit-dialog-param-form-7",
     function success() {
-      this.sendKeys("input#server-edit-dialog-param-form-5", params.userPassword);
+      this.sendKeys("input#server-edit-dialog-param-form-7", params.brokerURL);
     },
     function fail() {
-      test.assertExists("input#server-edit-dialog-param-form-5");
+      test.assertExists("input#server-edit-dialog-param-form-7");
     });
 
   // close post confirmation dialog
