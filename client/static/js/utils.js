@@ -216,7 +216,7 @@ function getItemBriefWithUnit(item) {
 
 function escapeHTML(html) {
   return $('<div/>').text(html).html();
-};
+}
 
 function deparam(query) {
   var offset;
@@ -229,7 +229,7 @@ function deparam(query) {
   }
 
   return $.deparam(query);
-};
+}
 
 function getMetricPrefix(pow) {
   switch(pow) {
@@ -332,7 +332,7 @@ function formatItemValue(value, unit) {
     return formatMetricPrefix(value, unit, 1024);
   else
     return formatMetricPrefix(value, unit);
-};
+}
 
 function isInt(value) {
   // Caution: It doesn't work correctly against a number like 1.0.
