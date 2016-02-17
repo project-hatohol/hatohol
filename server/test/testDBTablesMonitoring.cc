@@ -585,7 +585,7 @@ void test_getTriggerInfoList(gconstpointer data)
 	assertGetTriggerInfoList(data, ALL_SERVERS);
 }
 
-void test_getTriggerInfoListWithHostname(void){
+void test_getTriggerInfoListWithHostnameList(void){
 	loadTestDBTriggers();
 
 	TriggerInfoList triggerInfoList;
