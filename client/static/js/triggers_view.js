@@ -70,7 +70,7 @@ var TriggersView = function(userProfile, options) {
   }
 
   function loadUserConfig() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     self.userConfig.get({
       itemNames:['num-triggers-per-page'],
       successCallback: function(conf) {
@@ -91,7 +91,7 @@ var TriggersView = function(userProfile, options) {
   }
 
   function loadSeverityRank() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     new HatoholConnector({
       url: "/severity-rank",
       request: "GET",
@@ -352,8 +352,8 @@ var TriggersView = function(userProfile, options) {
       severityClass = getSeverityClass(trigger);
       triggerName = getTriggerName(trigger);
 
-      html += "<tr><td class='" + severityClass +"'>"
-        + escapeHTML(nickName) + "</td>";
+      html += "<tr><td class='" + severityClass +"'>" +
+        escapeHTML(nickName) + "</td>";
       html += "<td class='" + severityClass +
         "' data-sort-value='" + escapeHTML(severity) + "'>" +
         triggerPropertyChoices.severity[Number(severity)].label + "</td>";
@@ -368,11 +368,11 @@ var TriggersView = function(userProfile, options) {
         formatDate(clock) + "</td>";
       html += "<td class='" + severityClass + "'>" +
         escapeHTML(hostName) + "</td>";
-      html += "<td class='" + severityClass + "'>"
-	+ "<a href='ajax_events?serverId=" + escapeHTML(serverId)
-	+ "&triggerId=" + escapeHTML(trigger["id"]) + "'>"
-	+ escapeHTML(triggerName)
-	+ "</a></td>";
+      html += "<td class='" + severityClass + "'>" +
+	"<a href='ajax_events?serverId=" + escapeHTML(serverId) +
+	"&triggerId=" + escapeHTML(trigger["id"]) + "'>" +
+	escapeHTML(triggerName) +
+	"</a></td>";
       html += "</tr>";
     }
 
@@ -446,7 +446,7 @@ var TriggersView = function(userProfile, options) {
     $.extend(query, self.lastQuickFilter);
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
-  };
+  }
 
   function resetTimeRangeFilter() {
     $("#begin-time").next(".clear-button").trigger('click');
