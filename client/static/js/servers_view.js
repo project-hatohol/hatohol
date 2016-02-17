@@ -19,7 +19,7 @@
 
 var ServersView = function(userProfile) {
   var self = this;
-  var serverIds = new Array();
+  var serverIds = [];
   var paramsArrayMap = {};
   var currServersMap = {};
  
