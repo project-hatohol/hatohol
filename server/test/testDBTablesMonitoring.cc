@@ -591,7 +591,7 @@ void test_getTriggerInfoListWithHostname(void){
 	TriggerInfoList triggerInfoList;
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(USER_ID_SYSTEM);
-	option.setHostname("hostX1");
+	option.setHostnameList({"hostX1"});
 	option.setSortType(TriggersQueryOption::SORT_ID,
 	                   DataQueryOption::SORT_ASCENDING);
 	dbMonitoring.getTriggerInfoList(triggerInfoList, option);

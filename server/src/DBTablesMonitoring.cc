@@ -1335,7 +1335,7 @@ struct TriggersQueryOption::Impl {
 	ExcludeFlags excludeFlags;
 	timespec beginTime;
 	timespec endTime;
-	string hostname;
+	list<string> hostnameList;
 	SortType sortType;
 	SortDirection sortDirection;
 
@@ -1346,7 +1346,7 @@ struct TriggersQueryOption::Impl {
 	  excludeFlags(NO_EXCLUDE_HOST),
 	  beginTime({0, 0}),
 	  endTime({0, 0}),
-	  hostname(""),
+	  hostnameList({}),
 	  sortType(SORT_ID),
 	  sortDirection(SORT_DONT_CARE)
 	{
@@ -1463,12 +1463,9 @@ string TriggersQueryOption::getCondition(void) const
 			m_impl->endTime.tv_nsec));
 	}
 
-	if (!m_impl->hostname.empty()) {
-		DBTermCStringProvider rhs(*getDBTermCodec());
-		addCondition(condition, StringUtils::sprintf(
-			"%s = %s",
-			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME].columnName,
-			rhs(m_impl->hostname)));
+	if (!m_impl->hostnameList.empty()) {
+		addCondition(condition,
+			     makeHostnameListCondition(m_impl->hostnameList));
 	}
 
 	return condition;
@@ -1524,14 +1521,14 @@ const timespec &TriggersQueryOption::getEndTime(void)
 	return m_impl->endTime;
 }
 
-void TriggersQueryOption::setHostname(const string &hostname)
+void TriggersQueryOption::setHostnameList(const list<string> &hostnameList)
 {
-	m_impl->hostname = hostname;
+	m_impl->hostnameList = hostnameList;
 }
 
-const string TriggersQueryOption::getHostname(void)
+const list<string> TriggersQueryOption::getHostnameList(void)
 {
-	return m_impl->hostname;
+	return m_impl->hostnameList;
 }
 
 void TriggersQueryOption::setSortType(
@@ -1581,6 +1578,23 @@ TriggersQueryOption::SortType TriggersQueryOption::getSortType(void) const
 DataQueryOption::SortDirection TriggersQueryOption::getSortDirection(void) const
 {
 	return m_impl->sortDirection;
+}
+
+string TriggersQueryOption::makeHostnameListCondition(
+  const list<string> &hostnameList) const
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_HOSTNAME];
+	SeparatorInjector commaInjector(",");
+	DBTermCStringProvider rhs(*getDBTermCodec());
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto hostname : hostnameList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%s", rhs(hostname.c_str()));
+	}
+
+	condition += ")";
+	return condition;
 }
 
 //
