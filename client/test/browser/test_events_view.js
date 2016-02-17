@@ -451,7 +451,7 @@ describe('EventsView', function() {
     var configJson =
       '{"events.columns":"eventId,' +
       'incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio"}';
-    respond(eventsJson(events,getDummyHAPI2ZabbixServerInfo()),
+    respond(eventsJson(events, getDummyHAPI2ZabbixServerInfo()),
 	    configJson);
     expect($('tr').eq(0).text()).to.be(
       "Event IDHandlingPriorityAssignee% Done");
@@ -474,7 +474,7 @@ describe('EventsView', function() {
     var configJson =
       '{"events.columns":"eventId,' +
       'incidentStatus,incidentPriority,incidentAssignee,incidentDoneRatio"}';
-    respond(eventsJson(events,getDummyHAPI2ZabbixServerInfo()), configJson);
+    respond(eventsJson(events, getDummyHAPI2ZabbixServerInfo()), configJson);
     expect($('tr').eq(0).text()).to.be(
       "Event IDHandlingPriorityAssignee% Done");
     expect($('tr').eq(1).text()).to.be(
