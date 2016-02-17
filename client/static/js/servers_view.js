@@ -98,9 +98,9 @@ var ServersView = function(userProfile) {
   function parseResult(data) {
     var msg;
     var malformed =false;
-    if (data.result == undefined)
+    if (data.result === undefined)
       malformed = true;
-    if (!malformed && !data.result && data.message == undefined)
+    if (!malformed && !data.result && data.message === undefined)
       malformed = true;
     if (malformed) {
       msg = "The returned content is malformed: " +
@@ -114,7 +114,7 @@ var ServersView = function(userProfile) {
       hatoholErrorMsgBox(msg);
       return false;
     }
-    if (data.id == undefined) {
+    if (data.id === undefined) {
       msg = "The returned content is malformed: " +
         "'result' is true, however, 'id' missing.\n" +
         JSON.stringfy(data);
@@ -313,11 +313,11 @@ var ServersView = function(userProfile) {
       var type = serverTypeInfo.type;
       if (type == hatohol.MONITORING_SYSTEM_HAPI2)
         type = serverTypeInfo.uuid;
-      if (type == undefined) {
+      if (type === undefined) {
         continue;
       }
       var parameters = serverTypeInfo.parameters;
-      if (parameters == undefined) {
+      if (parameters === undefined) {
         continue;
       }
       paramsArrayMap[type] = JSON.parse(parameters);
@@ -342,9 +342,9 @@ var ServersView = function(userProfile) {
             if (!param.label || !param.id || param.hidden || param.inputStyle == "password")
               continue;
             s += gettext(param.label) + ": ";
-            if (param.inputStyle == "checkBox") {
+            if (param.inputStyle === "checkBox") {
               value = server[param.id];
-              if (value == true) {
+              if (value === true) {
                 s += gettext("True");
               } else {
                 s += gettext("False");
@@ -405,10 +405,10 @@ ServerConnStatParser.prototype.setServerId = function(serverId) {
 
 ServerConnStatParser.prototype.getStatusLabel = function() {
   var self = this;
-  if (self.currConnStat == undefined)
+  if (self.currConnStat === undefined)
     throw new Error("Called before a valid server ID is set.");
   var currStatNum = self.currConnStat.status;
-  if (currStatNum == undefined)
+  if (currStatNum === undefined)
     return gettext("N/A");
 
   switch(currStatNum) {
@@ -426,7 +426,7 @@ ServerConnStatParser.prototype.getStatusLabel = function() {
 
 ServerConnStatParser.prototype.getInfoHTML = function() {
   var self = this;
-  if (self.currConnStat == undefined)
+  if (self.currConnStat === undefined)
     throw new Error("Called before a valid server ID is set.");
   var s = "";
 
@@ -463,7 +463,7 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
   // number of updates
   s += "<br>";
   var numUpdate = self.currConnStat.numUpdate;
-  if (numUpdate == undefined)
+  if (numUpdate === undefined)
     s += "N/A";
   else
     s += gettext("Number of communication") + ": " + numUpdate;
@@ -471,7 +471,7 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
   // number of failures
   s += "<br>";
   var numFailure = self.currConnStat.numFailure;
-  if (numFailure == undefined)
+  if (numFailure === undefined)
     s += "N/A";
   else
     s += gettext("Number of failure") + ": " + numFailure;
@@ -480,9 +480,9 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
   s += "<br>";
   s += gettext("Comment for the failure") + ": ";
   var failureComment = self.currConnStat.failureComment;
-  if (failureComment == undefined)
+  if (failureComment === undefined)
     s += "N/A";
-  else if (failureComment == "")
+  else if (failureComment === "")
     s += "-";
   else
     s += failureComment;
@@ -491,10 +491,10 @@ ServerConnStatParser.prototype.getInfoHTML = function() {
 };
 
 ServerConnStatParser.prototype.unixTimeToVisible = function(unixTimeString) {
-  if (unixTimeString == undefined)
+  if (unixTimeString === undefined)
     return "N/A";
   var unixTime = Number(unixTimeString);
-  if (unixTime == 0)
+  if (unixTime === 0)
     return "-";
   var date = new Date(unixTime * 1000);
   var year  = date.getYear();
