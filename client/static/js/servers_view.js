@@ -64,7 +64,7 @@ var ServersView = function(userProfile) {
 
   function addOrUpdateSucceededCb() {
     self.startConnection('server', updateCore);
-  };
+  }
 
   function setupCheckbox() {
   }
@@ -422,7 +422,7 @@ ServerConnStatParser.prototype.getStatusLabel = function() {
     return {msg:gettext("Unknown:") + currStatNum, msgClass:"text-error"};
   }
   throw new Error("This line must no be executed.");
-}
+};
 
 ServerConnStatParser.prototype.getInfoHTML = function() {
   var self = this;
