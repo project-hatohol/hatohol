@@ -253,7 +253,7 @@ function getMetricPrefix(pow) {
 }
 
 function formatMetricPrefix(value, unit, step, pow, digits) {
-  var text, maxPow = 6, unit;
+  var text, maxPow = 6;
   var blackList = {
     '%': true,
     'ms': true,
