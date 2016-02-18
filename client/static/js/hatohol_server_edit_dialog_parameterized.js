@@ -237,12 +237,12 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
 
     // Fill value for update
     if (self.server) {
-      for (var i = 0; i < paramObj.length; i++) {
+      for (i = 0; i < paramObj.length; i++) {
         var param = paramObj[i];
         if (!(param.id in self.server))
           continue;
 
-        var elem = $('#' + paramObj[i].elementId);
+        elem = $('#' + paramObj[i].elementId);
         var value = self.server[param.id];
         if (param.inputStyle == 'checkBox')
           elem.prop('checked', value);
@@ -252,7 +252,7 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     }
 
     // set events to fix up state of 'apply' button
-    for (var i = 0; i < paramObj.length; i++) {
+    for (i = 0; i < paramObj.length; i++) {
       $('#' + paramObj[i].elementId).keyup(function() {
         self.fixupApplyButtonState();
       });
