@@ -138,13 +138,13 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
 
   function replyCallback(reply, parser) {
     var type;
-    var serverTypes = reply.serverType
+    var serverTypes = reply.serverType;
 
     if (!(serverTypes instanceof Array)) {
       hatoholErrorMsgBox("[Malformed reply] Not found array: serverType");
       return;
     }
-    sortByPriority(serverTypes)
+    sortByPriority(serverTypes);
     self.paramArray = [];
     self.uuidArray = [];
     for (var i = 0; i < serverTypes.length; i ++) {
@@ -156,15 +156,15 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
       }
 
       type = serverTypeInfo.type;
-      if (type == hatohol.MONITORING_SYSTEM_HAPI2)
+      if (type === hatohol.MONITORING_SYSTEM_HAPI2)
         type = getServerTypeId(serverTypeInfo);
-      if (type == undefined) {
+      if (type === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: type");
         return;
       }
 
       var parameters = serverTypeInfo.parameters;
-      if (parameters == undefined) {
+      if (parameters === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: parameters");
         return;
       }
@@ -191,7 +191,8 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
     form.append($('<label>').text(gettext('Monitoring server type')));
     var select = $('<select id="selectServerType">').appendTo(form);
     select.append($('<option>').html(gettext('Please select')).val('_header'));
-    mainDiv.append('<form id="add-server-param-form" class="form-horizontal" role="form" autocomplete="off">');
+    mainDiv.append('<form id="add-server-param-form" ' +
+                   'class="form-horizontal" role="form" autocomplete="off">');
     return mainDiv;
   }
 
@@ -199,7 +200,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
     for (var i = 0; i < serverTypes.length; i++) {
       addPriority(serverTypes[i]);
     }
-    sortObjectArray(serverTypes, 'priority')
+    sortObjectArray(serverTypes, 'priority');
   }
 };
 
@@ -236,12 +237,12 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
 
     // Fill value for update
     if (self.server) {
-      for (var i = 0; i < paramObj.length; i++) {
+      for (i = 0; i < paramObj.length; i++) {
         var param = paramObj[i];
         if (!(param.id in self.server))
           continue;
 
-        var elem = $('#' + paramObj[i].elementId);
+        elem = $('#' + paramObj[i].elementId);
         var value = self.server[param.id];
         if (param.inputStyle == 'checkBox')
           elem.prop('checked', value);
@@ -251,7 +252,7 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     }
 
     // set events to fix up state of 'apply' button
-    for (var i = 0; i < paramObj.length; i++) {
+    for (i = 0; i < paramObj.length; i++) {
       $('#' + paramObj[i].elementId).keyup(function() {
         self.fixupApplyButtonState();
       });
@@ -270,15 +271,15 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
       label = param.id;
 
     var defaultValue = '';
-    if (param.default != undefined)
+    if (param.default !== undefined)
       defaultValue = param.default;
 
     var inputStyle = param.inputStyle;
-    if (inputStyle == undefined)
+    if (inputStyle === undefined)
       inputStyle = 'text';
 
     var hint = '';
-    if (param.hint != undefined)
+    if (param.hint !== undefined)
       hint = param.hint;
 
     var elementId = 'server-edit-dialog-param-form-' + index;
