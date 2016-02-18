@@ -32,7 +32,7 @@ static ZabbixAPIEmulator g_apiEmulator;
 static MonitoringServerInfo g_defaultServerInfo =
 {
 	0,                        // id
-	MONITORING_SYSTEM_ZABBIX, // type
+	MONITORING_SYSTEM_HAPI2,  // type
 	"127.0.0.1",              // hostname
 	"127.0.0.1",              // ip_address
 	"No name",                // nickname

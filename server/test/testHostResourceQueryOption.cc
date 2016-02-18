@@ -425,7 +425,7 @@ void test_selectPluralServers(void)
 	serverIdSet.insert(4);
 	serverIdSet.insert(211);
 	option.setSelectedServerIds(serverIdSet);
-	string expect("server_id IN (1,2,3,4,211,222,301)"
+	string expect("server_id IN (1,2,3,4,5,211,222,301)"
 		      " AND (server_id=3 OR server_id=4 OR server_id=211)");
 	cppcut_assert_equal(expect, option.getCondition());
 }
@@ -438,7 +438,7 @@ void test_excludeServers(void)
 	serverIdSet.insert(4);
 	serverIdSet.insert(211);
 	option.setExcludedServerIds(serverIdSet);
-	string expect("server_id IN (1,2,3,4,211,222,301)"
+	string expect("server_id IN (1,2,3,4,5,211,222,301)"
 		      " AND (server_id<>3 AND server_id<>4 AND server_id<>211)");
 	cppcut_assert_equal(expect, option.getCondition());
 }
@@ -467,7 +467,7 @@ void test_selectPluralHostgroups(void)
 	map[5] = hostgroupIdSet1;
 	map[6] = hostgroupIdSet2;
 	option.setSelectedHostgroupIds(map);
-	string expect("test_table_name.server_id IN (1,2,3,4,211,222,301)"
+	string expect("test_table_name.server_id IN (1,2,3,4,5,211,222,301)"
 		      " AND "
 		      "((test_table_name.server_id=5 AND"
 		      " test_hgrp_table_name.host_group_id='101') OR"
@@ -492,7 +492,7 @@ void test_excludePluralHostgroups(void)
 	map[5] = hostgroupIdSet1;
 	map[6] = hostgroupIdSet2;
 	option.setExcludedHostgroupIds(map);
-	string expect("test_table_name.server_id IN (1,2,3,4,211,222,301)"
+	string expect("test_table_name.server_id IN (1,2,3,4,5,211,222,301)"
 		      " AND "
 		      "(NOT (test_table_name.server_id=5 AND"
 		      " test_hgrp_table_name.host_group_id='101') AND"
@@ -517,7 +517,7 @@ void test_selectPluralHosts(void)
 	map[5] = hostIdSet1;
 	map[6] = hostIdSet2;
 	option.setSelectedHostIds(map);
-	string expect("server_id IN (1,2,3,4,211,222,301)"
+	string expect("server_id IN (1,2,3,4,5,211,222,301)"
 		      " AND "
 		      "((server_id=5 AND host_id='101') OR"
 		      " (server_id=5 AND host_id='102') OR"
@@ -538,7 +538,7 @@ void test_excludePluralHosts(void)
 	hostsMap[5] = hostIdSet1;
 	hostsMap[6] = hostIdSet2;
 	option.setExcludedHostIds(hostsMap);
-	string expect("server_id IN (1,2,3,4,211,222,301)"
+	string expect("server_id IN (1,2,3,4,5,211,222,301)"
 		      " AND "
 		      "(NOT (server_id=5 AND host_id='101') AND"
 		      " NOT (server_id=5 AND host_id='102') AND"
@@ -577,7 +577,7 @@ void test_selectPluralServerAndGroupsAndHosts(void)
 	option.setSelectedHostgroupIds(groupsMap);
 	option.setSelectedHostIds(hostsMap);
 
-	string expect("test_table_name.server_id IN (1,2,3,4,211,222,301)"
+	string expect("test_table_name.server_id IN (1,2,3,4,5,211,222,301)"
 		      " AND ("
 		      "(test_table_name.server_id=1 OR"
 		      " test_table_name.server_id=2 OR"

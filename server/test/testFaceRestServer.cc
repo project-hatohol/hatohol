@@ -186,33 +186,53 @@ void test_serversWithoutUpdatePrivilege(void)
 }
 
 static void serverInfo2StringMap(
-  const MonitoringServerInfo &src, StringMap &dest)
+  const MonitoringServerInfo &svInfo, const ArmPluginInfo &armInfo,
+  StringMap &dest)
 {
-	dest["type"] = StringUtils::toString(src.type);
-	dest["hostName"] = src.hostName;
-	dest["ipAddress"] = src.ipAddress;
-	dest["nickname"] = src.nickname;
-	dest["port"] = StringUtils::toString(src.port);
-	dest["userName"] = src.userName;
-	dest["password"] = src.password;
-	dest["dbName"] = src.dbName;
+	dest["type"] = StringUtils::toString(svInfo.type);
+	dest["hostName"] = svInfo.hostName;
+	dest["ipAddress"] = svInfo.ipAddress;
+	dest["nickname"] = svInfo.nickname;
+	dest["port"] = StringUtils::toString(svInfo.port);
+	dest["userName"] = svInfo.userName;
+	dest["password"] = svInfo.password;
+	dest["dbName"] = svInfo.dbName;
 	dest["pollingInterval"]
-	  = StringUtils::toString(src.pollingIntervalSec);
+	  = StringUtils::toString(svInfo.pollingIntervalSec);
 	dest["retryInterval"]
-	  = StringUtils::toString(src.retryIntervalSec);
-	dest["baseURL"] = src.baseURL;
-	dest["extendedInfo"] = src.extendedInfo;
+	  = StringUtils::toString(svInfo.retryIntervalSec);
+	dest["baseURL"] = svInfo.baseURL;
+	dest["extendedInfo"] = svInfo.extendedInfo;
+
+	dest["brokerUrl"] = armInfo.brokerUrl;
+	dest["staticQueueAddress"] = armInfo.staticQueueAddress;
+	dest["tlsCertificatePath"] = armInfo.tlsCertificatePath;
+	dest["tlsKeyPath"] = armInfo.tlsKeyPath;
+	dest["tlsCACertificatePath"] = armInfo.tlsCACertificatePath;
+	if (armInfo.tlsEnableVerify)
+		dest["tlsEnableVerify"] = "true";
+	dest["uuid"] = armInfo.uuid;
 }
 
 void test_addServer(void)
 {
-	MonitoringServerInfo expected;
-	MonitoringServerInfo::initialize(expected);
-	expected.id = testServerInfo[NumTestServerInfo-1].id + 1;
-	expected.type = MONITORING_SYSTEM_ZABBIX;
+	MonitoringServerInfo svInfo;
+	MonitoringServerInfo::initialize(svInfo);
+	svInfo.id = AUTO_INCREMENT_VALUE;
+	svInfo.type = MONITORING_SYSTEM_HAPI2;
+
+	ArmPluginInfo armInfo;
+	ArmPluginInfo::initialize(armInfo);
+	armInfo.id = AUTO_INCREMENT_VALUE;
+	armInfo.type = MONITORING_SYSTEM_HAPI2;
+	armInfo.brokerUrl = "amqp://foo:goo@abc.example.com/vpath";
+	armInfo.staticQueueAddress = "static-queue";
+	armInfo.tlsCertificatePath = "/etc/hatohol/client-cert.pem";
+	armInfo.tlsKeyPath = "/etc/hatohol/key.pem";
+	armInfo.tlsCACertificatePath = "/etc/hatohol/ca-cert.pem";
 
 	StringMap params;
-	serverInfo2StringMap(expected, params);
+	serverInfo2StringMap(svInfo, armInfo, params);
 	assertAddServerWithSetup(params, HTERR_OK);
 
 	// check the content in the DB
@@ -220,7 +240,18 @@ void test_addServer(void)
 	DBTablesConfig &dbConfig = cache.getConfig();
 	string statement = "select * from servers ";
 	statement += " order by id desc limit 1";
-	string expectedOutput = makeServerInfoOutput(expected);
+
+	svInfo.id = testServerInfo[NumTestServerInfo-1].id + 1;
+	string expectedOutput = makeServerInfoOutput(svInfo);
+	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
+
+	statement = "select * from arm_plugins order by id desc limit 1";
+
+	armInfo.id = NumTestArmPluginInfo + 1;
+	// Should we search path from testServerTypeInfo ?
+	armInfo.path = "/usr/sbin/hatohol-arm-plugin-ver2";
+	armInfo.serverId = svInfo.id;
+	expectedOutput = makeArmPluginInfoOutput(armInfo);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOutput);
 }
 
@@ -236,7 +267,7 @@ void test_addServerHapiJSON(void)
 
 	ArmPluginInfo armPluginInfo;
 	setupArmPluginInfo(armPluginInfo, expected);
-	armPluginInfo.id = 1; // We suppose all entries have been deleted
+	armPluginInfo.id = NumTestArmPluginInfo + 1;
 	armPluginInfo.tlsCertificatePath = "/etc/hatohol/client-cert.pem";
 	armPluginInfo.tlsKeyPath = "/etc/hatohol/key.pem";
 	armPluginInfo.tlsCACertificatePath = "/etc/hatohol/ca-cert.pem";
@@ -277,8 +308,9 @@ void test_addServerHapiJSON(void)
 void test_addServerWithoutNickname(void)
 {
 	MonitoringServerInfo serverInfo = testServerInfo[0];
+	ArmPluginInfo armInfo = testArmPluginInfo[0];
 	StringMap params;
-	serverInfo2StringMap(serverInfo, params);
+	serverInfo2StringMap(serverInfo, armInfo, params);
 	params.erase("nickname");
 	assertAddServerWithSetup(params, HTERR_NOT_FOUND_PARAMETER);
 
@@ -300,7 +332,7 @@ void test_updateServer(gconstpointer data)
 	const int serverIndex = gcut_data_get_int(data, "index");
 	MonitoringServerInfo srcSvInfo = testServerInfo[serverIndex];
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	ArmPluginInfo *armPluginInfo = NULL;
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[serverIndex];
 
 	// Although cut_setup() loads test servers in the DB, updateServer()
 	// needs the call of addTargetServer() before it. Or the internal
@@ -308,7 +340,7 @@ void test_updateServer(gconstpointer data)
 	srcSvInfo.id = AUTO_INCREMENT_VALUE;
 	assertHatoholError(
 	  HTERR_OK,
-	  uds->addTargetServer(srcSvInfo, *armPluginInfo,
+	  uds->addTargetServer(srcSvInfo, armPluginInfo,
 	                       OperationPrivilege(USER_ID_SYSTEM), false)
 	);
 
@@ -317,7 +349,7 @@ void test_updateServer(gconstpointer data)
 	string url = StringUtils::sprintf("/server/%" FMT_SERVER_ID,
 	                                  srcSvInfo.id);
 	StringMap params;
-	serverInfo2StringMap(updateSvInfo, params);
+	serverInfo2StringMap(updateSvInfo, armPluginInfo, params);
 
 	// send a request
 	RequestArg arg(url);
@@ -343,14 +375,14 @@ void test_deleteServer(void)
 	startFaceRest();
 
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
-	ArmPluginInfo *armPluginInfo = NULL;
+	ArmPluginInfo armPluginInfo = testArmPluginInfo[0];
 
 	// a copy is necessary not to change the source.
 	MonitoringServerInfo targetSvInfo = testServerInfo[0];
 	targetSvInfo.id = AUTO_INCREMENT_VALUE;
 	assertHatoholError(
 	  HTERR_OK,
-	  uds->addTargetServer(targetSvInfo, *armPluginInfo,
+	  uds->addTargetServer(targetSvInfo, armPluginInfo,
 	                       OperationPrivilege(USER_ID_SYSTEM), false)
 	);
 
@@ -383,14 +415,34 @@ void test_getServerType(void)
 	assertStartObject(g_parser, "serverType");
 	cppcut_assert_equal(NumTestServerTypeInfo,
 	                    (size_t)g_parser->countElements());
+
+	set<size_t> remainingIndexes;
+	for (size_t i = 0; i < NumTestServerTypeInfo; i++)
+		remainingIndexes.insert(i);
+
+	auto extractIndex = [&](const int &type, const string &uuid) {
+		for (const auto idx: remainingIndexes) {
+			const ServerTypeInfo &svti = testServerTypeInfo[idx];
+			if (svti.type == type && svti.uuid == uuid) {
+				remainingIndexes.erase(idx);
+				return idx;
+			}
+		}
+		cut_fail("Not found: type: %d, uuid: %s", type, uuid.c_str());
+		return 0ul; // This line is never invoked, just to pass build.
+	};
+
 	for (size_t i = 0; i < NumTestServerTypeInfo; i++) {
+		int64_t type;
+		string uuid;
 		cppcut_assert_equal(true, g_parser->startElement(i));
-		const ServerTypeInfo &svTypeInfo = testServerTypeInfo[i];
-		assertValueInParser(g_parser, "type", svTypeInfo.type);
+		cppcut_assert_equal(true, g_parser->read("type", type));
+		cppcut_assert_equal(true, g_parser->read("uuid", uuid));
+		const size_t idx = extractIndex(type, uuid);
+		const ServerTypeInfo &svTypeInfo = testServerTypeInfo[idx];
 		assertValueInParser(g_parser, "name", svTypeInfo.name);
 		assertValueInParser(g_parser, "parameters",
 		                    svTypeInfo.parameters);
-		assertValueInParser(g_parser, "uuid", svTypeInfo.uuid);
 		g_parser->endElement();
 	}
 	g_parser->endObject(); // serverType

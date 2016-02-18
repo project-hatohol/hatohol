@@ -164,7 +164,6 @@ static void _assertTriggers(
   const timespec &endTime = {0, 0},
   const size_t expectedNumTrigger = -1)
 {
-	loadTestDBArmPlugin();
 	loadTestDBTriggers();
 	loadTestDBServerHostDef();
 	startFaceRest();
@@ -247,7 +246,6 @@ static void _assertEvents(const string &path,
 			  AssertGetEventsArg &expectedEventsArg,
 			  const string &callbackName = "")
 {
-	loadTestDBArmPlugin();
 	loadTestDBTriggers();
 	loadTestDBEvents();
 	loadTestDBServerHostDef();
@@ -321,7 +319,6 @@ static void _assertEvents(const string &path, const string &callbackName = "")
 static void _assertItems(const string &path, const string &callbackName = "",
 			 ssize_t numExpectedItems = -1)
 {
-	loadTestDBArmPlugin();
 	loadTestDBItems();
 	loadTestDBServerHostDef();
 	startFaceRest();
@@ -738,7 +735,7 @@ static string getExpectedServers(void)
 		      "\"1\":{"
 		      "\"name\":\"pochi.dog.com\","
 		      "\"nickname\":\"POCHI\","
-		      "\"type\":0,"
+		      "\"type\":7,"
 		      "\"ipAddress\":\"192.168.0.5\","
 		      "\"baseURL\":\"\","
 		      "\"uuid\":\"8e632c14-d1f7-11e4-8350-d43d7e3146fb\","
@@ -751,9 +748,10 @@ static string getExpectedServers(void)
 		      "\"2\":{"
 		      "\"name\":\"mike.dog.com\","
 		      "\"nickname\":\"MIKE\","
-		      "\"type\":0,"
+		      "\"type\":7,"
 		      "\"ipAddress\":\"192.168.1.5\","
 		      "\"baseURL\":\"\","
+		      "\"uuid\":\"902d955c-d1f7-11e4-80f9-d43d7e3146fb\","
 		      "\"hosts\":{"
 		      "\"512\":{\"name\":\"multi-host group\"},"
 		      "\"9920249034889494527\":{\"name\":\"hostQ1\"}},"
@@ -762,7 +760,7 @@ static string getExpectedServers(void)
 		      "\"3\":{"
 		      "\"name\":\"hachi.dog.com\","
 		      "\"nickname\":\"8\","
-		      "\"type\":0,"
+		      "\"type\":7,"
 		      "\"ipAddress\":\"192.168.10.1\","
 		      "\"baseURL\":\"\","
 		      "\"uuid\":\"\","
@@ -776,19 +774,31 @@ static string getExpectedServers(void)
 		      "\"4\":{"
 		      "\"name\":\"mosquito.example.com\","
 		      "\"nickname\":\"KA\","
-		      "\"type\":0,"
+		      "\"type\":7,"
 		      "\"ipAddress\":\"10.100.10.52\","
 		      "\"baseURL\":\"\","
+		      "\"uuid\":\"\","
 		      "\"hosts\":{"
 		      "\"100\":{\"name\":\"squirrel\"}},"
+		      "\"groups\":{}},"
+
+		      "\"5\":{"
+		      "\"name\":\"overture.example.com\","
+		      "\"nickname\":\"OIOI\","
+		      "\"type\":7,"
+		      "\"ipAddress\":\"123.45.67.89\","
+		      "\"baseURL\":\"\","
+		      "\"uuid\":\"\","
+		      "\"hosts\":{},"
 		      "\"groups\":{}},"
 
 		      "\"211\":{"
 		      "\"name\":\"x-men.example.com\","
 		      "\"nickname\":\"(^_^)\","
-		      "\"type\":0,"
+		      "\"type\":7,"
 		      "\"ipAddress\":\"172.16.32.51\","
 		      "\"baseURL\":\"\","
+		      "\"uuid\":\"\","
 		      "\"hosts\":{"
 		      "\"12111\":{\"name\":\"host 12111\"},"
 		      "\"12112\":{\"name\":\"host 12112\"},"
@@ -799,9 +809,10 @@ static string getExpectedServers(void)
 		      "\"222\":{"
 		      "\"name\":\"zoo.example.com\","
 		      "\"nickname\":\"Akira\","
-		      "\"type\":0,"
+		      "\"type\":7,"
 		      "\"ipAddress\":\"10.0.0.48\","
 		      "\"baseURL\":\"\","
+		      "\"uuid\":\"\","
 		      "\"hosts\":{"
 		      "\"110005\":{\"name\":\"host 110005\"}},"
 		      "\"groups\":{}},"
@@ -809,9 +820,10 @@ static string getExpectedServers(void)
 		      "\"301\":{"
 		      "\"name\":\"nagios.example.com\","
 		      "\"nickname\":\"Akira\","
-		      "\"type\":1,"
+		      "\"type\":7,"
 		      "\"ipAddress\":\"10.0.0.32\","
 		      "\"baseURL\":\"http://10.0.0.32/nagios3\","
+		      "\"uuid\":\"\","
 		      "\"hosts\":{},"
 		      "\"groups\":{}}"
 
@@ -861,7 +873,6 @@ static string getExpectedIncidentTrackers(void)
 
 void test_eventsWithHostsFilter(void)
 {
-	loadTestDBArmPlugin();
 	loadTestDBTriggers();
 	loadTestDBEvents();
 	loadTestDBServerHostDef();
@@ -901,7 +912,6 @@ void test_eventsWithHostsFilter(void)
 
 void test_eventsWithTypesFilter(void)
 {
-	loadTestDBArmPlugin();
 	loadTestDBTriggers();
 	loadTestDBEvents();
 	loadTestDBServerHostDef();
@@ -955,7 +965,6 @@ void test_eventsWithTypesFilter(void)
 
 void test_eventsWithSeveritiesFilter(void)
 {
-	loadTestDBArmPlugin();
 	loadTestDBTriggers();
 	loadTestDBEvents();
 	loadTestDBServerHostDef();
@@ -1023,7 +1032,6 @@ void test_eventsWithSeveritiesFilter(void)
 
 void test_eventsWithStatusesFilter(void)
 {
-	loadTestDBArmPlugin();
 	loadTestDBTriggers();
 	loadTestDBEvents();
 	loadTestDBServerHostDef();
@@ -1076,7 +1084,6 @@ void test_eventsWithStatusesFilter(void)
 
 void test_eventsWithIncidentStatusesFilter(void)
 {
-	loadTestDBArmPlugin();
 	loadTestDBTriggers();
 	loadTestDBEvents();
 	loadTestDBIncidents();

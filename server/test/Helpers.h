@@ -274,8 +274,6 @@ void _assertEqualSize(const T0 &exp, const T1 &act)
 #define assertEqualSize(E, A) \
   cut_trace((_assertEqualSize<__typeof__(E), __typeof__(A)>(E,A)))
 
-void prepareDataWithAndWithoutArmPlugin(void);
-
 VariableItemGroupPtr convert(
   const ItemInfo &itemInfo,
   const ItemCategoryIdType &itemCategoryId = NO_ITEM_CATEGORY_ID);
