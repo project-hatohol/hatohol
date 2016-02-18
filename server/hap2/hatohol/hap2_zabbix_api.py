@@ -76,20 +76,21 @@ class ZabbixAPIConductor(object):
         raise NotImplementedError
 
     def collect_and_put_items(self, host_ids=None, fetch_id=None):
-        self.put_items(self.__api.get_items(host_ids), fetch_id)
+        self.put_procedure(self.put_items, self.__api.get_items(host_ids),
+                            fetch_id)
 
     def collect_and_put_history(self, item_id, begin_time, end_time, fetch_id):
-        self.put_history(self.__api.get_history(item_id, begin_time, end_time),
-                         item_id, fetch_id)
+        history = self.__api.get_history(item_id, begin_time, end_time)
+        self.put_procedure(self.put_history, history, item_id, fetch_id)
 
     def update_hosts_and_host_group_membership(self):
         hosts, hg_membership = self.__api.get_hosts()
-        self.put_hosts(hosts)
-        self.put_host_group_membership(hg_membership)
+        self.put_procedure(self.put_hosts, hosts)
+        self.put_procedure(self.put_host_group_membership, hg_membership)
 
     def update_host_groups(self):
         host_groups = self.__api.get_host_groups()
-        self.put_host_groups(host_groups)
+        self.put_procedure(self.put_host_groups, host_groups)
 
     def update_triggers(self, host_ids=None, fetch_id=None):
         if self.__trigger_last_info is None:
@@ -104,9 +105,10 @@ class ZabbixAPIConductor(object):
                                                     "lastChangeTime")
         update_type = "ALL" if fetch_id is not None else "UPDATED"
 
-        self.put_triggers(triggers, update_type=update_type,
-                          last_info=self.__trigger_last_info,
-                          fetch_id=fetch_id)
+        self.put_procedure(self.put_triggers, triggers,
+                           update_type=update_type,
+                           last_info=self.__trigger_last_info,
+                           fetch_id=fetch_id)
 
     def update_events_poll(self):
         last_event_id = self.__api.get_event_end_id()
@@ -133,7 +135,7 @@ class ZabbixAPIConductor(object):
             events = self.__api.get_events(event_from_id, event_till_id)
             if len(events) == 0:
                 continue
-            self.put_events(events)
+            self.put_procedure(self.put_events, events)
 
     def update_events_fetch(self, last_info, count, direction, fetch_id):
         if direction == "ASC":
@@ -148,7 +150,7 @@ class ZabbixAPIConductor(object):
         if len(events) == 0:
             return
 
-        self.put_events(events, fetch_id)
+        self.put_procedure(self.put_events, events, fetch_id=fetch_id)
 
 
 class Hap2ZabbixAPIPoller(haplib.BasePoller, ZabbixAPIConductor):
