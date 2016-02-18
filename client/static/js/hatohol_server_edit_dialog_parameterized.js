@@ -138,13 +138,13 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
 
   function replyCallback(reply, parser) {
     var type;
-    var serverTypes = reply.serverType
+    var serverTypes = reply.serverType;
 
     if (!(serverTypes instanceof Array)) {
       hatoholErrorMsgBox("[Malformed reply] Not found array: serverType");
       return;
     }
-    sortByPriority(serverTypes)
+    sortByPriority(serverTypes);
     self.paramArray = [];
     self.uuidArray = [];
     for (var i = 0; i < serverTypes.length; i ++) {
@@ -199,7 +199,7 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
     for (var i = 0; i < serverTypes.length; i++) {
       addPriority(serverTypes[i]);
     }
-    sortObjectArray(serverTypes, 'priority')
+    sortObjectArray(serverTypes, 'priority');
   }
 };
 
