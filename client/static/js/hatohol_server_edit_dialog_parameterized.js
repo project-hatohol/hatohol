@@ -156,15 +156,15 @@ HatoholServerEditDialogParameterized.prototype.createMainElement = function() {
       }
 
       type = serverTypeInfo.type;
-      if (type == hatohol.MONITORING_SYSTEM_HAPI2)
+      if (type === hatohol.MONITORING_SYSTEM_HAPI2)
         type = getServerTypeId(serverTypeInfo);
-      if (type == undefined) {
+      if (type === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: type");
         return;
       }
 
       var parameters = serverTypeInfo.parameters;
-      if (parameters == undefined) {
+      if (parameters === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: parameters");
         return;
       }
@@ -270,15 +270,15 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
       label = param.id;
 
     var defaultValue = '';
-    if (param.default != undefined)
+    if (param.default !== undefined)
       defaultValue = param.default;
 
     var inputStyle = param.inputStyle;
-    if (inputStyle == undefined)
+    if (inputStyle === undefined)
       inputStyle = 'text';
 
     var hint = '';
-    if (param.hint != undefined)
+    if (param.hint !== undefined)
       hint = param.hint;
 
     var elementId = 'server-edit-dialog-param-form-' + index;
