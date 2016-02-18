@@ -308,7 +308,7 @@ var TriggersView = function(userProfile, options) {
       $("#select-severity").attr("disabled", "disabled");
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
-      $("#select-hostgroup").attr("disabled", "disabled");
+      $("#select-host-group").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
       $(".latest-button").attr("disabled", "disabled");
     } else {
@@ -317,8 +317,8 @@ var TriggersView = function(userProfile, options) {
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
-      if ($("#select-hostgroup option").length > 1)
-        $("#select-hostgroup").removeAttr("disabled");
+      if ($("#select-host-group option").length > 1)
+        $("#select-host-group").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
