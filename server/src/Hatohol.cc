@@ -79,11 +79,14 @@ static void reset(const CommandLineOptions *cmdLineOpts,
 	DBTablesLastInfo::reset();
 
 	ActionManager::reset();
-	ThreadLocalDBCache::reset();
 
 	UnifiedDataStore::getInstance()->reset();
 
 	ConfigManager::reset(cmdLineOpts);
+
+	// This line should be the last in order to prevent other reset() from
+	// creating new caches.
+	ThreadLocalDBCache::reset();
 }
 
 void hatoholInit(const CommandLineOptions *cmdLineOpts,

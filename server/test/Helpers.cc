@@ -103,13 +103,30 @@ void _assertItemTable(const ItemTablePtr &expect, const ItemTablePtr &actual)
 // TODO: We should prepare '== operator' and cppcut_assert_equal() ?
 void _assertEqual(const set<string> &expect, const set<string> &actual)
 {
-	cppcut_assert_equal(expect.size(), actual.size());
+	auto errMsg = [&] {
+		struct {
+			string title;
+			const set<string> &members;
+		} args[] = {
+			{"<expect>", expect}, {"<actual>", actual}
+		};
+
+		string s;
+		for (auto a: args) {
+			s += a.title + "\n";
+			for (auto val: a.members)
+				s += val + "\n";
+		}
+		return s;
+	};
+
+	cppcut_assert_equal(expect.size(), actual.size(),
+	                    cut_message("%s\n", errMsg().c_str()));
 	for (auto val : expect) {
 		cppcut_assert_equal(
 		  true, actual.find(val) != actual.end(),
 		  cut_message("Not found: %s", val.c_str()));
 	}
-	cppcut_assert_equal(expect.size(), actual.size());
 }
 
 void _assertEqual(
@@ -184,7 +201,8 @@ void assertJSONParser(JSONParser &expectParser, JSONParser &actualParser,
 	T expect;
 	cppcut_assert_equal(true, expectParser.read(member, expect));
 	cppcut_assert_equal(true, actualParser.read(member, actual));
-	cppcut_assert_equal(expect, actual);
+	cppcut_assert_equal(expect, actual,
+	                    cut_message("member: %s", member.c_str()));
 }
 
 extern void _assertEqualJSONString(const string &expect, const string &actual)
@@ -1357,14 +1375,6 @@ void _assertGError(const GError *error)
 {
 	const char *errmsg = error ? error->message : "";
 	cppcut_assert_null(error, cut_message("%s", errmsg));
-}
-
-void prepareDataWithAndWithoutArmPlugin(void)
-{
-	gcut_add_datum("w/o ArmPlugin",
-	               "withArmPlugin", G_TYPE_BOOLEAN, FALSE, NULL);
-	gcut_add_datum("w/ ArmPlugin",
-	               "withArmPlugin", G_TYPE_BOOLEAN, TRUE, NULL);
 }
 
 VariableItemGroupPtr convert(const ItemInfo &itemInfo,

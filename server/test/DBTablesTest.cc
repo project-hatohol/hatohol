@@ -27,13 +27,6 @@ using namespace std;
 using namespace mlpl;
 
 static const ServerIdType defunctServerId1 = 0x7fff0001;
-const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST =
-  static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 100);
-const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST =
-  static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 101);
-extern const MonitoringSystemType MONITORING_SYSTEM_HAPI_TEST_PASSIVE =
-  static_cast<MonitoringSystemType>(NUM_MONITORING_SYSTEMS + 102);
-
 
 const ServerTypeInfo testServerTypeInfo[] =
 {{
@@ -45,7 +38,7 @@ const ServerTypeInfo testServerTypeInfo[] =
 	1,                       // plugin_enabled
 	"",                      // uuid
 },{
-	MONITORING_SYSTEM_ZABBIX, // type
+	MONITORING_SYSTEM_HAPI2,  // type
 	"Zabbix",                 // name
 	"["
 	"{\"id\": \"nickname\", \"label\": \"Nickname\"}, "
@@ -120,7 +113,7 @@ const size_t NumTestServerTypeInfo = ARRAY_SIZE(testServerTypeInfo);
 const MonitoringServerInfo testServerInfo[] =
 {{
 	1,                        // id
-	MONITORING_SYSTEM_ZABBIX, // type
+	MONITORING_SYSTEM_HAPI2,  // type
 	"pochi.dog.com",          // hostname
 	"192.168.0.5",            // ip_address
 	"POCHI",                  // nickname
@@ -134,7 +127,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"",                       // exteneded_info
 },{
 	2,                        // id
-	MONITORING_SYSTEM_ZABBIX, // type
+	MONITORING_SYSTEM_HAPI2,  // type
 	"mike.dog.com",           // hostname
 	"192.168.1.5",            // ip_address
 	"MIKE",                   // nickname
@@ -148,7 +141,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"",                       // exteneded_info
 },{
 	3,                        // id
-	MONITORING_SYSTEM_ZABBIX, // type
+	MONITORING_SYSTEM_HAPI2,  // type
 	"hachi.dog.com",          // hostname
 	"192.168.10.1",           // ip_address
 	"8",                      // nickname
@@ -162,7 +155,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"",                       // exteneded_info
 },{
 	4,                        // id
-	MONITORING_SYSTEM_ZABBIX, // type
+	MONITORING_SYSTEM_HAPI2,  // type
 	"mosquito.example.com",   // hostname
 	"10.100.10.52",           // ip_address
 	"KA",                     // nickname
@@ -176,7 +169,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"",                       // exteneded_info
 },{
 	211,                      // id
-	MONITORING_SYSTEM_ZABBIX, // type
+	MONITORING_SYSTEM_HAPI2,  // type
 	"x-men.example.com",      // hostname
 	"172.16.32.51",           // ip_address
 	"(^_^)",                  // nickname
@@ -190,7 +183,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"",                       // exteneded_info
 },{
 	222,                      // id
-	MONITORING_SYSTEM_ZABBIX, // type
+	MONITORING_SYSTEM_HAPI2,  // type
 	"zoo.example.com",        // hostname
 	"10.0.0.48",              // ip_address
 	"Akira",                  // nickname
@@ -204,7 +197,7 @@ const MonitoringServerInfo testServerInfo[] =
 	"",                       // exteneded_info
 },{
 	301,                      // id
-	MONITORING_SYSTEM_NAGIOS, // type
+	MONITORING_SYSTEM_HAPI2,  // type
 	"nagios.example.com",     // hostname
 	"10.0.0.32",              // ip_address
 	"Akira",                  // nickname
@@ -943,7 +936,7 @@ const UserRoleInfo testUserRoleInfo[] = {
 };
 const size_t NumTestUserRoleInfo = ARRAY_SIZE(testUserRoleInfo);
 
-ArmPluginInfo testArmPluginInfo[] = {
+const ArmPluginInfo testArmPluginInfo[] = {
 {
 	AUTO_INCREMENT_VALUE,            // id
 	MONITORING_SYSTEM_HAPI2,         // type
@@ -962,7 +955,7 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"start-stop-hap2-nagios-ndoutils.sh",  // path
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
-	100, // (Not exists)             // serverId
+	2,                               // serverId
 	"",                              // tlsCertificatePath
 	"",                              // tlsKeyPath
 	"",                              // tlsCACertificatePath
@@ -970,35 +963,59 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"902d955c-d1f7-11e4-80f9-d43d7e3146fb", // uuid
 }, {
 	AUTO_INCREMENT_VALUE,            // id
-	MONITORING_SYSTEM_HAPI_TEST,     // type
+	MONITORING_SYSTEM_HAPI2,         // type
 	"./hapi-test-plugin",            // path
 	"",                              // brokerUrl
 	"",                              // staticQueueAddress
-	101, // (Not exists)             // serverId
-	"",                              // tlsCertificatePath
-	"",                              // tlsKeyPath
-	"",                              // tlsCACertificatePath
-	0,                               // tlsEnableVerify
-	"",                              // uuid
-}, {
-	AUTO_INCREMENT_VALUE,            // id
-	MONITORING_SYSTEM_HAPI_TEST_NOT_EXIST, // type
-	"hapi-test-non-existing-plugin",       // path
-	"",                              // brokerUrl
-	"",                              // staticQueueAddress
-	102, // (Not exists)             // serverId
-	"",                              // tlsCertificatePath
-	"",                              // tlsKeyPath
-	"",                              // tlsCACertificatePath
-	0,                               // tlsEnableVerify
-	"",                              // uuid
-}, {
-	AUTO_INCREMENT_VALUE,            // id
-	MONITORING_SYSTEM_HAPI_TEST_PASSIVE,   // type
-	"#PASSIVE_PLUGIN#",                    // path
-	"",                              // brokerUrl
-	"",                              // staticQueueAddress
 	3,                               // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"",                              // uuid
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	MONITORING_SYSTEM_HAPI2,         // type
+	"hapi-test-non-existing-plugin", // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	4,                               // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"",                              // uuid
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	MONITORING_SYSTEM_HAPI2,         // type
+	"#PASSIVE_PLUGIN#",              // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	211,                             // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"",                              // uuid
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	MONITORING_SYSTEM_HAPI2,         // type
+	"#PASSIVE_PLUGIN#",              // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	222,                             // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"",                              // uuid
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	MONITORING_SYSTEM_HAPI2,         // type
+	"#PASSIVE_PLUGIN#",              // path
+	"",                              // brokerUrl
+	"",                              // staticQueueAddress
+	301,                             // serverId
 	"",                              // tlsCertificatePath
 	"",                              // tlsKeyPath
 	"",                              // tlsCACertificatePath
@@ -2163,6 +2180,17 @@ ArmPluginInfo *getTestArmPluginInfo(void)
 	return data;
 }
 
+ArmPluginInfo createCompanionArmPluginInfo(const MonitoringServerInfo &svInfo)
+{
+	const int armPluginIdx = findIndexOfTestArmPluginInfo(svInfo.id);
+	cppcut_assert_not_equal(-1, armPluginIdx);
+
+	ArmPluginInfo armInfo = testArmPluginInfo[0];
+	armInfo.id = armPluginIdx + 1;
+	armInfo.serverId = testArmPluginInfo[armPluginIdx].serverId;
+	return armInfo;
+}
+
 const ArmPluginInfo *findTestArmPluginInfo(const ServerIdType &serverId)
 {
 	for (size_t i = 0; i < NumTestArmPluginInfo; i++) {
@@ -2295,11 +2323,13 @@ void loadTestDBServer(void)
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
 	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
+	cppcut_assert_equal(NumTestServerInfo, NumTestArmPluginInfo);
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		// We have to make a copy since addTargetServer() changes
 		// a member of MonitoringServerInfo.
 		MonitoringServerInfo svInfo = testServerInfo[i];
-		dbConfig.addTargetServer(&svInfo, privilege);
+		ArmPluginInfo armInfo = testArmPluginInfo[i];
+		dbConfig.addTargetServer(svInfo, armInfo, privilege);
 	}
 }
 

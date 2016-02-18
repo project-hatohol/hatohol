@@ -7,7 +7,7 @@ TESTS = run-test.sh
 TESTS_ENVIRONMENT = NO_MAKE=yes CUTTER="$(CUTTER)"
 
 noinst_LTLIBRARIES = libTest.la testHatohol.la residentTest.la
-noinst_PROGRAMS = ActionTp zabbix-api-response-collector
+noinst_PROGRAMS = ActionTp
 endif
 
 # default
@@ -37,7 +37,6 @@ testHatohol_la_SOURCES = \
 	testConfigManager.cc \
 	testDataQueryContext.cc testDataQueryOption.cc \
 	testDataStoreManager.cc testDataStoreFactory.cc \
-	testDataStoreZabbix.cc testDataStoreNagios.cc \
 	testHatoholError.cc \
 	testHatoholException.cc \
 	testHatoholThreadBase.cc \
@@ -80,7 +79,7 @@ testHatohol_la_SOURCES = \
 	testNamedPipe.cc \
 	testSelfMonitor.cc \
 	testArmUtils.cc testArmBase.cc \
-	testArmZabbixAPI.cc testArmNagiosNDOUtils.cc testArmRedmine.cc \
+	testArmRedmine.cc \
 	testArmStatus.cc testStatisticsCounter.cc \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc \
@@ -121,10 +120,6 @@ libTest_la_LDFLAGS =
 ActionTp_SOURCES = ActionTp.cc ActionTp.h
 ActionTp_LDFLAGS = $(LIBS)
 ActionTp_LDADD = libTest.la
-
-zabbix_api_response_collector_SOURCES = zabbix-api-response-collector.cc
-zabbix_api_response_collector_LDFLAGS = -lstdc++
-zabbix_api_response_collector_LDADD = $(LIBS)
 
 echo-cutter:
 	@echo $(CUTTER)
