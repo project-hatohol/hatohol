@@ -147,8 +147,8 @@ var HatoholEventsViewConfig = function(options) {
 	obj.hide();
       }
     };
-    $.map($("#host-filter-selector option"), setVisible)
-    $.map($("#host-filter-selector-selected option"), setVisible)
+    $.map($("#host-filter-selector option"), setVisible);
+    $.map($("#host-filter-selector-selected option"), setVisible);
   }
 
   $("#quick-host-search-submit").click(function() {
@@ -318,17 +318,17 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
   }
 
   function removeFilters() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
 
     var promises = $.map(self.removedFilters, function(val, id) {
-      var deferred = new $.Deferred;
+      var deferred = new $.Deferred();
 
       new HatoholConnector({
         pathPrefix: "",
         url: "/event-filters/" + id,
         request: "DELETE",
         replyCallback: function(reply, parser) {
-          delete self.removedFilters[id]
+          delete self.removedFilters[id];
         },
         parseErrorCallback: function(reply, parser) {
           hatoholErrorMsgBoxForParser(reply, parser);
@@ -769,7 +769,7 @@ HatoholEventsViewConfig.prototype.getFilter = function(filterId) {
   var filterConfig = self.getFilterConfig(filterId);
   filterConfig = filterConfig || self.getDefaultFilterConfig();
   return self.createFilter(filterConfig);
-}
+};
 
 HatoholEventsViewConfig.prototype.showXHRError = function (XMLHttpRequest) {
   var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
