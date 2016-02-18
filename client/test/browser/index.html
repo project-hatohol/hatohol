@@ -13,7 +13,12 @@
 <script src="../../static/js.external/spectrum.js"></script>
 <script src="mocha.js"></script>
 <script src="expect.js"></script>
-<script>mocha.setup('bdd');</script>
+<script>
+  if (window.initMochaPhantomJS) {
+    window.initMochaPhantomJS();
+  }
+  mocha.setup('bdd');
+</script>
 <script src="sinon.js"></script>
 <script>
   if (typeof(HATOHOL_PROJECT_TOP_PATH) == "undefined")
