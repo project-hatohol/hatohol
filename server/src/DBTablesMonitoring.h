@@ -112,10 +112,15 @@ public:
 	const timespec &getBeginTime(void);
 	void setEndTime(const timespec &endTime);
 	const timespec &getEndTime(void);
+	void setHostnameList(const std::list<std::string> &hostnameList);
+	const std::list<std::string> getHostnameList(void);
 
 	void setSortType(const SortType &type, const SortDirection &direction);
 	SortType getSortType(void) const;
 	SortDirection getSortDirection(void) const;
+
+	std::string makeHostnameListCondition(
+	  const std::list<std::string> &hostnameList) const;
 
 private:
 	struct Impl;
