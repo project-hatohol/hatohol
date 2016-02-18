@@ -257,11 +257,17 @@ var TriggersView = function(userProfile, options) {
     });
   }
 
+  function refreshSelectPickers() {
+    $("#select-host").selectpicker('refresh');
+    $("#select-host-group").selectpicker('refresh');
+  }
+
   function setupCallbacks() {
     $('#select-server').change(function() {
       resetHostQuerySelector('#select-host-group');
       resetHostQuerySelector('#select-host');
       setupFilterValues();
+      refreshSelectPickers();
 
       function resetHostQuerySelector(selectorId) {
         if (!selectorId)
@@ -287,6 +293,14 @@ var TriggersView = function(userProfile, options) {
     });
   }
 
+  function setupSelectPickers() {
+    $("#select-server").selectpicker();
+    $("#select-severity").selectpicker();
+    $("#select-status").selectpicker();
+    $("#select-host").selectpicker();
+    $("#select-host-group").selectpicker();
+  }
+
   function setLoading(loading) {
     if (loading) {
       $("#begin-time").attr("disabled", "disabled");
@@ -308,6 +322,8 @@ var TriggersView = function(userProfile, options) {
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
+
+      setupSelectPickers();
     }
   }
 
