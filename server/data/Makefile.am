@@ -1,7 +1,5 @@
 sql_DATA = \
 	init-user.sql \
-	server-type-zabbix.sql \
-	server-type-nagios.sql \
 	server-type-hapi-json.sql \
 	server-type-hap2-zabbix.sql \
 	server-type-hap2-nagios-ndoutils.sql \
@@ -21,8 +19,6 @@ HATOHOL_SERVER_TYPE_UTIL = ../tools/hatohol-server-type-util
 server-type: $(HATOHOL_SERVER_TYPE_UTIL)
 	$(HATOHOL_SERVER_TYPE_UTIL) mysql
 
-server-type-zabbix.sql: server-type
-server-type-nagios.sql: server-type
 server-type-hapi-json.sql: server-type
 
 HATOHOL_INIT_USER_GENERATOR = ../tools/hatohol-init-user-generator
@@ -40,8 +36,6 @@ EXTRA_DIST = \
 	$(noinst_DATA)
 
 CLEANFILES = \
-	server-type-zabbix.sql \
-	server-type-nagios.sql \
 	server-type-hapi-json.sql \
 	init-user.sql \
 	_tmp.*
