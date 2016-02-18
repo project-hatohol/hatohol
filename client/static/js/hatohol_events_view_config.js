@@ -141,7 +141,7 @@ var HatoholEventsViewConfig = function(options) {
     var setVisible = function(option) {
       var obj = $(option);
       var text = obj.text().toLowerCase();
-      if (word.length == 0 || text.indexOf(word.toLowerCase()) >= 0) {
+      if (word.length === 0 || text.indexOf(word.toLowerCase()) >= 0) {
 	obj.show();
       } else {
 	obj.hide();
@@ -174,7 +174,7 @@ var HatoholEventsViewConfig = function(options) {
         removedFilters = self.editingFilterList.splice(i, 1);
         if (removedFilters.length == 1 && removedFilters[0].id)
           self.removedFilters[removedFilters[0].id] = true;
-        if (self.editingFilterList.length == 0)
+        if (self.editingFilterList.length === 0)
           self.editingFilterList.push(self.getDefaultFilterConfig());
         self.setCurrentFilterConfig(self.editingFilterList[0]);
         self.resetFilterList();
@@ -511,11 +511,11 @@ HatoholEventsViewConfig.prototype.resetFilterList = function() {
       if (defaultFilterId && defaultFilterId > 0) {
         if (defaultFilterId == filter.id)
           option.attr("selected", true);
-      } else if (i == 0) {
+      } else if (i === 0) {
         option.attr("selected", true);
       }
     });
-  };
+  }
 };
 
 HatoholEventsViewConfig.prototype.setFilterCandidates = function(candidates) {
