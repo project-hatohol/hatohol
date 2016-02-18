@@ -405,6 +405,8 @@ protected:
 	HatoholError checkPrivilegeForCustomIncidentStatusDelete(
 	  const OperationPrivilege &privilege,
 	  const std::list<CustomIncidentStatusIdType> &idList);
+    bool isDuplicateQueueName(
+      const ArmPluginInfo &armPluginInfo);
 
 private:
 	struct Impl;
