@@ -517,34 +517,21 @@ class HapiProcessor:
         return hapcommon.get_biggest_num_of_dict_array(events, "eventId")
 
     def put_events(self, events, fetch_id=None, last_info_generator=None):
-        if num_events % chunk_size != 0:
-            count += 1
-        if count == 0:
-            if fetch_id is None:
-                return
-            count = 1
+        if last_info_generator is None:
+            last_info_generator = self.generate_event_last_info
+        last_info = str(last_info_generator(events))
+        params = {"events": events}
 
-        for num in range(0, count):
-            event_chunk = events[0: chunk_size]
+        if fetch_id is not None:
+            params["fetchId"] = fetch_id
+            params["mayMoreFlag"] = True
+        else:
+            params["lastInfo"] = last_info
 
-            if last_info_generator is None:
-                last_info_generator = self.generate_event_last_info
-            last_info = str(last_info_generator(event_chunk))
-            params = {"events": event_chunk}
-
-            if fetch_id is not None:
-                params["fetchId"] = fetch_id
-            else:
-                params["lastInfo"] = last_info
-
-            if num < count - 1:
-                params["mayMoreFlag"] = True
-
-            request_id = self.__generate_request_id(self.__component_code)
-            self.__wait_acknowledge(request_id)
-            self.__sender.request("putEvents", params, request_id)
-            del events[0: chunk_size]
-            self.__wait_response(request_id)
+        request_id = self.__generate_request_id(self.__component_code)
+        self.__wait_acknowledge(request_id)
+        self.__sender.request("putEvents", params, request_id)
+        self.__wait_response(request_id)
 
         if fetch_id is None:
             self.set_event_last_info(last_info)
