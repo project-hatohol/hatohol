@@ -55,9 +55,9 @@ var ActionsView = function(userProfile) {
   function parseResult(data) {
     var msg;
     var malformed = false;
-    if (data.result == undefined)
+    if (data.result === undefined)
       malformed = true;
-    if (!malformed && !data.result && data.message == undefined)
+    if (!malformed && !data.result && data.message === undefined)
       malformed = true;
     if (malformed) {
       msg = "The returned content is malformed: " +
@@ -71,7 +71,7 @@ var ActionsView = function(userProfile) {
       return false;
     }
 
-    if (data.id == undefined) {
+    if (data.id === undefined) {
       msg = "The returned content is malformed: " +
         "'result' is true, however, 'id' is missing.\n" +
         JSON.stringify(data);
@@ -212,18 +212,18 @@ var ActionsView = function(userProfile) {
 
       var triggerStatus = actionDef.triggerStatus;
       var triggerStatusLabel = "ANY";
-      if (triggerStatus != undefined)
+      if (triggerStatus !== undefined)
         triggerStatusLabel = makeTriggerStatusLabel(triggerStatus);
       s += "<td>" + triggerStatusLabel + "</td>";
 
       var triggerSeverity = actionDef.triggerSeverity;
       var severityLabel = "ANY";
-      if (triggerSeverity != undefined)
+      if (triggerSeverity !== undefined)
         severityLabel = makeSeverityLabel(triggerSeverity);
 
       var severityCompType = actionDef.triggerSeverityComparatorType;
       var severityCompLabel = "";
-      if (triggerSeverity != undefined)
+      if (triggerSeverity !== undefined)
         severityCompLabel = makeSeverityCompTypeLabel(severityCompType);
 
       s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
@@ -241,7 +241,7 @@ var ActionsView = function(userProfile) {
       s += "<td>" + escapeHTML(command) + "</td>";
 
       var timeout = actionDef.timeout;
-      if (timeout == 0)
+      if (timeout === 0)
         timeoutLabel = gettext("No limit");
       else
         timeoutLabel = timeout / 1000;
