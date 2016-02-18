@@ -44,9 +44,11 @@ describe('TriggersView', function() {
   ];
   var defaultServers = {
     "1": {
+      "type": hatohol.MONITORING_SYSTEM_HAPI2,
+      "uuid": "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
+      "baseURL": "http://192.168.1.100/zabbix/api_jsonrpc.php",
       "nickname": "Zabbix",
-      "type": 0,
-      "ipAddress": "192.168.1.100",
+      "ipAddress": "",
       "hosts": {
         "10101": {
           "name": "Host1"
