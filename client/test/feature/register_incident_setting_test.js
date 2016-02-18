@@ -10,12 +10,16 @@ casper.on("page.error", function(msg, trace) {
 });
 
 casper.test.begin('Register/Unregister incident settings test', function(test) {
-  var incidentSetting = {serverType: 0,
-                         nickName: "zabbix",
-                         serverName: "test-zabbix",
-                         ipAddress: "127.0.0.1",
-                         userName: "admin",
-                         userPassword: "zabbix-admin"};
+  var incidentSetting = {
+        serverType: "8e632c14-d1f7-11e4-8350-d43d7e3146fb",
+        baseURL: "http://127.0.0.1/zabbix/api_jsonrpc.php",
+        brokerURL: "amqp://test_user:test_password@localhost:5673/test",
+        nickName: "zabbix",
+        serverName: "test-zabbix",
+        ipAddress: "127.0.0.1",
+        userName: "admin",
+        userPassword: "zabbix-admin",
+  };
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   casper.then(function() {
