@@ -191,8 +191,8 @@ HatoholEventsViewConfig.prototype.constructor = HatoholEventsViewConfig;
 
 HatoholEventsViewConfig.prototype.loadAll = function() {
   var self = this;
-  var configDeferred = new $.Deferred;
-  var filterDeferred = new $.Deferred;
+  var configDeferred = new $.Deferred();
+  var filterDeferred = new $.Deferred();
 
   self.get({
     itemNames: Object.keys(self.getDefaultConfig()),
@@ -282,11 +282,11 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
   }
 
   function saveFilters() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
 
     var promises = $.map(self.editingFilterList, function(filter) {
       var path = "/event-filters/";
-      var deferred = new $.Deferred;
+      var deferred = new $.Deferred();
 
       if (filter.id)
         path += filter.id;
