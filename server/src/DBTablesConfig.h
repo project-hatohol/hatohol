@@ -220,14 +220,14 @@ public:
 			   const std::string &uuid);
 
 	HatoholError addTargetServer(
-	  MonitoringServerInfo *monitoringServerInfo,
-	  const OperationPrivilege &privilege,
-	  ArmPluginInfo *armPluginInfo = NULL);
+	  MonitoringServerInfo &monitoringServerInfo,
+	  ArmPluginInfo &armPluginInfo,
+	  const OperationPrivilege &privilege);
 
 	HatoholError updateTargetServer(
-	  MonitoringServerInfo *monitoringServerInfo,
-	  const OperationPrivilege &privilege,
-	  ArmPluginInfo *armPluginInfo = NULL);
+	  MonitoringServerInfo &monitoringServerInfo,
+	  ArmPluginInfo &armPluginInfo,
+	  const OperationPrivilege &privilege);
 
 	HatoholError deleteTargetServer(const ServerIdType &serverId,
 	                                const OperationPrivilege &privilege);
@@ -361,7 +361,7 @@ protected:
 	static SetupInfo &getSetupInfo(void);
 	static void tableInitializerSystem(DBAgent &dbAgent, void *data);
 	static bool canUpdateTargetServer(
-	  MonitoringServerInfo *monitoringServerInfo,
+	  MonitoringServerInfo &monitoringServerInfo,
 	  const OperationPrivilege &privilege);
 
 	static bool canDeleteTargetServer(

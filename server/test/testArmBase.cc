@@ -569,11 +569,13 @@ void test_setServerConnectStatus(void)
 {
 	UnifiedDataStore *uds = UnifiedDataStore::getInstance();
 	MonitoringServerInfo serverInfo;
+	ArmPluginInfo armInfo;
 	initServerInfo(serverInfo);
+	ArmPluginInfo::initialize(armInfo);
 	serverInfo.id = 1;
 	ThreadLocalDBCache cache;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	cache.getConfig().addTargetServer(&serverInfo, privilege);
+	cache.getConfig().addTargetServer(serverInfo, armInfo, privilege);
 	TestArmBase armBase(__func__, serverInfo);
 	armBase.registerAvailableTrigger(ArmBase::COLLECT_NG_INTERNAL_ERROR,
 					 FAILED_INTERNAL_ERROR_TRIGGER_ID,

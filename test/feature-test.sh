@@ -22,6 +22,10 @@ fi
 
 sudo make install
 
+sudo rabbitmqctl add_user test_user test_password
+sudo rabbitmqctl add_vhost test
+sudo rabbitmqctl set_permissions -p test test_user ".*" ".*" ".*"
+
 ./test/launch-hatohol-for-test.sh
 LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH hatohol-db-initiator
 LANG=ja_JP.utf8 LC_ALL=ja_JP.UTF-8 ./client/test/feature/run-test.sh

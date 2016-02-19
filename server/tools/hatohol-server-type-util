@@ -76,67 +76,6 @@ class ParamGenerator:
         return ""
 
 
-class ZabbixParamGenerator(ParamGenerator):
-    def get_server_type(self):
-        return hatohol_def.MONITORING_SYSTEM_ZABBIX
-
-    def get_server_type_name(self):
-        return 'Zabbix'
-
-    def get_parameters(self):
-        return self.get_zabbix_params()
-
-    def get_sql_file_type_name(self):
-        return 'zabbix'
-
-    def get_sql_version(self):
-        return self.get_sql_version_number()
-
-
-class NagiosParamGenerator(ParamGenerator):
-    def get_server_type(self):
-        return hatohol_def.MONITORING_SYSTEM_NAGIOS
-
-    def get_server_type_name(self):
-        return 'Nagios'
-
-    def get_parameters(self):
-        obj = []
-        obj.append({'id': 'nickname',
-                    'label': 'Nickname'})
-        obj.append({'id': 'hostName',
-                    'label': 'Host name'})
-        obj.append({'id': 'ipAddress',
-                    'label': 'IP address'})
-        obj.append({'id': 'port',
-                    'label': 'Port',
-                    'default': '0'})
-        obj.append({'id': 'dbName',
-                    'label': 'DB name'})
-        obj.append({'id': 'userName',
-                    'label': 'User name'})
-        obj.append({'id': 'password',
-                    'label': 'Password',
-                    'inputStyle': 'password'})
-        obj.append({'id': 'pollingInterval',
-                    'label': 'Polling interval (sec)',
-                    'default': '30'})
-        obj.append({'label': 'Retry interval (sec)',
-                    'id': 'retryInterval',
-                    'default': '10'})
-        obj.append({'id': 'baseURL',
-                    'label': 'Web UI URL',
-                    'allowEmpty': True,
-                    'hint': '(empty: Default)'})
-        return obj
-
-    def get_sql_file_type_name(self):
-        return 'nagios'
-
-    def get_sql_version(self):
-        return self.get_sql_version_number()
-
-
 class HapiJSONParamGenerator(ParamGenerator):
     def get_server_type(self):
         return hatohol_def.MONITORING_SYSTEM_HAPI_JSON
@@ -232,8 +171,6 @@ def main():
     args = parser.parse_args()
 
     generators = (
-        ZabbixParamGenerator(),
-        NagiosParamGenerator(),
         HapiJSONParamGenerator(),
     )
 

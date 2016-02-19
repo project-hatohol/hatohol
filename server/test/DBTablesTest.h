@@ -50,6 +50,9 @@ extern const size_t NumTestServerInfo;
 extern const MonitoringServerStatus testServerStatus[];
 extern const size_t NumTestServerStatus;
 
+extern const ArmPluginInfo testArmPluginInfo[];
+extern const size_t NumTestArmPluginInfo;
+
 extern const TriggerInfo testTriggerInfo[];
 extern const size_t NumTestTriggerInfo;
 
@@ -81,7 +84,7 @@ extern const UserRoleInfo testUserRoleInfo[];
 extern const size_t NumTestUserRoleInfo;
 
 ArmPluginInfo *getTestArmPluginInfo(void);
-extern const size_t NumTestArmPluginInfo;
+ArmPluginInfo createCompanionArmPluginInfo(const MonitoringServerInfo &svInfo);
 
 extern const IncidentTrackerInfo testIncidentTrackerInfo[];
 extern const size_t NumTestIncidentTrackerInfo;

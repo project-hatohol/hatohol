@@ -64,14 +64,14 @@ void _assertArmPluginInfo(
 #define assertArmPluginInfo(E,A,...) \
   cut_trace(_assertArmPluginInfo(E,A, ##__VA_ARGS__))
 
-static void addTargetServer(MonitoringServerInfo *serverInfo)
+static void _addTargetServer(MonitoringServerInfo &serverInfo,
+                            ArmPluginInfo &armInfo)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
-	dbConfig.addTargetServer(serverInfo, privilege);
+	dbConfig.addTargetServer(serverInfo, armInfo, privilege);
 }
-#define assertAddServerToDB(X) \
-cut_trace(_assertAddToDB<MonitoringServerInfo>(X, addTargetServer))
+#define assertAddServerToDB(M,A) cut_trace(_addTargetServer(M,A))
 
 static void getTargetServersData(void)
 {
@@ -257,11 +257,8 @@ void test_registerServerTypeUpdate(void)
 
 void data_getDefaultPluginPath(void)
 {
-	gcut_add_datum("MONITORING_SYSTEM_ZABBIX",
-	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_ZABBIX,
-	               "expect", G_TYPE_STRING, NULL, NULL);
-	gcut_add_datum("MONITORING_SYSTEM_NAGIOS",
-	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_NAGIOS,
+	gcut_add_datum("MONITORING_SYSTEM_HAPI2",
+	               "type", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI2,
 	               "expect", G_TYPE_STRING, NULL, NULL);
 }
 
@@ -327,12 +324,13 @@ void test_createTableServers(void)
 }
 
 void _assertAddTargetServer(
-  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
+  MonitoringServerInfo serverInfo, ArmPluginInfo armInfo,
+  const HatoholErrorCode expectedErrorCode,
   OperationPrivilege privilege = OperationPrivilege::ALL_PRIVILEGES)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	HatoholError err;
-	err = dbConfig.addTargetServer(&serverInfo, privilege);
+	err = dbConfig.addTargetServer(serverInfo, armInfo, privilege);
 	assertHatoholError(expectedErrorCode, err);
 
 	string expectedOut("");
@@ -341,70 +339,75 @@ void _assertAddTargetServer(
 	string statement("select * from servers");
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
 }
-#define assertAddTargetServer(I,E,...) \
-cut_trace(_assertAddTargetServer(I,E,##__VA_ARGS__))
+#define assertAddTargetServer(I,A,E,...) \
+cut_trace(_assertAddTargetServer(I,A,E,##__VA_ARGS__))
 
 void test_addTargetServer(void)
 {
-	const MonitoringServerInfo *testInfo = testServerInfo;
-	assertAddTargetServer(*testInfo, HTERR_OK);
+	assertAddTargetServer(testServerInfo[0], testArmPluginInfo[0],
+	                      HTERR_OK);
 }
 
 void test_addTargetServerWithoutPrivilege(void)
 {
-	const MonitoringServerInfo *testInfo = testServerInfo;
 	OperationPrivilegeFlag privilege = OperationPrivilege::ALL_PRIVILEGES;
 	OperationPrivilege::removeFlag(privilege, OPPRVLG_CREATE_SERVER);
-	assertAddTargetServer(*testInfo, HTERR_NO_PRIVILEGE, privilege);
+	assertAddTargetServer(testServerInfo[0], testArmPluginInfo[0],
+	                      HTERR_NO_PRIVILEGE, privilege);
 }
 
 void test_addTargetServerWithInvalidServerType(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.type = NUM_MONITORING_SYSTEMS;
-	assertAddTargetServer(testInfo, HTERR_INVALID_MONITORING_SYSTEM_TYPE);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
+	                      HTERR_INVALID_MONITORING_SYSTEM_TYPE);
 }
 
 void test_addTargetServerWithInvalidPortNumber(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.port = 65536;
-	assertAddTargetServer(testInfo, HTERR_INVALID_PORT_NUMBER);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
+	                      HTERR_INVALID_PORT_NUMBER);
 }
 
 void test_addTargetServerWithLackedIPv4Address(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "192.168.1.";
-	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
+	                      HTERR_INVALID_IP_ADDRESS);
 }
 
 void test_addTargetServerWithOverflowIPv4Address(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "192.168.1.256";
-	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
+	                      HTERR_INVALID_IP_ADDRESS);
 }
 
 void test_addTargetServerWithTooManyIPv4Fields(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "1.192.168.1.1";
-	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
+	                      HTERR_INVALID_IP_ADDRESS);
 }
 
 void test_addTargetServerWithValidIPv6Address(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "FE80:0000:0000:0000:0202:B3FF:FE1E:8329";
-	assertAddTargetServer(testInfo, HTERR_OK);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0], HTERR_OK);
 }
 
 void test_addTargetServerWithShortenIPv6Address(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "FE80::0202:B3FF:FE1E:8329";
-	assertAddTargetServer(testInfo, HTERR_OK);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0], HTERR_OK);
 }
 
 void test_addTargetServerWithMixedIPv6Address(void)
@@ -412,42 +415,46 @@ void test_addTargetServerWithMixedIPv6Address(void)
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "fe80::0202:b3ff:fe1e:192.168.1.1";
 	string expectedOut = makeServerInfoOutput(testInfo);
-	assertAddTargetServer(testInfo, HTERR_OK);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0], HTERR_OK);
 }
 
 void test_addTargetServerWithTooManyIPv6AddressFields(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "FE80:0000:0000:0000:0202:B3FF:FE1E:8329::1";
-	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
+	                      HTERR_INVALID_IP_ADDRESS);
 }
 
 void test_addTargetServerWithOverflowIPv6Address(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "FE80::02:B3FF:10000:8329";
-	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
+	                      HTERR_INVALID_IP_ADDRESS);
 }
 
 void test_addTargetServerWithInvalidIPv6AddressCharacter(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "FE80::02:B3FG:8329";
-	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
+	                      HTERR_INVALID_IP_ADDRESS);
 }
 
 void test_addTargetServerWithIPv6Loopback(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "::1";
-	assertAddTargetServer(testInfo, HTERR_OK);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0], HTERR_OK);
 }
 
 void test_addTargetServerWithSimpleNumber(void)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "123";
-	assertAddTargetServer(testInfo, HTERR_INVALID_IP_ADDRESS);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
+	                      HTERR_INVALID_IP_ADDRESS);
 }
 
 void test_addTargetServerWithEmptyIPAddress(void)
@@ -455,7 +462,7 @@ void test_addTargetServerWithEmptyIPAddress(void)
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.ipAddress = "";
 	// Allow empty IP address when the host name isn't empty.
-	assertAddTargetServer(testInfo, HTERR_OK);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0], HTERR_OK);
 }
 
 void test_addTargetServerWithEmptyIPAddressAndHostname(void)
@@ -463,7 +470,8 @@ void test_addTargetServerWithEmptyIPAddressAndHostname(void)
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.hostName = "";
 	testInfo.ipAddress = "";
-	assertAddTargetServer(testInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
+	                      HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
 }
 
 void data_addTargetServerWithValidPollingInterval(void)
@@ -502,7 +510,7 @@ void test_addTargetServerWithValidPollingInterval(gconstpointer data)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.pollingIntervalSec = gcut_data_get_int(data, "data");
-	assertAddTargetServer(testInfo,
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
 		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
 }
 
@@ -542,44 +550,59 @@ void test_addTargetServerWithValidRetryInterval(gconstpointer data)
 {
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.retryIntervalSec = gcut_data_get_int(data, "data");
-	assertAddTargetServer(testInfo,
+	assertAddTargetServer(testInfo, testArmPluginInfo[0],
 		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
 }
 
 void _assertUpdateTargetServer(
-  MonitoringServerInfo serverInfo, const HatoholErrorCode expectedErrorCode,
+  MonitoringServerInfo serverInfo, ArmPluginInfo armPluginInfo,
+  const HatoholErrorCode expectedErrorCode,
   OperationPrivilege privilege = OperationPrivilege::ALL_PRIVILEGES)
 {
 	loadTestDBServer();
 
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	HatoholError err;
+	err = dbConfig.updateTargetServer(serverInfo, armPluginInfo, privilege);
+	assertHatoholError(expectedErrorCode, err);
+
+	// servers
 	int targetId = serverInfo.id;
 	int targetIdx = targetId - 1;
-
 	string expectedOut;
 	if (expectedErrorCode == HTERR_OK)
 		expectedOut = makeServerInfoOutput(serverInfo);
 	else
 		expectedOut = makeServerInfoOutput(testServerInfo[targetIdx]);
 
-	DECLARE_DBTABLES_CONFIG(dbConfig);
-	HatoholError err;
-	err = dbConfig.updateTargetServer(&serverInfo, privilege);
-	assertHatoholError(expectedErrorCode, err);
-
 	string statement = StringUtils::sprintf(
 	                     "select * from servers where id=%d",
 			     targetId);
 	assertDBContent(&dbConfig.getDBAgent(), statement, expectedOut);
+
+	// arm_plugins
+	string statement2 = StringUtils::sprintf(
+	                      "select * from arm_plugins where id=%d",
+	                      armPluginInfo.id);
+	if (expectedErrorCode != HTERR_OK) {
+		const auto id = armPluginInfo.id;
+		armPluginInfo = testArmPluginInfo[targetIdx];
+		armPluginInfo.id = id;
+	}
+	assertDBContent(&dbConfig.getDBAgent(), statement2,
+	                makeArmPluginInfoOutput(armPluginInfo));
 }
-#define assertUpdateTargetServer(I,E,...) \
-cut_trace(_assertUpdateTargetServer(I,E,##__VA_ARGS__))
+#define assertUpdateTargetServer(I,A,E,...) \
+cut_trace(_assertUpdateTargetServer(I,A,E,##__VA_ARGS__))
 
 void test_updateTargetServer(void)
 {
-	int targetId = 2;
+	const int targetId = 2;
 	MonitoringServerInfo serverInfo = testServerInfo[0];
 	serverInfo.id = targetId;
-	assertUpdateTargetServer(serverInfo, HTERR_OK);
+	assertUpdateTargetServer(serverInfo,
+	                         createCompanionArmPluginInfo(serverInfo),
+	                         HTERR_OK);
 }
 
 void test_updateTargetServerWithoutPrivilege(void)
@@ -591,8 +614,9 @@ void test_updateTargetServerWithoutPrivilege(void)
 	OperationPrivilegeFlag updateFlags =
 	 (1 << OPPRVLG_UPDATE_SERVER) | (1 << OPPRVLG_UPDATE_ALL_SERVER);
 	privilege &= ~updateFlags;
-	assertUpdateTargetServer(
-	  serverInfo, HTERR_NO_PRIVILEGE, privilege);
+	assertUpdateTargetServer(serverInfo,
+	                         createCompanionArmPluginInfo(serverInfo),
+	                         HTERR_NO_PRIVILEGE, privilege);
 }
 
 void test_updateTargetServerWithNoHostNameAndIPAddress(void)
@@ -602,8 +626,9 @@ void test_updateTargetServerWithNoHostNameAndIPAddress(void)
 	serverInfo.id = targetId;
 	serverInfo.hostName = "";
 	serverInfo.ipAddress = "";
-	assertUpdateTargetServer(
-	  serverInfo, HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
+	assertUpdateTargetServer(serverInfo,
+	                         createCompanionArmPluginInfo(serverInfo),
+	                         HTERR_NO_IP_ADDRESS_AND_HOST_NAME);
 }
 
 void data_updateTargetServerWithValidPollingInterval(void)
@@ -643,8 +668,9 @@ void test_updateTargetServerWithValidPollingInterval(gconstpointer data)
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.id = targetId;
 	testInfo.pollingIntervalSec = gcut_data_get_int(data, "data");
-	assertUpdateTargetServer(testInfo,
-		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
+	assertUpdateTargetServer(
+	  testInfo, createCompanionArmPluginInfo(testInfo),
+	  (HatoholErrorCode)gcut_data_get_int(data, "expect"));
 }
 
 void data_updateTargetServerWithValidRetryInterval(void)
@@ -684,23 +710,15 @@ void test_updateTargetServerWithValidRetryInterval(gconstpointer data)
 	MonitoringServerInfo testInfo = testServerInfo[0];
 	testInfo.id = targetId;
 	testInfo.retryIntervalSec = gcut_data_get_int(data, "data");
-	assertUpdateTargetServer(testInfo,
-		(HatoholErrorCode)gcut_data_get_int(data, "expect"));
-}
-
-void data_deleteTargetServer(void)
-{
-	prepareDataWithAndWithoutArmPlugin();
+	assertUpdateTargetServer(
+	  testInfo, createCompanionArmPluginInfo(testInfo),
+	  (HatoholErrorCode)gcut_data_get_int(data, "expect"));
 }
 
 void test_deleteTargetServer(gconstpointer data)
 {
 	loadTestDBTablesUser();
 	loadTestDBServer();
-
-	const bool withArmPlugin = gcut_data_get_boolean(data, "withArmPlugin");
-	if (withArmPlugin)
-		loadTestDBArmPlugin();
 
 	ServerIdType targetServerId = 1;
 	OperationPrivilege privilege(findUserWith(OPPRVLG_DELETE_ALL_SERVER));
@@ -712,15 +730,12 @@ void test_deleteTargetServer(gconstpointer data)
 	ServerIdSet serverIdSet;
 	serverIdSet.insert(targetServerId);
 	assertServersInDB(serverIdSet);
-	if (withArmPlugin) {
-		int armPluginId =
-		  findIndexOfTestArmPluginInfo(targetServerId);
-		cppcut_assert_not_equal(-1, armPluginId);
-		armPluginId += 1; // ID should be index + 1
-		set<int> armPluginIdSet;
-		armPluginIdSet.insert(armPluginId);
-		assertArmPluginsInDB(serverIdSet);
-	}
+	int armPluginId = findIndexOfTestArmPluginInfo(targetServerId);
+	cppcut_assert_not_equal(-1, armPluginId);
+	armPluginId += 1; // ID should be index + 1
+	set<int> armPluginIdSet;
+	armPluginIdSet.insert(armPluginId);
+	assertArmPluginsInDB(serverIdSet);
 }
 
 void test_deleteTargetServerWithoutPrivilege(void)
@@ -750,7 +765,8 @@ static void prepareGetServer(
 
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		MonitoringServerInfo svInfo = testServerInfo[i];
-		assertAddServerToDB(&svInfo);
+		ArmPluginInfo armInfo = testArmPluginInfo[i];
+		assertAddServerToDB(svInfo, armInfo);
 	}
 }
 
@@ -827,10 +843,6 @@ void test_getTargetServersByInvalidUser(void)
 
 void test_getTargetServersWithArmPlugin(void)
 {
-	// loadTestDBServer() is not needed. data server data is added in
-	// prepareGetServer().
-	loadTestDBArmPlugin();
-
 	const UserIdType userId = USER_ID_SYSTEM;
 	ArmPluginInfoVect armPluginInfoVect;
 	MonitoringServerInfoList serverInfoList;
@@ -847,7 +859,7 @@ void test_getTargetServersWithArmPlugin(void)
 			                    pluginIt->id);
 			continue;
 		}
-		const ArmPluginInfo &expect = getTestArmPluginInfo()[index];
+		const ArmPluginInfo &expect = testArmPluginInfo[index];
 		const int expectId = index + 1;
 		assertArmPluginInfo(expect, *pluginIt, &expectId);
 		numValidPluginInfo++;
@@ -979,11 +991,11 @@ void test_serverQueryOptionConstructorTakingDataQueryContext(void)
 
 void data_isHatoholArmPlugin(void)
 {
-	gcut_add_datum("MONITORING_SYSTEM_ZABBIX",
-	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_ZABBIX,
-	               "expect", G_TYPE_BOOLEAN, FALSE, NULL);
-	gcut_add_datum("MONITORING_SYSTEM_NAGIOS",
-	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_NAGIOS,
+	gcut_add_datum("MONITORING_SYSTEM_HAPI2",
+	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI2,
+	               "expect", G_TYPE_BOOLEAN, TRUE, NULL);
+	gcut_add_datum("MONITORING_SYSTEM_FAKE", 
+	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_FAKE,
 	               "expect", G_TYPE_BOOLEAN, FALSE, NULL);
 }
 
@@ -1018,11 +1030,10 @@ void test_getArmPluginInfo(void)
 void test_getArmPluginInfoWithType(void)
 {
 	loadTestDBServer();
-	loadTestDBArmPlugin();
 
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	const int targetIdx = 0;
-	const ArmPluginInfo &expect = getTestArmPluginInfo()[targetIdx];
+	const ArmPluginInfo &expect = testArmPluginInfo[targetIdx];
 	ArmPluginInfo armPluginInfo;
 	cppcut_assert_equal(true, dbConfig.getArmPluginInfo(armPluginInfo,
 	                                                    expect.serverId));
@@ -1051,7 +1062,7 @@ void test_saveArmPluginInfoWithInvalidType(void)
 {
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[0];
-	armPluginInfo.type = MONITORING_SYSTEM_NAGIOS;
+	armPluginInfo.type = MONITORING_SYSTEM_FAKE;
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_TYPE,
 	                   dbConfig.saveArmPluginInfo(armPluginInfo));
 }
