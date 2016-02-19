@@ -265,6 +265,28 @@ void HostResourceQueryOption::setTargetHostgroupId(
 	m_impl->targetHostgroupId = targetHostgroupId;
 }
 
+string HostResourceQueryOption::getTargetHostname(void) const
+{
+	return m_impl->targetHostname;
+}
+
+void HostResourceQueryOption::setTargetHostname(
+  const string &targetHostname)
+{
+	m_impl->targetHostname = targetHostname;
+}
+
+string HostResourceQueryOption::getTargetHostgroupName(void) const
+{
+	return m_impl->targetHostgroupName;
+}
+
+void HostResourceQueryOption::setTargetHostgroupName(
+  const string &targetHostgroupName)
+{
+	m_impl->targetHostgroupName = targetHostgroupName;
+}
+
 void HostResourceQueryOption::setExcludeDefunctServers(
   const bool &enable)
 {

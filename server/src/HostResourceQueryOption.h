@@ -119,6 +119,10 @@ public:
 	virtual void setTargetHostId(const LocalHostIdType &targetHostId);
 	virtual HostgroupIdType getTargetHostgroupId(void) const;
 	virtual void setTargetHostgroupId(HostgroupIdType targetHostgroupId);
+	virtual std::string getTargetHostname(void) const;
+	virtual void setTargetHostname(const std::string &targetHostname);
+	virtual std::string getTargetHostgroupName(void) const;
+	virtual void setTargetHostgroupName(const std::string &targetHostgroupName);
 
 	/**
 	 * Set a list of IDs of monitoring servers to select.
