@@ -63,10 +63,10 @@ var HatoholServerBulkUploadDialog = function(params) {
       var val;
       var row = self.tsvData[self.batchUpdateIter];
 
-      if (param.hidden || (row[param.id] == '' && param.default))
+      if (param.hidden || (row[param.id] === '' && param.default))
         val = param.default;
       else if (param.inputStyle == 'checkBox')
-        val = row[param.id] != '' && row[param.id] != '0';
+        val = row[param.id] !== '' && row[param.id] !== '0';
       else
         val = row[param.id];
 
@@ -108,13 +108,14 @@ var HatoholServerBulkUploadDialog = function(params) {
     if (flag === undefined)
       $('#bulkupload-server-table-' + idx + '-' + (-1)).css('backgroundColor', "");
     else
-      $('#bulkupload-server-table-' + idx + '-' + (-1)).css('backgroundColor', flag ? '#8f8' : '#f88');
+      $('#bulkupload-server-table-' + idx + '-' + (-1))
+      .css('backgroundColor', flag ? '#8f8' : '#f88');
     if (title)
       $('#bulkupload-server-table-' + idx + '-' + (-1)).attr({'title': title});
   }
 
   function continueAddServer(isSucceeded, msg) {
-    var isOk = undefined;
+    var isOk;
 
     setUpdateStatus(self.batchUpdateIter, isSucceeded, msg);
 
@@ -173,7 +174,7 @@ HatoholServerBulkUploadDialog.prototype.createMainElement = function() {
       hatoholErrorMsgBox("[Malformed reply] Not found array: serverType");
       return;
     }
-    self.paramArray = []
+    self.paramArray = [];
     for (var i = 0; i < reply.serverType.length; i ++) {
       var serverTypeInfo = reply.serverType[i];
       var name = serverTypeInfo.name;
@@ -182,13 +183,13 @@ HatoholServerBulkUploadDialog.prototype.createMainElement = function() {
         return;
       }
       var type = serverTypeInfo.type;
-      if (type == undefined) {
+      if (type === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: type");
         return;
       }
 
       var parameters = serverTypeInfo.parameters;
-      if (parameters == undefined) {
+      if (parameters === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: parameters");
         return;
       }
@@ -219,11 +220,13 @@ HatoholServerBulkUploadDialog.prototype.createMainElement = function() {
 
     div = $('<div>');
     div.append($('<label>').text(gettext('TSV File')));
-    div.append($('<input id="optionMultipleServersTSVFile" type="file" disabled class="ui-state-disabled">'));
+    div.append($('<input id="optionMultipleServersTSVFile" ' +
+                 'type="file" disabled class="ui-state-disabled">'));
     form.append(div);
 
     div = $('<div>');
-    mainDiv.append($('<button id="buttonMultipleServersTSVTemplate" disabled class="ui-state-disabled">').text(gettext('Template')));
+    mainDiv.append($('<button id="buttonMultipleServersTSVTemplate" ' +
+                     'disabled class="ui-state-disabled">').text(gettext('Template')));
 
     mainDiv.append('<table class="table" id="bulkupload-server-table" border="1">');
     return mainDiv;
@@ -270,26 +273,27 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
                                { id: '#DEFAULT', key: 'default', gettext: false, },
                             ];
 
-        function buildRow(tmpl) {
+        var tsvTemplate = $.map(tsvHeaderRows, function(tmpl) {
           var cols = $.map(self.currParamObj,
                            function(v, i) {
                              if (v.hidden)
                                return null;
                              if (v[tmpl.key] === undefined)
                                return '';
-                             return (tmpl.gettext ? gettext(v[tmpl.key]) : v[tmpl.key]).replace(/[\t\r\n]+/g, ' ');
+                             return (tmpl.gettext ?
+                                     gettext(v[tmpl.key]) :
+                                     v[tmpl.key]).replace(/[\t\r\n]+/g, ' ');
                            });
           cols.unshift(tmpl.id);
           return cols.join('\t');
-        }
-        var tsvTemplate = $.map(tsvHeaderRows, buildRow).join('\n');
+        }).join('\n');
 
         self.tsvTemplateBlob = new Blob([tsvTemplate]);
         self.tsvTemplateName = self.currParamObj.name + '_template.txt';
         if (fileAPItype == 'MS') {
           templateButton.click(function() {
-                                 window.navigator.msSaveBlob(self.tsvTemplateBlob, self.tsvTemplateName);
-                               });
+            window.navigator.msSaveBlob(self.tsvTemplateBlob, self.tsvTemplateName);
+          });
         } else {
           var url = window.URL.createObjectURL(self.tsvTemplateBlob);
           templateButton.click(function() { window.open(url, null); });
@@ -349,8 +353,8 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
              var v;
     	     if (val === undefined)
     	       val = '';
-    	     if (idx == 0) {
-    	       v = val != '' ? parseInt(val, 10) : 0;
+    	     if (idx === 0) {
+    	       v = val !== '' ? parseInt(val, 10) : 0;
     	       colsById['#ID'] = {
     	         id: '#ID',
     	         idx: idx,
@@ -363,7 +367,7 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
     	       v = val;
     	       if (!param || param.hidden)
     	         return;
-    	       if (val == '') {
+    	       if (val === '') {
     	         if (param.default !== undefined)
     	           v = param.default;
     	       }
@@ -371,7 +375,7 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
     	         idx: idx,
     	         text: val,
     	         mask: param.inputStyle == 'password',
-    	         isBad: (v == '' && !param.allowEmpty) ? true : false,
+    	         isBad: (v === '' && !param.allowEmpty) ? true : false,
     	       };
     	     }
            });
@@ -404,7 +408,7 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
       var badCols = 0;
       var idBadl;
 
-      if (line.length == 0)
+      if (line.length === 0)
         continue;
 
       cols = line.split(/\t/);
@@ -519,15 +523,15 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
       label = param.id;
 
     var defaultValue = '';
-    if (param.default != undefined)
+    if (param.default !== undefined)
       defaultValue = param.default;
 
     var inputStyle = param.inputStyle;
-    if (inputStyle == undefined)
+    if (inputStyle === undefined)
       inputStyle = 'text';
 
     var hint = '';
-    if (param.hint != undefined)
+    if (param.hint !== undefined)
       hint = param.hint;
 
     var elementId = 'bulkupload-server-dialog-param-form-' + index;
