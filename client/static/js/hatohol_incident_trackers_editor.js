@@ -117,9 +117,9 @@ HatoholIncidentTrackersEditor.prototype.updateMainTable = function() {
         numSelected += 1;
       else
         numSelected -= 1;
-      if (prevNumSelected == 0 && numSelected == 1)
+      if (prevNumSelected === 0 && numSelected == 1)
         $("#deleteIncidentTrackersButton").attr("disabled", false);
-      else if (prevNumSelected == 1 && numSelected == 0)
+      else if (prevNumSelected == 1 && numSelected === 0)
         $("#deleteIncidentTrackersButton").attr("disabled", true);
     });
   };
@@ -320,22 +320,22 @@ var HatoholIncidentTrackerEditor = function(params) {
       return true;
     }
 
-    if ($("#editIncidentTrackerNickname").val() == "") {
+    if ($("#editIncidentTrackerNickname").val() === "") {
       hatoholErrorMsgBox(gettext("Nickname is empty!"));
       return false;
     }
 
-    if ($("#editIncidentTrackerBaseURL").val() == "") {
+    if ($("#editIncidentTrackerBaseURL").val() === "") {
       hatoholErrorMsgBox(gettext("Base URL is empty!"));
       return false;
     }
 
-    if ($("#editIncidentTrackerProjectId").val() == "") {
+    if ($("#editIncidentTrackerProjectId").val() === "") {
       hatoholErrorMsgBox(gettext("Project ID is empty!"));
       return false;
     }
 
-    if ($("#editIncidentTrackerUserName").val() == "") {
+    if ($("#editIncidentTrackerUserName").val() === "") {
       label = $("label[for=editIncidentTrackerUserName]").text();
       hatoholErrorMsgBox(label + gettext(" is empty!"));
       return false;
