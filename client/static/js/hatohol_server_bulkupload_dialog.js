@@ -108,7 +108,8 @@ var HatoholServerBulkUploadDialog = function(params) {
     if (flag === undefined)
       $('#bulkupload-server-table-' + idx + '-' + (-1)).css('backgroundColor', "");
     else
-      $('#bulkupload-server-table-' + idx + '-' + (-1)).css('backgroundColor', flag ? '#8f8' : '#f88');
+      $('#bulkupload-server-table-' + idx + '-' + (-1))
+      .css('backgroundColor', flag ? '#8f8' : '#f88');
     if (title)
       $('#bulkupload-server-table-' + idx + '-' + (-1)).attr({'title': title});
   }
@@ -219,11 +220,13 @@ HatoholServerBulkUploadDialog.prototype.createMainElement = function() {
 
     div = $('<div>');
     div.append($('<label>').text(gettext('TSV File')));
-    div.append($('<input id="optionMultipleServersTSVFile" type="file" disabled class="ui-state-disabled">'));
+    div.append($('<input id="optionMultipleServersTSVFile" ' +
+                 'type="file" disabled class="ui-state-disabled">'));
     form.append(div);
 
     div = $('<div>');
-    mainDiv.append($('<button id="buttonMultipleServersTSVTemplate" disabled class="ui-state-disabled">').text(gettext('Template')));
+    mainDiv.append($('<button id="buttonMultipleServersTSVTemplate" ' +
+                     'disabled class="ui-state-disabled">').text(gettext('Template')));
 
     mainDiv.append('<table class="table" id="bulkupload-server-table" border="1">');
     return mainDiv;
@@ -288,8 +291,8 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
         self.tsvTemplateName = self.currParamObj.name + '_template.txt';
         if (fileAPItype == 'MS') {
           templateButton.click(function() {
-                                 window.navigator.msSaveBlob(self.tsvTemplateBlob, self.tsvTemplateName);
-                               });
+            window.navigator.msSaveBlob(self.tsvTemplateBlob, self.tsvTemplateName);
+          });
         } else {
           var url = window.URL.createObjectURL(self.tsvTemplateBlob);
           templateButton.click(function() { window.open(url, null); });
