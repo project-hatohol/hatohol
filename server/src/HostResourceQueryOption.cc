@@ -65,6 +65,8 @@ struct HostResourceQueryOption::Impl {
 	ServerIdType    targetServerId;
 	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
+	string          targetHostname;
+	string          targetHostgroupName;
 	bool            excludeDefunctServers;
 	ServerIdSet selectedServerIdSet;
 	ServerIdSet excludedServerIdSet;
@@ -82,6 +84,8 @@ struct HostResourceQueryOption::Impl {
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_LOCAL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
+	  targetHostname(""),
+	  targetHostgroupName(""),
 	  excludeDefunctServers(true),
 	  validServerIdSet(NULL),
 	  allowedServersAndHostgroups(NULL)
@@ -93,6 +97,8 @@ struct HostResourceQueryOption::Impl {
 		targetServerId        = rhs.targetServerId;
 		targetHostId          = rhs.targetHostId;
 		targetHostgroupId     = rhs.targetHostgroupId;
+		targetHostname        = rhs.targetHostname;
+		targetHostgroupName   = rhs.targetHostgroupName;
 		excludeDefunctServers = rhs.excludeDefunctServers;
 		return *this;
 	}
