@@ -4,6 +4,9 @@
 - name: install g++
   yum: name=gcc-c++
 
+- name: install make
+  yum: name=make
+
 - name: install autoconf and automake
   yum: name={{ item }}
   with_items:
