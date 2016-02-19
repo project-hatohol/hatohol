@@ -273,19 +273,20 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
                                { id: '#DEFAULT', key: 'default', gettext: false, },
                             ];
 
-        function buildRow(tmpl) {
+        var tsvTemplate = $.map(tsvHeaderRows, function(tmpl) {
           var cols = $.map(self.currParamObj,
                            function(v, i) {
                              if (v.hidden)
                                return null;
                              if (v[tmpl.key] === undefined)
                                return '';
-                             return (tmpl.gettext ? gettext(v[tmpl.key]) : v[tmpl.key]).replace(/[\t\r\n]+/g, ' ');
+                             return (tmpl.gettext ?
+                                     gettext(v[tmpl.key]) :
+                                     v[tmpl.key]).replace(/[\t\r\n]+/g, ' ');
                            });
           cols.unshift(tmpl.id);
           return cols.join('\t');
-        }
-        var tsvTemplate = $.map(tsvHeaderRows, buildRow).join('\n');
+        }).join('\n');
 
         self.tsvTemplateBlob = new Blob([tsvTemplate]);
         self.tsvTemplateName = self.currParamObj.name + '_template.txt';
