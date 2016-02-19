@@ -115,7 +115,7 @@ var HatoholServerBulkUploadDialog = function(params) {
   }
 
   function continueAddServer(isSucceeded, msg) {
-    var isOk = undefined;
+    var isOk;
 
     setUpdateStatus(self.batchUpdateIter, isSucceeded, msg);
 
