@@ -1004,6 +1004,18 @@ ArmPluginInfo testArmPluginInfo[] = {
 	"",                              // tlsCACertificatePath
 	0,                               // tlsEnableVerify
 	"",                              // uuid
+}, {
+	AUTO_INCREMENT_VALUE,            // id
+	MONITORING_SYSTEM_HAPI_TEST_PASSIVE,   // type
+	"#PASSIVE_PLUGIN#",                    // path
+	"",                              // brokerUrl
+	"testQueue",                     // staticQueueAddress
+	5,                               // serverId
+	"",                              // tlsCertificatePath
+	"",                              // tlsKeyPath
+	"",                              // tlsCACertificatePath
+	0,                               // tlsEnableVerify
+	"",                              // uuid
 }
 };
 const size_t NumTestArmPluginInfo = ARRAY_SIZE(testArmPluginInfo);

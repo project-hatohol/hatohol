@@ -1077,6 +1077,27 @@ void test_saveArmPluginInfoInvalidId(void)
 	assertHatoholError(HTERR_INVALID_ARM_PLUGIN_ID, err);
 }
 
+void test_saveArmPluginInfoReservedQueueAddress(void)
+{
+	loadTestDBArmPlugin();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[0];
+	armPluginInfo.staticQueueAddress = "hap2.testName";
+	HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
+	assertHatoholError(HTERR_RESERVED_QUEUE_NAME, err);
+}
+
+void test_saveArmPluginInfoDuplicateQueueAddress(void)
+{
+	loadTestDBArmPlugin();
+
+	DECLARE_DBTABLES_CONFIG(dbConfig);
+	ArmPluginInfo armPluginInfo = getTestArmPluginInfo()[5];
+	HatoholError err = dbConfig.saveArmPluginInfo(armPluginInfo);
+	assertHatoholError(HTERR_DUPLICATE_QUEUE_NAME, err);
+}
+
 void test_saveArmPluginInfoUpdate(void)
 {
 	loadTestDBArmPlugin();

@@ -2431,6 +2431,12 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
 		MLPL_ERR("Obsoleted type: %d\n", armPluginInfo.type);
 		return HTERR_OBSOLETE_ARM_PLUGIN_TYPE;
 	}
+	if (StringUtils::hasPrefix(armPluginInfo.staticQueueAddress, "hap2."))
+		return HTERR_RESERVED_QUEUE_NAME;
+	if (StringUtils::casecmp(armPluginInfo.staticQueueAddress, "")){
+	} else if (isDuplicateQueueName(armPluginInfo)){
+			return HTERR_DUPLICATE_QUEUE_NAME;
+	}
 
 	condition = StringUtils::sprintf(
 	  "%s=%d",
@@ -2591,4 +2597,15 @@ HatoholError DBTablesConfig::checkPrivilegeForCustomIncidentStatusDelete(
 		return HTERR_INVALID_USER;
 
 	return HTERR_OK;
+}
+
+bool DBTablesConfig::isDuplicateQueueName(
+  const ArmPluginInfo &armPluginInfo)
+{
+	return isRecordExisting(TABLE_NAME_ARM_PLUGINS,
+	        StringUtils::sprintf("%s='%s' and %s!=%d",
+	        COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_STATIC_QUEUE_ADDR].columnName,
+	        armPluginInfo.staticQueueAddress.c_str(),
+	        COLUMN_DEF_ARM_PLUGINS[IDX_ARM_PLUGINS_ID].columnName,
+	        armPluginInfo.id));
 }
