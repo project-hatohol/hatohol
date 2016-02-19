@@ -174,7 +174,7 @@ HatoholServerBulkUploadDialog.prototype.createMainElement = function() {
       hatoholErrorMsgBox("[Malformed reply] Not found array: serverType");
       return;
     }
-    self.paramArray = []
+    self.paramArray = [];
     for (var i = 0; i < reply.serverType.length; i ++) {
       var serverTypeInfo = reply.serverType[i];
       var name = serverTypeInfo.name;
