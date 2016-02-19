@@ -441,7 +441,20 @@ string HostResourceQueryOption::makeConditionTargetIds(void) const
 		    getHostgroupIdColumnName().c_str(),
 		    rhs(m_impl->targetHostgroupId)));
 	}
-
+	if (!m_impl->targetHostname.empty()) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostIdColumnName().c_str(),
+		    rhs(m_impl->targetHostname)));
+	}
+	if (!m_impl->targetHostgroupName.empty()) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostgroupIdColumnName().c_str(),
+		    rhs(m_impl->targetHostgroupName)));
+	}
 	if (condition.empty())
 		return condition;
 	return StringUtils::sprintf("(%s)", condition.c_str());
