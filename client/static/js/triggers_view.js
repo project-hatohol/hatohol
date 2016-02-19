@@ -257,11 +257,17 @@ var TriggersView = function(userProfile, options) {
     });
   }
 
+  function refreshSelectPickers() {
+    $("#select-host").selectpicker('refresh');
+    $("#select-host-group").selectpicker('refresh');
+  }
+
   function setupCallbacks() {
     $('#select-server').change(function() {
       resetHostQuerySelector('#select-host-group');
       resetHostQuerySelector('#select-host');
       setupFilterValues();
+      refreshSelectPickers();
 
       function resetHostQuerySelector(selectorId) {
         if (!selectorId)
@@ -287,6 +293,14 @@ var TriggersView = function(userProfile, options) {
     });
   }
 
+  function setupSelectPickers() {
+    $("#select-server").selectpicker();
+    $("#select-severity").selectpicker();
+    $("#select-status").selectpicker();
+    $("#select-host").selectpicker();
+    $("#select-host-group").selectpicker();
+  }
+
   function setLoading(loading) {
     if (loading) {
       $("#begin-time").attr("disabled", "disabled");
@@ -294,7 +308,7 @@ var TriggersView = function(userProfile, options) {
       $("#select-severity").attr("disabled", "disabled");
       $("#select-status").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
-      $("#select-hostgroup").attr("disabled", "disabled");
+      $("#select-host-group").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
       $(".latest-button").attr("disabled", "disabled");
     } else {
@@ -303,11 +317,13 @@ var TriggersView = function(userProfile, options) {
       $("#select-severity").removeAttr("disabled");
       $("#select-status").removeAttr("disabled");
       $("#select-server").removeAttr("disabled");
-      if ($("#select-hostgroup option").length > 1)
-        $("#select-hostgroup").removeAttr("disabled");
+      if ($("#select-host-group option").length > 1)
+        $("#select-host-group").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
+
+      setupSelectPickers();
     }
   }
 

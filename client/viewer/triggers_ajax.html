@@ -51,19 +51,19 @@
       <br><br>
       <div class="filter-element">
 	<p><label>{% trans "Monitoring Server:" %}</label></p>
-	<select id="select-server" class="form-control">
+	<select id="select-server" class="form-control" data-live-search="true">
 	  <option value="">---------</option>
 	</select>
       </div>
       <div class="filter-element">
 	<p><label>{% trans "Group:" %}</label></p>
-	<select id="select-host-group" class="form-control">
+	<select id="select-host-group" class="form-control" data-live-search="true">
 	  <option value="">---------</option>
 	</select>
       </div>
       <div class="filter-element">
 	<p><label>{% trans "Host:" %}</label></p>
-	<select id="select-host" class="form-control">
+	<select id="select-host" class="form-control"  data-live-search="true">
 	  <option value="">---------</option>
 	</select>
       </div>
@@ -130,6 +130,10 @@
     </ul>
   </div>
 </div>
+{% endblock %}
+
+{% block option %}
+  <script src="{{ STATIC_URL }}js.external/bootstrap-select.js"></script>
 {% endblock %}
 
 {% block logic %}
