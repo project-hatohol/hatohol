@@ -263,7 +263,7 @@ var IncidentSettingsView = function(userProfile) {
       type: hatohol.ACTION_INCIDENT_SENDER,
     };
     return 'action?' + $.param(query);
-  };
+  }
 
   function load() {
     self.displayUpdateTime();
