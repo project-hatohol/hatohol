@@ -60,7 +60,8 @@ var CustomIncidentLabelsView = function(userProfile) {
       html += "<tr>";
       html += "<td id='custom-incident-status-code" + escapeHTML(customIncidentStatusId) + "'>" +
         escapeHTML(code) + "</td>";
-      html += "<td><input type=\"text\" id='custom-incident-status-label" + escapeHTML(customIncidentStatusId) + "'" +
+      html += "<td><input type=\"text\" id='custom-incident-status-label" +
+        escapeHTML(customIncidentStatusId) + "'" +
         " contenteditable='true' " +
         " placeholder='" + getDefaultLabel(code) + "' value='" +
         escapeHTML(label) + "'></td>";
