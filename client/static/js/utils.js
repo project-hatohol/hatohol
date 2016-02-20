@@ -121,6 +121,10 @@ function getPlugin(server) {
 
 function addPriority(server) {
   var plugin = getPlugin(server);
+  // Validate plugin object not to be undefined.
+  if (plugin === undefined)
+    return;
+
   server.priority = plugin.sortPriority;
 }
 
