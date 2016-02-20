@@ -80,7 +80,7 @@ var CustomIncidentLabelsView = function(userProfile) {
   }
 
   function saveCustomIncidentLabel(status) {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     var url = "/custom-incident-status";
     url += "/" + status;
     new HatoholConnector({
