@@ -222,6 +222,7 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
   });
 
   function setupParametersForms(parameters) {
+    var elem;
     paramObj = JSON.parse(parameters);
     if (!(paramObj instanceof Array)) {
         hatoholErrorMsgBox("[Malformed reply] parameters is not array");
@@ -229,7 +230,7 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     }
 
     for (var i = 0; i < paramObj.length; i++) {
-      var elem = makeFormOfOneParameter(paramObj[i], i);
+      elem = makeFormOfOneParameter(paramObj[i], i);
       if (!elem)
         continue;
       $('#add-server-param-form').append(elem);
