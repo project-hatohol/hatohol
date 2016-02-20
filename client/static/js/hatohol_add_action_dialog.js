@@ -376,7 +376,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   }
 
   function validateAddParameters() {
-    if (self.getCommand() == "") {
+    if (self.getCommand() === "") {
       hatoholErrorMsgBox(gettext("Command is empty!"));
       return false;
     }
@@ -570,7 +570,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
         return;
       }
       var serverId = serverInfo.id;
-      if (serverId == undefined) {
+      if (serverId === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: id");
         return;
       }
@@ -601,7 +601,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
         return;
       }
       var hostId = hostInfo.id;
-      if (hostId == undefined) {
+      if (hostId === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: id");
         return;
       }
@@ -632,7 +632,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
         return;
       }
       var hostgroupId = hostgroupInfo.groupId;
-      if (hostgroupId == undefined) {
+      if (hostgroupId === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: hostgroupId");
         return;
       }
@@ -661,7 +661,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
         return;
       }
       var triggerId = triggerInfo.id;
-      if (triggerId == undefined) {
+      if (triggerId === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: id");
         return;
       }
