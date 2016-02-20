@@ -199,7 +199,7 @@ var HatoholEventPager = function(params) {
   HatoholPager.apply(this, params);
 };
 
-HatoholEventPager.prototype = new HatoholPager;
+HatoholEventPager.prototype = new HatoholPager();
 
 HatoholEventPager.prototype.update = function(params) {
   this.applyParams(params);
