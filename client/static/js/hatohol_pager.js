@@ -151,7 +151,7 @@ HatoholPager.prototype.update = function(params) {
   var range = this.getPagesRange();
 
   parent.empty();
-  if (numPages == 0 || numPages == 1)
+  if (numPages === 0 || numPages == 1)
     return;
 
   for (i = range.firstPage; i <= range.lastPage; ++i) {
@@ -211,7 +211,7 @@ HatoholEventPager.prototype.update = function(params) {
   var numEvents = this.numRecords;
 
   parent.empty();
-  if (numEvents != 0) {
+  if (numEvents !== 0) {
     for (i = range.firstPage; i <= range.lastPage; ++i) {
       enabled = true;
       if (numEvents != this.numRecordsPerPage && i > self.currentPage)
