@@ -146,7 +146,7 @@ var CustomIncidentLabelsView = function(userProfile) {
 
   function getQuery() {
     return 'custom-incident-status';
-  };
+  }
 
   function updateCore(reply) {
     rawData = reply;
