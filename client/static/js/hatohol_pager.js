@@ -164,22 +164,26 @@ HatoholPager.prototype.update = function(params) {
 
   if (numPages > 1 || numPages < 0) {
     enabled = this.currentPage >= self.maxPagesToShow;
-    parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>', enabled, function() {
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>',
+                                   enabled, function() {
       return self.currentPage - self.maxPagesToShow;
     }));
 
     enabled = this.currentPage > 0;
-    parent.prepend(this.createItem('<i class="glyphicon glyphicon-step-backward"></i>', enabled, function() {
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-step-backward"></i>',
+                                   enabled, function() {
       return 0;
     }));
 
     enabled = this.currentPage < (numPages - self.maxPagesToShow);
-    parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>', enabled, function() {
+    parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>',
+                                  enabled, function() {
       return self.currentPage + self.maxPagesToShow;
     }));
 
     enabled = (this.currentPage != numPages - 1);
-    parent.append(this.createItem('<i class="glyphicon glyphicon-step-forward"></i>', enabled, function() {
+    parent.append(this.createItem('<i class="glyphicon glyphicon-step-forward"></i>',
+                                  enabled, function() {
       return numPages - 1;
     }));
   }
@@ -215,23 +219,27 @@ HatoholEventPager.prototype.update = function(params) {
     }
 
     enabled = this.currentPage > 0;
-    parent.prepend(this.createItem('<i class="glyphicon glyphicon-chevron-left"></i>', enabled, function() {
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-chevron-left"></i>',
+                                   enabled, function() {
       return self.currentPage - 1;
     }));
 
     self.previousPage = self.currentPage;
     enabled = this.currentPage >= self.maxPagesToShow;
-    parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>', enabled, function() {
+    parent.prepend(this.createItem('<i class="glyphicon glyphicon-backward"></i>',
+                                   enabled, function() {
       return self.currentPage - self.maxPagesToShow;
     }));
 
     enabled = (numEvents == this.numRecordsPerPage);
-    parent.append(this.createItem('<i class="glyphicon glyphicon-chevron-right"></i>', enabled, function() {
+    parent.append(this.createItem('<i class="glyphicon glyphicon-chevron-right"></i>',
+                                  enabled, function() {
       return self.currentPage + 1;
     }));
 
     enabled = (numEvents == this.numRecordsPerPage);
-    parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>', enabled, function() {
+    parent.append(this.createItem('<i class="glyphicon glyphicon-forward"></i>',
+                                  enabled, function() {
       return self.currentPage + self.maxPagesToShow;
     }));
 
