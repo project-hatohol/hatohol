@@ -296,7 +296,7 @@ HatoholMonitoringView.prototype.startConnection =
     "lines" : [ gettext("Communicating with backend") ],
   });
 
-  var connParam = $.extend({
+  connParam = $.extend({
     url: '/' + query,
     replyCallback: function(reply, parser) {
       self.updateScreen(reply, completionCallback, callbackParam);
