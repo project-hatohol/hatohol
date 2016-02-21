@@ -235,7 +235,7 @@ HatoholMonitoringView.prototype.setupHostQuerySelectorCallback =
       return;
     $(selectorId).val("---------");
   }
-}
+};
 
 HatoholMonitoringView.prototype.setStatus = function (value) {
   var elem;
@@ -397,7 +397,7 @@ function()
         getCurrentTime: function() {
           return time.toLocaleString();
         }
-      }
+      };
   }();
   $("#update-time").empty();
   $("#update-time").append(gettext("Last Update:") + " " + date.getCurrentTime());
