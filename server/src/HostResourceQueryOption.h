@@ -41,9 +41,11 @@ public:
 		const size_t                 hostgroupMapHostIdColumnIdx;
 		const size_t                 hostgroupMapGroupIdColumnIdx;
 
+		const size_t                 hostnameColumnIdx;
+		const size_t                 hostgroupNameColumnIdx;
 		const size_t                 globalHostIdColumnIdx;
 		const size_t                 hostgroupMapGlobalHostIdColumnIdx;
-		
+
 		Synapse(const DBAgent::TableProfile &tableProfile,
 		     const size_t &selfIdColumnIdx,
 		     const size_t &serverIdColumnIdx,
@@ -54,6 +56,8 @@ public:
 		     const size_t &hostgroupMapServerIdColumnIdx,
 		     const size_t &hostgroupMapHostIdColumnIdx,
 		     const size_t &hostgroupMapGroupIdColumnIdx,
+		     const size_t &hostnameColumnIdx,
+		     const size_t &hostgroupNameColumnIdx,
 		     const size_t &globalHostIdColumnIdx
 		       = INVALID_COLUMN_IDX,
 		     const size_t &hostgroupMapGlobalHostIdColumnIdx
@@ -206,6 +210,8 @@ protected:
 	std::string getServerIdColumnName(void) const;
 	std::string getHostgroupIdColumnName(void) const;
 	std::string getHostIdColumnName(void) const;
+	std::string getHostnameColumnName(void) const;
+	std::string getHostgroupNameColumnName(void) const;
 	bool isAllowedServer(const ServerIdType &targetServerId) const;
 	bool isAllowedHostgroup(const ServerIdType &targetServerId,
 				const HostgroupIdType &targetHostgroupId) const;

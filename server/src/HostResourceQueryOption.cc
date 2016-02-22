@@ -40,6 +40,8 @@ HostResourceQueryOption::Synapse::Synapse(
   const size_t &_hostgroupMapServerIdColumnIdx,
   const size_t &_hostgroupMapHostIdColumnIdx,
   const size_t &_hostgroupMapGroupIdColumnIdx,
+  const size_t &_hostnameColumnIdx,
+  const size_t &_hostgroupNameColumnIdx,
   const size_t &_globalHostIdColumnIdx,
   const size_t &_hostgroupMapGlobalHostIdColumnIdx)
 : tableProfile(_tableProfile),
@@ -52,6 +54,8 @@ HostResourceQueryOption::Synapse::Synapse(
   hostgroupMapServerIdColumnIdx(_hostgroupMapServerIdColumnIdx),
   hostgroupMapHostIdColumnIdx(_hostgroupMapHostIdColumnIdx),
   hostgroupMapGroupIdColumnIdx(_hostgroupMapGroupIdColumnIdx),
+  hostnameColumnIdx(_hostnameColumnIdx),
+  hostgroupNameColumnIdx(_hostgroupNameColumnIdx),
   globalHostIdColumnIdx(_globalHostIdColumnIdx),
   hostgroupMapGlobalHostIdColumnIdx(_hostgroupMapGlobalHostIdColumnIdx)
 {
@@ -386,6 +390,18 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 	                           m_impl->synapse.hostIdColumnIdx);
 }
 
+string HostResourceQueryOption::getHostnameColumnName(void) const
+{
+	return getColumnNameCommon(m_impl->synapse.hostTableProfile,
+	                           m_impl->synapse.hostnameColumnIdx);
+}
+
+string HostResourceQueryOption::getHostgroupNameColumnName(void) const
+{
+	const size_t &idx = m_impl->synapse.hostgroupNameColumnIdx;
+	return getHostgroupColumnName(idx);
+}
+
 bool HostResourceQueryOption::isAllowedServer(
   const ServerIdType &targetServerId) const
 {
@@ -425,14 +441,14 @@ string HostResourceQueryOption::makeConditionTargetNames(void) const
 		addCondition(condition,
 		  StringUtils::sprintf(
 		    "%s=%s",
-		    getHostIdColumnName().c_str(),
+		    getHostnameColumnName().c_str(),
 		    rhs(m_impl->targetHostname)));
 	}
 	if (!m_impl->targetHostgroupName.empty()) {
 		addCondition(condition,
 		  StringUtils::sprintf(
 		    "%s=%s",
-		    getHostgroupIdColumnName().c_str(),
+		    getHostgroupNameColumnName().c_str(),
 		    rhs(m_impl->targetHostgroupName)));
 	}
 

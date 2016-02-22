@@ -148,7 +148,8 @@ static const HostResourceQueryOption::Synapse TEST_SYNAPSE(
   true,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
-  IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
+  IDX_TEST_HGRP_TABLE_HOST_GROUP_ID,
+  IDX_HOST_LIST_NAME, IDX_HOSTGROUP_LIST_NAME);
 
 static const HostResourceQueryOption::Synapse TEST_SYNAPSE_HGRP(
   tableProfileTestHGrp,
@@ -157,7 +158,8 @@ static const HostResourceQueryOption::Synapse TEST_SYNAPSE_HGRP(
   false,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
-  IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
+  IDX_TEST_HGRP_TABLE_HOST_GROUP_ID,
+  IDX_HOST_LIST_NAME, IDX_HOSTGROUP_LIST_NAME);
 
 // TODO: I want to remove these, which are too denpendent on the implementation
 // NOTE: The same definitions are in testDBClientHatohol.cc

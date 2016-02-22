@@ -395,7 +395,8 @@ static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
   true,
   tableProfileHostgroupMember,
   IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
-  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
+  IDX_HOST_LIST_NAME, IDX_HOSTGROUP_LIST_NAME);
 
 struct HostsQueryOption::Impl {
 	HostStatus status;
@@ -461,7 +462,8 @@ static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
   false,
   tableProfileHostgroupMember, // TODO: It's dummy.
   IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
-  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
+  IDX_HOST_LIST_NAME, IDX_HOSTGROUP_LIST_NAME);
 
 HostgroupsQueryOption::HostgroupsQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseHostgroupsQueryOption, userId)
@@ -489,7 +491,8 @@ static const HostResourceQueryOption::Synapse synapseHostgroupMembersQueryOption
   IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER, false,
   tableProfileHostgroupMember,
   IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
-  IDX_HOSTGROUP_MEMBER_GROUP_ID);
+  IDX_HOSTGROUP_MEMBER_GROUP_ID,
+  IDX_HOST_LIST_NAME, IDX_HOSTGROUP_LIST_NAME);
 
 HostgroupMembersQueryOption::HostgroupMembersQueryOption(const UserIdType &userId)
 : HostResourceQueryOption(synapseHostgroupMembersQueryOption, userId)
