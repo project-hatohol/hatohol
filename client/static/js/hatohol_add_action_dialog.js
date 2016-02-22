@@ -25,7 +25,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   var IDX_SELECTED_HOST_GROUP = 1;
   var IDX_SELECTED_HOST    = 2;
   var IDX_SELECTED_TRIGGER = 3;
-  self.selectedId = new Array();
+  self.selectedId = [];
   self.selectedId[IDX_SELECTED_SERVER]  = actionDef ? actionDef.serverId : null;
   self.selectedId[IDX_SELECTED_HOST_GROUP] = actionDef ? actionDef.hostgroupId : null;
   self.selectedId[IDX_SELECTED_HOST]    = actionDef ? actionDef.hostId : null;
@@ -376,7 +376,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   }
 
   function validateAddParameters() {
-    if (self.getCommand() == "") {
+    if (self.getCommand() === "") {
       hatoholErrorMsgBox(gettext("Command is empty!"));
       return false;
     }
@@ -469,8 +469,10 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     switch(compType) {
     case hatohol.CMP_EQ:
       compTypeSelector.val("CMP_EQ");
+      break;
     case hatohol.CMP_EQ_GT:
       compTypeSelector.val("CMP_EQ_GT");
+      break;
     }
   }
 
@@ -570,7 +572,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
         return;
       }
       var serverId = serverInfo.id;
-      if (serverId == undefined) {
+      if (serverId === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: id");
         return;
       }
@@ -601,7 +603,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
         return;
       }
       var hostId = hostInfo.id;
-      if (hostId == undefined) {
+      if (hostId === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: id");
         return;
       }
@@ -632,7 +634,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
         return;
       }
       var hostgroupId = hostgroupInfo.groupId;
-      if (hostgroupId == undefined) {
+      if (hostgroupId === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: hostgroupId");
         return;
       }
@@ -661,7 +663,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
         return;
       }
       var triggerId = triggerInfo.id;
-      if (triggerId == undefined) {
+      if (triggerId === undefined) {
         hatoholErrorMsgBox("[Malformed reply] Not found element: id");
         return;
       }
@@ -873,7 +875,8 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
       $("#selectType").val(type);
       break;
     default:
-      var msg = gettext("The template script returned the invalid value.") + " (command type: " + type + ")";
+      var msg = gettext("The template script returned the invalid value.") +
+        " (command type: " + type + ")";
       hatoholErrorMsgBox(gettext(msg));
       return;
     }
