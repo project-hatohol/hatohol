@@ -210,6 +210,7 @@ protected:
 	bool isAllowedHostgroup(const ServerIdType &targetServerId,
 				const HostgroupIdType &targetHostgroupId) const;
 
+	std::string makeConditionTargetNames(void) const;
 	std::string makeConditionTargetIds(void) const;
 	std::string makeConditionAllowedHosts(void) const;
 	std::string makeConditionServer(

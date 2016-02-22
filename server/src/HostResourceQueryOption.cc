@@ -161,6 +161,7 @@ string HostResourceQueryOption::getCondition(void) const
 	}
 
 	// Select servers, hostgroups and hosts sepcified by the caller
+	addCondition(condition, makeConditionTargetNames());
 	addCondition(condition, makeConditionTargetIds());
 	addCondition(condition, makeConditionHostsFilter());
 
@@ -415,6 +416,29 @@ bool HostResourceQueryOption::isAllowedHostgroup(
 	return hostgroupSet.find(targetHostgroupId) != hostgroupSet.end();
 }
 
+string HostResourceQueryOption::makeConditionTargetNames(void) const
+{
+	string condition;
+	DBTermCStringProvider rhs(*getDBTermCodec());
+
+	if (!m_impl->targetHostname.empty()) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostIdColumnName().c_str(),
+		    rhs(m_impl->targetHostname)));
+	}
+	if (!m_impl->targetHostgroupName.empty()) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostgroupIdColumnName().c_str(),
+		    rhs(m_impl->targetHostgroupName)));
+	}
+
+	return condition;
+}
+
 string HostResourceQueryOption::makeConditionTargetIds(void) const
 {
 	string condition;
@@ -440,20 +464,6 @@ string HostResourceQueryOption::makeConditionTargetIds(void) const
 		    "%s=%s",
 		    getHostgroupIdColumnName().c_str(),
 		    rhs(m_impl->targetHostgroupId)));
-	}
-	if (!m_impl->targetHostname.empty()) {
-		addCondition(condition,
-		  StringUtils::sprintf(
-		    "%s=%s",
-		    getHostIdColumnName().c_str(),
-		    rhs(m_impl->targetHostname)));
-	}
-	if (!m_impl->targetHostgroupName.empty()) {
-		addCondition(condition,
-		  StringUtils::sprintf(
-		    "%s=%s",
-		    getHostgroupIdColumnName().c_str(),
-		    rhs(m_impl->targetHostgroupName)));
 	}
 	if (condition.empty())
 		return condition;
