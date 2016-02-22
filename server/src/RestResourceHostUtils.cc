@@ -231,6 +231,20 @@ HatoholError RestResourceHostUtils::parseHostResourceQueryParameter(
 		return err;
 	option.setTargetHostId(targetHostId);
 
+	// target hostname
+	const char *targetHostname =
+		static_cast<const char*>(g_hash_table_lookup(query, "hostname"));
+	if (targetHostname && *targetHostname) {
+		option.setTargetHostname(targetHostname);
+	}
+
+	// target hostgroup name
+	const char *targetHostgroupName =
+		static_cast<const char*>(g_hash_table_lookup(query, "hostgroupName"));
+	if (targetHostgroupName && *targetHostgroupName) {
+		option.setTargetHostgroupName(targetHostgroupName);
+	}
+
 	// Plural hosts filter
 	err = parseHostsFilter(option, query);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
