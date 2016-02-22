@@ -103,7 +103,7 @@ HatoholHistoryLoader.prototype.load = function() {
           "Monitoring Server ID: " + query.serverId + ", " +
           "Host ID: " + query.hostId + ", " +
           "Item ID: " + query.itemId;
-        if (!items || items.length == 0)
+        if (!items || items.length === 0)
           hatoholErrorMsgBox(gettext("No such item: ") + messageDetail);
         else if (items.length > 1)
           hatoholErrorMsgBox(gettext("Too many items are found for ") +
