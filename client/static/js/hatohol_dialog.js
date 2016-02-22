@@ -54,7 +54,7 @@ var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
   self.onAppendMainElement();
 
   var width = "95%";
-  var position = undefined;
+  var position;
   if (dialogAttr) {
     if (dialogAttr.width)
       width = dialogAttr.width;
