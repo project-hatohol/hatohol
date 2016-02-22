@@ -477,6 +477,16 @@ void test_excludeServersWithoutPrivilege(void)
 	cppcut_assert_equal(expect, option.getCondition());
 }
 
+void test_targetNamesCondition(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	option.setTargetHostname("hostX1");
+	option.setTargetHostgroupName("hostgroup Y1");
+	string expect("server_id IN (1,2,3,4,211,222,301)"
+		      " AND hostname='hostX1' AND host_group_name='hostgroup Y1'");
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
 void test_selectPluralHostgroups(void)
 {
 	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
