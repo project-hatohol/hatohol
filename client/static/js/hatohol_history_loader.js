@@ -30,7 +30,7 @@ var HatoholHistoryLoader = function(options) {
 
 HatoholHistoryLoader.prototype.load = function() {
   var self = this;
-  var deferred = new $.Deferred;
+  var deferred = new $.Deferred();
 
   self.loading = true;
 
@@ -77,7 +77,7 @@ HatoholHistoryLoader.prototype.load = function() {
   };
 
   function loadItem() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     var view = self.options.view; // TODO: Remove the view dependency
 
     if (self.item) {
@@ -116,7 +116,7 @@ HatoholHistoryLoader.prototype.load = function() {
   }
 
   function loadHistory() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     var view = self.options.view; // TODO: Remove the view dependency
 
     view.startConnection(getHistoryQuery(), function(reply) {
