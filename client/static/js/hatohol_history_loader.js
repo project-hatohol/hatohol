@@ -53,7 +53,7 @@ HatoholHistoryLoader.prototype.load = function() {
       itemId: options.itemId
     };
     return 'item?' + $.param(itemQuery);
-  };
+  }
 
   function getHistoryQuery() {
     var query = $.extend({}, self.options.query);
@@ -74,7 +74,7 @@ HatoholHistoryLoader.prototype.load = function() {
     self.lastQuery = query;
 
     return 'history?' + $.param(query);
-  };
+  }
 
   function loadItem() {
     var deferred = new $.Deferred();
