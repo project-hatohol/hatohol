@@ -176,36 +176,36 @@ function hatoholInfoMsgBox(msg, userParam) {
   if (userParam)
     $.extend(param, userParam);
   new HatoholMessageBox(msg, param);
-};
+}
 
 function hatoholWarnMsgBox(msg, userParam) {
   var param = {title: gettext("Warning")};
   if (userParam)
     $.extend(param, userParam);
   new HatoholMessageBox(msg, param);
-};
+}
 
 function hatoholErrorMsgBox(msg, userParam) {
   var param = {title: gettext("Error")};
   if (userParam)
     $.extend(param, userParam);
   new HatoholMessageBox(msg, param);
-};
+}
 
 function hatoholNoYesMsgBox(msg, yesCallback) {
   var buttons = HatoholMessageBox.prototype.getBuiltinNoYesButtons();
   buttons[1].click = yesCallback;
   var param = {title: gettext("Question"), buttons: buttons};
   new HatoholMessageBox(msg, param);
-};
+}
 
 function hatoholMsgBoxForParser(reply, parser) {
   var msg = parser.getMessage();
   if (!msg)
     msg = gettext("Failed to parse the received packet.");
   hatoholErrorMsgBox(msg, {optionMessages: parser.optionMessages});
-};
+}
 
 function hatoholErrorMsgBoxForParser(reply, parser) {
   hatoholMsgBoxForParser(reply, parser);
-};
+}
