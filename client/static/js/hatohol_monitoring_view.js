@@ -164,7 +164,7 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
   server = servers[serverId];
   hosts = server.hosts;
   for (id in hosts) {
-    if (withoutSelfMonitor && (withoutSelfMonitor == true) && (id == "__SELF_MONITOR"))
+    if (withoutSelfMonitor && (withoutSelfMonitor === true) && (id == "__SELF_MONITOR"))
       continue;
     hostLabels.push({
       label: getHostName(server, id),
@@ -235,7 +235,7 @@ HatoholMonitoringView.prototype.setupHostQuerySelectorCallback =
       return;
     $(selectorId).val("---------");
   }
-}
+};
 
 HatoholMonitoringView.prototype.setStatus = function (value) {
   var elem;
@@ -296,7 +296,7 @@ HatoholMonitoringView.prototype.startConnection =
     "lines" : [ gettext("Communicating with backend") ],
   });
 
-  var connParam = $.extend({
+  connParam = $.extend({
     url: '/' + query,
     replyCallback: function(reply, parser) {
       self.updateScreen(reply, completionCallback, callbackParam);
@@ -351,9 +351,9 @@ HatoholMonitoringView.prototype.setupCheckboxForDelete =
       numSelected += 1;
     else
       numSelected -= 1;
-    if (prevNumSelected == 0 && numSelected == 1)
+    if (prevNumSelected === 0 && numSelected == 1)
       jQObjDeleteButton.attr("disabled", false);
-    else if (prevNumSelected == 1 && numSelected == 0)
+    else if (prevNumSelected == 1 && numSelected === 0)
       jQObjDeleteButton.attr("disabled", true);
   });
 };
@@ -397,7 +397,7 @@ function()
         getCurrentTime: function() {
           return time.toLocaleString();
         }
-      }
+      };
   }();
   $("#update-time").empty();
   $("#update-time").append(gettext("Last Update:") + " " + date.getCurrentTime());
