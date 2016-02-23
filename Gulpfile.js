@@ -54,3 +54,6 @@ gulp.task('copy', function() {
 });
 
 gulp.task('default', ['lint']);
+gulp.task('test', ['copy', 'browsertest'], function(){
+  verbose: true;
+});
