@@ -19,6 +19,6 @@
     "jquery": "~2.2.1",
     "bootstrap": "~3.3.6",
     "jquery-flot": "~0.8.3",
-    "spectrum-colorpicker": "~1.8.0",
+    "spectrum-colorpicker": "~1.8.0"
   }
 }
