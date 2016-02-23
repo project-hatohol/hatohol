@@ -30,7 +30,7 @@ var HatoholHistoryLoader = function(options) {
 
 HatoholHistoryLoader.prototype.load = function() {
   var self = this;
-  var deferred = new $.Deferred;
+  var deferred = new $.Deferred();
 
   self.loading = true;
 
@@ -53,7 +53,7 @@ HatoholHistoryLoader.prototype.load = function() {
       itemId: options.itemId
     };
     return 'item?' + $.param(itemQuery);
-  };
+  }
 
   function getHistoryQuery() {
     var query = $.extend({}, self.options.query);
@@ -74,10 +74,10 @@ HatoholHistoryLoader.prototype.load = function() {
     self.lastQuery = query;
 
     return 'history?' + $.param(query);
-  };
+  }
 
   function loadItem() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     var view = self.options.view; // TODO: Remove the view dependency
 
     if (self.item) {
@@ -103,7 +103,7 @@ HatoholHistoryLoader.prototype.load = function() {
           "Monitoring Server ID: " + query.serverId + ", " +
           "Host ID: " + query.hostId + ", " +
           "Item ID: " + query.itemId;
-        if (!items || items.length == 0)
+        if (!items || items.length === 0)
           hatoholErrorMsgBox(gettext("No such item: ") + messageDetail);
         else if (items.length > 1)
           hatoholErrorMsgBox(gettext("Too many items are found for ") +
@@ -116,7 +116,7 @@ HatoholHistoryLoader.prototype.load = function() {
   }
 
   function loadHistory() {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     var view = self.options.view; // TODO: Remove the view dependency
 
     view.startConnection(getHistoryQuery(), function(reply) {
