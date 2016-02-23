@@ -63,7 +63,7 @@ var HatoholLogSearchSystemEditor = function(params) {
 
   function makeQueryData() {
     var queryData = {};
-    queryData.type = $("#selectLogSearchSystemType").val()
+    queryData.type = $("#selectLogSearchSystemType").val();
     queryData.base_url = $("#editLogSearchSystemBaseURL").val();
     return queryData;
   }
