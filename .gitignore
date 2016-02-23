@@ -42,7 +42,14 @@ Makefile.in
 /node_modules
 /m4/
 /missing
+/client/static/fonts/glyphicons-halflings-regular.*
 /client/static/js/hatohol_version.js
+/client/static/js.external/bootstrap.min.js
+/client/static/js.external/bootstrap-select.js
+/client/static/js.external/jquery.flot.*.js
+/client/static/js.external/jquery.flot.js
+/client/static/js.external/jquery.min.js
+/client/static/js.external/spectrum.js
 /server/hap/hatohol-arm-plugin-zabbix
 /server/mlpl/mlpl.pc
 /server/mlpl/test/loggerTestee
