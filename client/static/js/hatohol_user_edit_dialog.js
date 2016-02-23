@@ -111,11 +111,11 @@ var HatoholUserEditDialog = function(params) {
   function validateParameters() {
     var flags = $("#selectUserRole").val();
 
-    if ($("#editUserName").val() == "") {
+    if ($("#editUserName").val() === "") {
       hatoholErrorMsgBox(gettext("User name is empty!"));
       return false;
     }
-    if (!self.user && $("#editPassword").val() == "") {
+    if (!self.user && $("#editPassword").val() === "") {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
