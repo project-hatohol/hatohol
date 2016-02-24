@@ -37,6 +37,8 @@ gulp.task('copy', function() {
     'node_modules/bootstrap-select/dist/js/bootstrap-select.js',
     'node_modules/jquery/dist/jquery.min.js',
     'node_modules/jquery-flot/jquery.flot.js',
+    'node_modules/jquery-flot/jquery.flot.pie.js',
+    'node_modules/jquery-flot/jquery.flot.resize.js',
     'node_modules/jquery-flot/jquery.flot.selection.js',
     'node_modules/jquery-flot/jquery.flot.time.js',
     'node_modules/spectrum-colorpicker/spectrum.js',
@@ -46,6 +48,7 @@ gulp.task('copy', function() {
   gulp.src([
     'node_modules/bootstrap/dist/css/bootstrap.min.css',
     'node_modules/bootstrap-select/dist/css/bootstrap-select.css',
+    'node_modules/spectrum-colorpicker/spectrum.css',
   ])
   .pipe(gulp.dest('client/static/css.external'));
   // Copy external fonts files
