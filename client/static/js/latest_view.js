@@ -234,7 +234,7 @@ var LatestView = function(userProfile) {
     }
     self.lastQuery = query;
     return 'item?' + $.param(query);
-  };
+  }
 
   function load(page) {
     self.displayUpdateTime();
