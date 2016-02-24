@@ -226,7 +226,7 @@ var OverviewTriggers = function(userProfile) {
       $.extend(query, self.getHostFilterQuery());
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
-  };
+  }
 
   function load() {
     self.displayUpdateTime();
