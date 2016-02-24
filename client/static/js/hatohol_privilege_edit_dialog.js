@@ -84,7 +84,7 @@ HatoholPrivilegeEditDialog.prototype.setupSelectHostgroupDialog = function() {
   function applyPrivilegesCb() {
     self.start();
   }
-}
+};
 
 HatoholPrivilegeEditDialog.prototype.start = function() {
   var self = this;
@@ -181,7 +181,7 @@ HatoholPrivilegeEditDialog.prototype.setupAllCheckButton = function() {
     for (var i = 0; i < checkboxes.length; i++)
       checkboxes[i].checked = false;
   });
-}
+};
 
 HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
   var html =
