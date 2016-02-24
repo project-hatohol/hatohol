@@ -18,7 +18,7 @@
  */
 
 var HatoholDialogObserver = (function() {
-  var createdCallbacks = new Array();
+  var createdCallbacks = [];
 
   return {
     reset: function() {
@@ -54,7 +54,7 @@ var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
   self.onAppendMainElement();
 
   var width = "95%";
-  var position = undefined;
+  var position;
   if (dialogAttr) {
     if (dialogAttr.width)
       width = dialogAttr.width;
@@ -73,10 +73,11 @@ var HatoholDialog = function(id, dialogTitle, buttons, dialogAttr) {
     open: function(event, ui){
       $(".ui-dialog-titlebar-close").hide();
       $(self.dialogId).keypress(function(event) {
-        if (event.keyCode == $.ui.keyCode.ENTER)
+        if (event.keyCode == $.ui.keyCode.ENTER) {
           var button = $(this).parent().find('.ui-dialog-buttonset button:first');
           if (button && !button.is(':disabled'))
             button.click();
+        }
       });
     }
   });
