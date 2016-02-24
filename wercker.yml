@@ -23,11 +23,6 @@ build:
           yum install -y nodejs npm
 
     - script:
-        name: Install npm packages
-        code: |
-          npm install
-
-    - script:
         name: Setup json-glib-devel
         code: |
           yum install -y json-glib-devel
@@ -54,6 +49,13 @@ build:
           git fetch origin
           # HEAD is used for local `wercker` CLI command build
           git checkout -qf ${WERCKER_GIT_COMMIT:-HEAD}
+
+    - script:
+        name: Install npm packages
+        code: |
+          cd ~/hatohol
+          mkdir -p node_modules
+          npm install --prefix ./node_modules
 
     - script:
         name: Building Hatohol
