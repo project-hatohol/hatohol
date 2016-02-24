@@ -197,7 +197,7 @@ var OverviewItems = function(userProfile) {
       $.extend(query, self.getHostFilterQuery());
     self.lastQuery = query;
     return 'item?' + $.param(query);
-  };
+  }
 
   function load() {
     self.displayUpdateTime();
