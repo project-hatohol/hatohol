@@ -178,7 +178,7 @@ var SeverityRanksView = function(userProfile) {
 
   function getQuery() {
     return 'severity-rank';
-  };
+  }
 
   function updateCore(reply) {
     rawData = reply;
