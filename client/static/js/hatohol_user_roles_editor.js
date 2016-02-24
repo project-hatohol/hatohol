@@ -118,9 +118,9 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
         numSelected += 1;
       else
         numSelected -= 1;
-      if (prevNumSelected == 0 && numSelected == 1)
+      if (prevNumSelected === 0 && numSelected == 1)
         $("#deleteUserRolesButton").attr("disabled", false);
-      else if (prevNumSelected == 1 && numSelected == 0)
+      else if (prevNumSelected == 1 && numSelected === 0)
         $("#deleteUserRolesButton").attr("disabled", true);
     });
   };
@@ -351,7 +351,7 @@ var HatoholUserRoleEditor = function(params) {
     if (self.userRoles)
       userRoles = userRoles.concat(self.userRoles);
 
-    if ($("#editUserRoleName").val() == "") {
+    if ($("#editUserRoleName").val() === "") {
       hatoholErrorMsgBox(gettext("User role name is empty!"));
       return false;
     }
