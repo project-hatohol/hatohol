@@ -111,11 +111,11 @@ var HatoholUserEditDialog = function(params) {
   function validateParameters() {
     var flags = $("#selectUserRole").val();
 
-    if ($("#editUserName").val() == "") {
+    if ($("#editUserName").val() === "") {
       hatoholErrorMsgBox(gettext("User name is empty!"));
       return false;
     }
-    if (!self.user && $("#editPassword").val() == "") {
+    if (!self.user && $("#editPassword").val() === "") {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
@@ -150,7 +150,7 @@ HatoholUserEditDialog.prototype.createMainElement = function() {
     return self.hasPrivilege(hatohol.OPPRVLG_CREATE_USER_ROLE) ||
       self.hasPrivilege(hatohol.OPPRVLG_UPDATE_ALL_USER_ROLE) ||
       self.hasPrivilege(hatohol.OPPRVLG_DELETE_ALL_USER_ROLE);
-  };
+  }
 
   function makeMainDivHTML() {
     var hint = self.user ? "********" : "";
