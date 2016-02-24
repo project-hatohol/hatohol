@@ -19,14 +19,12 @@
   <http://www.gnu.org/licenses/>.
 """
 
-import sys
-import time
-from logging import getLogger
 import urllib2
 import json
 import datetime
 import cPickle
 import base64
+from logging import getLogger
 from hatohol import hap
 from hatohol import haplib
 from hatohol import standardhap
