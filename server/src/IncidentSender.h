@@ -97,11 +97,15 @@ public:
 	 * @param userData
 	 * A user data which will be passed to the callback function.
 	 *
+	 * @param userId
+	 * The user ID of the operator.
+	 *
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
 	void queue(const EventInfo &eventInfo,
 		   CreateIncidentCallback callback = NULL,
-		   void *userData = NULL);
+		   void *userData = NULL,
+		   const UserIdType userId = USER_ID_SYSTEM);
 
 	/**
 	 * Queue an IncidentInfo to update existing one. Sending an incident
@@ -122,12 +126,16 @@ public:
 	 * @param userData
 	 * A user data which will be passed to the callback function.
 	 *
+	 * @param userId
+	 * The user ID of the operator.
+	 *
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
 	void queue(const IncidentInfo &incidentInfo,
 		   const std::string &comment,
 		   UpdateIncidentCallback callback = NULL,
-		   void *userData = NULL);
+		   void *userData = NULL,
+		   const UserIdType userId = USER_ID_SYSTEM);
 
 	/**
 	 * Set max retry count of sending an incident on failing it.
