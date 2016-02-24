@@ -18,10 +18,9 @@
   <http://www.gnu.org/licenses/>.
 """
 
-from logging import getLogger
 import sys
-import os
 import imp
+from logging import getLogger
 from hatohol import hapcommon
 
 DIR_BOTH = 0
