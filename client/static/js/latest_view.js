@@ -175,8 +175,8 @@ var LatestView = function(userProfile) {
       html += "<td>" + escapeHTML(hostName) + "</td>";
       html += "<td>" + escapeHTML(appName) + "</td>";
       if (url)
-        html += "<td><a href='" + url + "' target='_blank'>"
-                + escapeHTML(item["brief"])  + "</a></td>";
+        html += "<td><a href='" + url + "' target='_blank'>" +
+                escapeHTML(item["brief"])  + "</a></td>";
       else
         html += "<td>" + escapeHTML(item["brief"])  + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
