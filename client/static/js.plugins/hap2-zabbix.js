@@ -8,7 +8,7 @@
 
     if (!server)
       return undefined;
-      
+
     url = server["baseURL"];
     suffixPos = url.indexOf(suffix);
     if (suffixPos == url.length - suffix.length)
