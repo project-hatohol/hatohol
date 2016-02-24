@@ -160,7 +160,10 @@ HATOHOL_DEF_GENERATOR = \
 HATOHOL_SERVER_TYPE_UTIL = \
 	$(top_builddir)/server/tools/hatohol-server-type-util
 
-static/js/hatohol_def.js: $(HATOHOL_DEF_GENERATOR)
+static/external:
+	$(top_builddir)/node_modules/.bin/gulp copy
+
+static/js/hatohol_def.js: $(HATOHOL_DEF_GENERATOR) static/external
 	$(HATOHOL_DEF_GENERATOR) js > $@
 
 $(HATOHOL_DEF_GENERATOR):
