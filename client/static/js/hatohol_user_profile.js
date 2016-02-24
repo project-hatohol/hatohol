@@ -61,7 +61,7 @@ var HatoholUserProfile = function(user) {
     $("#changePasswordMenuItem").click(function() {
       new HatoholPasswordChanger(user);
     });
-  };
+  }
 };
 
 HatoholUserProfile.prototype.addOnLoadCb = function(onLoadCb) {
@@ -69,7 +69,7 @@ HatoholUserProfile.prototype.addOnLoadCb = function(onLoadCb) {
     onLoadCb(this.user);
   } else {
     this.onLoadCb.push(onLoadCb);
-  };
+  }
 };
 
 HatoholUserProfile.prototype.hasFlag = function(flag, user) {
