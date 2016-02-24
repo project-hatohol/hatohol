@@ -143,7 +143,7 @@ var DashboardView = function(userProfile) {
       y = 0;
       for (groupId in replyData["serverStatus"][x]["hostgroups"]) {
         html += "<tr>"; // ==============  start of a row ================
-        if (y == 0) {
+        if (y === 0) {
           html += "<td rowspan='" + escapeHTML(parsedData[serverId]["numberOfHostgroups"]) + "'>";
           html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
           html += "</td>";
@@ -178,7 +178,7 @@ var DashboardView = function(userProfile) {
       for (y = 0; y < hostStatuses.length; ++y) {
         hostStatus = hostStatuses[y];
         html += "<tr>"; // ==============  start of a row ================
-        if (y == 0) {
+        if (y === 0) {
           html += "<td rowspan='" + hostStatuses.length + "'>";
           html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
           html += "</td>";
