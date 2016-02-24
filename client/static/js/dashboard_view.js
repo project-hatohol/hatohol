@@ -65,8 +65,10 @@ var DashboardView = function(userProfile) {
     bad_ratio = (100 * bad / total) << 0;
 
     html += "<div class='progress'>";
-    html += "<div class='progress-bar progress-bar-success' style='width:" + (100 - bad_ratio) + "%;'></div>";
-    html += "<div class='progress-bar progress-bar-danger'  style='width:" +        bad_ratio  + "%;'></div>";
+    html += "<div class='progress-bar progress-bar-success' style='width:" +
+      (100 - bad_ratio) + "%;'></div>";
+    html += "<div class='progress-bar progress-bar-danger'  style='width:" +
+      bad_ratio  + "%;'></div>";
     html += "</div>";
 
     return html;
