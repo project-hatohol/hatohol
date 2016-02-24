@@ -18,6 +18,11 @@ build:
           wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
 
     - script:
+        name: Setup node.js and npm
+        code: |
+          yum install -y nodejs npm
+
+    - script:
         name: Setup json-glib-devel
         code: |
           yum install -y json-glib-devel
