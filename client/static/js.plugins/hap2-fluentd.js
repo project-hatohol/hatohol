@@ -3,5 +3,5 @@
                                     "Fluentd (HAPI2)", 70);
   self.getHostName = function(server, hostId) {
     return hostId;
-  }
+  };
 }(hatohol));
