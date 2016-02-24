@@ -112,7 +112,7 @@ var LatestView = function(userProfile) {
     for (x = 0; x < replyData["applications"].length; ++x) {
       item = replyData["applications"][x];
 
-      if (item["name"].length == 0)
+      if (item["name"].length === 0)
         item["name"] = "_non_";
       else
         appNames.push(item["name"]);
@@ -175,8 +175,8 @@ var LatestView = function(userProfile) {
       html += "<td>" + escapeHTML(hostName) + "</td>";
       html += "<td>" + escapeHTML(appName) + "</td>";
       if (url)
-        html += "<td><a href='" + url + "' target='_blank'>"
-                + escapeHTML(item["brief"])  + "</a></td>";
+        html += "<td><a href='" + url + "' target='_blank'>" +
+                escapeHTML(item["brief"])  + "</a></td>";
       else
         html += "<td>" + escapeHTML(item["brief"])  + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
@@ -234,7 +234,7 @@ var LatestView = function(userProfile) {
     }
     self.lastQuery = query;
     return 'item?' + $.param(query);
-  };
+  }
 
   function load(page) {
     self.displayUpdateTime();
