@@ -5,5 +5,5 @@
     if (hostId == "N/A")
       return "N/A";
     return null;
-  }
+  };
 }(hatohol));
