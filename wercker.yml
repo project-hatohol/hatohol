@@ -23,6 +23,11 @@ build:
           yum install -y nodejs npm
 
     - script:
+        name: Install npm packages
+        code: |
+          npm install
+
+    - script:
         name: Setup json-glib-devel
         code: |
           yum install -y json-glib-devel
