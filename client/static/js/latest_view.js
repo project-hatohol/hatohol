@@ -112,7 +112,7 @@ var LatestView = function(userProfile) {
     for (x = 0; x < replyData["applications"].length; ++x) {
       item = replyData["applications"][x];
 
-      if (item["name"].length == 0)
+      if (item["name"].length === 0)
         item["name"] = "_non_";
       else
         appNames.push(item["name"]);
