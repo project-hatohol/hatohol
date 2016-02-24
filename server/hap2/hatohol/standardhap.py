@@ -26,7 +26,7 @@ from hatohol import haplib
 from hatohol import transporter
 from hatohol import hapcommon
 
-logger = getLogger("hatohol.hap:%s" % hapcommon.get_top_file_name())
+logger = getLogger("hatohol.standardhap:%s" % hapcommon.get_top_file_name())
 
 class StandardHap:
     def __init__(self, default_transporter="RabbitMQHapiConnector"):
