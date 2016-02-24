@@ -65,8 +65,10 @@ var DashboardView = function(userProfile) {
     bad_ratio = (100 * bad / total) << 0;
 
     html += "<div class='progress'>";
-    html += "<div class='progress-bar progress-bar-success' style='width:" + (100 - bad_ratio) + "%;'></div>";
-    html += "<div class='progress-bar progress-bar-danger'  style='width:" +        bad_ratio  + "%;'></div>";
+    html += "<div class='progress-bar progress-bar-success' style='width:" +
+      (100 - bad_ratio) + "%;'></div>";
+    html += "<div class='progress-bar progress-bar-danger'  style='width:" +
+      bad_ratio  + "%;'></div>";
     html += "</div>";
 
     return html;
@@ -141,7 +143,7 @@ var DashboardView = function(userProfile) {
       y = 0;
       for (groupId in replyData["serverStatus"][x]["hostgroups"]) {
         html += "<tr>"; // ==============  start of a row ================
-        if (y == 0) {
+        if (y === 0) {
           html += "<td rowspan='" + escapeHTML(parsedData[serverId]["numberOfHostgroups"]) + "'>";
           html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
           html += "</td>";
@@ -176,7 +178,7 @@ var DashboardView = function(userProfile) {
       for (y = 0; y < hostStatuses.length; ++y) {
         hostStatus = hostStatuses[y];
         html += "<tr>"; // ==============  start of a row ================
-        if (y == 0) {
+        if (y === 0) {
           html += "<td rowspan='" + hostStatuses.length + "'>";
           html += escapeHTML(replyData["serverStatus"][x]["serverNickname"]);
           html += "</td>";
