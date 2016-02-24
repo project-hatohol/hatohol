@@ -132,7 +132,7 @@ var OverviewTriggers = function(userProfile) {
 
     serversRow = "<tr><th></th>";
     hostsRow = "<tr><th></th>";
-    for (nickName in parsedData.hosts) {
+    for (var nickName in parsedData.hosts) {
       hostNames = parsedData.hosts[nickName];
       serversRow += "<th style='text-align: center' colspan='" +
         hostNames.length + "'>" + escapeHTML(nickName) + "</th>";
