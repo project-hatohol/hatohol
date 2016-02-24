@@ -12,8 +12,7 @@ gulp.task('browsertest', function () {
       },
       useColors:true,
       suppressStdout: false,
-      suppressStderr: false,
-      verbose: true
+      suppressStderr: false
     }
   };
   var stream = mochaPhantomJS(phantomJSConfig);
