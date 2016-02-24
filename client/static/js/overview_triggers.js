@@ -132,7 +132,7 @@ var OverviewTriggers = function(userProfile) {
 
     serversRow = "<tr><th></th>";
     hostsRow = "<tr><th></th>";
-    for (nickName in parsedData.hosts) {
+    for (var nickName in parsedData.hosts) {
       hostNames = parsedData.hosts[nickName];
       serversRow += "<th style='text-align: center' colspan='" +
         hostNames.length + "'>" + escapeHTML(nickName) + "</th>";
@@ -226,7 +226,7 @@ var OverviewTriggers = function(userProfile) {
       $.extend(query, self.getHostFilterQuery());
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
-  };
+  }
 
   function load() {
     self.displayUpdateTime();
