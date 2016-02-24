@@ -19,7 +19,6 @@
   <http://www.gnu.org/licenses/>.
 """
 
-import sys
 import MySQLdb
 import time
 from logging import getLogger
