@@ -92,7 +92,7 @@ var SeverityRanksView = function(userProfile) {
   }
 
   function saveSeverityRank(status) {
-    var deferred = new $.Deferred;
+    var deferred = new $.Deferred();
     var url = "/severity-rank";
     url += "/" + status;
     new HatoholConnector({
