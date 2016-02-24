@@ -20,9 +20,6 @@
 
 import argparse
 from logging import getLogger
-import time
-import sys
-import traceback
 import signal
 from hatohol import hap
 from hatohol import haplib
