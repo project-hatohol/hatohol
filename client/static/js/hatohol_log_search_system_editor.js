@@ -63,7 +63,7 @@ var HatoholLogSearchSystemEditor = function(params) {
 
   function makeQueryData() {
     var queryData = {};
-    queryData.type = $("#selectLogSearchSystemType").val()
+    queryData.type = $("#selectLogSearchSystemType").val();
     queryData.base_url = $("#editLogSearchSystemBaseURL").val();
     return queryData;
   }
@@ -96,12 +96,12 @@ var HatoholLogSearchSystemEditor = function(params) {
   function validateParameters() {
     var label;
 
-    if ($("#editLogSearchSystemType").val() == "") {
+    if ($("#editLogSearchSystemType").val() === "") {
       hatoholErrorMsgBox(gettext("Type is empty!"));
       return false;
     }
 
-    if ($("#editLogSearchSystemBaseURL").val() == "") {
+    if ($("#editLogSearchSystemBaseURL").val() === "") {
       hatoholErrorMsgBox(gettext("Base URL is empty!"));
       return false;
     }
