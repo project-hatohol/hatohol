@@ -19,18 +19,17 @@
   <http://www.gnu.org/licenses/>.
 """
 
-import sys
 import time
-from logging import getLogger
 import datetime
+import socket
+import uuid
+import json
+from logging import getLogger
+from mk_livestatus import Socket
 from hatohol import hap
 from hatohol import haplib
 from hatohol import hapcommon
 from hatohol import standardhap
-import socket
-import uuid
-import json
-from mk_livestatus import Socket
 
 logger = getLogger("hatohol.hap2_nagios_livestatus:%s" % hapcommon.get_top_file_name())
 

@@ -19,11 +19,6 @@
   <http://www.gnu.org/licenses/>.
 """
 
-import daemon
-import json
-import multiprocessing
-import Queue
-import argparse
 import time
 from logging import getLogger
 from hatohol import hapcommon

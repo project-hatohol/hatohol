@@ -26,7 +26,6 @@ classes used in them have to be in this module.
 """
 
 import logging
-import logging.config
 from logging import getLogger
 import sys
 import errno
