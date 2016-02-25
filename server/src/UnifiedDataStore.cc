@@ -450,11 +450,11 @@ void UnifiedDataStore::getItemList(ItemInfoList &itemList,
 	cache.getMonitoring().getItemInfoList(itemList, option);
 }
 
-void UnifiedDataStore::getApplicationVect(ApplicationInfoVect &ApplicationInfoVect,
-                                          const ItemsQueryOption &option)
+void UnifiedDataStore::getItemCategoryNames(
+  vector<string> &categoryNames, const ItemsQueryOption &option)
 {
 	ThreadLocalDBCache cache;
-	cache.getMonitoring().getApplicationInfoVect(ApplicationInfoVect, option);
+	cache.getMonitoring().getItemCategoryNames(categoryNames, option);
 }
 
 bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,

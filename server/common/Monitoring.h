@@ -152,6 +152,7 @@ enum ItemInfoValueType {
 };
 
 struct ItemInfo {
+	GenericIdType       globalId;
 	ServerIdType        serverId;
 	ItemIdType          id;
 	HostIdType          globalHostId;
@@ -160,7 +161,7 @@ struct ItemInfo {
 	timespec            lastValueTime;
 	std::string         lastValue;
 	std::string         prevValue;
-	std::string         itemGroupName;
+	std::vector<std::string> categoryNames;
 	int                 delay;
 	ItemInfoValueType   valueType;
 	std::string         unit;
@@ -170,13 +171,15 @@ typedef std::list<ItemInfo>          ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
 
-struct ApplicationInfo {
-	std::string           applicationName;
+struct ItemCategory {
+	GenericIdType         id;
+	GenericIdType         globalItemId;
+	std::string           name;
 };
 
-typedef std::vector<ApplicationInfo>        ApplicationInfoVect;
-typedef ApplicationInfoVect::iterator       ApplicationInfoVectIterator;
-typedef ApplicationInfoVect::const_iterator ApplicationInfoVectConstIterator;
+typedef std::vector<ItemCategory>        ItemCategoryVect;
+typedef ItemCategoryVect::iterator       ItemCategoryVectIterator;
+typedef ItemCategoryVect::const_iterator ItemCategoryVectConstIterator;
 
 struct HistoryInfo {
 	ServerIdType serverId;

@@ -43,6 +43,7 @@ using namespace mlpl;
 const char *DBTablesMonitoring::TABLE_NAME_TRIGGERS   = "triggers";
 const char *DBTablesMonitoring::TABLE_NAME_EVENTS     = "events";
 const char *DBTablesMonitoring::TABLE_NAME_ITEMS      = "items";
+const char *DBTablesMonitoring::TABLE_NAME_ITEM_CATEGORIES = "item_categories";
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENT_STATUS_HISTORIES =
@@ -57,8 +58,12 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENT_STATUS_HISTORIES =
 //   * events.id          -> VARCHAR
 //   * incidents.event_id -> VARCHAR
 //   * items.id           -> VARCHAR
+// -> 2.0
+//   * Add unique integer ID to COLUMN_DEF_ITEMS
+//   * remove 'item_group_name' from COLUMN_DEF_ITEMS
+//   * Add COLUMN_DEF_ITEM_GROUPS_NAME
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
-  DBTables::Version::getPackedVer(0, 1, 1);
+  DBTables::Version::getPackedVer(0, 2, 0);
 
 static StatisticsCounter *eventsCounters[] = {
   new StatisticsCounter(10),
@@ -418,6 +423,15 @@ static const DBAgent::TableProfile tableProfileEvents =
 // ----------------------------------------------------------------------------
 static const ColumnDef COLUMN_DEF_ITEMS[] = {
 {
+	"global_id",                       // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
 	"server_id",                       // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -499,15 +513,6 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 	0,                                 // flags
 	NULL,                              // defaultValue
 }, {
-	"item_group_name",                 // columnName
-	SQL_COLUMN_TYPE_VARCHAR,           // type
-	255,                               // columnLength
-	0,                                 // decFracLength
-	false,                             // canBeNull
-	SQL_KEY_NONE,                      // keyType
-	0,                                 // flags
-	NULL,                              // defaultValue
-}, {
 	"value_type",                      // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -529,6 +534,7 @@ static const ColumnDef COLUMN_DEF_ITEMS[] = {
 };
 
 enum {
+	IDX_ITEMS_GLOBAL_ID,
 	IDX_ITEMS_SERVER_ID,
 	IDX_ITEMS_ID,
 	IDX_ITEMS_GLOBAL_HOST_ID,
@@ -538,7 +544,6 @@ enum {
 	IDX_ITEMS_LAST_VALUE_TIME_NS,
 	IDX_ITEMS_LAST_VALUE,
 	IDX_ITEMS_PREV_VALUE,
-	IDX_ITEMS_ITEM_GROUP_NAME,
 	IDX_ITEMS_VALUE_TYPE,
 	IDX_ITEMS_UNIT,
 	NUM_IDX_ITEMS,
@@ -558,6 +563,49 @@ static const DBAgent::TableProfile tableProfileItems =
 			    COLUMN_DEF_ITEMS,
 			    NUM_IDX_ITEMS,
 			    indexDefsItems);
+
+static const ColumnDef COLUMN_DEF_ITEM_CATEGORIES[] = {
+{
+	"id",                              // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_PRI,                       // keyType
+	SQL_COLUMN_FLAG_AUTO_INC,          // flags
+	NULL,                              // defaultValue
+}, {
+	"global_item_id",                  // columnName
+	SQL_COLUMN_TYPE_BIGUINT,           // type
+	20,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}, {
+	"name",                            // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_IDX,                       // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+}
+};
+
+enum {
+	IDX_ITEM_CATEGORIES_ID,
+	IDX_ITEM_CATEGORIES_GLOBAL_ITEM_ID,
+	IDX_ITEM_CATEGORIES_NAME,
+	NUM_IDX_ITEM_CATEGORIES,
+};
+
+static const DBAgent::TableProfile tableProfileItemCategories =
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_ITEM_CATEGORIES,
+			    COLUMN_DEF_ITEM_CATEGORIES,
+			    NUM_IDX_ITEM_CATEGORIES);
 
 // ----------------------------------------------------------------------------
 // Table: server_status
@@ -1611,8 +1659,7 @@ static const HostResourceQueryOption::Synapse synapseItemsQueryOption(
 
 struct ItemsQueryOption::Impl {
 	ItemIdType targetId;
-	string itemGroupName;
-	string appName;
+	string itemCategoryName;
 	ExcludeFlags excludeFlags;
 
 	Impl()
@@ -1680,26 +1727,15 @@ string ItemsQueryOption::getCondition(void) const
 			rhs(m_impl->targetId));
 	}
 
-	if (!m_impl->itemGroupName.empty()) {
+	if (!m_impl->itemCategoryName.empty()) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		if (!condition.empty())
 			condition += " AND ";
 		condition += StringUtils::sprintf(
 			"%s.%s=%s",
-			DBTablesMonitoring::TABLE_NAME_ITEMS,
-			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
-			rhs(m_impl->itemGroupName));
-	}
-
-	if (!m_impl->appName.empty()){
-		DBTermCStringProvider rhs(*getDBTermCodec());
-		if (!condition.empty())
-			condition += " AND ";
-		condition += StringUtils::sprintf(
-			"%s.%s=%s",
-			DBTablesMonitoring::TABLE_NAME_ITEMS,
-			COLUMN_DEF_ITEMS[IDX_ITEMS_ITEM_GROUP_NAME].columnName,
-			rhs(m_impl->appName));
+			DBTablesMonitoring::TABLE_NAME_ITEM_CATEGORIES,
+			COLUMN_DEF_ITEM_CATEGORIES[IDX_ITEM_CATEGORIES_NAME].columnName,
+			rhs(m_impl->itemCategoryName));
 	}
 
 	return condition;
@@ -1715,24 +1751,14 @@ ItemIdType ItemsQueryOption::getTargetId(void) const
 	return m_impl->targetId;
 }
 
-void ItemsQueryOption::setTargetItemGroupName(const string &itemGroupName)
+void ItemsQueryOption::setTargetItemCategoryName(const string &categoryName)
 {
-	m_impl->itemGroupName = itemGroupName;
+	m_impl->itemCategoryName = categoryName;
 }
 
-const string &ItemsQueryOption::getTargetItemGroupName(void)
+const string &ItemsQueryOption::getTargetItemCategoryName(void)
 {
-	return m_impl->itemGroupName;
-}
-
-void ItemsQueryOption::setAppName(const string &appName) const
-{
-	m_impl->appName = appName;
-}
-
-const string &ItemsQueryOption::getAppName(void) const
-{
-	return m_impl->appName;
+	return m_impl->itemCategoryName;
 }
 
 void ItemsQueryOption::setExcludeFlags(const ExcludeFlags &flg)
@@ -2629,6 +2655,7 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 				      const ItemsQueryOption &option)
 {
 	DBClientJoinBuilder builder(tableProfileItems, &option);
+	builder.add(IDX_ITEMS_GLOBAL_ID);
 	builder.add(IDX_ITEMS_SERVER_ID);
 	builder.add(IDX_ITEMS_ID);
 	builder.add(IDX_ITEMS_GLOBAL_HOST_ID);
@@ -2638,9 +2665,12 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	builder.add(IDX_ITEMS_LAST_VALUE_TIME_NS);
 	builder.add(IDX_ITEMS_LAST_VALUE);
 	builder.add(IDX_ITEMS_PREV_VALUE);
-	builder.add(IDX_ITEMS_ITEM_GROUP_NAME);
 	builder.add(IDX_ITEMS_VALUE_TYPE);
 	builder.add(IDX_ITEMS_UNIT);
+	builder.addTable(
+	  tableProfileItemCategories, DBClientJoinBuilder::LEFT_JOIN,
+	  IDX_ITEMS_GLOBAL_ID, IDX_ITEM_CATEGORIES_GLOBAL_ITEM_ID);
+	builder.add(IDX_ITEM_CATEGORIES_NAME);
 	builder.addTable(
 	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileItems, IDX_ITEMS_SERVER_ID,
@@ -2664,19 +2694,39 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	if (!arg.limit && arg.offset)
 		return;
 
-	// Application Name
-	arg.appName = option.getAppName();
-
 	getDBAgent().runTransaction(arg);
 
 	// check the result and copy
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	map<GenericIdType, ItemInfo *> globalItemIdMap;
+	map<GenericIdType, ItemInfo *>::iterator itr;
+	
+	auto setCategoryName = [](ItemInfo &itemInfo, const string &name) {
+		if (name.empty())
+			return;
+		itemInfo.categoryNames.push_back(name);
+	};
+
 	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		GenericIdType globalId;
+		string category;
 		ItemGroupStream itemGroupStream(*itemGrpItr);
+		itemGroupStream >> globalId;
+		itr = globalItemIdMap.find(globalId);
+		if (itr != globalItemIdMap.end()) {
+			ItemInfo &itemInfo = *itr->second;
+			const ItemData *categoryData =
+			  (*itemGrpItr)->getItemAt(NUM_IDX_ITEMS);
+			setCategoryName(itemInfo, *categoryData);
+			continue;
+		}
+
 		itemInfoList.push_back(ItemInfo());
 		ItemInfo &itemInfo = itemInfoList.back();
-
+		globalItemIdMap.insert(
+		  pair<GenericIdType, ItemInfo *>(globalId, &itemInfo));
+		itemInfo.globalId = globalId;
 		itemGroupStream >> itemInfo.serverId;
 		itemGroupStream >> itemInfo.id;
 		itemGroupStream >> itemInfo.globalHostId;
@@ -2686,19 +2736,24 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 		itemGroupStream >> itemInfo.lastValueTime.tv_nsec;
 		itemGroupStream >> itemInfo.lastValue;
 		itemGroupStream >> itemInfo.prevValue;
-		itemGroupStream >> itemInfo.itemGroupName;
 		int valueType;
 		itemGroupStream >> valueType;
 		itemInfo.valueType = static_cast<ItemInfoValueType>(valueType);
 		itemGroupStream >> itemInfo.unit;
+
+		itemGroupStream >> category;
+		setCategoryName(itemInfo, category);
 	}
 }
 
-void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &applicationInfoVect,
-                                                const ItemsQueryOption &option)
+void DBTablesMonitoring::getItemCategoryNames(
+  vector<string> &itemCategoryNames, const ItemsQueryOption &option)
 {
 	DBClientJoinBuilder builder(tableProfileItems, &option);
-	builder.add(IDX_ITEMS_ITEM_GROUP_NAME);
+	builder.addTable(
+	  tableProfileItemCategories, DBClientJoinBuilder::LEFT_JOIN,
+	  IDX_ITEMS_GLOBAL_ID, IDX_ITEM_CATEGORIES_GLOBAL_ITEM_ID);
+	builder.add(IDX_ITEM_CATEGORIES_NAME);
 	builder.addTable(
 	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileItems, IDX_ITEMS_SERVER_ID,
@@ -2725,14 +2780,8 @@ void DBTablesMonitoring::getApplicationInfoVect(ApplicationInfoVect &application
 		return;
 
 	getDBAgent().runTransaction(arg);
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
-	for (; itemGrpItr != grpList.end(); ++ itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
-		applicationInfoVect.push_back(ApplicationInfo());
-		ApplicationInfo &applicationInfo = applicationInfoVect.back();
-		itemGroupStream >> applicationInfo.applicationName;
-	}
+	for (const auto &grp: arg.dataTable->getItemGroupList())
+		itemCategoryNames.push_back(*grp->getItemAt(0));
 }
 
 void DBTablesMonitoring::addMonitoringServerStatus(
@@ -2901,28 +2950,19 @@ size_t DBTablesMonitoring::getNumberOfItems(
 {
 	DBClientJoinBuilder builder(tableProfileItems, &option);
 	builder.addTable(
+	  tableProfileItemCategories, DBClientJoinBuilder::LEFT_JOIN,
+	  IDX_ITEMS_GLOBAL_ID, IDX_ITEM_CATEGORIES_GLOBAL_ITEM_ID);
+	builder.addTable(
 	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
 	  tableProfileItems, IDX_ITEMS_SERVER_ID,
 	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
 	  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
 	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
-	string stmt = "count(*)";
-	if (option.isHostgroupUsed()) {
-		// TODO: It has a same issue with getNumberOfTriggers();
-		const char *fmt = NULL;
-		const type_info &dbAgentType = typeid(getDBAgent());
-		if (dbAgentType == typeid(DBAgentSQLite3))
-			fmt = "count(distinct %s || ',' || %s)";
-		else if (dbAgentType == typeid(DBAgentMySQL))
-			fmt = "count(distinct %s,%s)";
-		HATOHOL_ASSERT(fmt, "Unknown DBAgent type.");
 
-		stmt = StringUtils::sprintf(fmt,
-		  option.getColumnName(IDX_ITEMS_SERVER_ID).c_str(),
-		  option.getColumnName(IDX_ITEMS_ID).c_str());
-	}
-	DBAgent::SelectExArg  &arg = builder.build();
+	DBAgent::SelectExArg &arg = builder.build();
 
+	const string stmt = StringUtils::sprintf("count(distinct %s)",
+	    option.getColumnName(IDX_ITEMS_GLOBAL_ID).c_str());
 	arg.add(stmt, SQL_COLUMN_TYPE_INT);
 
 	getDBAgent().runTransaction(arg);
@@ -3288,6 +3328,8 @@ DBTables::SetupInfo &DBTablesMonitoring::getSetupInfo(void)
 	}, {
 		&tableProfileItems,
 	}, {
+		&tableProfileItemCategories,
+	}, {
 		&tableProfileServerStatus,
 	}, {
 		&tableProfileIncidents,
@@ -3351,10 +3393,106 @@ void DBTablesMonitoring::addEventInfoWithoutTransaction(
 	eventInfo.unifiedId = dbAgent.getLastInsertId();
 }
 
+void DBTablesMonitoring::addItemCategoryWithoutTransaction(
+  DBAgent &dbAgent, const ItemCategory &category)
+{
+	DBAgent::InsertArg arg(tableProfileItemCategories);
+	arg.upsertOnDuplicate = true;
+	arg.add(category.id);
+	arg.add(category.globalItemId);
+	arg.add(category.name);
+	dbAgent.insert(arg);
+}
+
+static void getItemCategoriesFromId(
+  DBAgent &dbAgent,
+  ItemCategoryVect &categories, const GenericIdType &globalItemId)
+{
+	DBAgent::SelectExArg arg(tableProfileItemCategories);
+	arg.add(IDX_ITEM_CATEGORIES_ID);
+	arg.add(IDX_ITEM_CATEGORIES_NAME);
+	arg.condition = StringUtils::sprintf("%s=%" FMT_GEN_ID,
+	  COLUMN_DEF_ITEM_CATEGORIES[IDX_ITEM_CATEGORIES_GLOBAL_ITEM_ID].columnName,
+	  globalItemId);
+	dbAgent.select(arg);
+
+	for (const auto &itemGrp: arg.dataTable->getItemGroupList()) {
+		ItemGroupStream itemGroupStream(itemGrp);
+		categories.push_back(ItemCategory());
+		ItemCategory &itemCategory = categories.back();
+		itemCategory.globalItemId = globalItemId;
+		itemGroupStream >> itemCategory.id;
+		itemGroupStream >> itemCategory.name;
+	}
+}
+
+static void deleteItemCateoryWithoutTransaction(
+  DBAgent &dbAgent, const GenericIdType &id)
+{
+	DBAgent::DeleteArg arg(tableProfileItemCategories);
+	arg.condition = StringUtils::sprintf("%s=%" FMT_GEN_ID,
+	  COLUMN_DEF_ITEM_CATEGORIES[IDX_ITEM_CATEGORIES_ID].columnName,
+	  id);
+	dbAgent.deleteRows(arg);
+}
+
+static void calcDelta(
+  const GenericIdType &globalItemId,
+  const ItemCategoryVect &currCategories,
+  const vector<string> latestCategoryNames,
+  ItemCategoryVect &addCategories, vector<GenericIdType> &delCategories)
+{
+	ItemCategory category;
+	category.id = AUTO_INCREMENT_VALUE_U64;
+	category.globalItemId = globalItemId;
+
+	map<string, const ItemCategory *> categoriesMap;
+	for (const auto &cat: currCategories) {
+		categoriesMap.insert(
+		  pair<string, const ItemCategory *>(cat.name, &cat));
+	}
+	for (const auto &name: latestCategoryNames) {
+		auto itr = categoriesMap.find(name);
+		if (itr == categoriesMap.end()) { // Newly added one
+			category.name = name;
+			addCategories.push_back(category);
+		} else {
+			categoriesMap.erase(itr);
+		}
+	}
+	for (const auto &pair: categoriesMap) {
+		const auto  &delCategory = *pair.second;
+		delCategories.push_back(delCategory.id);
+	}
+}
+
 void DBTablesMonitoring::addItemInfoWithoutTransaction(
   DBAgent &dbAgent, const ItemInfo &itemInfo)
 {
+	auto getGlobalItemId = [&] (
+	  const ServerIdType &serverId, const ItemIdType &itemId)
+	{
+		DBTermCStringProvider rhs(*dbAgent.getDBTermCodec());
+		DBAgent::SelectExArg arg(tableProfileItems);
+		arg.add(IDX_ITEMS_GLOBAL_ID);
+		arg.condition = StringUtils::sprintf(
+		  "%s=%s AND %s=%s",
+		  COLUMN_DEF_ITEMS[IDX_ITEMS_SERVER_ID].columnName,
+		  rhs(serverId),
+		  COLUMN_DEF_ITEMS[IDX_ITEMS_ID].columnName,
+		  rhs(itemId));
+		dbAgent.select(arg);
+		const ItemGroupList &grpList =
+		  arg.dataTable->getItemGroupList();
+		HATOHOL_ASSERT(grpList.size() == 1,
+		               "Unexpected size: %zd", grpList.size());
+		const auto &row = *grpList.begin();
+		const GenericIdType &globalItemId = *row->getItemAt(0);
+		return globalItemId;
+	};
+
 	DBAgent::InsertArg arg(tableProfileItems);
+	arg.add(AUTO_INCREMENT_VALUE_U64);
 	arg.add(itemInfo.serverId);
 	arg.add(itemInfo.id);
 	arg.add(itemInfo.globalHostId);
@@ -3364,11 +3502,36 @@ void DBTablesMonitoring::addItemInfoWithoutTransaction(
 	arg.add(itemInfo.lastValueTime.tv_nsec);
 	arg.add(itemInfo.lastValue);
 	arg.add(itemInfo.prevValue);
-	arg.add(itemInfo.itemGroupName);
 	arg.add(itemInfo.valueType);
 	arg.add(itemInfo.unit);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
+
+	ItemCategoryVect      newItemCategories;
+	vector<GenericIdType> delCatetegoryIds;
+	if (dbAgent.lastUpsertDidInsert()) {
+		ItemCategory itemCategory;
+		itemCategory.id = AUTO_INCREMENT_VALUE_U64;
+		itemCategory.globalItemId = dbAgent.getLastInsertId();
+		for (const auto &name: itemInfo.categoryNames) {
+			itemCategory.name = name;
+			newItemCategories.push_back(itemCategory);
+		}
+	} else {
+		ItemCategoryVect currCategories;
+		const GenericIdType globalItemId =
+		  getGlobalItemId(itemInfo.serverId, itemInfo.id);
+		getItemCategoriesFromId(dbAgent, currCategories, globalItemId);
+		calcDelta(globalItemId,
+		          currCategories, itemInfo.categoryNames,
+		          newItemCategories, delCatetegoryIds);
+	}
+
+	for (const auto &id: delCatetegoryIds)
+		deleteItemCateoryWithoutTransaction(dbAgent, id);
+
+	for (const auto &category: newItemCategories)
+		addItemCategoryWithoutTransaction(dbAgent, category);
 }
 
 void DBTablesMonitoring::addMonitoringServerStatusWithoutTransaction(

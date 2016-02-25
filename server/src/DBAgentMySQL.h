@@ -70,6 +70,7 @@ public:
 	virtual uint64_t getLastInsertId(void);
 	virtual uint64_t getNumberOfAffectedRows(void);
 	virtual bool lastUpsertDidUpdate(void) override;
+	virtual bool lastUpsertDidInsert(void) override;
 	/**
 	 * Dispose DBAgentMySQL object and stop retrying connection to MySQL.
 	 *
