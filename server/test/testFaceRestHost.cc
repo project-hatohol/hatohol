@@ -162,7 +162,8 @@ static void _assertTriggers(
   const LocalHostIdType &hostIdInServer = ALL_LOCAL_HOSTS,
   const timespec &beginTime = {0, 0},
   const timespec &endTime = {0, 0},
-  const size_t expectedNumTrigger = -1)
+  const size_t expectedNumTrigger = -1,
+  const string &hostname = "")
 {
 	loadTestDBArmPlugin();
 	loadTestDBTriggers();
@@ -209,6 +210,8 @@ static void _assertTriggers(
 	if (endTime.tv_sec != 0 || endTime.tv_nsec != 0) {
 		queryMap["endTime"] = StringUtils::sprintf("%ld", endTime.tv_sec);
 	}
+	if (!hostname.empty())
+		queryMap["hostname"] = hostname;
 	arg.parameters = queryMap;
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
