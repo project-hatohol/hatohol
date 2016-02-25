@@ -104,6 +104,14 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	const MonitoringServerInfo &server = testServerInfo[event.serverId - 1];
 	string eventsURL =
 	  TestRedmineSender::callBuildURLMonitoringServerEvent(event, &server);
+	string linkPart;
+	if (!eventsURL.empty()) {
+		linkPart = StringUtils::sprintf(
+		             "h2. Links\\n"
+		             "\\n"
+		             "* Monitoring server's page: %s\\n",
+		             eventsURL.c_str());
+	}
 
 	char timeString[128];
 	struct tm eventTime;
@@ -139,9 +147,7 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    "|{background:#ddd}. Trigger ID|%" FMT_TRIGGER_ID "|\\n"
 	    "|{background:#ddd}. Event ID|%" FMT_EVENT_ID "|\\n}}\\n"
 	    "\\n"
-	    "h2. Links\\n"
-	    "\\n"
-	    "* Monitoring server's page: %s\\n"
+	    "%s" // linkPart
 	    "\"}}",
 	    // subject
 	    server.getDisplayName().c_str(),
@@ -164,7 +170,7 @@ string expectedJSON(const EventInfo &event, const IncidentTrackerInfo &tracker)
 	    event.hostIdInServer.c_str(),
 	    event.triggerId.c_str(),
 	    event.id.c_str(),
-	    eventsURL.c_str());
+	    linkPart.c_str());
 	return expected;
 }
 

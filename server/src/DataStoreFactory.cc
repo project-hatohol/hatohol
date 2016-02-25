@@ -23,8 +23,6 @@
 
 #include "DataStoreFactory.h"
 #include "DataStoreFake.h"
-#include "DataStoreZabbix.h"
-#include "DataStoreNagios.h"
 #ifdef HAVE_LIBRABBITMQ
 #include "HatoholArmPluginGateJSON.h"
 #include "HatoholArmPluginGateHAPI2.h"
@@ -36,10 +34,6 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 	switch (svInfo.type) {
 	case MONITORING_SYSTEM_FAKE:
 		return new DataStoreFake(svInfo, autoStart);
-	case MONITORING_SYSTEM_ZABBIX:
-		return new DataStoreZabbix(svInfo, autoStart);
-	case MONITORING_SYSTEM_NAGIOS:
-		return new DataStoreNagios(svInfo, autoStart);
 #ifdef HAVE_LIBRABBITMQ
 	case MONITORING_SYSTEM_HAPI_JSON:
 	{
