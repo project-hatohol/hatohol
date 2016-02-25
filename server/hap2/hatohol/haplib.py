@@ -550,7 +550,7 @@ class HapiProcessor:
         self.__sender.request("putHistory", params, request_id)
         self.__wait_response(request_id)
 
-    def put_procedure(self, put_func, contents, *args, **kwargs):
+    def divide_and_put_data(self, put_func, contents, *args, **kwargs):
         chunk_size = DEFAULT_MAX_CHUNK_SIZE
         copy_contents = copy.copy(contents)
 

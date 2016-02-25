@@ -43,7 +43,7 @@ class ZabbixAPIConductor(unittest.TestCase):
         cls.conductor = hap2_zabbix_api.ZabbixAPIConductor()
 
         cls.conductor._ZabbixAPIConductor__api =  APIForTest()
-        cls.conductor.put_procedure = null_func
+        cls.conductor.divide_and_put_data = null_func
         cls.conductor.put_items = null_func
         cls.conductor.put_history = null_func
         cls.conductor.put_hosts = null_func

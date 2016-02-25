@@ -223,7 +223,7 @@ class CommonForTest(Common):
         """
         self._Common__host_cache = host_cache
 
-    def put_procedure(self, put_func, contents, *args, **kwargs):
+    def divide_and_put_data(self, put_func, contents, *args, **kwargs):
         put_func(contents, *args, **kwargs)
 
 

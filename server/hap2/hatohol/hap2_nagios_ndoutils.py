@@ -129,7 +129,7 @@ class Common:
         self.__cursor.execute(sql)
         result = self.__cursor.fetchall()
         hosts = [{"hostId": str(hid), "hostName": name} for hid, name in result]
-        self.put_procedure(self.put_hosts, hosts)
+        self.divide_and_put_data(self.put_hosts, hosts)
 
     def collect_host_groups_and_put(self):
         sql = "SELECT hostgroup_object_id,alias FROM nagios_hostgroups"
@@ -137,7 +137,7 @@ class Common:
         result = self.__cursor.fetchall()
         groups = \
           [{"groupId": str(grid), "groupName": name} for grid, name in result]
-        self.put_procedure(self.put_host_groups, groups)
+        self.divide_and_put_data(self.put_host_groups, groups)
 
     def collect_host_group_membership_and_put(self):
         tbl0 = "nagios_hostgroup_members"
@@ -159,7 +159,7 @@ class Common:
         membership = []
         for host_id, group_list in members.items():
             membership.append({"hostId": str(host_id), "groupIds": group_list})
-        self.put_procedure(self.put_host_group_membership, membership)
+        self.divide_and_put_data(self.put_host_group_membership, membership)
 
     def collect_triggers_and_put(self, fetch_id=None, host_ids=None):
 
@@ -225,7 +225,7 @@ class Common:
         self.__trigger_last_info = \
             hapcommon.get_biggest_num_of_dict_array(triggers,
                                                     "lastChangeTime")
-        self.put_procedure(self.put_triggers, triggers,
+        self.divide_and_put_data(self.put_triggers, triggers,
                            update_type=update_type,
                            last_info=self.__trigger_last_info,
                            fetch_id=fetch_id)
@@ -310,7 +310,7 @@ class Common:
                 "brief": msg,
                 "extendedInfo": ""
             })
-        self.put_procedure(self.put_events, events, fetch_id=fetch_id)
+        self.divide_and_put_data(self.put_events, events, fetch_id=fetch_id)
 
 
     def __validate_object_ids(self, host_ids):
