@@ -132,5 +132,5 @@ HatoholSelectorDialog.prototype.start = function(url, requestType) {
                      XMLHttpRequest.statusText;
       self.setMessage(errorMsg);
     }
-  })
+  });
 };
