@@ -60,8 +60,6 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/bootstrap.min.js \
 	static/js.external/spectrum.js \
 	static/js.plugins/hapi-json.js \
-	static/js.plugins/nagios.js \
-	static/js.plugins/zabbix.js \
 	static/js.plugins/hap2-ceilometer.js \
 	static/js.plugins/hap2-fluentd.js \
 	static/js.plugins/hap2-nagios-ndoutils.js \

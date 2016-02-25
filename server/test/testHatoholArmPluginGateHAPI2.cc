@@ -219,7 +219,7 @@ void cut_setup(void)
 	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
 	MonitoringServerInfo serverInfo = monitoringServerInfo;
 	ArmPluginInfo pluginInfo = armPluginInfo;
-	dbConfig.addTargetServer(&serverInfo, privilege, &pluginInfo);
+	dbConfig.addTargetServer(serverInfo, pluginInfo, privilege);
 }
 
 void cut_teardown(void)
@@ -1187,7 +1187,7 @@ void prepareDB(const char *amqpURL)
 	ArmPluginInfo pluginInfo = armPluginInfo;
 	pluginInfo.brokerUrl = amqpURL;
 	pluginInfo.staticQueueAddress = "test.1";
-	dbConfig.addTargetServer(&serverInfo, privilege, &pluginInfo);
+	dbConfig.addTargetServer(serverInfo, pluginInfo, privilege);
 }
 
 AMQPConnectionInfo &getConnectionInfo(void)
@@ -2047,7 +2047,7 @@ void test_updateMonitoringServerInfo(void)
 	dbConfig.getArmPluginInfo(pluginInfo, serverInfo.id);
 	serverInfo.baseURL = "http://www.example.net/zabbix/";
 	OperationPrivilege privilege(OperationPrivilege::ALL_PRIVILEGES);
-	dbConfig.updateTargetServer(&serverInfo, privilege, &pluginInfo);
+	dbConfig.updateTargetServer(serverInfo, pluginInfo, privilege);
 
 	// delete the gate to emit updateMonitoringServerInfo notification
 	gatePtr = nullptr;

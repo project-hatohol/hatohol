@@ -1165,14 +1165,14 @@ HatoholError validServerInfo(const MonitoringServerInfo &serverInfo)
 }
 
 HatoholError DBTablesConfig::addTargetServer(
-  MonitoringServerInfo *monitoringServerInfo,
-  const OperationPrivilege &privilege,
-  ArmPluginInfo *armPluginInfo)
+  MonitoringServerInfo &monitoringServerInfo,
+  ArmPluginInfo &armPluginInfo,
+  const OperationPrivilege &privilege)
 {
 	if (!privilege.has(OPPRVLG_CREATE_SERVER))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	HatoholError err = validServerInfo(*monitoringServerInfo);
+	HatoholError err = validServerInfo(monitoringServerInfo);
 	if (err != HTERR_OK)
 		return err;
 
@@ -1233,19 +1233,20 @@ HatoholError DBTablesConfig::addTargetServer(
 			if (err != HTERR_OK)
 				dbAgent.rollback();
 		}
-	} trx(this, *monitoringServerInfo, *armPluginInfo);
+	} trx(this, monitoringServerInfo, armPluginInfo);
 	getDBAgent().runTransaction(trx);
 	return trx.err;
 }
 
 HatoholError DBTablesConfig::updateTargetServer(
-  MonitoringServerInfo *monitoringServerInfo,
-  const OperationPrivilege &privilege, ArmPluginInfo *armPluginInfo)
+  MonitoringServerInfo &monitoringServerInfo,
+  ArmPluginInfo &armPluginInfo,
+  const OperationPrivilege &privilege)
 {
 	if (!canUpdateTargetServer(monitoringServerInfo, privilege))
 		return HatoholError(HTERR_NO_PRIVILEGE);
 
-	HatoholError err = validServerInfo(*monitoringServerInfo);
+	HatoholError err = validServerInfo(monitoringServerInfo);
 	if (err != HTERR_OK)
 		return err;
 
@@ -1293,24 +1294,24 @@ HatoholError DBTablesConfig::updateTargetServer(
 			if (err != HTERR_OK)
 				dbAgent.rollback();
 		}
-	} trx(this, *monitoringServerInfo, *armPluginInfo);
+	} trx(this, monitoringServerInfo, armPluginInfo);
 
-	trx.arg.add(IDX_SERVERS_TYPE,       monitoringServerInfo->type);
-	trx.arg.add(IDX_SERVERS_HOSTNAME,   monitoringServerInfo->hostName);
-	trx.arg.add(IDX_SERVERS_IP_ADDRESS, monitoringServerInfo->ipAddress);
-	trx.arg.add(IDX_SERVERS_NICKNAME,   monitoringServerInfo->nickname);
-	trx.arg.add(IDX_SERVERS_PORT,       monitoringServerInfo->port);
+	trx.arg.add(IDX_SERVERS_TYPE,       monitoringServerInfo.type);
+	trx.arg.add(IDX_SERVERS_HOSTNAME,   monitoringServerInfo.hostName);
+	trx.arg.add(IDX_SERVERS_IP_ADDRESS, monitoringServerInfo.ipAddress);
+	trx.arg.add(IDX_SERVERS_NICKNAME,   monitoringServerInfo.nickname);
+	trx.arg.add(IDX_SERVERS_PORT,       monitoringServerInfo.port);
 	trx.arg.add(IDX_SERVERS_POLLING_INTERVAL_SEC,
-	            monitoringServerInfo->pollingIntervalSec);
+	            monitoringServerInfo.pollingIntervalSec);
 	trx.arg.add(IDX_SERVERS_RETRY_INTERVAL_SEC,
-	            monitoringServerInfo->retryIntervalSec);
-	trx.arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo->userName);
-	trx.arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo->password);
-	trx.arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo->dbName);
-	trx.arg.add(IDX_SERVERS_BASE_URL,   monitoringServerInfo->baseURL);
-	trx.arg.add(IDX_SERVERS_EXTENDED_INFO, monitoringServerInfo->extendedInfo);
+	            monitoringServerInfo.retryIntervalSec);
+	trx.arg.add(IDX_SERVERS_USER_NAME,  monitoringServerInfo.userName);
+	trx.arg.add(IDX_SERVERS_PASSWORD,   monitoringServerInfo.password);
+	trx.arg.add(IDX_SERVERS_DB_NAME,    monitoringServerInfo.dbName);
+	trx.arg.add(IDX_SERVERS_BASE_URL,   monitoringServerInfo.baseURL);
+	trx.arg.add(IDX_SERVERS_EXTENDED_INFO, monitoringServerInfo.extendedInfo);
 	trx.arg.condition =
-	   StringUtils::sprintf("id=%u", monitoringServerInfo->id);
+	   StringUtils::sprintf("id=%u", monitoringServerInfo.id);
 
 	getDBAgent().runTransaction(trx);
 	return trx.err;
@@ -2337,7 +2338,7 @@ void DBTablesConfig::tableInitializerSystem(DBAgent &dbAgent, void *data)
 }
 
 bool DBTablesConfig::canUpdateTargetServer(
-  MonitoringServerInfo *monitoringServerInfo,
+  MonitoringServerInfo &monitoringServerInfo,
   const OperationPrivilege &privilege)
 {
 	if (privilege.has(OPPRVLG_UPDATE_ALL_SERVER))
@@ -2348,7 +2349,7 @@ bool DBTablesConfig::canUpdateTargetServer(
 
 	ThreadLocalDBCache cache;
 	DBTablesUser &dbUser = cache.getUser();
-	return dbUser.isAccessible(monitoringServerInfo->id, privilege, false);
+	return dbUser.isAccessible(monitoringServerInfo.id, privilege, false);
 }
 
 bool DBTablesConfig::canDeleteTargetServer(
@@ -2417,19 +2418,11 @@ HatoholError DBTablesConfig::preprocForSaveArmPlguinInfo(
 	    armPluginInfo.type != MONITORING_SYSTEM_HAPI2 &&
 	    armPluginInfo.path.empty())
 		return HTERR_INVALID_ARM_PLUGIN_PATH;
-	if (armPluginInfo.type <= MONITORING_SYSTEM_NAGIOS) {
+
+	if (armPluginInfo.type != MONITORING_SYSTEM_HAPI_JSON &&
+	    armPluginInfo.type != MONITORING_SYSTEM_HAPI2) {
 		MLPL_ERR("Invalid type: %d\n", armPluginInfo.type);
 		return HTERR_INVALID_ARM_PLUGIN_TYPE;
-	}
-	// For suppressing deprecated warnings
-	#undef MONITORING_SYSTEM_HAPI_ZABBIX
-	#undef MONITORING_SYSTEM_HAPI_NAGIOS
-	#undef MONITORING_SYSTEM_HAPI_CEILOMETER
-	if (armPluginInfo.type == OBSOLETE_MONITORING_SYSTEM_HAPI_ZABBIX ||
-	    armPluginInfo.type == OBSOLETE_MONITORING_SYSTEM_HAPI_NAGIOS ||
-	    armPluginInfo.type == OBSOLETE_MONITORING_SYSTEM_HAPI_CEILOMETER) {
-		MLPL_ERR("Obsoleted type: %d\n", armPluginInfo.type);
-		return HTERR_OBSOLETE_ARM_PLUGIN_TYPE;
 	}
 	if (StringUtils::hasPrefix(armPluginInfo.staticQueueAddress, "hap2."))
 		return HTERR_RESERVED_QUEUE_NAME;

@@ -162,8 +162,6 @@ static void makeDefSourceValues(string &s, LanguageType langType)
 	ADD_LINE(s, langType, CMP_EQ_GT);
 	APPEND(s, "\n");
 
-	ADD_LINE(s, langType, MONITORING_SYSTEM_ZABBIX);
-	ADD_LINE(s, langType, MONITORING_SYSTEM_NAGIOS);
 	ADD_LINE(s, langType, MONITORING_SYSTEM_HAPI_JSON);
 	ADD_LINE(s, langType, MONITORING_SYSTEM_HAPI2);
 	ADD_LINE(s, langType, MONITORING_SYSTEM_UNKNOWN);
@@ -361,11 +359,6 @@ static string makeJsDefSource(char *arg[])
 	APPEND(s, "var CMP_EQ      = %d\n",  CMP_EQ);
 	APPEND(s, "var CMP_EQ_GT   = %d\n",  CMP_EQ_GT);
 	APPEND(s, "\n");
-
-	APPEND(s,
-	  "var MONITORING_SYSTEM_ZABBIX = %d\n", MONITORING_SYSTEM_ZABBIX);
-	APPEND(s,
-	  "var MONITORING_SYSTEM_NAGIOS = %d\n", MONITORING_SYSTEM_NAGIOS);
 
 	return s;
 }

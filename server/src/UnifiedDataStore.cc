@@ -854,8 +854,8 @@ HatoholError UnifiedDataStore::addTargetServer(
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	HatoholError err = dbConfig.addTargetServer(&svInfo, privilege,
-	                                             &armPluginInfo);
+	HatoholError err = dbConfig.addTargetServer(svInfo, armPluginInfo,
+	                                            privilege);
 	if (err != HTERR_OK)
 		return err;
 
@@ -868,8 +868,8 @@ HatoholError UnifiedDataStore::updateTargetServer(
 {
 	ThreadLocalDBCache cache;
 	DBTablesConfig &dbConfig = cache.getConfig();
-	HatoholError err = dbConfig.updateTargetServer(&svInfo, privilege,
-	                                                &armPluginInfo);
+	HatoholError err = dbConfig.updateTargetServer(svInfo, armPluginInfo,
+	                                               privilege);
 	if (err != HTERR_OK)
 		return err;
 

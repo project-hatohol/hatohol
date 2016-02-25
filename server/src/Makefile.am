@@ -12,9 +12,7 @@ libhatohol_la_SOURCES = \
 	ArmBase.cc ArmBase.h \
 	ArmFake.cc ArmFake.h \
 	ArmIncidentTracker.cc ArmIncidentTracker.h \
-	ArmNagiosNDOUtils.cc ArmNagiosNDOUtils.h \
 	ArmRedmine.cc ArmRedmine.h \
-	ArmZabbixAPI.cc ArmZabbixAPI.h \
 	ChildProcessManager.cc ChildProcessManager.h \
 	Closure.h \
 	ThreadLocalDBCache.cc ThreadLocalDBCache.h \
@@ -41,8 +39,6 @@ libhatohol_la_SOURCES = \
 	DataStoreFactory.cc DataStoreFactory.h \
 	DataStoreManager.cc DataStoreManager.h \
 	DataStoreFake.cc DataStoreFake.h \
-	DataStoreNagios.cc DataStoreNagios.h \
-	DataStoreZabbix.cc DataStoreZabbix.h \
 	FaceBase.cc FaceBase.h \
 	FaceRest.cc FaceRest.h \
 	FaceRestPrivate.h \

@@ -112,7 +112,7 @@ string IncidentSenderRedmine::getIssueURL(const string &id)
 	return RedmineAPI::getIssueURL(trackerInfo, id);
 }
 
-// TODO: Move to DBTablesMonitoring or IncidentSender or Utils or ...
+// TODO: This method always returns an empty string. So this can be removed.
 string IncidentSenderRedmine::buildURLMonitoringServerEvent(
   const EventInfo &event, const MonitoringServerInfo *server)
 {
@@ -124,26 +124,6 @@ string IncidentSenderRedmine::buildURLMonitoringServerEvent(
 	// TODO: MonitoringServerInfo should have a base URL
 	string url;
 	switch (server->type) {
-	case MONITORING_SYSTEM_ZABBIX:
-	{
-		url = "http://";
-		bool forURI = true;
-		url += server->getHostAddress(forURI);
-		if (server->port > 0) {
-			url += ":";
-			url += StringUtils::toString(server->port);
-		}
-		url += StringUtils::sprintf(
-		  "/zabbix/tr_events.php"
-		  "?triggerid=%" FMT_TRIGGER_ID
-		  "&eventid=%" FMT_EVENT_ID,
-		  event.triggerId.c_str(),
-		  event.id.c_str());
-		break;
-	}
-	case MONITORING_SYSTEM_NAGIOS:
-		// TODO
-		break;
 	default:
 		break;
 	}

@@ -181,7 +181,6 @@ void data_actionsJSONP(void)
 
 void test_actionsJSONP(gconstpointer data)
 {
-	loadTestDBArmPlugin();
 	loadTestDBTriggers();
 	loadTestDBAction();
 
