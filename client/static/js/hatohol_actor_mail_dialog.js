@@ -60,13 +60,14 @@ HatoholActorMailDialog.prototype.createMainElement = function() {
     if (words[0] != "hatohol-actor-mail")
       return params;
 
+    var idx;
     // to addr
-    var idx = words.indexOf("--to-address");
+    idx = words.indexOf("--to-address");
     if (idx != -1 && words.length > idx + 1)
       params.toAddr = words[2];
 
     // smtp server
-    var idx = words.indexOf("--smtp-server");
+    idx = words.indexOf("--smtp-server");
     if (idx != -1 && words.length > idx + 1)
       params.smtpServer = words[idx + 1];
     return params;
