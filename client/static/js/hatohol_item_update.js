@@ -76,4 +76,4 @@ var HatoholItemUpdate = function(updateParameters, connParameters) {
     if (updateParameters.completionCallback)
       updateParameters.completionCallback();
   }
-}
+};
