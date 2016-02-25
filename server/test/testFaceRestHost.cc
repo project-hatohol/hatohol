@@ -582,6 +582,14 @@ void test_triggersWithTimeRange(void)
 		       beginTime, endTime, numExpectedTriggers);
 }
 
+void test_triggersWithTimeRangeAndHostname(void)
+{
+	timespec beginTime = {1362957197,0}, endTime = {1362957200,0};
+	size_t numExpectedTriggers = 3;
+	assertTriggers("/trigger", "foo", ALL_SERVERS, ALL_LOCAL_HOSTS,
+		       beginTime, endTime, numExpectedTriggers, "hostX1");
+}
+
 void test_events(void)
 {
 	assertEvents("/event");
