@@ -137,7 +137,7 @@ HatoholTimeRangeSelector.prototype.draw = function() {
         5: gettext("Fri"),
         6: gettext("Sat")
       };
-      if (date.getHours() == 0) {
+      if (date.getHours() === 0) {
         if (now.getTime() - date.getTime() > secondsInHour * 24 * 7 * 1000)
           return formatDate(val);
         else
