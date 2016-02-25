@@ -156,7 +156,7 @@ var HatoholNavi = function(userProfile, currentPage) {
   };
 
   var createMenuItem = function(menuItem) {
-    if (menuItem.flags != undefined &&
+    if (menuItem.flags !== undefined &&
         !userProfile.hasFlags(menuItem.flags))
     {
       return null;
@@ -207,5 +207,5 @@ var HatoholNavi = function(userProfile, currentPage) {
       }
     }
     item.appendTo("ul.nav:first");
-  };
+  }
 };
