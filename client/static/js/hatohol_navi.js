@@ -207,5 +207,5 @@ var HatoholNavi = function(userProfile, currentPage) {
       }
     }
     item.appendTo("ul.nav:first");
-  };
+  }
 };
