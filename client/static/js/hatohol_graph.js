@@ -313,7 +313,7 @@ HatoholGraph.prototype._updateTitleAndLegendLabels = function() {
 
     self.title = "";
 
-    if (self.plotData.length == 0) {
+    if (self.plotData.length === 0) {
       self.title = undefined;
     } else if (self.plotData.length == 1) {
       self.title = buildTitle(loader.getItem(), loader.getServers());
