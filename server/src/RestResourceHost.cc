@@ -161,13 +161,7 @@ static HatoholError parseItemParameter(ItemsQueryOption &option,
 	const gchar *value = static_cast<const gchar*>(
 	  g_hash_table_lookup(query, "itemGroupName"));
 	if (value && *value)
-		option.setTargetItemGroupName(value);
-
-	// appName
-	const char *key = "appName";
-	char *application = (char *)g_hash_table_lookup(query, key);
-	if (application)
-		option.setAppName(application);
+		option.setTargetItemCategoryName(value);
 
 	return HatoholError(HTERR_OK);
 }
@@ -805,8 +799,8 @@ void RestResourceHost::replyGetItem(void)
 {
 	ItemsQueryOption option(m_dataQueryContextPtr);
 	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
-	ItemsQueryOption applicationOption(m_dataQueryContextPtr);
-	applicationOption.setExcludeFlags(EXCLUDE_INVALID_HOST);
+	ItemsQueryOption itemCategoryOption(m_dataQueryContextPtr);
+	itemCategoryOption.setExcludeFlags(EXCLUDE_INVALID_HOST);
 	HatoholError err = parseItemParameter(option, m_query);
 	if (err != HTERR_OK) {
 		replyError(err);
@@ -816,8 +810,8 @@ void RestResourceHost::replyGetItem(void)
 	ItemInfoList itemList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getItemList(itemList, option);
-	ApplicationInfoVect applicationInfoVect;
-	dataStore->getApplicationVect(applicationInfoVect, applicationOption);
+	vector<string> itemCategoryNames;
+	dataStore->getItemCategoryNames(itemCategoryNames, itemCategoryOption);
 
 	JSONBuilder agent;
 	agent.startObject();
@@ -834,18 +828,21 @@ void RestResourceHost::replyGetItem(void)
 		agent.add("lastValueTime",
 		          itemInfo.lastValueTime.tv_sec);
 		agent.add("lastValue", itemInfo.lastValue);
-		agent.add("itemGroupName", itemInfo.itemGroupName);
+
+		agent.startArray("itemGroupNames");
+		for (const auto &categoryName: itemInfo.categoryNames)
+			agent.add(categoryName);
+		agent.endArray();
+
 		agent.add("unit", itemInfo.unit);
 		agent.add("valueType", static_cast<int>(itemInfo.valueType));
 		agent.endObject();
 	}
 	agent.endArray();
-	agent.startArray("applications");
-	ApplicationInfoVectIterator itApp = applicationInfoVect.begin();
-	for (; itApp != applicationInfoVect.end(); ++itApp) {
-		ApplicationInfo &applicationInfo = *itApp;
+	agent.startArray("itemGroups");
+	for (const auto &name: itemCategoryNames) {
 		agent.startObject();
-		agent.add("name", applicationInfo.applicationName.c_str());
+		agent.add("name", name);
 		agent.endObject();
 	}
 	agent.endArray();

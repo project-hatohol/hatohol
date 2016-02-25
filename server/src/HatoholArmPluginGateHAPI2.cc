@@ -1236,19 +1236,15 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 	 * is assigned.
 	 * @return true if successful. Otherwise false.
 	 */
-	auto getItemGroupName = [&](string &name) {
+	auto getItemGroupName = [&](vector<string> &names) {
 		CHECK_MANDATORY_ARRAY_EXISTENCE("itemGroupName", errObj);
 		parser.startObject("itemGroupName");
 		size_t num = parser.countElements();
-		if (num == 0)
-			name.clear();
-		else
-			parser.read(0, name);
-		// TODO: Don't ignore 2nd and the later itemGroupName.
-		if (num > 1) {
-			MLPL_WARN("Ignore 2nd and later itemGroups. This is "
-			          "a limitation of the current version of "
-			          "Hatohol (#1721).\n");
+		names.clear();
+		for (size_t i = 0; i < num; i++) {
+			string name;
+			parser.read(i, name);
+			names.push_back(name);
 		}
 		parser.endObject();
 		return true;
@@ -1274,7 +1270,7 @@ static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 		PARSE_AS_MANDATORY("brief", itemInfo.brief, errObj);
 		parseTimeStamp(parser, "lastValueTime", itemInfo.lastValueTime, errObj);
 		PARSE_AS_MANDATORY("lastValue", itemInfo.lastValue, errObj);
-		if (!getItemGroupName(itemInfo.itemGroupName))
+		if (!getItemGroupName(itemInfo.categoryNames))
 			return false;
 		PARSE_AS_MANDATORY("unit", itemInfo.unit, errObj);
 		parser.endElement();

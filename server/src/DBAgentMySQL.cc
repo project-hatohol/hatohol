@@ -513,6 +513,14 @@ bool DBAgentMySQL::lastUpsertDidUpdate(void)
 	return numAffectedRows == 2;
 }
 
+bool DBAgentMySQL::lastUpsertDidInsert(void)
+{
+	uint64_t numAffectedRows = getNumberOfAffectedRows();
+	HATOHOL_ASSERT(numAffectedRows >= 0 && numAffectedRows <= 2,
+	               "numAffectedRows: %" PRIu64, numAffectedRows);
+	return numAffectedRows == 1;
+}
+
 void DBAgentMySQL::addColumns(const AddColumnsArg &addColumnsArg)
 {
 	string query = "ALTER TABLE ";

@@ -10,7 +10,7 @@ describe('LatestView', function() {
       "lastValueTime": 1415232279,
       "lastValue": "54.282349",
       "prevValue": "24.594534",
-      "itemGroupName": "group1",
+      "itemGroupNames": ["group1"],
       "unit": "%",
       "valueType": hatohol.ITEM_INFO_VALUE_TYPE_FLOAT,
     },
@@ -22,7 +22,7 @@ describe('LatestView', function() {
       "lastValueTime": 1415232279,
       "lastValue": "host1",
       "prevValue": "host1",
-      "itemGroupName": "group1",
+      "itemGroupNames": ["group1", "group2", "group3"],
       "unit": "",
       "valueType": hatohol.ITEM_INFO_VALUE_TYPE_STRING,
     },
@@ -51,13 +51,13 @@ describe('LatestView', function() {
     return new HatoholUserProfile(operator);
   }
 
-  function itemsJson(items, servers, applications) {
+  function itemsJson(items, servers, itemGroups) {
     return JSON.stringify({
       apiVersion: hatohol.FACE_REST_API_VERSION,
       errorCode: hatohol.HTERR_OK,
       items: items ? items : [],
       servers: servers ? servers : {},
-      applications: applications ? applications : []
+      itemGroups: itemGroups ? itemGroups : []
     });
   }
 
@@ -145,7 +145,7 @@ describe('LatestView', function() {
     var expected =
       '<td>Zabbix</td>' +
       '<td>Host1</td>' +
-      '<td>group1</td>' +
+      '<td>group1, group2, group3</td>' +
       '<td><a href="' + zabbixURL + '" target="_blank">host name</a></td>' +
       '<td data-sort-value="1415232279">' +
       formatDate(1415232279) +

@@ -97,8 +97,8 @@ public:
 	void getItemList(ItemInfoList &itemList,
 	                 const ItemsQueryOption &option,
 	                 bool fetchItemsSynchronously = false);
-	void getApplicationVect(ApplicationInfoVect &applicationInfoVect,
-	                        const ItemsQueryOption &option);
+	void getItemCategoryNames(std::vector<std::string> &itemCategoryNames,
+	                          const ItemsQueryOption &option);
 	bool fetchItemsAsync(Closure0 *closure,
 	                     const ItemsQueryOption &option);
 	bool fetchTriggerAsync(Closure0 *closure,

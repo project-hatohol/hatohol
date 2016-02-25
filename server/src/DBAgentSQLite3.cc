@@ -833,6 +833,12 @@ bool DBAgentSQLite3::lastUpsertDidUpdate(void)
 	return tls_lastUpsertDidUpdate;
 }
 
+bool DBAgentSQLite3::lastUpsertDidInsert(void)
+{
+	HATOHOL_ASSERT(false, "Not implemented.");
+	return false;
+}
+
 ItemDataPtr DBAgentSQLite3::getValue(sqlite3_stmt *stmt,
                                      size_t index, SQLColumnType columnType)
 {
