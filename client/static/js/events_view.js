@@ -837,10 +837,12 @@ var EventsView = function(userProfile, options) {
         errors.push(message);
       },
       connectErrorCallback: function() {
+        /* Permit a long line for I18N message....*/
+        /*jshint ignore:start*/
         var message =
-          gettext("Failed to connect to Hatohol server on \
-                  changing handling of an event with ID: ") +
+          gettext("Failed to connect to Hatohol server on changing handling of an event with ID: ") +
           eventId;
+        /*jshint ignore:end*/
         errors.push(message);
       },
       completionCallback: function() {
