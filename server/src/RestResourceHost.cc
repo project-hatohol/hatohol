@@ -96,6 +96,13 @@ static HatoholError parseTriggerParameter(TriggersQueryOption &option,
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 
+	// target hostname
+	const char *targetHostname =
+		static_cast<const char*>(g_hash_table_lookup(query, "hostname"));
+	if (targetHostname && *targetHostname) {
+		option.setHostnameList({targetHostname});
+	}
+
 	// minimum severity
 	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
 	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
