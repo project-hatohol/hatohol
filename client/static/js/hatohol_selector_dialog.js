@@ -102,7 +102,7 @@ HatoholSelectorDialog.prototype.start = function(url, requestType) {
     request: requestType,
     data: this.makeQueryData(),
     replyCallback: function(reply, parser, context) {
-      if (self.getNumberOfObjects(reply) == 0) {
+      if (self.getNumberOfObjects(reply) === 0) {
         self.setMessage(gettext("No data."));
         return;
       }
