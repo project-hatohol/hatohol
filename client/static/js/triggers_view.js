@@ -194,7 +194,8 @@ var TriggersView = function(userProfile, options) {
     if (!query)
       query = self.lastQuery ? self.lastQuery : self.baseQuery;
 
-    self.setupHostFilters(servers, query);
+    var options = {withName: true};
+    self.setupHostFilters(servers, query, false, options);
     resetTriggerPropertyFilter("severity");
 
     if ("minimumSeverity" in query)
@@ -413,7 +414,7 @@ var TriggersView = function(userProfile, options) {
 
   function getTriggersQueryInURI() {
     var knownKeys = [
-      "serverId", "hostgroupId", "hostId",
+      "serverId", "hostgroupId", "hostId", "hostname",
       "limit", "offset",
       "minimumSeverity", "status",
     ];
@@ -444,7 +445,7 @@ var TriggersView = function(userProfile, options) {
       query.endTime = parseInt(endTime.getTime() / 1000);
     }
 
-    $.extend(query, self.getHostFilterQuery());
+    $.extend(query, self.getHostFilterQuery({withName: true}));
 
     return query;
   }

@@ -57,6 +57,13 @@ HatoholMonitoringView.prototype.getTargetHostId = function() {
   return id;
 };
 
+HatoholMonitoringView.prototype.getTargetHostname = function() {
+  var name = $("#select-host").val();
+  if (name == "---------")
+    name = "";
+  return name;
+};
+
 HatoholMonitoringView.prototype.getTargetAppName = function() {
   var name = $("#select-application").val();
   if (name == "---------")
@@ -147,10 +154,14 @@ HatoholMonitoringView.prototype.setHostgroupFilterCandidates =
 };
 
 HatoholMonitoringView.prototype.setHostFilterCandidates =
-  function(servers, serverId, withoutSelfMonitor)
+  function(servers, serverId, withoutSelfMonitor, options)
 {
   var id, server, hosts, hostLabels = [], current;
   var hostSelector = $('#select-host');
+
+  options = options || {};
+  if (isNaN(options.withName))
+    options.withName = false;
 
   current = hostSelector.val();
   if (!serverId)
@@ -168,7 +179,7 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
       continue;
     hostLabels.push({
       label: getHostName(server, id),
-      value: id
+      value: options.withName ? getHostName(server, id) : id
     });
   }
   hostLabels.sort(this.compareFilterLabel);
@@ -185,14 +196,24 @@ function(candidates)
   applicationSelector.val(current);
 };
 
-HatoholMonitoringView.prototype.getHostFilterQuery = function() {
+HatoholMonitoringView.prototype.getHostFilterQuery = function(options) {
   var query = {};
   var serverId = this.getTargetServerId();
   var hostgroupId = this.getTargetHostgroupId();
-  var hostId = this.getTargetHostId();
   query.serverId = serverId ? serverId : "-1";
   query.hostgroupId = hostgroupId ? hostgroupId : "*";
-  query.hostId = hostId ? hostId : "*";
+
+  options = options || {};
+  if (isNaN(options.withName))
+    options.withName = false;
+
+  if (options.withName) {
+    var hostname = this.getTargetHostname();
+    query.hostname = hostname;
+  } else {
+    var hostId = this.getTargetHostId();
+    query.hostId = hostId ? hostId : "*";
+  }
   return query;
 };
 
@@ -358,7 +379,7 @@ HatoholMonitoringView.prototype.setupCheckboxForDelete =
   });
 };
 
-HatoholMonitoringView.prototype.setupHostFilters = function(servers, query, withoutSelfMonitor) {
+HatoholMonitoringView.prototype.setupHostFilters = function(servers, query, withoutSelfMonitor, options) {
   this.setServerFilterCandidates(servers);
   if (query && ("serverId" in query)) {
     if (query.serverId == "-1") {
@@ -377,9 +398,18 @@ HatoholMonitoringView.prototype.setupHostFilters = function(servers, query, with
     }
   }
 
-  this.setHostFilterCandidates(servers, this.getTargetServerId(), withoutSelfMonitor);
+  this.setHostFilterCandidates(servers, this.getTargetServerId(), withoutSelfMonitor, options);
 
-  if (query && ("hostId" in query)) {
+  options = options || {};
+  if (isNaN(options.withName))
+    options.withName = false;
+
+  var hostQuery = "hostId";
+  if (options.withName) {
+    hostQuery = "hostname";
+  }
+
+  if (query && (hostQuery in query)) {
     if (query.hostId == "*") {
       $("#select-host").val("");
     } else {
