@@ -837,9 +837,10 @@ var EventsView = function(userProfile, options) {
         errors.push(message);
       },
       connectErrorCallback: function() {
+        var errorMsg ="Failed to connect to Hatohol server on" +
+              "changing handling of an event with ID: ";
         var message =
-          gettext("Failed to connect to Hatohol server on \
-                  changing handling of an event with ID: ") +
+          gettext(errorMsg) +
           eventId;
         errors.push(message);
       },
