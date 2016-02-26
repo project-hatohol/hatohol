@@ -85,8 +85,8 @@ static string makeQueryString(const StringMap &parameters,
 	cppcut_assert_not_null(hashTable);
 	StringMapConstIterator it = parameters.begin();
 	for (; it != parameters.end(); ++it) {
-		string key = it->first;
-		string val = it->second;
+		const string &key = it->first;
+		const string &val = it->second;
 		g_hash_table_insert(hashTable,
 		                    (void *)key.c_str(), (void *)val.c_str());
 	}
