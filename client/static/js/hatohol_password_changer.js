@@ -77,7 +77,7 @@ var HatoholPasswordChanger = function(user, succeededCb) {
   }
 
   function validateParameters() {
-    if ($("#changePassword").val() == "") {
+    if ($("#changePassword").val() === "") {
       hatoholErrorMsgBox(gettext("Password is empty!"));
       return false;
     }
