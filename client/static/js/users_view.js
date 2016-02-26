@@ -155,13 +155,16 @@ var UsersView = function(userProfile) {
       user = reply["users"][i];
       html += "<tr>";
       html += "<td class='delete-selector' style='display:none;'>";
-      html += "<input type='checkbox' class='selectcheckbox' userId='" + escapeHTML(user["userId"]) + "'>";
+      html += "<input type='checkbox' class='selectcheckbox' userId='" +
+        escapeHTML(user["userId"]) + "'>";
       html += "</td>";
       html += "<td>" + escapeHTML(user["userId"]) + "</td>";
       html += "<td>";
       if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_USER)) {
-        html += "<a href='javascript:void(0);' id='edit-user" + escapeHTML(user["userId"]);
-        html += "' userId='"+ escapeHTML(user["userId"]) + "'>" + escapeHTML(user["name"])   + "</a></td>";
+        html += "<a href='javascript:void(0);' id='edit-user" +
+          escapeHTML(user["userId"]);
+        html += "' userId='"+ escapeHTML(user["userId"]) + "'>" +
+          escapeHTML(user["name"])   + "</a></td>";
       } else {
         html += escapeHTML(user["name"]);
       }
