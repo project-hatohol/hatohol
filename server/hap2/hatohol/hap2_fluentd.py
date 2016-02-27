@@ -136,7 +136,8 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
             "brief": brief,
             "extendedInfo": ""
         })
-        self.put_events(events, last_info_generator=lambda x: None)
+        self.divide_and_put_data(self.put_events, events,
+                           last_info_generator=lambda x: None)
 
     def __get_parameter(self, msg, key, default_value, candidates):
         param = msg.get(key, default_value)

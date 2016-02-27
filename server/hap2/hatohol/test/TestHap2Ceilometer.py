@@ -223,6 +223,9 @@ class CommonForTest(Common):
         """
         self._Common__host_cache = host_cache
 
+    def divide_and_put_data(self, put_func, contents, *args, **kwargs):
+        put_func(contents, *args, **kwargs)
+
 
 class TestCommon(unittest.TestCase):
     def test_constructor(self):
