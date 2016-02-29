@@ -51,7 +51,7 @@ struct IncidentSender::Job
 	    void *_userData = NULL,
 	    const UserIdType userId = USER_ID_SYSTEM)
 	: userId(userId),
-	  eventInfo(new EventInfo(_eventInfo)), incidentInfo(NULL),
+	  eventInfo(new EventInfo(_eventInfo)), incidentInfo(new IncidentInfo()),
 	  createCallback(_callback), updateCallback(NULL),
 	  userData(_userData)
 	{
@@ -88,10 +88,11 @@ struct IncidentSender::Job
 	HatoholError send(IncidentSender &sender) const
 	{
 		HatoholError err(HTERR_NOT_IMPLEMENTED);
-		if (eventInfo)
-			err = sender.send(*eventInfo);
-		else if (incidentInfo)
+		if (eventInfo) {
+			err = sender.send(*eventInfo, incidentInfo);
+		} else if (incidentInfo) {
 			err = sender.send(*incidentInfo, comment);
+		}
 		sender.setLastResult(err);
 		return sender.getLastResult();
 	}

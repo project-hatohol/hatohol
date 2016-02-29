@@ -33,7 +33,8 @@ public:
 	IncidentSenderHatohol(const IncidentTrackerInfo &tracker);
 	virtual ~IncidentSenderHatohol();
 
-	virtual HatoholError send(const EventInfo &event) override;
+	virtual HatoholError send(const EventInfo &event,
+				  IncidentInfo *incident = NULL) override;
 
 	virtual HatoholError send(const IncidentInfo &incident,
 				  const std::string &comment) override;
