@@ -138,11 +138,9 @@ public:
 
 	void setTargetId(const ItemIdType &id);
 	ItemIdType getTargetId(void) const;
-	void setTargetItemGroupName(const std::string &itemGroupName);
-	const std::string &getTargetItemGroupName(void);
-	void setAppName(const std::string &appName) const;
+	void setTargetItemCategoryName(const std::string &categoryName);
+	const std::string &getTargetItemCategoryName(void);
 	void setExcludeFlags(const ExcludeFlags &flg);
-	const std::string &getAppName(void) const;
 
 private:
 	struct Impl;
@@ -210,6 +208,7 @@ public:
 	static const char *TABLE_NAME_TRIGGERS;
 	static const char *TABLE_NAME_EVENTS;
 	static const char *TABLE_NAME_ITEMS;
+	static const char *TABLE_NAME_ITEM_CATEGORIES;
 	static const char *TABLE_NAME_SERVER_STATUS;
 	static const char *TABLE_NAME_INCIDENTS;
 	static const char *TABLE_NAME_INCIDENT_STATUS_HISTORIES;
@@ -293,8 +292,8 @@ public:
 	void addItemInfoList(const ItemInfoList &itemInfoList);
 	void getItemInfoList(ItemInfoList &itemInfoList,
 			     const ItemsQueryOption &option);
-	void getApplicationInfoVect(ApplicationInfoVect &applicationInfoVect,
-			     const ItemsQueryOption &option);
+	void getItemCategoryNames(std::vector<std::string> &itemCategoryNames,
+	                          const ItemsQueryOption &option);
 	void addMonitoringServerStatus(
 	  const MonitoringServerStatus &serverStatus);
 
@@ -374,6 +373,8 @@ protected:
 	  DBAgent &dbAgent, EventInfo &eventInfo);
 	static void addItemInfoWithoutTransaction(
 	  DBAgent &dbAgent, const ItemInfo &itemInfo);
+	static void addItemCategoryWithoutTransaction(
+	  DBAgent &dbAgent, const ItemCategory &category);
 	static void addMonitoringServerStatusWithoutTransaction(
 	  DBAgent &dbAgent, const MonitoringServerStatus &serverStatus);
 	static void addIncidentInfoWithoutTransaction(

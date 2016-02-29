@@ -106,18 +106,18 @@ var LatestView = function(userProfile) {
 
   function parseData(replyData) {
     var parsedData = {};
-    var appNames = [];
+    var itemGrpNames = [];
     var x, item;
 
-    for (x = 0; x < replyData["applications"].length; ++x) {
-      item = replyData["applications"][x];
+    for (x = 0; x < replyData["itemGroups"].length; ++x) {
+      item = replyData["itemGroups"][x];
 
       if (item["name"].length === 0)
         item["name"] = "_non_";
       else
-        appNames.push(item["name"]);
+        itemGrpNames.push(item["name"]);
     }
-    parsedData.applications = appNames.uniq().sort();
+    parsedData.itemGroupNames = itemGrpNames.uniq().sort();
 
     return parsedData;
   }
@@ -154,9 +154,9 @@ var LatestView = function(userProfile) {
   }
 
   function drawTableBody(replyData) {
-    var nickName, hostName, clock, appName;
+    var nickName, hostName, clock, grpNames;
     var html = "", url, server, item, x;
-    var targetAppName = self.getTargetAppName();
+    var targetItemGrpName = self.getTargetAppName();
 
     html = "";
     for (x = 0; x < replyData["items"].length; ++x) {
@@ -166,14 +166,14 @@ var LatestView = function(userProfile) {
       nickName = getNickName(server, item["serverId"]);
       hostName   = getHostName(server, item["hostId"]);
       clock      = item["lastValueTime"];
-      appName    = item["itemGroupName"];
+      grpNames   = item["itemGroupNames"];
 
-      if (targetAppName && appName != targetAppName)
+      if (targetItemGrpName && (grpNames.indexOf(targetItemGrpName) < 0))
         continue;
 
       html += "<tr><td>" + escapeHTML(nickName) + "</td>";
       html += "<td>" + escapeHTML(hostName) + "</td>";
-      html += "<td>" + escapeHTML(appName) + "</td>";
+      html += "<td>" + escapeHTML(grpNames.join(", ")) + "</td>";
       if (url)
         html += "<td><a href='" + url + "' target='_blank'>" +
                 escapeHTML(item["brief"])  + "</a></td>";
@@ -197,7 +197,7 @@ var LatestView = function(userProfile) {
     rawData = reply;
     parsedData = parseData(rawData);
 
-    self.setApplicationFilterCandidates(parsedData.applications);
+    self.setApplicationFilterCandidates(parsedData.itemGroupNames);
 
     drawTableContents(rawData);
     self.pager.update({ numTotalRecords: rawData["totalNumberOfItems"] });
@@ -211,7 +211,7 @@ var LatestView = function(userProfile) {
   function getItemsQueryInURI() {
     var knownKeys = [
       "serverId", "hostgroupId", "hostId",
-      "limit", "offset", "appName",
+      "limit", "offset", "itemGroupName",
     ];
     var i, allParams = deparam(), query = {};
     for (i = 0; i < knownKeys.length; i++) {
@@ -230,7 +230,7 @@ var LatestView = function(userProfile) {
     });
     if (self.lastQuery) {
       $.extend(query, self.getHostFilterQuery());
-      $.extend(query, query, { appName: self.getTargetAppName() });
+      $.extend(query, query, {itemGroupName: self.getTargetAppName() });
     }
     self.lastQuery = query;
     return 'item?' + $.param(query);

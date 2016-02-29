@@ -59,9 +59,9 @@ public:
 		ItemCategoryNameMap itemCategoryNameMap;
 		if (useItemCategoryNameMap) {
 			itemCategoryNameMap[itemCategoryId] =
-			  expect.itemGroupName;
+			  expect.categoryNames[0];
 		} else {
-			expect.itemGroupName = "N/A";
+			expect.categoryNames.clear();
 		}
 
 		HostInfoCache hostInfoCache;
@@ -84,7 +84,7 @@ public:
 		                    actual.lastValueTime.tv_nsec);
 		cppcut_assert_equal(expect.lastValue, actual.lastValue);
 		cppcut_assert_equal(expect.prevValue, actual.prevValue);
-		cppcut_assert_equal(expect.itemGroupName, actual.itemGroupName);
+		assertStringVector(expect.categoryNames, actual.categoryNames);
 		cppcut_assert_equal(expect.delay, actual.delay);
 	}
 };

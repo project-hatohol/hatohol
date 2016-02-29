@@ -574,6 +574,7 @@ const size_t NumTestDupEventInfo = ARRAY_SIZE(testDupEventInfo);
 
 const ItemInfo testItemInfo[] = {
 {
+	1,                        // globalId
 	1,                        // serverId
 	"2",                      // id
 	30,                       // globalHostId
@@ -582,11 +583,12 @@ const ItemInfo testItemInfo[] = {
 	{1362951129,0},           // lastValueTime
 	"Fukuoka",                // lastValue
 	"Sapporo",                // prevValue
-	"City",                   // itemGroupName,
+	{"City"},                 // categoryNames;
 	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_STRING, // valueType
 	"",                       // unit
 }, {
+	2,                        // globalId
 	3,                        // serverId
 	"1",                      // id
 	42,                       // globalHostId
@@ -595,11 +597,12 @@ const ItemInfo testItemInfo[] = {
 	{1362957200,0},           // lastValueTime
 	"1",                      // lastValue
 	"5",                      // prevValue
-	"number",                 // itemGroupName,
+	{"number"},               // categoryNames;
 	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_INTEGER, // valueType
 	"age",                    // unit
 }, {
+	3,                        // globalId
 	3,                        // serverId
 	"2",                      // id
 	45,                       // globalHostId
@@ -608,11 +611,12 @@ const ItemInfo testItemInfo[] = {
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
 	"Ichikawa",               // prevValue
-	"City",                   // itemGroupName,
+	{"City"},                 // categoryNames;
 	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_STRING, // valueType
 	"",                       // unit
 }, {
+	4,                        // globalId
 	4,                        // serverId
 	"1",                      // id
 	100,                      // globalHostId
@@ -621,7 +625,35 @@ const ItemInfo testItemInfo[] = {
 	{1362951000,0},           // lastValueTime
 	"Osaka",                  // lastValue
 	"Ichikawa",               // prevValue
-	"City",                   // itemGroupName,
+	{"City"},                 // categoryNames;
+	0,                        // delay
+	ITEM_INFO_VALUE_TYPE_STRING, // valueType
+	"",                       // unit
+}, {
+	5,                        // globalId
+	211,                      // serverId
+	"12345",                  // id
+	1050,                     // globalHostId
+	"200",                    // hostIdInServer
+	"Multiple item group (category).", // brief
+	{1362951444,123},         // lastValueTime
+	"@n1m@l",                 // lastValue
+	"animal",                 // prevValue
+	{"DOG", "ABC", "I'm a perfect human."}, // categoryNames;
+	0,                        // delay
+	ITEM_INFO_VALUE_TYPE_STRING, // valueType
+	"",                       // unit
+}, {
+	6,                        // globalId
+	211,                      // serverId
+	"abcde",                  // id
+	2111,                     // globalHostId
+	"12111",                  // hostIdInServer
+	"No item group (category)", // brief
+	{1362988899,456},         // lastValueTime
+	"imo",                    // lastValue
+	"arai",                   // prevValue
+	{},                       // categoryNames;
 	0,                        // delay
 	ITEM_INFO_VALUE_TYPE_STRING, // valueType
 	"",                       // unit
