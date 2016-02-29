@@ -48,8 +48,8 @@ Parameters
    * - hostId
      - Specifies a host ID to retrieve items belong to it.
      - Optional
-   * - appName
-     - Specifies a name of `Application object`_ to retrieve items belong to it.
+   * - itemGroupName
+     - Specifies a name of the item group to retrieve items that belong to it.
      - Optional
    * - itemId
      - Specifies an ID of an item to retrieve.
@@ -92,9 +92,9 @@ Response structure
      - Array
      - Array of `Item object`_.
      - True
-   * - applications
+   * - itemGroups
      - Array
-     - Array of `Application object`_.
+     - Array of `ItemGroup object`_.
      - True
    * - servers
      - Object
@@ -135,9 +135,9 @@ Zabbix.
    * - lastValue
      - String
      - The last value.
-   * - itemGroupName
-     - String
-     - The item group name.
+   * - itemGroupNames
+     - Array of string
+     - The item group names.
    * - unit
      - String
      - The unit of the item.
@@ -161,10 +161,10 @@ An item can be one of these types.
    * - 3
      - ITEM_INFO_VALUE_TYPE_STRING
 
-Application object
+ItemGroup object
 ~~~~~~~~~~~~~~~~~~
 
-`Application object`_ represents a group of items.
+`ItemGroup object`_ represents a group of items.
 
 .. list-table::
    :header-rows: 1
@@ -174,7 +174,7 @@ Application object
      - Brief
    * - name
      - String
-     - A name of the application.
+     - A name of the item group.
 
 Example
 -------------
@@ -191,7 +191,7 @@ Example
         "brief":"Processor load (15 min average per core)",
         "lastValueTime":1453713375,
         "lastValue":"0.0500",
-        "itemGroupName":"CPU",
+        "itemGroupNames":["CPU"],
         "unit":"",
         "valueType":1
       },
@@ -202,7 +202,7 @@ Example
         "brief":"Processor load (1 min average per core)",
         "lastValueTime":1453713376,
         "lastValue":"0.0000",
-        "itemGroupName":"CPU",
+        "itemGroupNames":[],
         "unit":"",
         "valueType":1
       },
@@ -213,7 +213,7 @@ Example
         "brief":"Processor load (5 min average per core)",
         "lastValueTime":1453713377,
         "lastValue":"0.0200",
-        "itemGroupName":"CPU",
+        "itemGroupNames":["CPU","Memory"],
         "unit":"",
         "valueType":1
       },
@@ -224,7 +224,7 @@ Example
         "brief":"Context switches per second",
         "lastValueTime":1453713378,
         "lastValue":"145",
-        "itemGroupName":"CPU",
+        "itemGroupNames":["CPU","Performance","Process"],
         "unit":"sps",
         "valueType":2
       },
@@ -235,12 +235,12 @@ Example
         "brief":"CPU idle time",
         "lastValueTime":1453713379,
         "lastValue":"99.6800",
-        "itemGroupName":"CPU",
+        "itemGroupNames":["CPU"],
         "unit":"%",
         "valueType":1
       },
     ],
-    "applications":[
+    "itemGroups":[
       {
         "name":"Zabbix server"
       },
