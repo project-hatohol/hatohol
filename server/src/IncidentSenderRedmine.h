@@ -28,7 +28,8 @@ public:
 	IncidentSenderRedmine(const IncidentTrackerInfo &tracker);
 	virtual ~IncidentSenderRedmine();
 
-	virtual HatoholError send(const EventInfo &event) override;
+	virtual HatoholError send(const EventInfo &event,
+				  IncidentInfo *incident = NULL) override;
 
 	virtual HatoholError send(const IncidentInfo &incident,
 				  const std::string &comment) override;

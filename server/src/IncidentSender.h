@@ -60,9 +60,14 @@ public:
 	 * @param event
 	 * An EventInfo to send as an incident.
 	 *
+	 * @param incident
+	 * A generated IncidentInfo. It's filled only when the function returns
+	 * HTERR_OK.
+	 *
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
-	virtual HatoholError send(const EventInfo &event) = 0;
+	virtual HatoholError send(const EventInfo &event,
+				  IncidentInfo *incident = NULL) = 0;
 
 	/**
 	 * Send an IncidentInfo to update existing one. It will be done by the

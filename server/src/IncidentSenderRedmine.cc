@@ -369,7 +369,8 @@ HatoholError IncidentSenderRedmine::Impl::send(const string &method, const strin
 	return HTERR_OK;
 }
 
-HatoholError IncidentSenderRedmine::send(const EventInfo &event)
+HatoholError IncidentSenderRedmine::send(const EventInfo &event,
+					 IncidentInfo *incident)
 {
 	string url = getIssuesJSONURL();
 	string json = buildJSON(event);
@@ -384,6 +385,8 @@ HatoholError IncidentSenderRedmine::send(const EventInfo &event)
 	if (result == HTERR_OK) {
 		UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 		dataStore->addIncidentInfo(incidentInfo);
+		if (incident)
+			*incident = incidentInfo;
 	}
 
 	return result;
