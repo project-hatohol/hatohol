@@ -87,15 +87,25 @@ void test_sendRedmineIncident(void)
 	const IncidentTrackerInfo &tracker =
 	  testIncidentTrackerInfo[trackerId - 1];
 	g_redmineEmulator.addUser(tracker.userName, tracker.password);
+	EventInfo eventInfo = testEventInfo[0];
+	eventInfo.unifiedId = 293;
 	TestIncidentSenderManager manager;
 	bool succeeded = false;
-	manager.queue(trackerId, testEventInfo[0],
+	manager.queue(trackerId, eventInfo,
 		      statusCallback, (void*)&succeeded);
 	while (!manager.isIdling())
 		usleep(100 * 1000);
 	const string &json = g_redmineEmulator.getLastResponseBody();
 	cppcut_assert_equal(true, succeeded);
 	cppcut_assert_equal(false, json.empty());
+
+	// check history
+	DBHatohol dbHatohol;
+	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories");
+	string expected = "^1\\|293\\|0\\|New\\|\\|\\d+\\|\\d+$";
+	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
 void test_sendHatholIncident(void)
@@ -118,6 +128,12 @@ void test_sendHatholIncident(void)
 	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
 				"select * from incidents;");
+	cut_assert_match(expected.c_str(), actual.c_str());
+
+	// check history
+	actual = execSQL(&dbMonitoring.getDBAgent(),
+			 "select * from incident_status_histories");
+	expected = "^1\\|193\\|0\\|NONE\\|\\|\\d+\\|\\d+$";
 	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
