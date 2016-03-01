@@ -41,13 +41,16 @@ public:
 	 * succeed or fail to register an incident.
 	 * @param userData
 	 * A data which is passed to the callback function.
+	 * @param userId
+	 * The user ID of the operator.
 	 *
 	 * @return A HatoholError instance.
 	 */
 	HatoholError queue(const IncidentTrackerIdType &trackerId,
 			   const EventInfo &event,
 			   IncidentSender::CreateIncidentCallback callback = NULL,
-			   void *userData = NULL);
+			   void *userData = NULL,
+			   const UserIdType userId = USER_ID_SYSTEM);
 
 	/**
 	 * Queue a job to update an incident.
@@ -62,13 +65,16 @@ public:
 	 * succeed or fail to send an incident.
 	 * @param userData
 	 * A data which is passed to the callback function.
+	 * @param userId
+	 * The user ID of the operator.
 	 *
 	 * @return A HatoholError instance.
 	 */
 	HatoholError queue(const IncidentInfo &incidentInfo,
 			   const std::string &comment,
 			   IncidentSender::UpdateIncidentCallback callback = NULL,
-			   void *userData = NULL);
+			   void *userData = NULL,
+			   const UserIdType userId = USER_ID_SYSTEM);
 
 	bool isIdling(void);
 	void setOnChangedIncidentTracker(const IncidentTrackerIdType id);
