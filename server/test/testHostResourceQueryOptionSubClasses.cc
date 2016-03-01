@@ -668,19 +668,19 @@ void test_itemsQueryOptionWithTargetId(gconstpointer data)
 	cppcut_assert_equal(expected, option.getCondition());
 }
 
-void data_itemsQueryOptionWithItemGroupName(void)
+void data_itemsQueryOptionWithItemCategoryName(void)
 {
 	prepareTestDataExcludeDefunctServers();
 }
 
-void test_itemsQueryOptionWithItemGroupName(gconstpointer data)
+void test_itemsQueryOptionWithItemCategoryName(gconstpointer data)
 {
 	ItemsQueryOption option(USER_ID_SYSTEM);
-	string itemGroupName = "It's test items";
-	option.setTargetItemGroupName(itemGroupName);
-	string expected = "items.item_group_name='It''s test items'";
+	string categoryName = "It's test items";
+	option.setTargetItemCategoryName(categoryName);
+	string expected = "item_categories.name='It''s test items'";
 	fixupForFilteringDefunctServer(data, expected, option);
-	cppcut_assert_equal(itemGroupName, option.getTargetItemGroupName());
+	cppcut_assert_equal(categoryName, option.getTargetItemCategoryName());
 	cppcut_assert_equal(expected, option.getCondition());
 }
 

@@ -481,9 +481,7 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
 	itemGroupStream >> itemCategoryId;
 
-	if (itemCategoryId == NO_ITEM_CATEGORY_ID) {
-		itemInfo.itemGroupName = "N/A";
-	} else {
+	if (itemCategoryId != NO_ITEM_CATEGORY_ID) {
 		ItemCategoryNameMapConstIterator it =
 		  itemCategoryNameMap.find(itemCategoryId);
 		if (it == itemCategoryNameMap.end()) {
@@ -492,7 +490,7 @@ bool HatoholDBUtils::transformItemItemGroupToItemInfo(
 			         itemCategoryId.c_str());
 			return false;
 		}
-		itemInfo.itemGroupName = it->second;
+		itemInfo.categoryNames.push_back(it->second);
 	}
 
 	return true;

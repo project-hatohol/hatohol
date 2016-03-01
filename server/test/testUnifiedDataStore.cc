@@ -87,7 +87,7 @@ static string dumpItemInfo(const ItemInfo &info)
 {
 	return StringUtils::sprintf(
 		"%" FMT_SERVER_ID "|%" FMT_ITEM_ID "|%" FMT_HOST_ID
-		"|%" FMT_LOCAL_HOST_ID "|%s|%lu|%ld|%s|%s|%s\n",
+		"|%" FMT_LOCAL_HOST_ID "|%s|%lu|%ld|%s|%s\n",
 		info.serverId,
 		info.id.c_str(),
 		info.globalHostId,
@@ -96,8 +96,7 @@ static string dumpItemInfo(const ItemInfo &info)
 		info.lastValueTime.tv_sec,
 		info.lastValueTime.tv_nsec,
 		info.lastValue.c_str(),
-		info.prevValue.c_str(),
-		info.itemGroupName.c_str());
+		info.prevValue.c_str());
 }
 
 template<class T>

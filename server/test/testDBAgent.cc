@@ -381,6 +381,11 @@ private:
 		return false;
 	}
 
+	bool lastUpsertDidInsert(void) override
+	{
+		return false;
+	}
+
 	virtual string
 	makeCreateIndexStatement(const TableProfile &tableProfile,
 	                         const IndexDef &indexDef) override

@@ -398,7 +398,7 @@ void test_procedureHandlerPutItems(void)
 		" {\"itemId\":\"2\", \"hostId\":\"1\","
 		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175531\","
 		" \"lastValue\":\"example value\","
-		" \"itemGroupName\":[\"example name\", \"example2\"], \"unit\":\"example unit\"},"
+		" \"itemGroupName\":[\"example name\", \"category2\", \"category3\"], \"unit\":\"example unit\"},"
 		// 3rd item
 		" {\"itemId\":\"3\", \"hostId\":\"1\","
 		" \"brief\":\"example wiht empty itemGroupName array\","
@@ -434,7 +434,7 @@ void test_procedureHandlerPutItems(void)
 	item1.brief          = "example brief";
 	item1.lastValueTime  = timeStamp;
 	item1.lastValue      = "example value";
-	item1.itemGroupName  = "example name";
+	item1.categoryNames  = {"example name"};
 	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
 	item1.delay          = 0;
 	item1.unit           = "example unit";
@@ -449,7 +449,7 @@ void test_procedureHandlerPutItems(void)
 	item2.brief          = "example brief";
 	item2.lastValueTime  = timeStamp;
 	item2.lastValue      = "example value";
-	item2.itemGroupName  = "example name";
+	item2.categoryNames  = {"example name", "category2", "category3"};
 	item2.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
 	item2.delay          = 0;
 	item2.unit           = "example unit";
@@ -464,7 +464,7 @@ void test_procedureHandlerPutItems(void)
 	item3.brief          = "example wiht empty itemGroupName array";
 	item3.lastValueTime  = timeStamp;
 	item3.lastValue      = "Alpha Beta Gamma";
-	item3.itemGroupName  = "";
+	item3.categoryNames.clear();
 	item3.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
 	item3.delay          = 0;
 	item3.unit           = "Kelvin";

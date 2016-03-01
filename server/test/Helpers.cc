@@ -23,6 +23,7 @@
 #include <typeinfo>
 #include <errno.h>
 #include <ZabbixAPI.h>
+#include <SeparatorInjector.h>
 #include "Helpers.h"
 #include "DBTablesConfig.h"
 #include "DBTablesAction.h"
@@ -170,7 +171,7 @@ void _assertEqual(const ItemInfo &expect, const ItemInfo &actual)
 	                    actual.lastValueTime.tv_nsec);
 	cppcut_assert_equal(expect.lastValue, actual.lastValue);
 	cppcut_assert_equal(expect.prevValue, actual.prevValue);
-	cppcut_assert_equal(expect.itemGroupName, actual.itemGroupName);
+	assertStringVector(expect.categoryNames, actual.categoryNames);
 	cppcut_assert_equal(expect.delay,     actual.delay);
 	cppcut_assert_equal(expect.valueType, actual.valueType);
 	cppcut_assert_equal(expect.unit,      actual.unit);
@@ -443,6 +444,13 @@ bool isVerboseMode(void)
 	return verboseMode;
 }
 
+void notifyIfVerboseMode(const string &s0, const string &s1)
+{
+	if (!isVerboseMode())
+		return;
+	cut_notify("<s0> %s\n<s1> %s\n", s0.c_str(), s1.c_str());
+}
+
 // TODO: consider this method is still needed ?
 string getDBPathForDBClientHatohol(void)
 {
@@ -668,7 +676,7 @@ string makeItemOutput(const ItemInfo &itemInfo)
 	string expectedOut =
 	  StringUtils::sprintf(
 	    "%" FMT_SERVER_ID "|%" FMT_ITEM_ID "|%" FMT_HOST_ID
-	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%s|%d|%s\n",
+	    "|%" FMT_LOCAL_HOST_ID "|%s|%ld|%lu|%s|%s|%d|%s",
 	    itemInfo.serverId, itemInfo.id.c_str(),
 	    itemInfo.globalHostId,
 	    itemInfo.hostIdInServer.c_str(),
@@ -677,9 +685,21 @@ string makeItemOutput(const ItemInfo &itemInfo)
 	    itemInfo.lastValueTime.tv_nsec,
 	    itemInfo.lastValue.c_str(),
 	    itemInfo.prevValue.c_str(),
-	    itemInfo.itemGroupName.c_str(),
 	    static_cast<int>(itemInfo.valueType),
 	    itemInfo.unit.c_str());
+
+	// Item category
+	if (!itemInfo.categoryNames.empty()) {
+		SeparatorInjector sepInjector("..");
+		expectedOut += "|[";
+		for (const auto &name: itemInfo.categoryNames) {
+			sepInjector(expectedOut);
+			expectedOut += name;
+		}
+		expectedOut += "]";
+	}
+
+	expectedOut += "\n";
 	return expectedOut;
 }
 
@@ -1520,6 +1540,7 @@ struct LinesComparator::PrivateContext
 				         line0Itr->c_str(),
 				         str0.c_str(), str1.c_str());
 			}
+			notifyIfVerboseMode(*line0Itr, *line1Itr);
 			set0.erase(line0Itr);
 			set1.erase(line1Itr);
 		}
@@ -1551,10 +1572,12 @@ void LinesComparator::add(
 
 void LinesComparator::assert(const bool &strictOrder)
 {
-	if (strictOrder)
+	if (strictOrder) {
+		notifyIfVerboseMode(m_ctx->str0, m_ctx->str1);
 		cppcut_assert_equal(m_ctx->str0, m_ctx->str1);
-	else
+	} else {
 		m_ctx->assertWithoutOrder();
+	}
 }
 
 // ---------------------------------------------------------------------------

@@ -254,8 +254,6 @@ rm -rf %{buildroot}
 %{_tmpfilesdir}/hatohol.conf
 %endif
 %{_datadir}/hatohol/sql/init-user.sql
-%{_datadir}/hatohol/sql/server-type-zabbix.sql
-%{_datadir}/hatohol/sql/server-type-nagios.sql
 %{_datadir}/hatohol/sql/server-type-hapi-json.sql
 %{_datadir}/hatohol/sql/severity-ranks.sql
 %{_datadir}/hatohol/sql/custom-incident-statuses.sql

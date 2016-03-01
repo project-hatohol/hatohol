@@ -140,7 +140,7 @@ cut_trace(_assertGetEventsWithFilter(ARG))
 struct AssertGetItemsArg
   : public AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>
 {
-	string itemGroupName;
+	string itemCategoryName;
 
 	AssertGetItemsArg(gconstpointer ddtParam)
 	{
@@ -153,7 +153,7 @@ struct AssertGetItemsArg
 	{
 		AssertGetHostResourceArg<ItemInfo, ItemsQueryOption>::
 			fixupOption();
-		option.setTargetItemGroupName(itemGroupName);
+		option.setTargetItemCategoryName(itemCategoryName);
 	}
 
 	virtual bool filterOutExpectedRecord(const ItemInfo *info) override
@@ -163,9 +163,11 @@ struct AssertGetItemsArg
 			return true;
 		}
 
-		if (!itemGroupName.empty() &&
-		    info->itemGroupName != itemGroupName) {
-			return true;
+		if (!itemCategoryName.empty()) {
+			if (info->categoryNames.size() != 1)
+				return true;
+			if (info->categoryNames[0] != itemCategoryName)
+				return true;
 		}
 
 		if (excludeDefunctServers) {
@@ -840,11 +842,22 @@ void data_getItemWithItemGroupName(void)
 void test_getItemWithItemGroupName(gconstpointer data)
 {
 	AssertGetItemsArg arg(data);
-	arg.itemGroupName = "City";
+	arg.itemCategoryName = "City";
 	assertGetItemsWithFilter(arg);
 }
 
-void data_getNumberOfItemsWithOneAuthorizedServer(gconstpointer data)
+void data_getNumberOfItems(void)
+{
+	prepareTestDataExcludeDefunctServers();
+}
+
+void test_getNumberOfItems(gconstpointer data)
+{
+	AssertGetItemsArg arg(data);
+	assertGetNumberOfItems(arg);
+}
+
+void data_getNumberOfItemsWithOneAuthorizedServer(void)
 {
 	prepareTestDataExcludeDefunctServers();
 }
@@ -888,8 +901,36 @@ void data_getNumberOfItemsWithItemGroupName(void)
 void test_getNumberOfItemsWithItemGroupName(gconstpointer data)
 {
 	AssertGetItemsArg arg(data);
-	arg.itemGroupName = "City";
+	arg.itemCategoryName = "City";
 	assertGetNumberOfItems(arg);
+}
+
+void test_updateItemCategories()
+{
+	const vector<string> categoriesArray[] = {
+		{"DOG", "CAT", "I am a pefect human."},
+		{"DOG"},              // removed 2 categoires
+		{"DOG", "Room!"},     // add 1 category
+		{"Room!", "(^_^)"},   // remove 1 and add 1 category
+		{},                   // remove all
+		{"Bread", "CPU"},
+	};
+
+	auto assertCategories = [] (const vector<string> &expect,
+	                            const ItemInfo &itemInfo) {
+	};
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	ItemInfo itemInfo = testItemInfo[0];
+	for (const auto &categories: categoriesArray) {
+		itemInfo.categoryNames = categories;
+		dbMonitoring.addItemInfo(&itemInfo);
+		ItemInfoList itemInfoList;
+		dbMonitoring.getItemInfoList(itemInfoList, option);
+		cppcut_assert_equal((size_t)1, itemInfoList.size());
+		assertCategories(categories, *itemInfoList.begin());
+	}
 }
 
 void data_addEventInfoList(void)
