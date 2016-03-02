@@ -60,9 +60,14 @@ public:
 	 * @param event
 	 * An EventInfo to send as an incident.
 	 *
+	 * @param incident
+	 * A generated IncidentInfo. It's filled only when the function returns
+	 * HTERR_OK.
+	 *
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
-	virtual HatoholError send(const EventInfo &event) = 0;
+	virtual HatoholError send(const EventInfo &event,
+				  IncidentInfo *incident = NULL) = 0;
 
 	/**
 	 * Send an IncidentInfo to update existing one. It will be done by the
@@ -97,11 +102,15 @@ public:
 	 * @param userData
 	 * A user data which will be passed to the callback function.
 	 *
+	 * @param userId
+	 * The user ID of the operator.
+	 *
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
 	void queue(const EventInfo &eventInfo,
 		   CreateIncidentCallback callback = NULL,
-		   void *userData = NULL);
+		   void *userData = NULL,
+		   const UserIdType userId = USER_ID_SYSTEM);
 
 	/**
 	 * Queue an IncidentInfo to update existing one. Sending an incident
@@ -122,12 +131,16 @@ public:
 	 * @param userData
 	 * A user data which will be passed to the callback function.
 	 *
+	 * @param userId
+	 * The user ID of the operator.
+	 *
 	 * @return HTERR_OK on succeeded to send. Otherwise an error.
 	 */
 	void queue(const IncidentInfo &incidentInfo,
 		   const std::string &comment,
 		   UpdateIncidentCallback callback = NULL,
-		   void *userData = NULL);
+		   void *userData = NULL,
+		   const UserIdType userId = USER_ID_SYSTEM);
 
 	/**
 	 * Set max retry count of sending an incident on failing it.

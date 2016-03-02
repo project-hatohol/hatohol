@@ -113,12 +113,15 @@ IncidentSenderHatohol::~IncidentSenderHatohol()
 {
 }
 
-HatoholError IncidentSenderHatohol::send(const EventInfo &event)
+HatoholError IncidentSenderHatohol::send(const EventInfo &event,
+					 IncidentInfo *incident)
 {
 	IncidentInfo incidentInfo;
 	m_impl->buildNewIncidentInfo(incidentInfo, event);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->addIncidentInfo(incidentInfo);
+	if (incident)
+		*incident = incidentInfo;
 	return HTERR_OK;
 }
 

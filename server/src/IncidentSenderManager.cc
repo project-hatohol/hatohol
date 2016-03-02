@@ -125,7 +125,8 @@ IncidentSenderManager &IncidentSenderManager::getInstance(void)
 
 HatoholError IncidentSenderManager::queue(
   const IncidentTrackerIdType &trackerId, const EventInfo &eventInfo,
-  IncidentSender::CreateIncidentCallback callback, void *userData)
+  IncidentSender::CreateIncidentCallback callback, void *userData,
+  const UserIdType userId)
 {
 	IncidentSender *sender = m_impl->getSender(trackerId);
 	if (!sender) {
@@ -134,13 +135,14 @@ HatoholError IncidentSenderManager::queue(
 			 eventInfo.id.c_str());
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
-	sender->queue(eventInfo, callback, userData);
+	sender->queue(eventInfo, callback, userData, userId);
 	return HTERR_OK;
 }
 
 HatoholError IncidentSenderManager::queue(
   const IncidentInfo &incidentInfo, const string &comment,
-  IncidentSender::UpdateIncidentCallback callback, void *userData)
+  IncidentSender::UpdateIncidentCallback callback, void *userData,
+  const UserIdType userId)
 {
 	IncidentSender *sender = m_impl->getSender(incidentInfo.trackerId);
 	if (!sender) {
@@ -149,7 +151,7 @@ HatoholError IncidentSenderManager::queue(
 			 incidentInfo.trackerId);
 		return HTERR_FAILED_TO_SEND_INCIDENT;
 	}
-	sender->queue(incidentInfo, comment, callback, userData);
+	sender->queue(incidentInfo, comment, callback, userData, userId);
 	return HTERR_OK;
 }
 

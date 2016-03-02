@@ -38,6 +38,7 @@ static const unsigned int DEFAULT_RETRY_INTERVAL_MSEC = 5000;
 
 struct IncidentSender::Job
 {
+	UserIdType userId;
 	EventInfo *eventInfo;
 	IncidentInfo *incidentInfo;
 	string comment;
@@ -47,8 +48,10 @@ struct IncidentSender::Job
 
 	Job(const EventInfo &_eventInfo,
 	    CreateIncidentCallback _callback = NULL,
-	    void *_userData = NULL)
-	: eventInfo(new EventInfo(_eventInfo)), incidentInfo(NULL),
+	    void *_userData = NULL,
+	    const UserIdType userId = USER_ID_SYSTEM)
+	: userId(userId),
+	  eventInfo(new EventInfo(_eventInfo)), incidentInfo(new IncidentInfo()),
 	  createCallback(_callback), updateCallback(NULL),
 	  userData(_userData)
 	{
@@ -57,8 +60,10 @@ struct IncidentSender::Job
 	Job(const IncidentInfo &_incidentInfo,
 	    const string &_comment,
 	    UpdateIncidentCallback _callback = NULL,
-	    void *_userData = NULL)
-	: eventInfo(NULL), incidentInfo(new IncidentInfo(_incidentInfo)),
+	    void *_userData = NULL,
+	    const UserIdType userId = USER_ID_SYSTEM)
+	: userId(userId),
+	  eventInfo(NULL), incidentInfo(new IncidentInfo(_incidentInfo)),
 	  comment(_comment),
 	  createCallback(NULL), updateCallback(_callback),
 	  userData(_userData)
@@ -83,10 +88,11 @@ struct IncidentSender::Job
 	HatoholError send(IncidentSender &sender) const
 	{
 		HatoholError err(HTERR_NOT_IMPLEMENTED);
-		if (eventInfo)
-			err = sender.send(*eventInfo);
-		else if (incidentInfo)
+		if (eventInfo) {
+			err = sender.send(*eventInfo, incidentInfo);
+		} else if (incidentInfo) {
 			err = sender.send(*incidentInfo, comment);
+		}
 		sender.setLastResult(err);
 		return sender.getLastResult();
 	}
@@ -157,6 +163,25 @@ struct IncidentSender::Impl
 			return popJob();
 	}
 
+	void saveIncidentStatusHistory(const Job &job)
+	{
+		SmartTime now(SmartTime::INIT_CURR_TIME);
+		UnifiedDataStore *store = UnifiedDataStore::getInstance();
+		IncidentStatusHistory history;
+		if (!job.incidentInfo) {
+			MLPL_ERR("No incidentInto to save history!");
+			return;
+		}
+		history.id = AUTO_INCREMENT_VALUE;
+		history.unifiedEventId = job.incidentInfo->unifiedEventId;
+		history.userId = job.userId;
+		history.status = job.incidentInfo->status;
+		history.comment = job.comment;
+		history.createdAt.tv_sec = now.getAsTimespec().tv_sec;
+		history.createdAt.tv_nsec = now.getAsTimespec().tv_nsec;
+		store->addIncidentStatusHistory(history);
+	}
+
 	HatoholError trySend(const Job &job) {
 		HatoholError result;
 		for (size_t i = 0; i <= retryLimit; i++) {
@@ -177,10 +202,12 @@ struct IncidentSender::Impl
 				break;
 			job.notifyStatus(sender, JOB_RETRYING);
 		}
-		if (result == HTERR_OK)
+		if (result == HTERR_OK) {
+			saveIncidentStatusHistory(job);
 			job.notifyStatus(sender, JOB_SUCCEEDED);
-		else
+		} else {
 			job.notifyStatus(sender, JOB_FAILED);
+		}
 		return result;
 	}
 };
@@ -203,17 +230,19 @@ void IncidentSender::waitExit(void)
 }
 
 void IncidentSender::queue(const EventInfo &eventInfo,
-			   CreateIncidentCallback callback, void *userData)
+			   CreateIncidentCallback callback, void *userData,
+			   const UserIdType userId)
 {
-	Job *job = new Job(eventInfo, callback, userData);
+	Job *job = new Job(eventInfo, callback, userData, userId);
 	m_impl->pushJob(job);
 }
 
 void IncidentSender::queue(const IncidentInfo &incidentInfo,
 			   const string &comment,
-			   UpdateIncidentCallback callback, void *userData)
+			   UpdateIncidentCallback callback, void *userData,
+			   const UserIdType userId)
 {
-	Job *job = new Job(incidentInfo, comment, callback, userData);
+	Job *job = new Job(incidentInfo, comment, callback, userData, userId);
 	m_impl->pushJob(job);
 }
 

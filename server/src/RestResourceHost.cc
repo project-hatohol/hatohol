@@ -711,7 +711,8 @@ void RestResourceHost::createIncidentAsync(
 	  = IncidentSenderManager::getInstance();
 	ref(); // keep myself until the callback function is called
 	HatoholError err = senderManager.queue(trackerId, eventInfo,
-					       createIncidentCallback, this);
+					       createIncidentCallback, this,
+					       m_userId);
 	if (err != HTERR_OK) {
 		unref();
 		replyError(err);
@@ -772,7 +773,8 @@ void RestResourceHost::handlerPutIncident(void)
 	IncidentSenderManager &senderManager
 	  = IncidentSenderManager::getInstance();
 	err = senderManager.queue(incidentInfo, comment,
-				  updateIncidentCallback, this);
+				  updateIncidentCallback, this,
+				  m_userId);
 	if (err != HTERR_OK) {
 		unref();
 		replyError(err);
