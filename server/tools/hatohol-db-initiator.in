@@ -180,7 +180,9 @@ def start(args):
     create_hatohol_tables(args)
 
     try:
-        for sql_file in os.listdir(args.sql_dir):
+        sql_files = os.listdir(args.sql_dir)
+        sql_files.sort()
+        for sql_file in sql_files:
             if args.target and args.target != sql_file:
                 continue
             sql_file_path = add_sql_directory(args, sql_file)
