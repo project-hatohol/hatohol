@@ -132,7 +132,7 @@ def generate_one_type(table_name, server_type, server_label, parameters,
             ' uuid=\'%s\';' % \
         (server_label, parameters, plugin_path, sql_version, PLUGIN_ENABLED,
          uuid)
-    sql = open('server-type-' + file_identifier + '.sql', 'w')
+    sql = open('90-server-type-' + file_identifier + '.sql', 'w')
     sql.write(line)
     sql.close()
 
