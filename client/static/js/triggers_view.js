@@ -299,6 +299,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-status").selectpicker();
     $("#select-host").selectpicker();
     $("#select-host-group").selectpicker();
+    $("#select-hostname").selectpicker();
   }
 
   function setLoading(loading) {
@@ -310,6 +311,7 @@ var TriggersView = function(userProfile, options) {
       $("#select-server").attr("disabled", "disabled");
       $("#select-host-group").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
+      $("#select-hostname").attr("disabled", "disabled");
       $(".latest-button").attr("disabled", "disabled");
     } else {
       $("#begin-time").removeAttr("disabled");
@@ -321,6 +323,7 @@ var TriggersView = function(userProfile, options) {
         $("#select-host-group").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
+      $("#select-hostname").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
 
       setupSelectPickers();
@@ -413,7 +416,7 @@ var TriggersView = function(userProfile, options) {
 
   function getTriggersQueryInURI() {
     var knownKeys = [
-      "serverId", "hostgroupId", "hostId",
+      "serverId", "hostgroupId", "hostId", "hostname",
       "limit", "offset",
       "minimumSeverity", "status",
     ];
