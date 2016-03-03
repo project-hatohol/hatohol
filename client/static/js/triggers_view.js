@@ -478,6 +478,15 @@ var TriggersView = function(userProfile, options) {
     $("#select-server").val("");
     $("#select-host-group").val("");
     $("#select-host").val("");
+    $("#select-hostname").val("");
+
+    // refresh bootstrap-select selectpickers
+    $("#select-severity").selectpicker('refresh');
+    $("#select-status").selectpicker('refresh');
+    $("#select-server").selectpicker('refresh');
+    $("#select-host-group").selectpicker('refresh');
+    $("#select-host").selectpicker('refresh');
+    $("#select-hostname").selectpicker('refresh');
   }
 
   function formatDateTimeWithZeroSecond(d) {
