@@ -51,7 +51,7 @@ class SimpleServer:
         self.__sender = haplib.Sender(transporter_args)
         self.__rpc_queue = hap.MultiprocessingJoinableQueue()
         self.__dispatcher = haplib.Dispatcher(self.__rpc_queue)
-        self.__dispatcher.daemonize()
+        self.__dispatcher.daemonize("Dispatcher")
         self.__last_info = {"event": "", "trigger": ""}
 
         self.__handler_map = {
@@ -72,7 +72,7 @@ class SimpleServer:
         dispatch_queue = self.__dispatcher.get_dispatch_queue()
         self.__receiver = haplib.Receiver(transporter_args, dispatch_queue,
                                           self.__handler_map.keys())
-        self.__receiver.daemonize()
+        self.__receiver.daemonize("Receiver")
 
     def __terminate_children(self):
         for proc in filter(bool, (self.__dispatcher, self.__receiver)):
