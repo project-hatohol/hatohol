@@ -157,8 +157,8 @@ class Hap2FluentdMain__parse_line(unittest.TestCase):
     def test_normal(self):
         expect_ts = datetime.datetime(2015, 7, 2, 9, 20, 20)
         self.__assert(
-            "2015-07-02 18:20:20 +0900 [warn]: process died",
-            (expect_ts, "[warn]", "process died"))
+            "2015-07-02 18:20:20 +0900 hatohol.test.msg: process died",
+            (expect_ts, "hatohol.test.msg", "process died"))
 
     def test_unexpected_date_format(self):
         self.__assert(
