@@ -103,6 +103,14 @@ static HatoholError parseTriggerParameter(TriggersQueryOption &option,
 		option.setHostnameList({targetHostname});
 	}
 
+	// target brief
+	const char *targetBrief =
+		static_cast<const char*>(g_hash_table_lookup(query, "brief"));
+	if (targetBrief && *targetBrief) {
+		string brief = targetBrief;
+		option.setTriggerBrief(brief);
+	}
+
 	// minimum severity
 	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
 	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
