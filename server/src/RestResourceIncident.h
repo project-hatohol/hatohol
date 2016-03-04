@@ -32,6 +32,8 @@ struct RestResourceIncident : public RestResourceMemberHandler
 	virtual ~RestResourceIncident();
 
 	void handlerIncident(void);
+	void handlerGetIncident(void);
+	void handlerGetIncidentHistory(const UnifiedEventIdType unifiedEventId);
 	void handlerPostIncident(void);
 	void handlerPutIncident(void);
 	void createIncidentAsync(const UnifiedEventIdType &eventId,

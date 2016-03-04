@@ -48,13 +48,68 @@ RestResourceIncident::~RestResourceIncident()
 
 void RestResourceIncident::handlerIncident(void)
 {
-	if (httpMethodIs("POST")) {
+	if (httpMethodIs("GET")) {
+		handlerGetIncident();
+	} else if (httpMethodIs("POST")) {
 		handlerPostIncident();
 	} else if (httpMethodIs("PUT")) {
 		handlerPutIncident();
 	} else {
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
+}
+
+void RestResourceIncident::handlerGetIncident(void)
+{
+	uint64_t unifiedEventId = getResourceId();
+	if (unifiedEventId == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
+		return;
+	}
+
+	int nest = 1;
+	string resourceName = getResourceName(nest);
+	if (resourceName.empty()) {
+		REPLY_ERROR(this, HTERR_NOT_IMPLEMENTED,
+			    "Getting an incident isn't implemented yet!");
+		return;
+	} else if (resourceName == "history") {
+		handlerGetIncidentHistory(unifiedEventId);
+	} else {
+		replyHttpStatus(SOUP_STATUS_NOT_FOUND);
+		return;
+	}
+}
+
+void RestResourceIncident::handlerGetIncidentHistory(
+  const UnifiedEventIdType unifiedEventId)
+{
+	list<IncidentStatusHistory> incidentHistoryList;
+	IncidentStatusHistoriesQueryOption option;
+	option.setTargetUnifiedEventId(unifiedEventId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getIncidentStatusHistories(incidentHistoryList, option);
+
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.startArray("incidentHistory");
+	for (auto &history : incidentHistoryList) {
+		agent.startObject();
+		agent.add("id",             history.id);
+		agent.add("unifiedEventId", history.unifiedEventId);
+		agent.add("userId",         history.userId);
+		agent.add("status",         history.status);
+		agent.add("time",           history.createdAt.tv_sec);
+		if (!history.comment.empty())
+			agent.add("comment", history.comment);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJSONData(agent);
 }
 
 static HatoholError parseIncidentParameter(
