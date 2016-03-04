@@ -86,7 +86,7 @@ void RestResourceIncident::handlerGetIncidentHistory(
   const UnifiedEventIdType unifiedEventId)
 {
 	list<IncidentStatusHistory> incidentHistoryList;
-	IncidentStatusHistoriesQueryOption option;
+	IncidentStatusHistoriesQueryOption option(m_dataQueryContextPtr);
 	option.setTargetUnifiedEventId(unifiedEventId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getIncidentStatusHistories(incidentHistoryList, option);
