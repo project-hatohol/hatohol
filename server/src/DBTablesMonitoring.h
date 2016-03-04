@@ -118,7 +118,7 @@ public:
 	void setSortType(const SortType &type, const SortDirection &direction);
 	SortType getSortType(void) const;
 	SortDirection getSortDirection(void) const;
-	void setTriggerBrief(std::string &triggerBrief);
+	void setTriggerBrief(const std::string &triggerBrief);
 	std::string getTriggerBrief(void) const;
 
 	std::string makeHostnameListCondition(

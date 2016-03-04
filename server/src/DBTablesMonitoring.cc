@@ -1637,7 +1637,7 @@ DataQueryOption::SortDirection TriggersQueryOption::getSortDirection(void) const
 	return m_impl->sortDirection;
 }
 
-void TriggersQueryOption::setTriggerBrief(string &triggerBrief) {
+void TriggersQueryOption::setTriggerBrief(const string &triggerBrief) {
 	m_impl->triggerBrief = triggerBrief;
 }
 
