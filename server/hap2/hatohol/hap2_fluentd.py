@@ -86,7 +86,8 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
         while True:
             try:
                 self.__fluentd_manager_main_in_try_block()
-            except:
+            except Exception as e:
+                logger.error(e)
                 hap.handle_exception()
                 self.__arm_info.fail()
                 time.sleep(self.__ms_info.retry_interval_sec)
