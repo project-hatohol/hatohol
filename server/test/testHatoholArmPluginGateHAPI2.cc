@@ -946,7 +946,7 @@ void data_procedureHandlerPutEvents(void)
 		       "triggerId", G_TYPE_STRING, "2", NULL);
 	gcut_add_datum("WithoutTriggerId",
 	               "triggerIdContents", G_TYPE_STRING, "",
-		       "triggerId", G_TYPE_STRING, DO_NOT_ASSOCIATE_TRIGGER_ID, NULL);
+		       "triggerId", G_TYPE_STRING, DO_NOT_ASSOCIATE_TRIGGER_ID.c_str(), NULL);
 }
 
 void test_procedureHandlerPutEvents(gconstpointer data)

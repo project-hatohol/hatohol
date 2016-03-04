@@ -164,7 +164,7 @@ static const TriggerIdType FAILED_HAP_INTERNAL_ERROR_TRIGGER_ID =
 static const TriggerIdType FAILED_SELF_TRIGGER_ID_TERMINATION   =
   SPECIAL_TRIGGER_ID_PREFIX "TERM";
 
-constexpr const char *DO_NOT_ASSOCIATE_TRIGGER_ID =
+static const TriggerIdType DO_NOT_ASSOCIATE_TRIGGER_ID =
   SPECIAL_TRIGGER_ID_PREFIX "DO_NOT_ASSOCIATE_TRIGGER";
 
 // Special Event IDs ==========================================================
