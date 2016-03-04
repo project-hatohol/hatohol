@@ -655,6 +655,37 @@ void test_getTriggerInfoListWithTimeRangeNotFound(void)
 	cppcut_assert_equal(triggerInfoList.size(), static_cast<size_t>(0));
 }
 
+void test_getTriggerInfoWithBrief(void)
+{
+	loadTestDBTriggers();
+	loadTestDBServerHostDef();
+	loadTestDBHostgroupMember();
+
+	int targetIdx = 2;
+	const TriggerInfo &targetTriggerInfo = testTriggerInfo[targetIdx];
+	TriggerInfo triggerInfo;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	string brief = "TEST Trigger 1b";
+	option.setTriggerBrief(brief);
+	cppcut_assert_equal(true,
+	   dbMonitoring.getTriggerInfo(triggerInfo, option));
+	assertTriggerInfo(targetTriggerInfo, triggerInfo);
+}
+
+void test_getTriggerInfoWithBriefNotFound(void)
+{
+	loadTestDBTriggers();
+
+	TriggerInfoList triggerInfoList;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	string brief = "TEST Trigger noexistence";
+	option.setTriggerBrief(brief);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+	cppcut_assert_equal(triggerInfoList.size(), static_cast<size_t>(0));
+}
+
 void data_getTriggerInfoListForOneServer(void)
 {
 	prepareTestDataExcludeDefunctServers();
