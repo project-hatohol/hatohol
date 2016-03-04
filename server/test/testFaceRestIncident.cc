@@ -227,7 +227,7 @@ void test_postIncidentForUnknownEvent(void)
 	assertEqualJSONString(expectedResponse, arg.response);
 }
 
-void test_getIncident(void)
+void test_getIncidentWithoutId(void)
 {
 	loadTestDBIncidents();
 	startFaceRest();
@@ -236,7 +236,104 @@ void test_getIncident(void)
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	arg.request = "GET";
 	getServerResponse(arg);
-	cppcut_assert_equal(405, arg.httpStatusCode); // Method Not Allowed
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":40,"
+	  "\"errorMessage\":\"Not found ID in the URL.\","
+	  "\"optionMessages\":\"id: \""
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_getIncident(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	RequestArg arg("/incident/3");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":3,"
+	  "\"errorMessage\":\"Not implemented.\","
+	  "\"optionMessages\":\"Getting an incident isn't implemented yet!\""
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_getIncidentHistory(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	RequestArg arg("/incident/3/history");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"incidentHistory\":["
+	  "{"
+	  "\"id\":1,"
+	  "\"unifiedEventId\":3,"
+	  "\"userId\":1,"
+	  "\"status\":\"NONE\","
+	  "\"time\":1412957260"
+	  "}"
+	  "]"
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_getIncidentHistoryWithComment(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	RequestArg arg("/incident/10/history");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"incidentHistory\":["
+	  "{"
+	  "\"id\":2,"
+	  "\"unifiedEventId\":10,"
+	  "\"userId\":2,"
+	  "\"status\":\"IN PROGRESS\","
+	  "\"time\":1412957290,"
+	  "\"comment\":\"This is a comment.\""
+	  "}"
+	  "]"
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_getUnknownSubResource(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	RequestArg arg("/incident/3/comment");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(404, arg.httpStatusCode);
 }
 
 } // namespace testFaceRestIncident
