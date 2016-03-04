@@ -66,6 +66,7 @@ testHatohol_la_SOURCES = \
 	testFaceRestSeverityRank.cc testFaceRestSummary.cc \
 	testFaceRestSystem.cc testFaceRestAction.cc testFaceRestHost.cc \
 	testFaceRestServer.cc testFaceRestUser.cc testFaceRestNoInit.cc \
+	testFaceRestIncident.cc \
 	testFaceRestIncidentTracker.cc testSessionManager.cc \
 	testIncidentSenderRedmine.cc \
 	testIncidentSenderHatohol.cc \
