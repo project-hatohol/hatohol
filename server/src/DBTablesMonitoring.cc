@@ -1397,8 +1397,7 @@ struct TriggersQueryOption::Impl {
 	  endTime({0, 0}),
 	  hostnameList({}),
 	  sortType(SORT_ID),
-	  sortDirection(SORT_DONT_CARE),
-	  triggerBrief("")
+	  sortDirection(SORT_DONT_CARE)
 	{
 	}
 	bool shouldExcludeSelfMonitoring() {
