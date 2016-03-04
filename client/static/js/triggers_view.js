@@ -305,6 +305,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host").selectpicker();
     $("#select-host-group").selectpicker();
     $("#select-hostname").selectpicker();
+    $("#select-brief").selectpicker();
   }
 
   function setLoading(loading) {
@@ -423,7 +424,7 @@ var TriggersView = function(userProfile, options) {
     var knownKeys = [
       "serverId", "hostgroupId", "hostId", "hostname",
       "limit", "offset",
-      "minimumSeverity", "status",
+      "minimumSeverity", "status", "brief"
     ];
     var i, allParams = deparam(), query = {};
     for (i = 0; i < knownKeys.length; i++) {
@@ -484,6 +485,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host-group").val("");
     $("#select-host").val("");
     $("#select-hostname").val("");
+    $("#select-brief").val("");
 
     // refresh bootstrap-select selectpickers
     $("#select-severity").selectpicker('refresh');
@@ -492,6 +494,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host-group").selectpicker('refresh');
     $("#select-host").selectpicker('refresh');
     $("#select-hostname").selectpicker('refresh');
+    $("#select-brief").selectpicker('refresh');
   }
 
   function formatDateTimeWithZeroSecond(d) {
