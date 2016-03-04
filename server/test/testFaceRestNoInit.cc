@@ -20,7 +20,7 @@
 #include <cppcutter.h>
 #include <Reaper.h>
 #include "Helpers.h"
-#include "RestResourceHostUtils.h"
+#include "RestResourceUtils.h"
 using namespace std;
 using namespace mlpl;
 
@@ -31,7 +31,7 @@ using namespace mlpl;
 // which takes a little time.
 // ---------------------------------------------------------------------------
 namespace testFaceRestNoInit {
-namespace testFaceRestHostUtil {
+namespace testFaceRestUtils {
 
 static const char *FORCE_EMPTY_STRING = "#__EMPTY__";
 
@@ -42,7 +42,7 @@ public:
 		GHashTable *query)
 	{
 		bool countOnly = false;
-		return RestResourceHostUtils::parseEventParameter(option, query, countOnly);
+		return RestResourceUtils::parseEventParameter(option, query, countOnly);
 	}
 };
 
@@ -497,5 +497,5 @@ void test_parseEventParameterInvalidTriggerId(void)
 	  triggerId, FORCE_EMPTY_STRING, HTERR_INVALID_PARAMETER);
 }
 
-} // namespace testFaceRestHostUtil
+} // namespace testFaceRestUtils
 } // namespace testFaceRestNoInit

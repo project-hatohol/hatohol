@@ -17,29 +17,24 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceHost_h
-#define RestResourceHost_h
+#ifndef RestResourceMonitoring_h
+#define RestResourceMonitoring_h
 
 #include "FaceRestPrivate.h"
 
-struct RestResourceHost : public RestResourceMemberHandler
+struct RestResourceMonitoring : public RestResourceMemberHandler
 {
-	typedef void (RestResourceHost::*HandlerFunc)(void);
+	typedef void (RestResourceMonitoring::*HandlerFunc)(void);
 
 	static void registerFactories(FaceRest *faceRest);
 
-	RestResourceHost(FaceRest *faceRest, HandlerFunc handler);
-	virtual ~RestResourceHost();
+	RestResourceMonitoring(FaceRest *faceRest, HandlerFunc handler);
+	virtual ~RestResourceMonitoring();
 
 	void handlerGetOverview(void);
 	void handlerGetHost(void);
 	void handlerGetTrigger(void);
 	void handlerGetEvent(void);
-	void handlerIncident(void);
-	void handlerPostIncident(void);
-	void handlerPutIncident(void);
-	void createIncidentAsync(const UnifiedEventIdType &eventId,
-				 const IncidentTrackerIdType &trackerId);
 	void handlerGetHostgroup(void);
 	void handlerGetItem(void);
 	void replyGetItem(void);
@@ -58,10 +53,9 @@ struct RestResourceHost : public RestResourceMemberHandler
 	static const char *pathForHost;
 	static const char *pathForTrigger;
 	static const char *pathForEvent;
-	static const char *pathForIncident;
 	static const char *pathForItem;
 	static const char *pathForHistory;
 	static const char *pathForHostgroup;
 };
 
-#endif // RestResourceHost_h
+#endif // RestResourceMonitoring_h

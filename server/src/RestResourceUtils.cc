@@ -17,10 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "RestResourceHost.h"
+#include "RestResourceMonitoring.h"
 #include "UnifiedDataStore.h"
 #include "IncidentSenderManager.h"
-#include "RestResourceHostUtils.h"
+#include "RestResourceUtils.h"
 #include <string.h>
 
 using namespace std;
@@ -169,7 +169,7 @@ struct SelectedHosts {
 // ----------------------------------------------------------------------------
 // Public methods
 // ----------------------------------------------------------------------------
-HatoholError RestResourceHostUtils::parseHostsFilter(
+HatoholError RestResourceUtils::parseHostsFilter(
   HostResourceQueryOption &option, GHashTable *query)
 {
 	SelectedHosts data(query);
@@ -197,7 +197,7 @@ HatoholError RestResourceHostUtils::parseHostsFilter(
 	return HTERR_OK;
 }
 
-HatoholError RestResourceHostUtils::parseHostResourceQueryParameter(
+HatoholError RestResourceUtils::parseHostResourceQueryParameter(
   HostResourceQueryOption &option, GHashTable *query)
 {
 	if (!query)
@@ -256,7 +256,7 @@ HatoholError RestResourceHostUtils::parseHostResourceQueryParameter(
 	return HatoholError(HTERR_OK);
 }
 
-HatoholError RestResourceHostUtils::parseSortTypeFromQuery(
+HatoholError RestResourceUtils::parseSortTypeFromQuery(
   EventsQueryOption::SortType &sortType, GHashTable *query)
 {
 	const char *key = "sortType";
@@ -275,7 +275,7 @@ HatoholError RestResourceHostUtils::parseSortTypeFromQuery(
 	return HatoholError(HTERR_OK);
 }
 
-HatoholError RestResourceHostUtils::parseSortOrderFromQuery(
+HatoholError RestResourceUtils::parseSortOrderFromQuery(
   DataQueryOption::SortDirection &sortDirection, GHashTable *query)
 {
 	HatoholError err =
@@ -292,7 +292,7 @@ HatoholError RestResourceHostUtils::parseSortOrderFromQuery(
 	return HatoholError(HTERR_OK);
 }
 
-HatoholError RestResourceHostUtils::parseEventParameter(
+HatoholError RestResourceUtils::parseEventParameter(
   EventsQueryOption &option, GHashTable *query, bool &isCountOnly)
 {
 	if (!query)

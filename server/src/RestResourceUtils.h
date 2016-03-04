@@ -17,10 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceHostUtils_h
-#define RestResourceHostUtils_h
+#ifndef RestResourceUtils_h
+#define RestResourceUtils_h
 
-class RestResourceHostUtils {
+class RestResourceUtils {
 public:
 	static HatoholError parseHostsFilter(
 	  HostResourceQueryOption &option, GHashTable *query);
@@ -35,4 +35,4 @@ public:
 	  bool &isCountOnly);
 };
 
-#endif // RestResourceHostUtils_h
+#endif // RestResourceUtils_h
