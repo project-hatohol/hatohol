@@ -17,19 +17,19 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceHost_h
-#define RestResourceHost_h
+#ifndef RestResourceMonitoring_h
+#define RestResourceMonitoring_h
 
 #include "FaceRestPrivate.h"
 
-struct RestResourceHost : public RestResourceMemberHandler
+struct RestResourceMonitoring : public RestResourceMemberHandler
 {
-	typedef void (RestResourceHost::*HandlerFunc)(void);
+	typedef void (RestResourceMonitoring::*HandlerFunc)(void);
 
 	static void registerFactories(FaceRest *faceRest);
 
-	RestResourceHost(FaceRest *faceRest, HandlerFunc handler);
-	virtual ~RestResourceHost();
+	RestResourceMonitoring(FaceRest *faceRest, HandlerFunc handler);
+	virtual ~RestResourceMonitoring();
 
 	void handlerGetOverview(void);
 	void handlerGetHost(void);
@@ -58,4 +58,4 @@ struct RestResourceHost : public RestResourceMemberHandler
 	static const char *pathForHostgroup;
 };
 
-#endif // RestResourceHost_h
+#endif // RestResourceMonitoring_h

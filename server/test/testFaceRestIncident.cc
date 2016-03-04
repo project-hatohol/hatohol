@@ -25,7 +25,6 @@
 #include "UnifiedDataStore.h"
 #include "testDBTablesMonitoring.h"
 #include "FaceRestTestUtils.h"
-#include "RestResourceHost.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;

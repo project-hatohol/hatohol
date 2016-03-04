@@ -25,12 +25,11 @@
 #include "UnifiedDataStore.h"
 #include "testDBTablesMonitoring.h"
 #include "FaceRestTestUtils.h"
-#include "RestResourceHost.h"
 #include "ThreadLocalDBCache.h"
 using namespace std;
 using namespace mlpl;
 
-namespace testFaceRestHost {
+namespace testFaceRestMonitoring {
 
 static void _assertTestTriggerInfo(
   JSONParser *parser, const TriggerInfo &triggerInfo)
@@ -1189,4 +1188,4 @@ void test_getNumberOfEventsWithInvalidQuery(void)
 	cppcut_assert_equal(expectedResponse, arg.response);
 }
 
-} // namespace testFaceRestHost
+} // namespace testFaceRestMonitoring

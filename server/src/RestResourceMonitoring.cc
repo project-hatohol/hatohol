@@ -17,63 +17,63 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "RestResourceHost.h"
-#include "RestResourceHostUtils.h"
+#include "RestResourceMonitoring.h"
+#include "RestResourceUtils.h"
 #include "UnifiedDataStore.h"
 #include <string.h>
 
 using namespace std;
 using namespace mlpl;
 
-typedef FaceRestResourceHandlerSimpleFactoryTemplate<RestResourceHost>
-  RestResourceHostFactory;
+typedef FaceRestResourceHandlerSimpleFactoryTemplate<RestResourceMonitoring>
+  RestResourceMonitoringFactory;
 
-const char *RestResourceHost::pathForOverview  = "/overview";
-const char *RestResourceHost::pathForHost      = "/host";
-const char *RestResourceHost::pathForTrigger   = "/trigger";
-const char *RestResourceHost::pathForEvent     = "/event";
-const char *RestResourceHost::pathForItem      = "/item";
-const char *RestResourceHost::pathForHistory   = "/history";
-const char *RestResourceHost::pathForHostgroup = "/hostgroup";
+const char *RestResourceMonitoring::pathForOverview  = "/overview";
+const char *RestResourceMonitoring::pathForHost      = "/host";
+const char *RestResourceMonitoring::pathForTrigger   = "/trigger";
+const char *RestResourceMonitoring::pathForEvent     = "/event";
+const char *RestResourceMonitoring::pathForItem      = "/item";
+const char *RestResourceMonitoring::pathForHistory   = "/history";
+const char *RestResourceMonitoring::pathForHostgroup = "/hostgroup";
 
-void RestResourceHost::registerFactories(FaceRest *faceRest)
+void RestResourceMonitoring::registerFactories(FaceRest *faceRest)
 {
 	faceRest->addResourceHandlerFactory(
 	  pathForOverview,
-	  new RestResourceHostFactory(
-	    faceRest, &RestResourceHost::handlerGetOverview));
+	  new RestResourceMonitoringFactory(
+	    faceRest, &RestResourceMonitoring::handlerGetOverview));
 	faceRest->addResourceHandlerFactory(
 	  pathForHost,
-	  new RestResourceHostFactory(
-	    faceRest, &RestResourceHost::handlerGetHost));
+	  new RestResourceMonitoringFactory(
+	    faceRest, &RestResourceMonitoring::handlerGetHost));
 	faceRest->addResourceHandlerFactory(
 	  pathForHostgroup,
-	  new RestResourceHostFactory(
-	    faceRest, &RestResourceHost::handlerGetHostgroup));
+	  new RestResourceMonitoringFactory(
+	    faceRest, &RestResourceMonitoring::handlerGetHostgroup));
 	faceRest->addResourceHandlerFactory(
 	  pathForTrigger,
-	  new RestResourceHostFactory(
-	    faceRest, &RestResourceHost::handlerGetTrigger));
+	  new RestResourceMonitoringFactory(
+	    faceRest, &RestResourceMonitoring::handlerGetTrigger));
 	faceRest->addResourceHandlerFactory(
 	  pathForEvent,
-	  new RestResourceHostFactory(
-	    faceRest, &RestResourceHost::handlerGetEvent));
+	  new RestResourceMonitoringFactory(
+	    faceRest, &RestResourceMonitoring::handlerGetEvent));
 	faceRest->addResourceHandlerFactory(
 	  pathForItem,
-	  new RestResourceHostFactory(
-	    faceRest, &RestResourceHost::handlerGetItem));
+	  new RestResourceMonitoringFactory(
+	    faceRest, &RestResourceMonitoring::handlerGetItem));
 	faceRest->addResourceHandlerFactory(
 	  pathForHistory,
-	  new RestResourceHostFactory(
-	    faceRest, &RestResourceHost::handlerGetHistory));
+	  new RestResourceMonitoringFactory(
+	    faceRest, &RestResourceMonitoring::handlerGetHistory));
 }
 
-RestResourceHost::RestResourceHost(FaceRest *faceRest, HandlerFunc handler)
+RestResourceMonitoring::RestResourceMonitoring(FaceRest *faceRest, HandlerFunc handler)
 : RestResourceMemberHandler(faceRest, static_cast<RestMemberHandler>(handler))
 {
 }
 
-RestResourceHost::~RestResourceHost()
+RestResourceMonitoring::~RestResourceMonitoring()
 {
 }
 
@@ -86,7 +86,7 @@ static HatoholError parseTriggerParameter(TriggersQueryOption &option,
 	HatoholError err;
 
 	// query parameters for HostResourceQueryOption
-	err = RestResourceHostUtils::parseHostResourceQueryParameter(option, query);
+	err = RestResourceUtils::parseHostResourceQueryParameter(option, query);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 
@@ -139,7 +139,7 @@ static HatoholError parseItemParameter(ItemsQueryOption &option,
 	HatoholError err;
 
 	// query parameters for HostResourceQueryOption
-	err = RestResourceHostUtils::parseHostResourceQueryParameter(option, query);
+	err = RestResourceUtils::parseHostResourceQueryParameter(option, query);
 	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
 		return err;
 
@@ -311,7 +311,7 @@ static HatoholError addOverview(FaceRest::ResourceHandler *job, JSONBuilder &age
 	return HTERR_OK;
 }
 
-void RestResourceHost::handlerGetOverview(void)
+void RestResourceMonitoring::handlerGetOverview(void)
 {
 	JSONBuilder agent;
 	HatoholError err;
@@ -355,11 +355,11 @@ static void addHosts(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 	agent.endArray();
 }
 
-void RestResourceHost::handlerGetHost(void)
+void RestResourceMonitoring::handlerGetHost(void)
 {
 	HostsQueryOption option(m_dataQueryContextPtr);
 	HatoholError err
-	  = RestResourceHostUtils::parseHostResourceQueryParameter(option, m_query);
+	  = RestResourceUtils::parseHostResourceQueryParameter(option, m_query);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
@@ -377,7 +377,7 @@ void RestResourceHost::handlerGetHost(void)
 	replyJSONData(agent);
 }
 
-void RestResourceHost::handlerGetTrigger(void)
+void RestResourceMonitoring::handlerGetTrigger(void)
 {
 	TriggersQueryOption option(m_dataQueryContextPtr);
 	HatoholError err = parseTriggerParameter(option, m_query);
@@ -455,7 +455,7 @@ static void addIncident(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 	agent.endObject();
 }
 
-void RestResourceHost::handlerGetEvent(void)
+void RestResourceMonitoring::handlerGetEvent(void)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 
@@ -463,7 +463,7 @@ void RestResourceHost::handlerGetEvent(void)
 	EventsQueryOption option(m_dataQueryContextPtr);
 	bool isCountOnly = false;
 	HatoholError err =
-	  RestResourceHostUtils::parseEventParameter(option, m_query, isCountOnly);
+	  RestResourceUtils::parseEventParameter(option, m_query, isCountOnly);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
@@ -533,11 +533,11 @@ void RestResourceHost::handlerGetEvent(void)
 }
 
 // TODO: Add a macro or template to simplify the definition
-struct GetItemClosure : ClosureTemplate0<RestResourceHost>
+struct GetItemClosure : ClosureTemplate0<RestResourceMonitoring>
 {
-	GetItemClosure(RestResourceHost *receiver,
+	GetItemClosure(RestResourceMonitoring *receiver,
 		       callback func)
-	: ClosureTemplate0<RestResourceHost>(receiver, func)
+	: ClosureTemplate0<RestResourceMonitoring>(receiver, func)
 	{
 		m_receiver->ref();
 	}
@@ -548,7 +548,7 @@ struct GetItemClosure : ClosureTemplate0<RestResourceHost>
 	}
 };
 
-void RestResourceHost::replyGetItem(void)
+void RestResourceMonitoring::replyGetItem(void)
 {
 	ItemsQueryOption option(m_dataQueryContextPtr);
 	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
@@ -607,13 +607,13 @@ void RestResourceHost::replyGetItem(void)
 	replyJSONData(agent);
 }
 
-void RestResourceHost::itemFetchedCallback(Closure0 *closure)
+void RestResourceMonitoring::itemFetchedCallback(Closure0 *closure)
 {
 	replyGetItem();
 	unpauseResponse();
 }
 
-void RestResourceHost::handlerGetItem(void)
+void RestResourceMonitoring::handlerGetItem(void)
 {
 	ItemsQueryOption option(m_dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, m_query);
@@ -625,7 +625,7 @@ void RestResourceHost::handlerGetItem(void)
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	GetItemClosure *closure =
 	  new GetItemClosure(
-	    this, &RestResourceHost::itemFetchedCallback);
+	    this, &RestResourceMonitoring::itemFetchedCallback);
 
 	bool handled = dataStore->fetchItemsAsync(closure, option);
 	if (!handled) {
@@ -634,13 +634,13 @@ void RestResourceHost::handlerGetItem(void)
 	}
 }
 
-struct GetHistoryClosure : ClosureTemplate1<RestResourceHost, HistoryInfoVect>
+struct GetHistoryClosure : ClosureTemplate1<RestResourceMonitoring, HistoryInfoVect>
 {
 	DataStorePtr m_dataStorePtr;
 
-	GetHistoryClosure(RestResourceHost *receiver,
+	GetHistoryClosure(RestResourceMonitoring *receiver,
 			  callback func, DataStorePtr dataStorePtr)
-	: ClosureTemplate1<RestResourceHost, HistoryInfoVect>(receiver, func),
+	: ClosureTemplate1<RestResourceMonitoring, HistoryInfoVect>(receiver, func),
 	  m_dataStorePtr(dataStorePtr)
 	{
 		m_receiver->ref();
@@ -698,7 +698,7 @@ static HatoholError parseHistoryParameter(
 	return HatoholError(HTERR_OK);
 }
 
-void RestResourceHost::handlerGetHistory(void)
+void RestResourceMonitoring::handlerGetHistory(void)
 {
 	ServerIdType serverId = ALL_SERVERS;
 	ItemIdType itemId = ALL_ITEMS;
@@ -735,7 +735,7 @@ void RestResourceHost::handlerGetHistory(void)
 	ItemInfo &itemInfo = *itemList.begin();
 	GetHistoryClosure *closure =
 	  new GetHistoryClosure(
-	    this, &RestResourceHost::historyFetchedCallback,
+	    this, &RestResourceMonitoring::historyFetchedCallback,
 	    unifiedDataStore->getDataStore(serverId));
 	if (closure->m_dataStorePtr.hasData()) {
 		closure->m_dataStorePtr->startOnDemandFetchHistory(
@@ -747,7 +747,7 @@ void RestResourceHost::handlerGetHistory(void)
 	}
 }
 
-void RestResourceHost::historyFetchedCallback(
+void RestResourceMonitoring::historyFetchedCallback(
   Closure1<HistoryInfoVect> *closure, const HistoryInfoVect &historyInfoVect)
 {
 	JSONBuilder agent;
@@ -799,11 +799,11 @@ static void addHostsIsMemberOfGroup(
 	agent.endArray();
 }
 
-void RestResourceHost::handlerGetHostgroup(void)
+void RestResourceMonitoring::handlerGetHostgroup(void)
 {
 	HostgroupsQueryOption option(m_dataQueryContextPtr);
 	HatoholError err
-	  = RestResourceHostUtils::parseHostResourceQueryParameter(option, m_query);
+	  = RestResourceUtils::parseHostResourceQueryParameter(option, m_query);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
