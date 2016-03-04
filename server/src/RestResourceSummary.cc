@@ -18,7 +18,7 @@
  */
 
 #include "RestResourceSummary.h"
-#include "RestResourceHostUtils.h"
+#include "RestResourceUtils.h"
 #include "UnifiedDataStore.h"
 #include "IncidentSenderHatohol.h"
 
@@ -173,7 +173,7 @@ void RestResourceSummary::handlerImportantEventSummary(void)
 	EventsQueryOption userFilter(m_dataQueryContextPtr);
 	bool isCountOnly = false;
 	HatoholError err =
-	  RestResourceHostUtils::parseEventParameter(userFilter, m_query, isCountOnly);
+	  RestResourceUtils::parseEventParameter(userFilter, m_query, isCountOnly);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
