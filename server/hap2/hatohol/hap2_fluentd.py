@@ -92,7 +92,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
                 time.sleep(self.__ms_info.retry_interval_sec)
 
     def __fluentd_manager_main_in_try_block(self):
-        logger.info("Started fluentd manger process.")
+        logger.info("Started fluentd manager process.")
         fluentd = subprocess.Popen(self.__launch_args, stdout=subprocess.PIPE)
         while True:
             line = fluentd.stdout.readline()
