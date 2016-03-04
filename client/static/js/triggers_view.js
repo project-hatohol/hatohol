@@ -188,14 +188,19 @@ var TriggersView = function(userProfile, options) {
   ];
 
   function setupFilterValues(servers, query) {
+    var triggers;
     if (!servers && rawData && rawData.servers)
       servers = rawData.servers;
+
+    if (!triggers && rawData && rawData.triggers)
+      triggers = rawData.triggers;
 
     if (!query)
       query = self.lastQuery ? self.lastQuery : self.baseQuery;
 
     self.setupHostFilters(servers, query);
     resetTriggerPropertyFilter("severity");
+    self.setTriggerBriefFilterCandidates(triggers);
 
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);

@@ -212,6 +212,31 @@ HatoholMonitoringView.prototype.setHostnameFilterCandidates =
   hostnameSelector.val(current);
 };
 
+HatoholMonitoringView.prototype.setTriggerBriefFilterCandidates =
+  function(triggers)
+{
+  var id, trigger, brief, briefLabels = [], current;
+  var briefSelector = $('#select-brief');
+
+  current = briefSelector.val();
+
+  this.setFilterCandidates(briefSelector);
+
+  if (!triggers)
+    return;
+
+  for (var triggerId in triggers) {
+    trigger = triggers[triggerId];
+    briefLabels.push({
+      label: trigger.brief,
+      value: trigger.brief
+    });
+  }
+  briefLabels.sort(this.compareFilterLabel);
+  this.setFilterCandidates(briefSelector, briefLabels);
+  briefSelector.val(current);
+};
+
 HatoholMonitoringView.prototype.setApplicationFilterCandidates =
 function(candidates)
 {
