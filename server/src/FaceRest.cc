@@ -41,7 +41,8 @@
 #include "ThreadLocalDBCache.h"
 #include "RestResourceSystem.h"
 #include "RestResourceAction.h"
-#include "RestResourceHost.h"
+#include "RestResourceMonitoring.h"
+#include "RestResourceIncident.h"
 #include "RestResourceIncidentTracker.h"
 #include "RestResourceServer.h"
 #include "RestResourceSeverityRank.h"
@@ -401,7 +402,8 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	RestResourceSystem::registerFactories(this);
 	RestResourceUser::registerFactories(this);
 	RestResourceServer::registerFactories(this);
-	RestResourceHost::registerFactories(this);
+	RestResourceMonitoring::registerFactories(this);
+	RestResourceIncident::registerFactories(this);
 	RestResourceAction::registerFactories(this);
 	RestResourceIncidentTracker::registerFactories(this);
 	RestResourceSeverityRank::registerFactories(this);
