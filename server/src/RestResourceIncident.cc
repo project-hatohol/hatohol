@@ -64,7 +64,24 @@ void RestResourceIncident::handlerGetIncident(void)
 	uint64_t unifiedEventId = getResourceId();
 	if (unifiedEventId == INVALID_ID) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
-		            "id: %s", getResourceIdString().c_str());
+		            "unifiedEventId: %s",
+			    getResourceIdString().c_str());
+		return;
+	}
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	IncidentsQueryOption option(m_dataQueryContextPtr);
+	option.setTargetUnifiedEventId(unifiedEventId);
+	IncidentInfoVect incidentInfoVect;
+	HatoholError err = dataStore->getIncidents(incidentInfoVect, option);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+	if (incidentInfoVect.empty()) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
+		            "unifiedEventId: %s",
+			    getResourceIdString().c_str());
 		return;
 	}
 

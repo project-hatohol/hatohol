@@ -242,7 +242,7 @@ void test_getIncidentWithoutId(void)
 	  "\"apiVersion\":4,"
 	  "\"errorCode\":40,"
 	  "\"errorMessage\":\"Not found ID in the URL.\","
-	  "\"optionMessages\":\"id: \""
+	  "\"optionMessages\":\"unifiedEventId: \""
 	  "}");
 	assertEqualJSONString(expectedResponse, arg.response);
 }
@@ -301,7 +301,7 @@ void test_getIncidentHistoryWithComment(void)
 	loadTestDBIncidentStatusHistory();
 	startFaceRest();
 
-	RequestArg arg("/incident/10/history");
+	RequestArg arg("/incident/4/history");
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	arg.request = "GET";
 	getServerResponse(arg);
@@ -313,13 +313,34 @@ void test_getIncidentHistoryWithComment(void)
 	  "\"incidentHistory\":["
 	  "{"
 	  "\"id\":2,"
-	  "\"unifiedEventId\":10,"
+	  "\"unifiedEventId\":4,"
 	  "\"userId\":2,"
 	  "\"status\":\"IN PROGRESS\","
 	  "\"time\":1412957290,"
 	  "\"comment\":\"This is a comment.\""
 	  "}"
 	  "]"
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_getIncidentHistoryForNonExistentIncident(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	RequestArg arg("/incident/1711718/history");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":10,"
+	  "\"errorMessage\":\"Not found target record.\","
+	  "\"optionMessages\":\"unifiedEventId: 1711718\""
 	  "}");
 	assertEqualJSONString(expectedResponse, arg.response);
 }
