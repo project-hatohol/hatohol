@@ -610,7 +610,7 @@ html {
 #hideDiv .filter-element {
     width: 33%;
     margin: 0;
-    padding: 0 0 20px 0;
+    padding: 10px 0 0;/* 2016-03-05 modified mmikan22 */
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -619,6 +619,13 @@ html {
 #hideDiv .filter-element select {
     width: 50%;
 }
+
+/* 2016-03-05 modified mmikan22 */
+#hideDiv .filter-btn {
+	padding: 20px 0 0;
+	text-align: center;
+}
+/* /2016-03-05 modified mmikan22 */
 
 #hideDiv #apply-all-filter {
     background: #428bca;
