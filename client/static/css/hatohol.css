@@ -610,7 +610,7 @@ html {
 #hideDiv .filter-element {
     width: 33%;
     margin: 0;
-    padding: 10px 0 0;/* 2016-03-05 modified mmikan22 */
+    padding: 10px 0 0;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -620,12 +620,10 @@ html {
     width: 50%;
 }
 
-/* 2016-03-05 modified mmikan22 */
 #hideDiv .filter-btn {
 	padding: 20px 0 0;
 	text-align: center;
 }
-/* /2016-03-05 modified mmikan22 */
 
 #hideDiv #apply-all-filter {
     background: #428bca;
@@ -713,9 +711,20 @@ div#abbreviating-event-descriptions-container {
     color: #000000;
 }
 
+.event-table-content .eventStatus {
+	font-size: 12px;
+}
+
+.event-table-content .glyphicon-question-sign,
+.event-table-content .glyphicon-info-sign {
+	color: #666666;
+}
+
 #event-table-area .severity5 {
     color: #ffffff;
 }
+
+
 
 .selected {
     background: #fff5d7 !important;
