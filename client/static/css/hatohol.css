@@ -752,3 +752,19 @@ td[id^="severity-rank-color"]:after {
     font-size: 14px;
     color: #ffffff;
 }
+
+.eventDescription div {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	word-break: keep-all;
+}
+
+.descriptionFull .eventDescription div {
+	white-space: normal;
+	word-break: break-all;
+}
+
+#column_description label {
+    margin: 0 0 0 5px;
+}
