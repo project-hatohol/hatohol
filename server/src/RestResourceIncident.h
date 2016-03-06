@@ -45,6 +45,10 @@ struct RestResourceIncident : public RestResourceMemberHandler
 
 	static const char *pathForIncident;
 	static const char *pathForIncidentComment;
+
+ private:
+	bool getRequestedIncidentHistory(IncidentStatusHistory &history);
+	void updateIncidentHistory(IncidentStatusHistory &history);
 };
 
 #endif // RestResourceIncident_h
