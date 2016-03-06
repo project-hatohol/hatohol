@@ -358,5 +358,151 @@ void test_getUnknownSubResource(void)
 	getServerResponse(arg);
 	cppcut_assert_equal(404, arg.httpStatusCode);
 }
+	
+void test_updateIncidentComment(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	const string comment = "Assign to @cosmo920";
+	RequestArg arg("/incident-comment/2");
+	arg.userId = testIncidentStatusHistory[1].userId;
+	arg.request = "PUT";
+	arg.parameters["comment"] = comment;
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"id\":2"
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories"
+				" where id=2");
+	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	history.id = 2;
+	history.comment = comment;
+	string expected = makeIncidentStatusHistoryOutput(history);
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_updateIncidentCommentByNonOwner(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	const string comment = "Assign to @cosmo920";
+	RequestArg arg("/incident-comment/2");
+	arg.userId = testIncidentStatusHistory[1].userId + 1;
+	arg.request = "PUT";
+	arg.parameters["comment"] = comment;
+	getServerResponse(arg);
+	cppcut_assert_equal(403, arg.httpStatusCode);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories"
+				" where id=2");
+	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	history.id = 2;
+	string expected = makeIncidentStatusHistoryOutput(history);
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_updateIncidentCommentWithoutParameter(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	const string comment = "Assign to @cosmo920";
+	RequestArg arg("/incident-comment/2");
+	arg.userId = testIncidentStatusHistory[1].userId;
+	arg.request = "PUT";
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":41,"
+	  "\"errorMessage\":\"Not found parameter.\","
+	  "\"optionMessages\":\"comment\""
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories"
+				" where id=2");
+	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	history.id = 2;
+	string expected = makeIncidentStatusHistoryOutput(history);
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_deleteIncidentComment(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	RequestArg arg("/incident-comment/2");
+	arg.userId = testIncidentStatusHistory[1].userId;
+	arg.request = "DELETE";
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"id\":2"
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories"
+				" where id=2");
+	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	history.id = 2;
+	history.comment = "";
+	string expected = makeIncidentStatusHistoryOutput(history);
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_deleteIncidentCommentByNonOwner(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	RequestArg arg("/incident-comment/2");
+	arg.userId = testIncidentStatusHistory[1].userId + 1;
+	arg.request = "DELETE";
+	getServerResponse(arg);
+	cppcut_assert_equal(403, arg.httpStatusCode);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories"
+				" where id=2");
+	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	history.id = 2;
+	string expected = makeIncidentStatusHistoryOutput(history);
+	cppcut_assert_equal(expected, actual);
+}
 
 } // namespace testFaceRestIncident
