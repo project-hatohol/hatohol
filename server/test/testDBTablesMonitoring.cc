@@ -1964,6 +1964,22 @@ void test_addIncidentStatusHistory(void)
 	assertDBContent(&dbAgent, statement, expected);
 }
 
+void test_updateIncidentStatusHistory(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+
+	IncidentStatusHistory history = testIncidentStatusHistory[0];
+	dbMonitoring.addIncidentStatusHistory(history);
+	history.id = 1;
+	history.comment = "Oops!";
+	dbMonitoring.updateIncidentStatusHistory(history);
+
+	string statement("select * from incident_status_histories;");
+	string expect(makeIncidentStatusHistoryOutput(history));
+	assertDBContent(&dbAgent, statement, expect);
+}
+
 void test_getIncidentStatusHistory(void)
 {
 	loadTestDBIncidentStatusHistory();

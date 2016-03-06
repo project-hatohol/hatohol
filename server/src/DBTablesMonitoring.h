@@ -361,7 +361,10 @@ public:
 	};
 	static HatoholError getSystemInfo(SystemInfo &info,
 	                                  const DataQueryOption &option);
-	HatoholError addIncidentStatusHistory(IncidentStatusHistory &incidentStatusHistory);
+	HatoholError addIncidentStatusHistory(
+	  IncidentStatusHistory &incidentStatusHistory);
+	HatoholError updateIncidentStatusHistory(
+	  IncidentStatusHistory &incidentStatusHistory);
 	HatoholError getIncidentStatusHistory(
 	  std::list<IncidentStatusHistory> &IncidentStatusHistoriesList,
 	  const IncidentStatusHistoriesQueryOption &option);

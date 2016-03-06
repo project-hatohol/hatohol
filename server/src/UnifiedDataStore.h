@@ -292,6 +292,8 @@ public:
 
 	HatoholError addIncidentStatusHistory(
 	  IncidentStatusHistory &incidentStatusHistory);
+	HatoholError updateIncidentStatusHistory(
+	  IncidentStatusHistory &incidentStatusHistory);
 	HatoholError getIncidentStatusHistories(
 	  std::list<IncidentStatusHistory> &IncidentStatusHistoriesList,
 	  const IncidentStatusHistoriesQueryOption &option);
