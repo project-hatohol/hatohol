@@ -1966,18 +1966,29 @@ void test_addIncidentStatusHistory(void)
 
 void test_updateIncidentStatusHistory(void)
 {
+	loadTestDBIncidentStatusHistory();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 
 	IncidentStatusHistory history = testIncidentStatusHistory[0];
-	dbMonitoring.addIncidentStatusHistory(history);
 	history.id = 1;
 	history.comment = "Oops!";
+
+	string expected;
+	for (size_t i = 0; i < NumTestIncidentStatusHistory; i++) {
+		IncidentStatusHistory expectedIncidentStatusHistory =
+		  testIncidentStatusHistory[i];
+		expectedIncidentStatusHistory.id = i + 1;
+		if (expectedIncidentStatusHistory.id == history.id)
+			expectedIncidentStatusHistory.comment = history.comment;
+		expected +=
+		  makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+	}
+
 	dbMonitoring.updateIncidentStatusHistory(history);
 
 	string statement("select * from incident_status_histories;");
-	string expect(makeIncidentStatusHistoryOutput(history));
-	assertDBContent(&dbAgent, statement, expect);
+	assertDBContent(&dbAgent, statement, expected);
 }
 
 void test_getIncidentStatusHistory(void)
