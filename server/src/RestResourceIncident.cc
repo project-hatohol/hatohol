@@ -99,6 +99,20 @@ void RestResourceIncident::handlerGetIncident(void)
 	}
 }
 
+void getUserNameTable(const DataQueryContextPtr &dataQueryContextPtr,
+		      map<UserIdType, string> &userNameTable)
+{
+	UserInfoList userList;
+	UserQueryOption option(dataQueryContextPtr);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getUserList(userList, option);
+	userNameTable.clear();
+	userNameTable[USER_ID_SYSTEM] = "System";
+	for (auto &userInfo: userList) {
+		userNameTable[userInfo.id] = userInfo.name;
+	}
+}
+
 void RestResourceIncident::handlerGetIncidentHistory(
   const UnifiedEventIdType unifiedEventId)
 {
@@ -108,15 +122,23 @@ void RestResourceIncident::handlerGetIncidentHistory(
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getIncidentStatusHistories(incidentHistoryList, option);
 
+	map<UserIdType, string> userNameTable;
+	getUserNameTable(m_dataQueryContextPtr, userNameTable);
+
 	JSONBuilder agent;
 	agent.startObject();
 	addHatoholError(agent, HatoholError(HTERR_OK));
 	agent.startArray("incidentHistory");
 	for (auto &history : incidentHistoryList) {
+		string userName;
+		if (userNameTable.find(history.userId) != userNameTable.end())
+			userName = userNameTable[history.userId];
+
 		agent.startObject();
 		agent.add("id",             history.id);
 		agent.add("unifiedEventId", history.unifiedEventId);
 		agent.add("userId",         history.userId);
+		agent.add("userName",       userName);
 		agent.add("status",         history.status);
 		agent.add("time",           history.createdAt.tv_sec);
 		if (!history.comment.empty())
