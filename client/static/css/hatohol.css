@@ -710,6 +710,11 @@ div#abbreviating-event-descriptions-container {
     color: #ffffff;
 }
 
+.event-table-content td.nowrap {
+	white-space: nowrap;
+	word-break: keep-all;
+}
+
 .selected {
     background: #fff5d7 !important;
     color: #000000!important;
