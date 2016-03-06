@@ -1988,6 +1988,29 @@ void test_getIncidentStatusHistory(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_getIncidentStatusHistoryById(void)
+{
+	loadTestDBIncidentStatusHistory();
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	string expected, actual;
+
+	IncidentStatusHistoriesQueryOption option(USER_ID_SYSTEM);
+	option.setTargetId(2);
+
+	IncidentStatusHistory expectedIncidentStatusHistory =
+	  testIncidentStatusHistory[1];
+	expectedIncidentStatusHistory.id = 2;
+	expected = makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+
+	list<IncidentStatusHistory> incidentstatusHistoryList;
+	dbMonitoring.getIncidentStatusHistory(incidentstatusHistoryList, option);
+	for (auto incidentStatusHistory : incidentstatusHistoryList) {
+		actual += makeIncidentStatusHistoryOutput(incidentStatusHistory);
+	}
+
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_getIncidentStatusHistoryWithSortTimeAscending(void)
 {
 	loadTestDBIncidentStatusHistory();

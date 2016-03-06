@@ -1835,13 +1835,15 @@ string IncidentsQueryOption::getCondition(void) const
 const UnifiedEventIdType IncidentStatusHistoriesQueryOption::INVALID_ID = -1;
 
 struct IncidentStatusHistoriesQueryOption::Impl {
+	IncidentStatusHistoryIdType id;
 	UnifiedEventIdType unifiedEventId;
 	UserIdType         userId;
 	SortType sortType;
 	SortDirection sortDirection;
 
 	Impl()
-	: unifiedEventId(INVALID_ID),
+	: id(INVALID_ID),
+	  unifiedEventId(INVALID_ID),
 	  userId(INVALID_USER_ID),
 	  sortType(SORT_UNIFIED_EVENT_ID),
 	  sortDirection(SORT_DONT_CARE)
@@ -1873,6 +1875,16 @@ IncidentStatusHistoriesQueryOption::IncidentStatusHistoriesQueryOption(
 
 IncidentStatusHistoriesQueryOption::~IncidentStatusHistoriesQueryOption()
 {
+}
+
+void IncidentStatusHistoriesQueryOption::setTargetId(const IncidentStatusHistoryIdType &id)
+{
+	m_impl->id = id;
+}
+
+const IncidentStatusHistoryIdType &IncidentStatusHistoriesQueryOption::getTargetId(void)
+{
+	return m_impl->id;
 }
 
 void IncidentStatusHistoriesQueryOption::setTargetUnifiedEventId(const UnifiedEventIdType &id)
@@ -1950,6 +1962,15 @@ IncidentStatusHistoriesQueryOption::getSortDirection(void) const
 string IncidentStatusHistoriesQueryOption::getCondition(void) const
 {
 	string condition = DataQueryOption::getCondition();
+	if (m_impl->id != INVALID_ID) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string idCondition =
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_ID].columnName,
+		    rhs(m_impl->id));
+		addCondition(condition, idCondition);
+	}
 	if (m_impl->unifiedEventId != INVALID_ID) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		string unifiedIdCondition =

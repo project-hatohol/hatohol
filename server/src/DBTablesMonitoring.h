@@ -165,6 +165,8 @@ public:
 
 	virtual std::string getCondition(void) const override;
 
+	void setTargetId(const IncidentStatusHistoryIdType &id);
+	const IncidentStatusHistoryIdType &getTargetId(void);
 	void setTargetUnifiedEventId(const UnifiedEventIdType &id);
 	const UnifiedEventIdType getTargetUnifiedEventId(void);
 	void setTargetUserId(const UserIdType &userId);

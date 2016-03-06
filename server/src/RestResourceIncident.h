@@ -39,7 +39,12 @@ struct RestResourceIncident : public RestResourceMemberHandler
 	void createIncidentAsync(const UnifiedEventIdType &eventId,
 				 const IncidentTrackerIdType &trackerId);
 
+	void handlerIncidentComment(void);
+	void handlerPutIncidentComment(void);
+	void handlerDeleteIncidentComment(void);
+
 	static const char *pathForIncident;
+	static const char *pathForIncidentComment;
 };
 
 #endif // RestResourceIncident_h
