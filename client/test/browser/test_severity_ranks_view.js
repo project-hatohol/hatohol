@@ -123,6 +123,7 @@ describe('SeverityRanksView', function() {
   afterEach(function() {
     restoreAjax();
     $("#" + TEST_FIXTURE_ID).remove();
+    $(".sp-container").remove();
   });
 
   it('Base elements', function() {
