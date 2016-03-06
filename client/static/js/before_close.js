@@ -2,17 +2,17 @@
 
 (function(){
 	"use strict";
-	var f = true;
+	var beforeunloadFlug = true;
 	function beforeunloadFlgToggle(){
-		f = false;
-		setTimeout(function(){f = true;},100);
+		beforeunloadFlug = false;
+		setTimeout(function(){beforeunloadFlug = true;},1);
 	}
 	if(!/^\/$/.test(location.pathname)){
 		$(document).on('click',beforeunloadFlgToggle);
 		
 		$(window).on("beforeunload",function(){
-		   if(f && !$('#hatohol_login_dialog').is(':visible')){
-			   return "Hatoholがシステム監視中です。\nこのページを移動、または閉じようとしています。";
+		   if(beforeunloadFlug && !$('#hatohol_login_dialog').is(':visible')){
+			   return gettext("Hatohol is in system monitoring.\nYou are trying to transition or close this page.");
 		   }
 		});
 	}
