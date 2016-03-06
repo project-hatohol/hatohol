@@ -1386,6 +1386,7 @@ struct TriggersQueryOption::Impl {
 	list<string> hostnameList;
 	SortType sortType;
 	SortDirection sortDirection;
+	string triggerBrief;
 
 	Impl()
 	: targetId(ALL_TRIGGERS),
@@ -1516,6 +1517,14 @@ string TriggersQueryOption::getCondition(void) const
 			     makeHostnameListCondition(m_impl->hostnameList));
 	}
 
+	if (!m_impl->triggerBrief.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		addCondition(condition, StringUtils::sprintf(
+			"%s.%s=%s",
+			DBTablesMonitoring::TABLE_NAME_TRIGGERS,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_BRIEF].columnName,
+			rhs(m_impl->triggerBrief)));
+	}
 	return condition;
 }
 
@@ -1626,6 +1635,14 @@ TriggersQueryOption::SortType TriggersQueryOption::getSortType(void) const
 DataQueryOption::SortDirection TriggersQueryOption::getSortDirection(void) const
 {
 	return m_impl->sortDirection;
+}
+
+void TriggersQueryOption::setTriggerBrief(const string &triggerBrief) {
+	m_impl->triggerBrief = triggerBrief;
+}
+
+string TriggersQueryOption::getTriggerBrief(void) const {
+	return m_impl->triggerBrief;
 }
 
 string TriggersQueryOption::makeHostnameListCondition(
