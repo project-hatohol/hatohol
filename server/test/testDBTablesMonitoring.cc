@@ -1995,6 +1995,33 @@ void test_addIncidentStatusHistory(void)
 	assertDBContent(&dbAgent, statement, expected);
 }
 
+void test_updateIncidentStatusHistory(void)
+{
+	loadTestDBIncidentStatusHistory();
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+
+	IncidentStatusHistory history = testIncidentStatusHistory[0];
+	history.id = 1;
+	history.comment = "Oops!";
+
+	string expected;
+	for (size_t i = 0; i < NumTestIncidentStatusHistory; i++) {
+		IncidentStatusHistory expectedIncidentStatusHistory =
+		  testIncidentStatusHistory[i];
+		expectedIncidentStatusHistory.id = i + 1;
+		if (expectedIncidentStatusHistory.id == history.id)
+			expectedIncidentStatusHistory.comment = history.comment;
+		expected +=
+		  makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+	}
+
+	dbMonitoring.updateIncidentStatusHistory(history);
+
+	string statement("select * from incident_status_histories;");
+	assertDBContent(&dbAgent, statement, expected);
+}
+
 void test_getIncidentStatusHistory(void)
 {
 	loadTestDBIncidentStatusHistory();
@@ -2008,6 +2035,29 @@ void test_getIncidentStatusHistory(void)
 	IncidentStatusHistory expectedIncidentStatusHistory =
 	  testIncidentStatusHistory[0];
 	expectedIncidentStatusHistory.id = 1;
+	expected = makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+
+	list<IncidentStatusHistory> incidentstatusHistoryList;
+	dbMonitoring.getIncidentStatusHistory(incidentstatusHistoryList, option);
+	for (auto incidentStatusHistory : incidentstatusHistoryList) {
+		actual += makeIncidentStatusHistoryOutput(incidentStatusHistory);
+	}
+
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_getIncidentStatusHistoryById(void)
+{
+	loadTestDBIncidentStatusHistory();
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	string expected, actual;
+
+	IncidentStatusHistoriesQueryOption option(USER_ID_SYSTEM);
+	option.setTargetId(2);
+
+	IncidentStatusHistory expectedIncidentStatusHistory =
+	  testIncidentStatusHistory[1];
+	expectedIncidentStatusHistory.id = 2;
 	expected = makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
 
 	list<IncidentStatusHistory> incidentstatusHistoryList;

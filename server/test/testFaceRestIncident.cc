@@ -227,7 +227,7 @@ void test_postIncidentForUnknownEvent(void)
 	assertEqualJSONString(expectedResponse, arg.response);
 }
 
-void test_getIncident(void)
+void test_getIncidentWithoutId(void)
 {
 	loadTestDBIncidents();
 	startFaceRest();
@@ -236,7 +236,273 @@ void test_getIncident(void)
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	arg.request = "GET";
 	getServerResponse(arg);
-	cppcut_assert_equal(405, arg.httpStatusCode); // Method Not Allowed
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":40,"
+	  "\"errorMessage\":\"Not found ID in the URL.\","
+	  "\"optionMessages\":\"unifiedEventId: \""
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_getIncident(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	RequestArg arg("/incident/3");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":3,"
+	  "\"errorMessage\":\"Not implemented.\","
+	  "\"optionMessages\":\"Getting an incident isn't implemented yet!\""
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_getIncidentHistory(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	RequestArg arg("/incident/3/history");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"incidentHistory\":["
+	  "{"
+	  "\"id\":1,"
+	  "\"unifiedEventId\":3,"
+	  "\"userId\":1,"
+	  "\"userName\":\"cheesecake\","
+	  "\"status\":\"NONE\","
+	  "\"time\":1412957260"
+	  "}"
+	  "]"
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_getIncidentHistoryWithComment(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	RequestArg arg("/incident/4/history");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"incidentHistory\":["
+	  "{"
+	  "\"id\":2,"
+	  "\"unifiedEventId\":4,"
+	  "\"userId\":2,"
+	  "\"userName\":\"pineapple\","
+	  "\"status\":\"IN PROGRESS\","
+	  "\"time\":1412957290,"
+	  "\"comment\":\"This is a comment.\""
+	  "}"
+	  "]"
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_getIncidentHistoryForNonExistentIncident(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	RequestArg arg("/incident/1711718/history");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":10,"
+	  "\"errorMessage\":\"Not found target record.\","
+	  "\"optionMessages\":\"unifiedEventId: 1711718\""
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+}
+
+void test_getUnknownSubResource(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	RequestArg arg("/incident/3/comment");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "GET";
+	getServerResponse(arg);
+	cppcut_assert_equal(404, arg.httpStatusCode);
+}
+	
+void test_updateIncidentComment(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	const string comment = "Assign to @cosmo920";
+	RequestArg arg("/incident-comment/2");
+	arg.userId = testIncidentStatusHistory[1].userId;
+	arg.request = "PUT";
+	arg.parameters["comment"] = comment;
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"id\":2"
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories"
+				" where id=2");
+	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	history.id = 2;
+	history.comment = comment;
+	string expected = makeIncidentStatusHistoryOutput(history);
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_updateIncidentCommentByNonOwner(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	const string comment = "Assign to @cosmo920";
+	RequestArg arg("/incident-comment/2");
+	arg.userId = testIncidentStatusHistory[1].userId + 1;
+	arg.request = "PUT";
+	arg.parameters["comment"] = comment;
+	getServerResponse(arg);
+	cppcut_assert_equal(403, arg.httpStatusCode);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories"
+				" where id=2");
+	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	history.id = 2;
+	string expected = makeIncidentStatusHistoryOutput(history);
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_updateIncidentCommentWithoutParameter(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	const string comment = "Assign to @cosmo920";
+	RequestArg arg("/incident-comment/2");
+	arg.userId = testIncidentStatusHistory[1].userId;
+	arg.request = "PUT";
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":41,"
+	  "\"errorMessage\":\"Not found parameter.\","
+	  "\"optionMessages\":\"comment\""
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories"
+				" where id=2");
+	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	history.id = 2;
+	string expected = makeIncidentStatusHistoryOutput(history);
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_deleteIncidentComment(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	RequestArg arg("/incident-comment/2");
+	arg.userId = testIncidentStatusHistory[1].userId;
+	arg.request = "DELETE";
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"id\":2"
+	  "}");
+	assertEqualJSONString(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories"
+				" where id=2");
+	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	history.id = 2;
+	history.comment = "";
+	string expected = makeIncidentStatusHistoryOutput(history);
+	cppcut_assert_equal(expected, actual);
+}
+
+void test_deleteIncidentCommentByNonOwner(void)
+{
+	loadTestDBIncidents();
+	loadTestDBIncidentStatusHistory();
+	startFaceRest();
+
+	RequestArg arg("/incident-comment/2");
+	arg.userId = testIncidentStatusHistory[1].userId + 1;
+	arg.request = "DELETE";
+	getServerResponse(arg);
+	cppcut_assert_equal(403, arg.httpStatusCode);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incident_status_histories"
+				" where id=2");
+	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	history.id = 2;
+	string expected = makeIncidentStatusHistoryOutput(history);
+	cppcut_assert_equal(expected, actual);
 }
 
 } // namespace testFaceRestIncident

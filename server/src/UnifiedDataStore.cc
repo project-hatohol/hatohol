@@ -1002,6 +1002,14 @@ HatoholError UnifiedDataStore::addIncidentStatusHistory(
 	return dbMonitoring.addIncidentStatusHistory(incidentStatusHistory);
 }
 
+HatoholError UnifiedDataStore::updateIncidentStatusHistory(
+  IncidentStatusHistory &incidentStatusHistory)
+{
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	return dbMonitoring.updateIncidentStatusHistory(incidentStatusHistory);
+}
+
 HatoholError UnifiedDataStore::getIncidentStatusHistories(
   list<IncidentStatusHistory> &incidentStatusHistoryList,
   const IncidentStatusHistoriesQueryOption &option)

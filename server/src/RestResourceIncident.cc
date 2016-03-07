@@ -27,7 +27,8 @@ using namespace mlpl;
 typedef FaceRestResourceHandlerSimpleFactoryTemplate<RestResourceIncident>
   RestResourceIncidentFactory;
 
-const char *RestResourceIncident::pathForIncident  = "/incident";
+const char *RestResourceIncident::pathForIncident         = "/incident";
+const char *RestResourceIncident::pathForIncidentComment  = "/incident-comment";
 
 void RestResourceIncident::registerFactories(FaceRest *faceRest)
 {
@@ -35,6 +36,10 @@ void RestResourceIncident::registerFactories(FaceRest *faceRest)
 	  pathForIncident,
 	  new RestResourceIncidentFactory(
 	    faceRest, &RestResourceIncident::handlerIncident));
+	faceRest->addResourceHandlerFactory(
+	  pathForIncidentComment,
+	  new RestResourceIncidentFactory(
+	    faceRest, &RestResourceIncident::handlerIncidentComment));
 }
 
 RestResourceIncident::RestResourceIncident(FaceRest *faceRest, HandlerFunc handler)
@@ -48,13 +53,107 @@ RestResourceIncident::~RestResourceIncident()
 
 void RestResourceIncident::handlerIncident(void)
 {
-	if (httpMethodIs("POST")) {
+	if (httpMethodIs("GET")) {
+		handlerGetIncident();
+	} else if (httpMethodIs("POST")) {
 		handlerPostIncident();
 	} else if (httpMethodIs("PUT")) {
 		handlerPutIncident();
 	} else {
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
+}
+
+void RestResourceIncident::handlerGetIncident(void)
+{
+	uint64_t unifiedEventId = getResourceId();
+	if (unifiedEventId == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "unifiedEventId: %s",
+			    getResourceIdString().c_str());
+		return;
+	}
+
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	IncidentsQueryOption option(m_dataQueryContextPtr);
+	option.setTargetUnifiedEventId(unifiedEventId);
+	IncidentInfoVect incidentInfoVect;
+	HatoholError err = dataStore->getIncidents(incidentInfoVect, option);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+	if (incidentInfoVect.empty()) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
+		            "unifiedEventId: %s",
+			    getResourceIdString().c_str());
+		return;
+	}
+
+	int nest = 1;
+	string resourceName = getResourceName(nest);
+	if (resourceName.empty()) {
+		REPLY_ERROR(this, HTERR_NOT_IMPLEMENTED,
+			    "Getting an incident isn't implemented yet!");
+		return;
+	} else if (resourceName == "history") {
+		handlerGetIncidentHistory(unifiedEventId);
+	} else {
+		replyHttpStatus(SOUP_STATUS_NOT_FOUND);
+		return;
+	}
+}
+
+void getUserNameTable(const DataQueryContextPtr &dataQueryContextPtr,
+		      map<UserIdType, string> &userNameTable)
+{
+	UserInfoList userList;
+	UserQueryOption option(dataQueryContextPtr);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getUserList(userList, option);
+	userNameTable.clear();
+	userNameTable[USER_ID_SYSTEM] = "System";
+	for (auto &userInfo: userList) {
+		userNameTable[userInfo.id] = userInfo.name;
+	}
+}
+
+void RestResourceIncident::handlerGetIncidentHistory(
+  const UnifiedEventIdType unifiedEventId)
+{
+	list<IncidentStatusHistory> incidentHistoryList;
+	IncidentStatusHistoriesQueryOption option(m_dataQueryContextPtr);
+	option.setTargetUnifiedEventId(unifiedEventId);
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getIncidentStatusHistories(incidentHistoryList, option);
+
+	map<UserIdType, string> userNameTable;
+	getUserNameTable(m_dataQueryContextPtr, userNameTable);
+
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.startArray("incidentHistory");
+	for (auto &history : incidentHistoryList) {
+		string userName;
+		if (userNameTable.find(history.userId) != userNameTable.end())
+			userName = userNameTable[history.userId];
+
+		agent.startObject();
+		agent.add("id",             history.id);
+		agent.add("unifiedEventId", history.unifiedEventId);
+		agent.add("userId",         history.userId);
+		agent.add("userName",       userName);
+		agent.add("status",         history.status);
+		agent.add("time",           history.createdAt.tv_sec);
+		if (!history.comment.empty())
+			agent.add("comment", history.comment);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJSONData(agent);
 }
 
 static HatoholError parseIncidentParameter(
@@ -287,4 +386,106 @@ void RestResourceIncident::handlerPutIncident(void)
 		unref();
 		replyError(err);
 	}
+}
+
+void RestResourceIncident::handlerIncidentComment(void)
+{
+	if (httpMethodIs("PUT")) {
+		handlerPutIncidentComment();
+	} else if (httpMethodIs("DELETE")) {
+		handlerDeleteIncidentComment();
+	} else {
+		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
+	}
+}
+
+bool RestResourceIncident::getRequestedIncidentHistory(
+  IncidentStatusHistory &history)
+{
+	uint64_t id = getResourceId();
+	if (id == INVALID_ID) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_ID_IN_URL,
+		            "id: %s", getResourceIdString().c_str());
+		return false;
+	}
+
+	// get the existing record
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	list<IncidentStatusHistory> incidentHistoryList;
+	IncidentStatusHistoriesQueryOption option(m_dataQueryContextPtr);
+	option.setTargetId(id);
+	dataStore->getIncidentStatusHistories(incidentHistoryList, option);
+	if (incidentHistoryList.empty()) {
+		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
+		            "id: %" FMT_UNIFIED_EVENT_ID, id);
+		return false;
+	}
+
+	history = *incidentHistoryList.begin();
+
+	if (history.userId != m_userId) {
+		replyHttpStatus(SOUP_STATUS_FORBIDDEN);
+		return false;
+	}
+
+	return true;
+}
+
+static HatoholError parseIncidentCommentParameter(
+  GHashTable *query, string &comment)
+{
+	string key = "comment";
+	const char *value = static_cast<const char *>(
+	  g_hash_table_lookup(query, key.c_str()));
+	if (!value)
+		return HatoholError(HTERR_NOT_FOUND_PARAMETER, key);
+	comment = value;
+
+	return HTERR_OK;
+}
+
+void RestResourceIncident::updateIncidentHistory(
+  IncidentStatusHistory &history)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	HatoholError err = dataStore->updateIncidentStatusHistory(history);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, err);
+	agent.add("id", history.id);
+	agent.endObject();
+	replyJSONData(agent);
+}
+
+void RestResourceIncident::handlerPutIncidentComment(void)
+{
+	IncidentStatusHistory history;
+	bool succeeded = getRequestedIncidentHistory(history);
+	if (!succeeded)
+		return;
+
+	string comment;
+	HatoholError err = parseIncidentCommentParameter(m_query, comment);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+	history.comment = comment;
+	updateIncidentHistory(history);
+}
+
+void RestResourceIncident::handlerDeleteIncidentComment(void)
+{
+	IncidentStatusHistory history;
+	bool succeeded = getRequestedIncidentHistory(history);
+	if (!succeeded)
+		return;
+
+	history.comment = "";
+	updateIncidentHistory(history);
 }

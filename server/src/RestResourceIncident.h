@@ -32,12 +32,23 @@ struct RestResourceIncident : public RestResourceMemberHandler
 	virtual ~RestResourceIncident();
 
 	void handlerIncident(void);
+	void handlerGetIncident(void);
+	void handlerGetIncidentHistory(const UnifiedEventIdType unifiedEventId);
 	void handlerPostIncident(void);
 	void handlerPutIncident(void);
 	void createIncidentAsync(const UnifiedEventIdType &eventId,
 				 const IncidentTrackerIdType &trackerId);
 
+	void handlerIncidentComment(void);
+	void handlerPutIncidentComment(void);
+	void handlerDeleteIncidentComment(void);
+
 	static const char *pathForIncident;
+	static const char *pathForIncidentComment;
+
+ private:
+	bool getRequestedIncidentHistory(IncidentStatusHistory &history);
+	void updateIncidentHistory(IncidentStatusHistory &history);
 };
 
 #endif // RestResourceIncident_h

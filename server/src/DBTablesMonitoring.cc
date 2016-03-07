@@ -1852,13 +1852,15 @@ string IncidentsQueryOption::getCondition(void) const
 const UnifiedEventIdType IncidentStatusHistoriesQueryOption::INVALID_ID = -1;
 
 struct IncidentStatusHistoriesQueryOption::Impl {
+	IncidentStatusHistoryIdType id;
 	UnifiedEventIdType unifiedEventId;
 	UserIdType         userId;
 	SortType sortType;
 	SortDirection sortDirection;
 
 	Impl()
-	: unifiedEventId(INVALID_ID),
+	: id(INVALID_ID),
+	  unifiedEventId(INVALID_ID),
 	  userId(INVALID_USER_ID),
 	  sortType(SORT_UNIFIED_EVENT_ID),
 	  sortDirection(SORT_DONT_CARE)
@@ -1890,6 +1892,16 @@ IncidentStatusHistoriesQueryOption::IncidentStatusHistoriesQueryOption(
 
 IncidentStatusHistoriesQueryOption::~IncidentStatusHistoriesQueryOption()
 {
+}
+
+void IncidentStatusHistoriesQueryOption::setTargetId(const IncidentStatusHistoryIdType &id)
+{
+	m_impl->id = id;
+}
+
+const IncidentStatusHistoryIdType &IncidentStatusHistoriesQueryOption::getTargetId(void)
+{
+	return m_impl->id;
 }
 
 void IncidentStatusHistoriesQueryOption::setTargetUnifiedEventId(const UnifiedEventIdType &id)
@@ -1967,6 +1979,15 @@ IncidentStatusHistoriesQueryOption::getSortDirection(void) const
 string IncidentStatusHistoriesQueryOption::getCondition(void) const
 {
 	string condition = DataQueryOption::getCondition();
+	if (m_impl->id != INVALID_ID) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		string idCondition =
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_ID].columnName,
+		    rhs(m_impl->id));
+		addCondition(condition, idCondition);
+	}
 	if (m_impl->unifiedEventId != INVALID_ID) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		string unifiedIdCondition =
@@ -3287,6 +3308,58 @@ HatoholError DBTablesMonitoring::addIncidentStatusHistory(
 
 	DBAgent &dbAgent = getDBAgent();
 	dbAgent.runTransaction(arg, &incidentStatusHistoryId);
+	return HatoholError(HTERR_OK);
+}
+
+HatoholError DBTablesMonitoring::updateIncidentStatusHistory(
+  IncidentStatusHistory &incidentStatusHistory)
+{
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		DBAgent::UpdateArg arg;
+
+		TrxProc(void)
+		: arg(tableProfileIncidentStatusHistories)
+		{
+		}
+
+		bool hasRecord(DBAgent &dbAgent)
+		{
+			return dbAgent.isRecordExisting(
+				 TABLE_NAME_INCIDENT_STATUS_HISTORIES,
+				 arg.condition);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (!hasRecord(dbAgent)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+				return;
+			}
+			dbAgent.update(arg);
+			err = HTERR_OK;
+		}
+	} trx;
+
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
+	DBAgent::UpdateArg &arg = trx.arg;
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID,
+		incidentStatusHistory.unifiedEventId);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_USER_ID,
+		incidentStatusHistory.userId);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_STATUS,
+		incidentStatusHistory.status);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_COMMENT,
+		incidentStatusHistory.comment);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC,
+		incidentStatusHistory.createdAt.tv_sec);
+	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS,
+		incidentStatusHistory.createdAt.tv_nsec);
+	arg.condition = StringUtils::sprintf(
+	  "%s=%s",
+	  COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_ID].columnName,
+	  rhs(incidentStatusHistory.id));
+	getDBAgent().runTransaction(trx);
 	return HatoholError(HTERR_OK);
 }
 

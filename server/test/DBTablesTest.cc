@@ -1666,7 +1666,7 @@ const IncidentStatusHistory testIncidentStatusHistory[] = {
 },
 {
 	AUTO_INCREMENT_VALUE,  // id
-	10,                    // unifiedId
+	4,                     // unifiedId
 	2,                     // userId
 	"IN PROGRESS",         // status
 	"This is a comment.",  // comment
@@ -1674,7 +1674,7 @@ const IncidentStatusHistory testIncidentStatusHistory[] = {
 },
 {
 	AUTO_INCREMENT_VALUE,  // id
-	20,                    // unifiedId
+	123,                   // unifiedId
 	3,                     // userId
 	"HOLD",                // status
 	"Hold to operate.",    // comment
