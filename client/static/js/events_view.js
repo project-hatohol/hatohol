@@ -1202,7 +1202,7 @@ var EventsView = function(userProfile, options) {
     var html = "", incident = getIncident(event);
     var unifiedId = event["unifiedId"], trackerId;
 
-    html += "<td class='selectable incident " + getSeverityClass(event) + "'";
+    html += "<td class='selectable incident nowrap " + getSeverityClass(event) + "'";
     html += " data-unified-id='" + unifiedId + "'";
     if (incident) {
       trackerId = incident["trackerId"];
