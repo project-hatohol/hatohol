@@ -1151,10 +1151,16 @@ var EventsView = function(userProfile, options) {
   function renderTableDataEventType(event, server) {
     var type = event["type"];
     var typeClass = "event-type" + type;
-    var typeIcon = {"0":"glyphicon-ok-sign","1":"glyphicon-remove-sign","2":"glyphicon-question-sign","3":"glyphicon-info-sign"}[type]||"glyphicon-question-sign";
+    var icons = {
+      "0": "glyphicon-ok-sign",
+      "1": "glyphicon-remove-sign",
+      "2": "glyphicon-question-sign",
+      "3": "glyphicon-info-sign"
+    };
+    var typeIcon = icons[type] || "glyphicon-question-sign";
 
     return "<td class='" + getSeverityClass(event) + " " + typeClass + "'>" +
-      "<span class=\"eventStatus glyphicon "+typeIcon+"\"></span> "+
+      "<span class=\"eventStatus glyphicon " + typeIcon + "\"></span> " +
       eventPropertyChoices.type[Number(type)].label + "</td>";
   }
 
