@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -62,7 +62,9 @@ HttpServerStub::HttpServerStub(const std::string &name)
 HttpServerStub::~HttpServerStub()
 {
 	if (isRunning()) {
+#ifndef SOUP_VERSION_2_48
 		soup_server_quit(m_ctx->soupServer);
+#endif // SOUP_VERSION_2_48
 		g_object_unref(m_ctx->soupServer);
 		m_ctx->soupServer = NULL;
 	}
@@ -83,10 +85,41 @@ void HttpServerStub::start(guint port)
 
 	const int retryCount = 12;
 	for (int i = 0; i <= retryCount; i++) {
+#ifdef SOUP_VERSION_2_48
+		m_ctx->soupServer
+		  = soup_server_new(
+		      SOUP_SERVER_SERVER_HEADER, "HatoholTestServer" VERSION,
+		      NULL);
+
+		SoupServerListenOptions options
+		  = static_cast<SoupServerListenOptions>(0);
+		GError *error = NULL;
+		if (m_ctx->soupServer) {
+			gboolean succeeded = soup_server_listen_all(
+					       m_ctx->soupServer,
+					       port,
+					       options,
+					       &error);
+			if (!succeeded) {
+				const char *message = "Unknown reason";
+				if (error)
+					message = error->message;
+				HATOHOL_ASSERT(m_ctx->soupServer,
+					       "Failed to listen: %s\n",
+					       message);
+				if (error)
+					g_error_free(error);
+				g_object_unref(m_ctx->soupServer);
+				m_ctx->soupServer = NULL;
+			}
+		}
+#else // SOUP_VERSION_2_48
 		m_ctx->soupServer
 		  = soup_server_new(
 		      SOUP_SERVER_PORT, port,
-		      SOUP_SERVER_ASYNC_CONTEXT, m_ctx->gMainCtx, NULL);
+		      SOUP_SERVER_ASYNC_CONTEXT, m_ctx->gMainCtx,
+		      NULL);
+#endif // SOUP_VERSION_2_48
 
 		if (m_ctx->soupServer)
 			break;
@@ -111,7 +144,9 @@ void HttpServerStub::start(guint port)
 
 void HttpServerStub::stop(void)
 {
+#ifndef SOUP_VERSION_2_48
 	soup_server_quit(m_ctx->soupServer);
+#endif // SOUP_VERSION_2_48
 	g_thread_join(m_ctx->thread);
 	m_ctx->thread = NULL;
 	g_object_unref(m_ctx->soupServer);
@@ -133,7 +168,9 @@ gpointer HttpServerStub::_mainThread(gpointer data)
 
 gpointer HttpServerStub::mainThread(void)
 {
+#ifndef SOUP_VERSION_2_48
 	soup_server_run(m_ctx->soupServer);
+#endif // SOUP_VERSION_2_48
 	return NULL;
 }
 
