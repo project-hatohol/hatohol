@@ -6,9 +6,9 @@
 Hatohol REST API Reference
 ==========================
 
-==========
- Contents
-==========
+==============
+REST Resources
+==============
 
 Overview
 --------
