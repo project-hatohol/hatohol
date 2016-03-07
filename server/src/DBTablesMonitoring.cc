@@ -1384,6 +1384,7 @@ struct TriggersQueryOption::Impl {
 	timespec beginTime;
 	timespec endTime;
 	list<string> hostnameList;
+	list<HostgroupIdType> hostgroupIdList;
 	SortType sortType;
 	SortDirection sortDirection;
 	string triggerBrief;
@@ -1396,6 +1397,7 @@ struct TriggersQueryOption::Impl {
 	  beginTime({0, 0}),
 	  endTime({0, 0}),
 	  hostnameList({}),
+	  hostgroupIdList({}),
 	  sortType(SORT_ID),
 	  sortDirection(SORT_DONT_CARE)
 	{
@@ -1517,6 +1519,11 @@ string TriggersQueryOption::getCondition(void) const
 			     makeHostnameListCondition(m_impl->hostnameList));
 	}
 
+	if (!m_impl->hostgroupIdList.empty()) {
+		addCondition(condition,
+			     makeHostgroupIdListCondition(m_impl->hostnameList));
+	}
+
 	if (!m_impl->triggerBrief.empty()) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
 		addCondition(condition, StringUtils::sprintf(
@@ -1588,6 +1595,17 @@ const list<string> TriggersQueryOption::getHostnameList(void)
 	return m_impl->hostnameList;
 }
 
+void TriggersQueryOption::setHostgroupIdList(
+  const list<HostgroupIdType> &hostgroupIdList)
+{
+	m_impl->hostgroupIdList = hostgroupIdList;
+}
+
+const list<HostgroupIdType> TriggersQueryOption::getHostgroupIdList(void)
+{
+	return m_impl->hostgroupIdList;
+}
+
 void TriggersQueryOption::setSortType(
   const SortType &type, const SortDirection &direction)
 {
@@ -1656,6 +1674,24 @@ string TriggersQueryOption::makeHostnameListCondition(
 	for (auto hostname : hostnameList) {
 		commaInjector(condition);
 		condition += StringUtils::sprintf("%s", rhs(hostname.c_str()));
+	}
+
+	condition += ")";
+	return condition;
+}
+
+string TriggersQueryOption::makeHostgroupIdListCondition(
+  const list<HostgroupIdType> &idList) const
+{
+	string condition;
+	const ColumnDef &colId =
+	  tableProfileHostgroupMember.columnDefs[IDX_HOSTGROUP_MEMBER_GROUP_ID];
+	SeparatorInjector commaInjector(",");
+	DBTermCStringProvider rhs(*getDBTermCodec());
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%s", rhs(id.c_str()));
 	}
 
 	condition += ")";

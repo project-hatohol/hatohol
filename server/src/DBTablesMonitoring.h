@@ -114,6 +114,8 @@ public:
 	const timespec &getEndTime(void);
 	void setHostnameList(const std::list<std::string> &hostnameList);
 	const std::list<std::string> getHostnameList(void);
+	void setHostgroupIdList(const std::list<HostgroupIdType> &hostgroupIdList);
+	const std::list<HostgroupIdType> getHostgroupIdList(void);
 
 	void setSortType(const SortType &type, const SortDirection &direction);
 	SortType getSortType(void) const;
@@ -123,6 +125,8 @@ public:
 
 	std::string makeHostnameListCondition(
 	  const std::list<std::string> &hostnameList) const;
+	std::string makeHostgroupIdListCondition(
+	  const std::list<HostgroupIdType> &idList) const;
 
 private:
 	struct Impl;
