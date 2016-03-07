@@ -6,16 +6,56 @@
 Hatohol REST API Reference
 ==========================
 
-Contents:
+==========
+ Contents
+==========
+
+Overview
+--------
+
+.. toctree::
+   :maxdepth: 1
+
+   overview
+
+Servers
+--------
+
+.. toctree::
+   :maxdepth: 1
+
+   servers
+
+Triggers
+--------
+
+.. toctree::
+   :maxdepth: 1
+
+   triggers
+
+Events
+------
+
+.. toctree::
+   :maxdepth: 1
+
+   events
+
+Items
+-----
+
+.. toctree::
+   :maxdepth: 1
+
+   items
+
+Common properties
+-----------------
 
 .. toctree::
    :maxdepth: 2
 
-   overview
-   servers
-   triggers
-   events
-   items
    common-properties
 
 
