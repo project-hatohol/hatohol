@@ -463,20 +463,66 @@ static const HostResourceQueryOption::Synapse synapseHostgroupsQueryOption(
   IDX_HOSTGROUP_MEMBER_SERVER_ID, IDX_HOSTGROUP_MEMBER_HOST_ID_IN_SERVER,
   IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
+struct HostgroupsQueryOption::Impl {
+	string hostgroupName;
+
+	Impl()
+	{
+	}
+
+	virtual ~Impl()
+	{
+	}
+};
+
 HostgroupsQueryOption::HostgroupsQueryOption(const UserIdType &userId)
-: HostResourceQueryOption(synapseHostgroupsQueryOption, userId)
+: HostResourceQueryOption(synapseHostgroupsQueryOption, userId),
+  m_impl(new Impl())
 {
 }
 
 HostgroupsQueryOption::HostgroupsQueryOption(DataQueryContext *dataQueryContext)
-: HostResourceQueryOption(synapseHostgroupsQueryOption, dataQueryContext)
+: HostResourceQueryOption(synapseHostgroupsQueryOption, dataQueryContext),
+  m_impl(new Impl())
 {
+}
+
+HostgroupsQueryOption::~HostgroupsQueryOption(void)
+{
+}
+
+void HostgroupsQueryOption::setTargetHostgroupName(const string &hostgroupName)
+{
+	m_impl->hostgroupName = hostgroupName;
+}
+
+string HostgroupsQueryOption::getTargetHostgroupName(void) const
+{
+	return m_impl->hostgroupName;
+}
+
+string HostgroupsQueryOption::getCondition(void) const
+{
+	string condition = HostResourceQueryOption::getCondition();
+	if (!m_impl->hostgroupName.empty()) {
+		DBTermCStringProvider rhs(*getDBTermCodec());
+		addCondition(condition,
+		  StringUtils::sprintf("%s=%s",
+		    COLUMN_DEF_HOSTGROUP_LIST[IDX_HOSTGROUP_LIST_NAME].columnName,
+		    rhs(m_impl->hostgroupName)));
+	}
+
+	return condition;
 }
 
 std::string HostgroupsQueryOption::getHostgroupColumnName(const size_t &idx) const
 {
 	return getColumnNameCommon(tableProfileHostgroupList,
 				   IDX_HOSTGROUP_LIST_ID_IN_SERVER);
+}
+
+bool HostgroupsQueryOption::isHostgroupUsed(void) const {
+	return false;
 }
 
 // ---------------------------------------------------------------------------
