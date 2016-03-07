@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -260,15 +260,15 @@ typedef std::vector<IncidentInfo>        IncidentInfoVect;
 typedef IncidentInfoVect::iterator       IncidentInfoVectIterator;
 typedef IncidentInfoVect::const_iterator IncidentInfoVectConstIterator;
 
-struct IncidentStatusHistory {
-	IncidentStatusHistoryIdType id;
+struct IncidentHistory {
+	IncidentHistoryIdType id;
 	UnifiedEventIdType          unifiedEventId;
 	UserIdType                  userId;
 	std::string                 status;
 	std::string                 comment;
 	mlpl::Time                  createdAt;
 
-	static void initialize(IncidentStatusHistory &incidentStatusHistory);
+	static void initialize(IncidentHistory &incidentHistory);
 };
 
 #endif // Monitoring_h

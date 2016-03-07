@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -46,8 +46,8 @@ const char *DBTablesMonitoring::TABLE_NAME_ITEMS      = "items";
 const char *DBTablesMonitoring::TABLE_NAME_ITEM_CATEGORIES = "item_categories";
 const char *DBTablesMonitoring::TABLE_NAME_SERVER_STATUS = "server_status";
 const char *DBTablesMonitoring::TABLE_NAME_INCIDENTS  = "incidents";
-const char *DBTablesMonitoring::TABLE_NAME_INCIDENT_STATUS_HISTORIES =
-  "incident_status_histories";
+const char *DBTablesMonitoring::TABLE_NAME_INCIDENT_HISTORIES =
+  "incident_histories";
 
 // -> 1.0
 //   * remove IDX_TRIGGERS_HOST_ID,
@@ -833,9 +833,9 @@ static const DBAgent::TableProfile tableProfileIncidents =
 			    indexDefsIncidents);
 
 // ----------------------------------------------------------------------------
-// Table: incident_status_histories
+// Table: incident_histories
 // ----------------------------------------------------------------------------
-static const ColumnDef COLUMN_DEF_INCIDENT_STATUS_HISTORIES[] = {
+static const ColumnDef COLUMN_DEF_INCIDENT_HISTORIES[] = {
 {
 	"id",                              // columnName
 	SQL_COLUMN_TYPE_BIGUINT,           // type
@@ -903,31 +903,31 @@ static const ColumnDef COLUMN_DEF_INCIDENT_STATUS_HISTORIES[] = {
 };
 
 enum {
-	IDX_INCIDENT_STATUS_HISTORIES_ID,
-	IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID,
-	IDX_INCIDENT_STATUS_HISTORIES_USER_ID,
-	IDX_INCIDENT_STATUS_HISTORIES_STATUS,
-	IDX_INCIDENT_STATUS_HISTORIES_COMMENT,
-	IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC,
-	IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS,
-	NUM_IDX_INCIDENT_STATUS_HISTORIES,
+	IDX_INCIDENT_HISTORIES_ID,
+	IDX_INCIDENT_HISTORIES_UNIFIED_EVENT_ID,
+	IDX_INCIDENT_HISTORIES_USER_ID,
+	IDX_INCIDENT_HISTORIES_STATUS,
+	IDX_INCIDENT_HISTORIES_COMMENT,
+	IDX_INCIDENT_HISTORIES_CREATED_AT_SEC,
+	IDX_INCIDENT_HISTORIES_CREATED_AT_NS,
+	NUM_IDX_INCIDENT_HISTORIES,
 };
 
 static const int columnIndexesCreatedAtSequence[] = {
-  IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC, IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS,
-  IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID, DBAgent::IndexDef::END,
+  IDX_INCIDENT_HISTORIES_CREATED_AT_SEC, IDX_INCIDENT_HISTORIES_CREATED_AT_NS,
+  IDX_INCIDENT_HISTORIES_UNIFIED_EVENT_ID, DBAgent::IndexDef::END,
 };
 
-static const DBAgent::IndexDef indexDefsIncidentStatusHistories[] = {
+static const DBAgent::IndexDef indexDefsIncidentHistories[] = {
   {"CreatedtAtSequence", (const int *)columnIndexesCreatedAtSequence, false},
   {NULL}
 };
 
-static const DBAgent::TableProfile tableProfileIncidentStatusHistories =
-  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_INCIDENT_STATUS_HISTORIES,
-			    COLUMN_DEF_INCIDENT_STATUS_HISTORIES,
-			    NUM_IDX_INCIDENT_STATUS_HISTORIES,
-			    indexDefsIncidentStatusHistories);
+static const DBAgent::TableProfile tableProfileIncidentHistories =
+  DBAGENT_TABLEPROFILE_INIT(DBTablesMonitoring::TABLE_NAME_INCIDENT_HISTORIES,
+			    COLUMN_DEF_INCIDENT_HISTORIES,
+			    NUM_IDX_INCIDENT_HISTORIES,
+			    indexDefsIncidentHistories);
 
 struct DBTablesMonitoring::Impl
 {
@@ -1847,12 +1847,12 @@ string IncidentsQueryOption::getCondition(void) const
 
 
 // ---------------------------------------------------------------------------
-// IncidentStatusHistoriesQueryOption
+// IncidentHistoriesQueryOption
 // ---------------------------------------------------------------------------
-const UnifiedEventIdType IncidentStatusHistoriesQueryOption::INVALID_ID = -1;
+const UnifiedEventIdType IncidentHistoriesQueryOption::INVALID_ID = -1;
 
-struct IncidentStatusHistoriesQueryOption::Impl {
-	IncidentStatusHistoryIdType id;
+struct IncidentHistoriesQueryOption::Impl {
+	IncidentHistoryIdType id;
 	UnifiedEventIdType unifiedEventId;
 	UserIdType         userId;
 	SortType sortType;
@@ -1868,64 +1868,64 @@ struct IncidentStatusHistoriesQueryOption::Impl {
 	}
 };
 
-IncidentStatusHistoriesQueryOption::IncidentStatusHistoriesQueryOption(
+IncidentHistoriesQueryOption::IncidentHistoriesQueryOption(
   const UserIdType &userId)
 : DataQueryOption(userId),
   m_impl(new Impl())
 {
 }
 
-IncidentStatusHistoriesQueryOption::IncidentStatusHistoriesQueryOption(
+IncidentHistoriesQueryOption::IncidentHistoriesQueryOption(
   DataQueryContext *dataQueryContext)
 : DataQueryOption(dataQueryContext),
   m_impl(new Impl())
 {
 }
 
-IncidentStatusHistoriesQueryOption::IncidentStatusHistoriesQueryOption(
-  const IncidentStatusHistoriesQueryOption &src)
+IncidentHistoriesQueryOption::IncidentHistoriesQueryOption(
+  const IncidentHistoriesQueryOption &src)
 : DataQueryOption(src),
   m_impl(new Impl())
 {
 	*m_impl = *src.m_impl;
 }
 
-IncidentStatusHistoriesQueryOption::~IncidentStatusHistoriesQueryOption()
+IncidentHistoriesQueryOption::~IncidentHistoriesQueryOption()
 {
 }
 
-void IncidentStatusHistoriesQueryOption::setTargetId(const IncidentStatusHistoryIdType &id)
+void IncidentHistoriesQueryOption::setTargetId(const IncidentHistoryIdType &id)
 {
 	m_impl->id = id;
 }
 
-const IncidentStatusHistoryIdType &IncidentStatusHistoriesQueryOption::getTargetId(void)
+const IncidentHistoryIdType &IncidentHistoriesQueryOption::getTargetId(void)
 {
 	return m_impl->id;
 }
 
-void IncidentStatusHistoriesQueryOption::setTargetUnifiedEventId(const UnifiedEventIdType &id)
+void IncidentHistoriesQueryOption::setTargetUnifiedEventId(const UnifiedEventIdType &id)
 {
 	m_impl->unifiedEventId = id;
 }
 
-const UnifiedEventIdType IncidentStatusHistoriesQueryOption::getTargetUnifiedEventId(void)
+const UnifiedEventIdType IncidentHistoriesQueryOption::getTargetUnifiedEventId(void)
 {
 	return m_impl->unifiedEventId;
 }
 
-void IncidentStatusHistoriesQueryOption::setTargetUserId(const UserIdType &userId)
+void IncidentHistoriesQueryOption::setTargetUserId(const UserIdType &userId)
 {
 	m_impl->userId = userId;
 }
 
-const UserIdType IncidentStatusHistoriesQueryOption::getTargetUserId(void)
+const UserIdType IncidentHistoriesQueryOption::getTargetUserId(void)
 {
 	return m_impl->userId;
 }
 
-void IncidentStatusHistoriesQueryOption::setSortType(
-  const IncidentStatusHistoriesQueryOption::SortType &type,
+void IncidentHistoriesQueryOption::setSortType(
+  const IncidentHistoriesQueryOption::SortType &type,
   const SortDirection &direction)
 {
 	m_impl->sortType = type;
@@ -1935,7 +1935,7 @@ void IncidentStatusHistoriesQueryOption::setSortType(
 	case SORT_UNIFIED_EVENT_ID:
 	{
 		SortOrder order(
-		  COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID].columnName,
+		  COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_UNIFIED_EVENT_ID].columnName,
 		  direction);
 		setSortOrder(order);
 		break;
@@ -1944,13 +1944,13 @@ void IncidentStatusHistoriesQueryOption::setSortType(
 	{
 		SortOrderVect sortOrderVect;
 		SortOrder order1(
-		  COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC].columnName,
+		  COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_CREATED_AT_SEC].columnName,
 		  direction);
 		SortOrder order2(
-		  COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS].columnName,
+		  COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_CREATED_AT_NS].columnName,
 		  direction);
 		SortOrder order3(
-		  COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID].columnName,
+		  COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_UNIFIED_EVENT_ID].columnName,
 		  direction);
 		sortOrderVect.reserve(3);
 		sortOrderVect.push_back(order1);
@@ -1964,19 +1964,19 @@ void IncidentStatusHistoriesQueryOption::setSortType(
 	}
 }
 
-IncidentStatusHistoriesQueryOption::SortType
-IncidentStatusHistoriesQueryOption::getSortType(void) const
+IncidentHistoriesQueryOption::SortType
+IncidentHistoriesQueryOption::getSortType(void) const
 {
 	return m_impl->sortType;
 }
 
 DataQueryOption::SortDirection
-IncidentStatusHistoriesQueryOption::getSortDirection(void) const
+IncidentHistoriesQueryOption::getSortDirection(void) const
 {
 	return m_impl->sortDirection;
 }
 
-string IncidentStatusHistoriesQueryOption::getCondition(void) const
+string IncidentHistoriesQueryOption::getCondition(void) const
 {
 	string condition = DataQueryOption::getCondition();
 	if (m_impl->id != INVALID_ID) {
@@ -1984,7 +1984,7 @@ string IncidentStatusHistoriesQueryOption::getCondition(void) const
 		string idCondition =
 		  StringUtils::sprintf(
 		    "%s=%s",
-		    COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_ID].columnName,
+		    COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_ID].columnName,
 		    rhs(m_impl->id));
 		addCondition(condition, idCondition);
 	}
@@ -1993,7 +1993,7 @@ string IncidentStatusHistoriesQueryOption::getCondition(void) const
 		string unifiedIdCondition =
 		  StringUtils::sprintf(
 		    "%s=%s",
-		    COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID].columnName,
+		    COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_UNIFIED_EVENT_ID].columnName,
 		    rhs(m_impl->unifiedEventId));
 		addCondition(condition, unifiedIdCondition);
 	}
@@ -2002,7 +2002,7 @@ string IncidentStatusHistoriesQueryOption::getCondition(void) const
 		string userIdCondition =
 		  StringUtils::sprintf(
 		    "%s=%s",
-		    COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_USER_ID].columnName,
+		    COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_USER_ID].columnName,
 		    rhs(m_impl->userId));
 		addCondition(condition, userIdCondition);
 	}
@@ -3280,53 +3280,53 @@ HatoholError DBTablesMonitoring::getSystemInfo(
 	return HatoholError(HTERR_OK);
 }
 
-void IncidentStatusHistory::initialize(IncidentStatusHistory &incidentStatusHistory)
+void IncidentHistory::initialize(IncidentHistory &incidentHistory)
 {
-	incidentStatusHistory.id = AUTO_INCREMENT_VALUE;
-	incidentStatusHistory.unifiedEventId = INVALID_EVENT_ID;
-	incidentStatusHistory.userId = INVALID_USER_ID;
-	incidentStatusHistory.status = "";
-	incidentStatusHistory.comment = "";
+	incidentHistory.id = AUTO_INCREMENT_VALUE;
+	incidentHistory.unifiedEventId = INVALID_EVENT_ID;
+	incidentHistory.userId = INVALID_USER_ID;
+	incidentHistory.status = "";
+	incidentHistory.comment = "";
 	timespec currTimespec = SmartTime(SmartTime::INIT_CURR_TIME).getAsTimespec();
-	incidentStatusHistory.createdAt.tv_sec = currTimespec.tv_sec;
-	incidentStatusHistory.createdAt.tv_nsec = currTimespec.tv_nsec;
+	incidentHistory.createdAt.tv_sec = currTimespec.tv_sec;
+	incidentHistory.createdAt.tv_nsec = currTimespec.tv_nsec;
 }
 
-HatoholError DBTablesMonitoring::addIncidentStatusHistory(
-  IncidentStatusHistory &incidentStatusHistory)
+HatoholError DBTablesMonitoring::addIncidentHistory(
+  IncidentHistory &incidentHistory)
 {
-	IncidentStatusHistoryIdType incidentStatusHistoryId;
+	IncidentHistoryIdType incidentHistoryId;
 
-	DBAgent::InsertArg arg(tableProfileIncidentStatusHistories);
-	arg.add(incidentStatusHistory.id);
-	arg.add(incidentStatusHistory.unifiedEventId);
-	arg.add(incidentStatusHistory.userId);
-	arg.add(incidentStatusHistory.status);
-	arg.add(incidentStatusHistory.comment);
-	arg.add(incidentStatusHistory.createdAt.tv_sec);
-	arg.add(incidentStatusHistory.createdAt.tv_nsec);
+	DBAgent::InsertArg arg(tableProfileIncidentHistories);
+	arg.add(incidentHistory.id);
+	arg.add(incidentHistory.unifiedEventId);
+	arg.add(incidentHistory.userId);
+	arg.add(incidentHistory.status);
+	arg.add(incidentHistory.comment);
+	arg.add(incidentHistory.createdAt.tv_sec);
+	arg.add(incidentHistory.createdAt.tv_nsec);
 
 	DBAgent &dbAgent = getDBAgent();
-	dbAgent.runTransaction(arg, &incidentStatusHistoryId);
+	dbAgent.runTransaction(arg, &incidentHistoryId);
 	return HatoholError(HTERR_OK);
 }
 
-HatoholError DBTablesMonitoring::updateIncidentStatusHistory(
-  IncidentStatusHistory &incidentStatusHistory)
+HatoholError DBTablesMonitoring::updateIncidentHistory(
+  IncidentHistory &incidentHistory)
 {
 	struct TrxProc : public DBAgent::TransactionProc {
 		HatoholError err;
 		DBAgent::UpdateArg arg;
 
 		TrxProc(void)
-		: arg(tableProfileIncidentStatusHistories)
+		: arg(tableProfileIncidentHistories)
 		{
 		}
 
 		bool hasRecord(DBAgent &dbAgent)
 		{
 			return dbAgent.isRecordExisting(
-				 TABLE_NAME_INCIDENT_STATUS_HISTORIES,
+				 TABLE_NAME_INCIDENT_HISTORIES,
 				 arg.condition);
 		}
 
@@ -3343,38 +3343,38 @@ HatoholError DBTablesMonitoring::updateIncidentStatusHistory(
 
 	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
 	DBAgent::UpdateArg &arg = trx.arg;
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID,
-		incidentStatusHistory.unifiedEventId);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_USER_ID,
-		incidentStatusHistory.userId);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_STATUS,
-		incidentStatusHistory.status);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_COMMENT,
-		incidentStatusHistory.comment);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC,
-		incidentStatusHistory.createdAt.tv_sec);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS,
-		incidentStatusHistory.createdAt.tv_nsec);
+	arg.add(IDX_INCIDENT_HISTORIES_UNIFIED_EVENT_ID,
+		incidentHistory.unifiedEventId);
+	arg.add(IDX_INCIDENT_HISTORIES_USER_ID,
+		incidentHistory.userId);
+	arg.add(IDX_INCIDENT_HISTORIES_STATUS,
+		incidentHistory.status);
+	arg.add(IDX_INCIDENT_HISTORIES_COMMENT,
+		incidentHistory.comment);
+	arg.add(IDX_INCIDENT_HISTORIES_CREATED_AT_SEC,
+		incidentHistory.createdAt.tv_sec);
+	arg.add(IDX_INCIDENT_HISTORIES_CREATED_AT_NS,
+		incidentHistory.createdAt.tv_nsec);
 	arg.condition = StringUtils::sprintf(
 	  "%s=%s",
-	  COLUMN_DEF_INCIDENT_STATUS_HISTORIES[IDX_INCIDENT_STATUS_HISTORIES_ID].columnName,
-	  rhs(incidentStatusHistory.id));
+	  COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_ID].columnName,
+	  rhs(incidentHistory.id));
 	getDBAgent().runTransaction(trx);
 	return HatoholError(HTERR_OK);
 }
 
-HatoholError DBTablesMonitoring::getIncidentStatusHistory(
-  list<IncidentStatusHistory> &incidentStatusHistoriesList,
-  const IncidentStatusHistoriesQueryOption &option)
+HatoholError DBTablesMonitoring::getIncidentHistory(
+  list<IncidentHistory> &incidentHistoriesList,
+  const IncidentHistoriesQueryOption &option)
 {
-	DBAgent::SelectExArg arg(tableProfileIncidentStatusHistories);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_ID);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_UNIFIED_EVENT_ID);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_USER_ID);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_STATUS);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_COMMENT);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_SEC);
-	arg.add(IDX_INCIDENT_STATUS_HISTORIES_CREATED_AT_NS);
+	DBAgent::SelectExArg arg(tableProfileIncidentHistories);
+	arg.add(IDX_INCIDENT_HISTORIES_ID);
+	arg.add(IDX_INCIDENT_HISTORIES_UNIFIED_EVENT_ID);
+	arg.add(IDX_INCIDENT_HISTORIES_USER_ID);
+	arg.add(IDX_INCIDENT_HISTORIES_STATUS);
+	arg.add(IDX_INCIDENT_HISTORIES_COMMENT);
+	arg.add(IDX_INCIDENT_HISTORIES_CREATED_AT_SEC);
+	arg.add(IDX_INCIDENT_HISTORIES_CREATED_AT_NS);
 
 	arg.condition = option.getCondition();
 
@@ -3387,16 +3387,16 @@ HatoholError DBTablesMonitoring::getIncidentStatusHistory(
 	for (auto itemGrp : grpList) {
 		ItemGroupStream itemGroupStream(itemGrp);
 
-		IncidentStatusHistory incidentStatusHistory;
-		itemGroupStream >> incidentStatusHistory.id;
-		itemGroupStream >> incidentStatusHistory.unifiedEventId;
-		itemGroupStream >> incidentStatusHistory.userId;
-		itemGroupStream >> incidentStatusHistory.status;
-		itemGroupStream >> incidentStatusHistory.comment;
-		itemGroupStream >> incidentStatusHistory.createdAt.tv_sec;
-		itemGroupStream >> incidentStatusHistory.createdAt.tv_nsec;
+		IncidentHistory incidentHistory;
+		itemGroupStream >> incidentHistory.id;
+		itemGroupStream >> incidentHistory.unifiedEventId;
+		itemGroupStream >> incidentHistory.userId;
+		itemGroupStream >> incidentHistory.status;
+		itemGroupStream >> incidentHistory.comment;
+		itemGroupStream >> incidentHistory.createdAt.tv_sec;
+		itemGroupStream >> incidentHistory.createdAt.tv_nsec;
 
-		incidentStatusHistoriesList.push_back(incidentStatusHistory);
+		incidentHistoriesList.push_back(incidentHistory);
 	}
 
 	return HTERR_OK;
@@ -3424,7 +3424,7 @@ DBTables::SetupInfo &DBTablesMonitoring::getSetupInfo(void)
 	}, {
 		&tableProfileIncidents,
 	}, {
-		&tableProfileIncidentStatusHistories,
+		&tableProfileIncidentHistories,
 	}
 	};
 

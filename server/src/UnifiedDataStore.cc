@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -994,30 +994,30 @@ HatoholError UnifiedDataStore::updateIncidentInfo(IncidentInfo &incidentInfo)
 	return dbMonitoring.updateIncidentInfo(incidentInfo);
 }
 
-HatoholError UnifiedDataStore::addIncidentStatusHistory(
-  IncidentStatusHistory &incidentStatusHistory)
+HatoholError UnifiedDataStore::addIncidentHistory(
+  IncidentHistory &incidentHistory)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	return dbMonitoring.addIncidentStatusHistory(incidentStatusHistory);
+	return dbMonitoring.addIncidentHistory(incidentHistory);
 }
 
-HatoholError UnifiedDataStore::updateIncidentStatusHistory(
-  IncidentStatusHistory &incidentStatusHistory)
+HatoholError UnifiedDataStore::updateIncidentHistory(
+  IncidentHistory &incidentHistory)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	return dbMonitoring.updateIncidentStatusHistory(incidentStatusHistory);
+	return dbMonitoring.updateIncidentHistory(incidentHistory);
 }
 
-HatoholError UnifiedDataStore::getIncidentStatusHistories(
-  list<IncidentStatusHistory> &incidentStatusHistoryList,
-  const IncidentStatusHistoriesQueryOption &option)
+HatoholError UnifiedDataStore::getIncidentHistories(
+  list<IncidentHistory> &incidentHistoryList,
+  const IncidentHistoriesQueryOption &option)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
-	return dbMonitoring.getIncidentStatusHistory(incidentStatusHistoryList,
-	                                             option);
+	return dbMonitoring.getIncidentHistory(incidentHistoryList,
+					       option);
 }
 
 DataStoreVector UnifiedDataStore::getDataStoreVector(void)

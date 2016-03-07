@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -756,18 +756,18 @@ std::string makeCustomIncidentStatusOutput(const CustomIncidentStatus &customInc
 		 customIncidentStatus.label.c_str());
 }
 
-std::string makeIncidentStatusHistoryOutput(const IncidentStatusHistory &incidentStatusHistory)
+std::string makeIncidentHistoryOutput(const IncidentHistory &incidentHistory)
 {
 	return StringUtils::sprintf(
-		 "%" FMT_INCIDENT_STATUS_HISTORY_ID "|%" FMT_UNIFIED_EVENT_ID
+		 "%" FMT_INCIDENT_HISTORY_ID "|%" FMT_UNIFIED_EVENT_ID
 		 "|%" FMT_USER_ID "|%s|%s|%" PRIu64 "|%" PRIu64 "\n",
-		 incidentStatusHistory.id,
-		 incidentStatusHistory.unifiedEventId,
-		 incidentStatusHistory.userId,
-		 incidentStatusHistory.status.c_str(),
-		 incidentStatusHistory.comment.c_str(),
-		 incidentStatusHistory.createdAt.tv_sec,
-		 incidentStatusHistory.createdAt.tv_nsec);
+		 incidentHistory.id,
+		 incidentHistory.unifiedEventId,
+		 incidentHistory.userId,
+		 incidentHistory.status.c_str(),
+		 incidentHistory.comment.c_str(),
+		 incidentHistory.createdAt.tv_sec,
+		 incidentHistory.createdAt.tv_nsec);
 }
 
 static void assertDBContentForComponets(const string &expect,

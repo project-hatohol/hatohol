@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -290,13 +290,13 @@ public:
 	void addIncidentInfo(IncidentInfo &incidentInfo);
 	HatoholError updateIncidentInfo(IncidentInfo &incidentInfo);
 
-	HatoholError addIncidentStatusHistory(
-	  IncidentStatusHistory &incidentStatusHistory);
-	HatoholError updateIncidentStatusHistory(
-	  IncidentStatusHistory &incidentStatusHistory);
-	HatoholError getIncidentStatusHistories(
-	  std::list<IncidentStatusHistory> &IncidentStatusHistoriesList,
-	  const IncidentStatusHistoriesQueryOption &option);
+	HatoholError addIncidentHistory(
+	  IncidentHistory &incidentHistory);
+	HatoholError updateIncidentHistory(
+	  IncidentHistory &incidentHistory);
+	HatoholError getIncidentHistories(
+	  std::list<IncidentHistory> &IncidentHistoriesList,
+	  const IncidentHistoriesQueryOption &option);
 
 	/**
 	 * get a vector of pointers of DataStore instance.

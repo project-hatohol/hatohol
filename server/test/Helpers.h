@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -123,7 +123,7 @@ std::string makeHostgroupsOutput(const Hostgroup &hostgrp, const size_t &id);
 std::string makeMapHostsHostgroupsOutput(const HostgroupMember &hostgrpMember, const size_t &id);
 std::string makeSeverityRankInfoOutput(const SeverityRankInfo &severityRankInfo);
 std::string makeCustomIncidentStatusOutput(const CustomIncidentStatus &customIncidentStatus);
-std::string makeIncidentStatusHistoryOutput(const IncidentStatusHistory &incidentStatusHistory);
+std::string makeIncidentHistoryOutput(const IncidentHistory &incidentHistory);
 
 void _assertDatetime(int expectedClock, int actualClock);
 #define assertDatetime(E,A) cut_trace(_assertDatetime(E,A))

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 Project Hatohol
+ * Copyright (C) 2014-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -163,11 +163,11 @@ struct IncidentSender::Impl
 			return popJob();
 	}
 
-	void saveIncidentStatusHistory(const Job &job)
+	void saveIncidentHistory(const Job &job)
 	{
 		SmartTime now(SmartTime::INIT_CURR_TIME);
 		UnifiedDataStore *store = UnifiedDataStore::getInstance();
-		IncidentStatusHistory history;
+		IncidentHistory history;
 		if (!job.incidentInfo) {
 			MLPL_ERR("No incidentInto to save history!");
 			return;
@@ -179,7 +179,7 @@ struct IncidentSender::Impl
 		history.comment = job.comment;
 		history.createdAt.tv_sec = now.getAsTimespec().tv_sec;
 		history.createdAt.tv_nsec = now.getAsTimespec().tv_nsec;
-		store->addIncidentStatusHistory(history);
+		store->addIncidentHistory(history);
 	}
 
 	HatoholError trySend(const Job &job) {
@@ -203,7 +203,7 @@ struct IncidentSender::Impl
 			job.notifyStatus(sender, JOB_RETRYING);
 		}
 		if (result == HTERR_OK) {
-			saveIncidentStatusHistory(job);
+			saveIncidentHistory(job);
 			job.notifyStatus(sender, JOB_SUCCEEDED);
 		} else {
 			job.notifyStatus(sender, JOB_FAILED);
