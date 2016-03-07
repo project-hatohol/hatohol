@@ -1048,9 +1048,15 @@ var EventsView = function(userProfile, options) {
   function setDescriptionWidth() {
 	  var descriptionWidth = $('.event-table-content table:eq(0)').width() / 4;
 	  if(!$('#descriptionWidthStyle').is('div')){
-	    $('body').append('<div id="descriptionWidthStyle" style="display:none;position:absolute;"></div>');
+	    $('body').append(
+          '<div id="descriptionWidthStyle" style="display:none;position:absolute;"></div>'
+		);
 	  }
-	  $('#descriptionWidthStyle').html('<style>.eventDescription,.eventDescription div {width:'+descriptionWidth+'px!important;}</style>');
+	  $('#descriptionWidthStyle').html(
+        '<style>.eventDescription,.eventDescription div {width:'+
+        descriptionWidth+
+        'px!important;}</style>'
+      );
   }
 
   function getEventDescription(event) {
@@ -1309,7 +1315,9 @@ var EventsView = function(userProfile, options) {
       header += '>';
       header += definition.header;
 	  if (columnName == 'description')
-        header += '<label><input type="checkbox" class="toggleDescriptionFull"'+($('#event-table-area .event-table-content table:eq(0)').is('.descriptionFull')?' checked':'')+'>'+gettext("Show Full Text")+'</label>';
+        header += '<label><input type="checkbox" class="toggleDescriptionFull"'+
+		($('#event-table-area .event-table-content table:eq(0)').is('.descriptionFull')?' checked':'')+
+		'>'+gettext("Show Full Text")+'</label>';
       header += '</th>';
     }
 
