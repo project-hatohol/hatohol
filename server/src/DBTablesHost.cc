@@ -940,9 +940,8 @@ HatoholError DBTablesHost::getHostgroups(HostgroupVect &hostgroups,
 	return HTERR_OK;
 }
 
-HatoholError DBTablesHost::getServerHostGrpSetMapWithHostgroupName(
+HatoholError DBTablesHost::getServerHostGrpSetMap(
   ServerHostGrpSetMap &serverHostGrpSetMap,
-  const string &hostgroupName,
   const HostgroupsQueryOption &option)
 {
 	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
@@ -950,12 +949,7 @@ HatoholError DBTablesHost::getServerHostGrpSetMapWithHostgroupName(
 	arg.tableField = TABLE_NAME_HOSTGROUP_LIST;
 	arg.add(IDX_HOSTGROUP_LIST_SERVER_ID);
 	arg.add(IDX_HOSTGROUP_LIST_ID_IN_SERVER);
-	if (!hostgroupName.empty()) {
-		arg.condition = StringUtils::sprintf(
-		  "%s=%s",
-		  COLUMN_DEF_HOSTGROUP_LIST[IDX_HOSTGROUP_LIST_NAME].columnName,
-		  rhs(hostgroupName));
-	}
+	arg.condition = option.getCondition();
 	getDBAgent().runTransaction(arg);
 
 	// get the result

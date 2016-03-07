@@ -436,7 +436,7 @@ void test_getHostgroups(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
-void test_getServerHostGrpSetMapWithHostgroupName(void)
+void test_getServerHostGrpSetMap(void)
 {
 	loadTestDBServer();
 	loadTestDBHostgroup();
@@ -445,9 +445,8 @@ void test_getServerHostGrpSetMapWithHostgroupName(void)
 	HostgroupsQueryOption option(USER_ID_SYSTEM);
 	ServerHostGrpSetMap serverHostGrpSetMap;
 	const string targetHostgroupName = "Monitor Servers";
-	dbHost.getServerHostGrpSetMapWithHostgroupName(serverHostGrpSetMap,
-	                                               targetHostgroupName,
-	                                               option);
+	option.setTargetHostgroupName(targetHostgroupName);
+	dbHost.getServerHostGrpSetMap(serverHostGrpSetMap, option);
 	ServerIdType expectedServerId = 1;
 	HostgroupIdType expectedHostgroupId = "1";
 	ServerHostGrpSetMapConstIterator it =
