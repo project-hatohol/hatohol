@@ -389,6 +389,18 @@ void RestResourceMonitoring::handlerGetTrigger(void)
 	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
 	TriggerInfoList triggerList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	// Add constraits with hostgroup name
+	const char *targetHostgroupName =
+	  static_cast<const char*>(g_hash_table_lookup(m_query, "hostgroupName"));
+	if (targetHostgroupName && *targetHostgroupName) {
+		string hostgroupName = targetHostgroupName;
+		ServerHostGrpSetMap serverHostGrpSetMap;
+		HostgroupsQueryOption hostgroupOption(m_dataQueryContextPtr);
+		dataStore->getServerHostGrpSetMapWithHostgroupName(serverHostGrpSetMap,
+								   hostgroupName,
+								   hostgroupOption);
+		option.setSelectedHostgroupIds(serverHostGrpSetMap);
+	}
 	dataStore->getTriggerList(triggerList, option);
 
 	JSONBuilder agent;
