@@ -37,8 +37,7 @@ class Hap2FluentdMain(haplib.BaseMainPlugin):
 
     # Ex.) 2016-03-03 12:11:17 +0900 hatohol.hoge
     __re_expected_msg = re.compile(
-      "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d " +
-      "\\+\\d\\d\\d\\d [^\\[]+:")
+      r"^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \+\d\d\d\d [^\[]+:")
 
     def __init__(self, *args, **kwargs):
         haplib.BaseMainPlugin.__init__(self)
