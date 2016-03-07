@@ -305,6 +305,10 @@ public:
 	 */
 	HatoholError getHostgroups(HostgroupVect &hostgroups,
 	                           const HostgroupsQueryOption &option);
+	HatoholError getServerHostGrpSetMapWithHostgroupName(
+	  ServerHostGrpSetMap &serverHostGrpSetMap,
+	  const std::string &hostgroupName,
+	  const HostgroupsQueryOption &option);
 	HatoholError deleteHostgroupList(const GenericIdList &idList);
 
 	/**

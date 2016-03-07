@@ -436,6 +436,32 @@ void test_getHostgroups(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_getServerHostGrpSetMapWithHostgroupName(void)
+{
+	loadTestDBServer();
+	loadTestDBHostgroup();
+
+	DECLARE_DBTABLES_HOST(dbHost);
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	ServerHostGrpSetMap serverHostGrpSetMap;
+	const string targetHostgroupName = "Monitor Servers";
+	dbHost.getServerHostGrpSetMapWithHostgroupName(serverHostGrpSetMap,
+	                                               targetHostgroupName,
+	                                               option);
+	ServerIdType expectedServerId = 1;
+	HostgroupIdType expectedHostgroupId = "1";
+	ServerHostGrpSetMapConstIterator it =
+	  serverHostGrpSetMap.find(expectedServerId);
+	cppcut_assert_equal(true, it != serverHostGrpSetMap.end(),
+			    cut_message("Failed to lookup: %" PRIu32,
+					expectedServerId));
+	const HostgroupIdSet &hostgroupIdSet = it->second;
+	HostgroupIdSetConstIterator jt = hostgroupIdSet.find(expectedHostgroupId);
+	cppcut_assert_equal(true, jt != hostgroupIdSet.end(),
+			    cut_message("Failed to lookup: %" FMT_HOST_GROUP_ID,
+					expectedHostgroupId.c_str()));
+}
+
 void test_deleteHostgroupList(void)
 {
 	DECLARE_DBTABLES_HOST(dbHost);

@@ -894,6 +894,38 @@ HatoholError DBTablesHost::getHostgroups(HostgroupVect &hostgroups,
 	return HTERR_OK;
 }
 
+HatoholError DBTablesHost::getServerHostGrpSetMapWithHostgroupName(
+  ServerHostGrpSetMap &serverHostGrpSetMap,
+  const string &hostgroupName,
+  const HostgroupsQueryOption &option)
+{
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
+	DBAgent::SelectExArg arg(tableProfileHostgroupList);
+	arg.tableField = TABLE_NAME_HOSTGROUP_LIST;
+	arg.add(IDX_HOSTGROUP_LIST_SERVER_ID);
+	arg.add(IDX_HOSTGROUP_LIST_ID_IN_SERVER);
+	if (!hostgroupName.empty()) {
+		arg.condition = StringUtils::sprintf(
+		  "%s=%s",
+		  COLUMN_DEF_HOSTGROUP_LIST[IDX_HOSTGROUP_LIST_NAME].columnName,
+		  rhs(hostgroupName));
+	}
+	getDBAgent().runTransaction(arg);
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	for (auto itemGrp : grpList) {
+		ServerIdType serverId;
+		HostgroupIdType hostgroupId;
+		ItemGroupStream itemGroupStream(itemGrp);
+		itemGroupStream >> serverId;
+		itemGroupStream >> hostgroupId;
+		serverHostGrpSetMap[serverId].insert(hostgroupId);
+	}
+
+	return HTERR_OK;
+}
+
 static string makeIdListCondition(const GenericIdList &idList)
 {
 	string condition;
