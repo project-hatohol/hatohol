@@ -1211,7 +1211,8 @@ var EventsView = function(userProfile, options) {
       else
         html += " data-tracker-id=''";
     }
-    html += " style='display:none;'><span class='incidentCheckbox'><span class='glyphicon glyphicon-ok'></span></span>";
+    html += " style='display:none;'>";
+    html += "<span class='incidentCheckbox'><span class='glyphicon glyphicon-ok'></span></span>";
 
     if (!incident)
       return html + "</td>";
