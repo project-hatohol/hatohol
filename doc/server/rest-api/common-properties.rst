@@ -55,10 +55,6 @@ by `uuid` in `Server object`_.
 
 .. list-table::
 
-   * - 0
-     - Zabbix (built-in)
-   * - 1
-     - Nagios (built-in)
    * - 4
      - HAPI JSON
    * - 7
