@@ -123,6 +123,9 @@ public:
 
 	HatoholError getHostgroups(HostgroupVect &hostgroups,
 	                           const HostgroupsQueryOption &option);
+	HatoholError getServerHostGrpSetMapWithHostgroupName(
+	  ServerHostGrpSetMap &serverHostGrpSetMap, const std::string &hostgroupName,
+	  const HostgroupsQueryOption &option);
 
 	/**
 	 * Add hosts. If there's hosts already exist, they will be updated.
