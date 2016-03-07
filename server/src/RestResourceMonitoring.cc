@@ -396,9 +396,9 @@ void RestResourceMonitoring::handlerGetTrigger(void)
 		string hostgroupName = targetHostgroupName;
 		ServerHostGrpSetMap serverHostGrpSetMap;
 		HostgroupsQueryOption hostgroupOption(m_dataQueryContextPtr);
-		dataStore->getServerHostGrpSetMapWithHostgroupName(serverHostGrpSetMap,
-								   hostgroupName,
-								   hostgroupOption);
+		hostgroupOption.setTargetHostgroupName(hostgroupName);
+		dataStore->getServerHostGrpSetMap(serverHostGrpSetMap,
+						  hostgroupOption);
 		option.setSelectedHostgroupIds(serverHostGrpSetMap);
 	}
 	dataStore->getTriggerList(triggerList, option);

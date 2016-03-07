@@ -529,14 +529,12 @@ HatoholError UnifiedDataStore::getHostgroups(
 	return cache.getHost().getHostgroups(hostgroups, option);
 }
 
-HatoholError UnifiedDataStore::getServerHostGrpSetMapWithHostgroupName(
-  ServerHostGrpSetMap &serverHostGrpSetMap, const string &hostgroupName,
+HatoholError UnifiedDataStore::getServerHostGrpSetMap(
+  ServerHostGrpSetMap &serverHostGrpSetMap,
   const HostgroupsQueryOption &option)
 {
 	ThreadLocalDBCache cache;
-	return cache.getHost()
-		.getServerHostGrpSetMapWithHostgroupName(serverHostGrpSetMap,
-		                                         hostgroupName, option);
+	return cache.getHost().getServerHostGrpSetMap(serverHostGrpSetMap, option);
 }
 
 HatoholError UnifiedDataStore::upsertHosts(

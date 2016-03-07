@@ -123,8 +123,8 @@ public:
 
 	HatoholError getHostgroups(HostgroupVect &hostgroups,
 	                           const HostgroupsQueryOption &option);
-	HatoholError getServerHostGrpSetMapWithHostgroupName(
-	  ServerHostGrpSetMap &serverHostGrpSetMap, const std::string &hostgroupName,
+	HatoholError getServerHostGrpSetMap(
+	  ServerHostGrpSetMap &serverHostGrpSetMap,
 	  const HostgroupsQueryOption &option);
 
 	/**
