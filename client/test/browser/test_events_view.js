@@ -233,7 +233,7 @@ describe('EventsView', function() {
     var expected = "";
 
     expected += '<td class="severity1 event-type1">' +
-      '<span class="glyphicon glyphicon-ban-circle"></span> Problem</td>';
+      '<span class="eventStatus glyphicon glyphicon-remove-sign"></span> Problem</td>';
     expected += '<td class="severity1">Information</td>';
 
     if (params) {
@@ -277,7 +277,7 @@ describe('EventsView', function() {
     var expected = "";
 
     expected += '<td class="severity1 event-type1">' +
-      '<span class="glyphicon glyphicon-ban-circle"></span> Problem</td>';
+      '<span class="eventStatus glyphicon glyphicon-remove-sign"></span> Problem</td>';
     expected += '<td class="severity1">Information</td>';
     if (params) {
       expected += '<td class="severity1"><a href="' + escapeHTML(params.eventURL) +
@@ -391,7 +391,7 @@ describe('EventsView', function() {
       "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332";
     var expected =
       '<td class=" event-type0">' +
-      '<span class="glyphicon glyphicon-ok"></span> OK</td>' +
+        '<span class="eventStatus glyphicon glyphicon-ok-sign"></span> OK</td>' +
       '<td class="">Information</td>' +
       '<td class=""><a href="' + escapeHTML(eventURL) +
       '" target="_blank">' + escapeHTML(formatDate(1415749496)) +
