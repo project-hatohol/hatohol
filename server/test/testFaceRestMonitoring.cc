@@ -592,6 +592,18 @@ void test_triggersWithTimeRangeAndHostname(void)
 		       beginTime, endTime, numExpectedTriggers, query);
 }
 
+void test_triggersWithTimeRangeAndHostgroupName(void)
+{
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+	timespec beginTime = {0,0}, endTime = {0,0};
+	size_t numExpectedTriggers = 4;
+	StringMap query;
+	query["hostgroupName"] = "Monitored Servers";
+	assertTriggers("/trigger", "foo", ALL_SERVERS, ALL_LOCAL_HOSTS,
+		       beginTime, endTime, numExpectedTriggers, query);
+}
+
 void test_events(void)
 {
 	assertEvents("/event");
