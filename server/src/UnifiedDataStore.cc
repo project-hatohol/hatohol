@@ -55,13 +55,10 @@ struct UnifiedDataStore::Impl
 	struct UnifiedDataStoreEventProc : public DataStoreEventProc
 	{
 		Impl *impl;
-		const AtomicValue<bool> &enableCopyOnDemand;
 
 		UnifiedDataStoreEventProc(
-		  Impl *_impl,
-		  const AtomicValue<bool> &copyOnDemand)
-		: impl(_impl),
-		  enableCopyOnDemand(copyOnDemand)
+		  Impl *_impl)
+		: impl(_impl)
 		{
 		}
 
@@ -71,7 +68,6 @@ struct UnifiedDataStore::Impl
 
 		virtual void onAdded(DataStore *dataStore) override
 		{
-			dataStore->setCopyOnDemandEnable(enableCopyOnDemand);
 			impl->addToDataStoreMap(dataStore);
 		}
 
@@ -84,17 +80,15 @@ struct UnifiedDataStore::Impl
 	static UnifiedDataStore *instance;
 	static std::mutex        mutex;
 
-	AtomicValue<bool>        isCopyOnDemandEnabled;
 	ItemFetchWorker          itemFetchWorker;
 	TriggerFetchWorker       triggerFetchWorker;
 
 	Impl()
-	: isCopyOnDemandEnabled(false), isStarted(false)
+	: isStarted(false)
 	{
 		// TODO: When should the object be freed ?
 		UnifiedDataStoreEventProc *evtProc =
-		  new Impl::UnifiedDataStoreEventProc(
-		    this, isCopyOnDemandEnabled);
+		  new Impl::UnifiedDataStoreEventProc(this);
 		dataStoreManager.registEventProc(evtProc);
 	};
 
@@ -402,8 +396,6 @@ void UnifiedDataStore::stop(void)
 
 void UnifiedDataStore::fetchItems(const ServerIdType &targetServerId)
 {
-	if (!getCopyOnDemandEnabled())
-		return;
 	if (!m_impl->itemFetchWorker.updateIsNeeded())
 		return;
 
@@ -460,8 +452,6 @@ void UnifiedDataStore::getItemCategoryNames(
 bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
                                        const ItemsQueryOption &option)
 {
-	if (!getCopyOnDemandEnabled())
-		return false;
 	if (!m_impl->itemFetchWorker.updateIsNeeded())
 		return false;
 
@@ -691,16 +681,6 @@ HatoholError UnifiedDataStore::getEventSeverityStatistics(
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	return dbMonitoring.getEventSeverityStatistics(severityStatisticsVect, option);
-}
-
-bool UnifiedDataStore::getCopyOnDemandEnabled(void) const
-{
-	return m_impl->isCopyOnDemandEnabled;
-}
-
-void UnifiedDataStore::setCopyOnDemandEnabled(bool enable)
-{
-	m_impl->isCopyOnDemandEnabled = enable;
 }
 
 HatoholError UnifiedDataStore::addAction(ActionDef &actionDef,

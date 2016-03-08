@@ -127,7 +127,6 @@ struct ArmBase::Impl
 	timespec             lastPollingTime;
 	sem_t                sleepSemaphore;
 	AtomicValue<bool>    exitRequest;
-	bool                 isCopyOnDemandEnabled;
 	ReadWriteLock        rwlock;
 	ArmStatus            armStatus;
 	string               lastFailureComment;
@@ -142,7 +141,6 @@ struct ArmBase::Impl
 	  serverInfo(_serverInfo),
 	  utils(serverInfo, armTriggers, NUM_COLLECT_NG_KIND),
 	  exitRequest(false),
-	  isCopyOnDemandEnabled(false),
 	  lastFailureStatus(ARM_WORK_STAT_FAILURE)
 	{
 		static const int PSHARED = 1;
@@ -369,16 +367,6 @@ retry:
 			MLPL_ERR("sem_timedwait(): errno: %d\n", errno);
 	}
 	// The up of the semaphore is done only from the destructor.
-}
-
-bool ArmBase::getCopyOnDemandEnabled(void) const
-{
-	return m_impl->isCopyOnDemandEnabled;
-}
-
-void ArmBase::setCopyOnDemandEnabled(bool enable)
-{
-	m_impl->isCopyOnDemandEnabled = enable;
 }
 
 void ArmBase::registerAvailableTrigger(const ArmPollingResult &type,

@@ -33,8 +33,6 @@ struct CommandLineOptions {
 	gchar    *dbPassword;
 	gboolean  foreground;
 	gboolean  testMode;
-	gboolean  enableCopyOnDemand;
-	gboolean  disableCopyOnDemand;
 	gboolean  loadOldEvents;
 	gint      faceRestPort;
 	gint      faceRestNumWorkers;
@@ -101,16 +99,6 @@ public:
 	void setResidentYardDirectory(const std::string &dir);
 
 	bool isTestMode(void) const;
-
-	/**
-	 * Get the flag for copy-on-demand of items.
-	 *
-	 * @retrun
-	 * If --enable-copy-on-deman is specified, ENABLE is returned.
-	 * If --disable-copy-on-deman is specified, DISABLE is returned.
-	 * Otherwise, UNKNOWN is returned.
-	 */
-	ConfigState getCopyOnDemand(void) const;
 
 	/**
 	 * Get the port for FaceRest.

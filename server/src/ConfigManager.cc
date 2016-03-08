@@ -118,8 +118,6 @@ CommandLineOptions::CommandLineOptions(void)
   dbPassword(NULL),
   foreground(FALSE),
   testMode(FALSE),
-  enableCopyOnDemand(FALSE),
-  disableCopyOnDemand(FALSE),
   loadOldEvents(FALSE),
   faceRestPort(-1),
   faceRestNumWorkers(0)
@@ -140,7 +138,6 @@ struct ConfigManager::Impl {
 	string                dbServerAddress;
 	int                   dbServerPort;
 	bool                  testMode;
-	ConfigState           copyOnDemand;
 	AtomicValue<int>      faceRestPort;
 	string                user;
 	string                pidFilePath;
@@ -153,7 +150,6 @@ struct ConfigManager::Impl {
 	  dbServerAddress("localhost"),
 	  dbServerPort(0),
 	  testMode(false),
-	  copyOnDemand(UNKNOWN),
 	  faceRestPort(0),
 	  pidFilePath(DEFAULT_PID_FILE_PATH),
 	  loadOldEvents(false),
@@ -232,10 +228,6 @@ struct ConfigManager::Impl {
 			foreground = true;
 		if (cmdLineOpts.testMode)
 			testMode = true;
-		if (cmdLineOpts.enableCopyOnDemand)
-			copyOnDemand = ENABLE;
-		if (cmdLineOpts.disableCopyOnDemand)
-			copyOnDemand = DISABLE;
 		if (cmdLineOpts.faceRestPort >= 0)
 			faceRestPort = cmdLineOpts.faceRestPort;
 		if (cmdLineOpts.pidFilePath)
@@ -332,14 +324,6 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		{"db-password",
 		 'w', 0, G_OPTION_ARG_STRING,
 		 &cmdLineOpts->dbPassword, "Database password", NULL},
-		{"enable-copy-on-demand",
-		 'e', 0, G_OPTION_ARG_NONE,
-		 &cmdLineOpts->enableCopyOnDemand,
-		 "Current monitoring values are obtained on demand.", NULL},
-		{"disable-copy-on-demand",
-		 'd', 0, G_OPTION_ARG_NONE,
-		 &cmdLineOpts->disableCopyOnDemand,
-		 "Current monitoring values are obtained periodically.", NULL},
 		{"face-rest-port",
 		 'r', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestPort,
 		 "Port of FaceRest", NULL},
@@ -491,11 +475,6 @@ void ConfigManager::setResidentYardDirectory(const string &dir)
 bool ConfigManager::isTestMode(void) const
 {
 	return m_impl->testMode;
-}
-
-ConfigManager::ConfigState ConfigManager::getCopyOnDemand(void) const
-{
-	return m_impl->copyOnDemand;
 }
 
 int ConfigManager::getFaceRestPort(void) const

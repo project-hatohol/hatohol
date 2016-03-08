@@ -26,10 +26,6 @@ DataStore::DataStore(void)
 {
 }
 
-void DataStore::setCopyOnDemandEnable(bool enable)
-{
-}
-
 bool DataStore::startOnDemandFetchItems(
   const LocalHostIdVector &hostIds, Closure0 *closure)
 {
