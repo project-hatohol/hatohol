@@ -685,25 +685,33 @@ div#abbreviating-event-descriptions-container {
     border-color: #ff0000;
 }
 
-#event-table-area .selectable.incident:before {
-    content: "\e013";
+#event-table-area .incident .incidentCheckbox {
+	position: relative;
     display: inline-block;
-    width: 13px;
+    width: 14px;
     height: 14px;
-    line-height: 12px;
+	line-height: 13px;
     margin: 0 5px 0 0;
-    padding: 0 1px 0 0;
     border: #a5a5a5 solid 1px;
     border-radius: 2px;
     background: #ffffff;
-    font-family: 'Glyphicons Halflings';
-    font-size: 10px;
-    text-align: center;
-    color: #ffffff;
 }
 
-#event-table-area .selectable.incident.selected:before {
+#event-table-area .incident .incidentCheckbox .glyphicon {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	display: none;
+    font-size: 10px;
     color: #000000;
+	width: 12px;
+	height: 12px;
+	line-height: 12px;
+	text-align: center;
+}
+
+#event-table-area .incident.selected .incidentCheckbox .glyphicon {
+	display: inline-block;
 }
 
 .event-table-content .eventStatus {
