@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -149,7 +149,7 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-class IncidentStatusHistoriesQueryOption : public DataQueryOption {
+class IncidentHistoriesQueryOption : public DataQueryOption {
 public:
 	enum SortType {
 		SORT_UNIFIED_EVENT_ID,
@@ -160,15 +160,15 @@ public:
 	static const UnifiedEventIdType INVALID_ID;
 
 public:
-	IncidentStatusHistoriesQueryOption(const UserIdType &userId = INVALID_USER_ID);
-	IncidentStatusHistoriesQueryOption(DataQueryContext *dataQueryContext);
-	IncidentStatusHistoriesQueryOption(const IncidentStatusHistoriesQueryOption &src);
-	~IncidentStatusHistoriesQueryOption();
+	IncidentHistoriesQueryOption(const UserIdType &userId = INVALID_USER_ID);
+	IncidentHistoriesQueryOption(DataQueryContext *dataQueryContext);
+	IncidentHistoriesQueryOption(const IncidentHistoriesQueryOption &src);
+	~IncidentHistoriesQueryOption();
 
 	virtual std::string getCondition(void) const override;
 
-	void setTargetId(const IncidentStatusHistoryIdType &id);
-	const IncidentStatusHistoryIdType &getTargetId(void);
+	void setTargetId(const IncidentHistoryIdType &id);
+	const IncidentHistoryIdType &getTargetId(void);
 	void setTargetUnifiedEventId(const UnifiedEventIdType &id);
 	const UnifiedEventIdType getTargetUnifiedEventId(void);
 	void setTargetUserId(const UserIdType &userId);
@@ -215,7 +215,7 @@ public:
 	static const char *TABLE_NAME_ITEM_CATEGORIES;
 	static const char *TABLE_NAME_SERVER_STATUS;
 	static const char *TABLE_NAME_INCIDENTS;
-	static const char *TABLE_NAME_INCIDENT_STATUS_HISTORIES;
+	static const char *TABLE_NAME_INCIDENT_HISTORIES;
 
 	DBTablesMonitoring(DBAgent &dbAgent);
 	virtual ~DBTablesMonitoring();
@@ -363,13 +363,13 @@ public:
 	};
 	static HatoholError getSystemInfo(SystemInfo &info,
 	                                  const DataQueryOption &option);
-	HatoholError addIncidentStatusHistory(
-	  IncidentStatusHistory &incidentStatusHistory);
-	HatoholError updateIncidentStatusHistory(
-	  IncidentStatusHistory &incidentStatusHistory);
-	HatoholError getIncidentStatusHistory(
-	  std::list<IncidentStatusHistory> &IncidentStatusHistoriesList,
-	  const IncidentStatusHistoriesQueryOption &option);
+	HatoholError addIncidentHistory(
+	  IncidentHistory &incidentHistory);
+	HatoholError updateIncidentHistory(
+	  IncidentHistory &incidentHistory);
+	HatoholError getIncidentHistory(
+	  std::list<IncidentHistory> &IncidentHistoriesList,
+	  const IncidentHistoriesQueryOption &option);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

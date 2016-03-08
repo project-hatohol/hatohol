@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -116,8 +116,8 @@ extern const size_t NumTestSeverityRankInfoDef;
 extern const CustomIncidentStatus testCustomIncidentStatus[];
 extern const size_t NumTestCustomIncidentStatus;
 
-extern const IncidentStatusHistory testIncidentStatusHistory[];
-extern const size_t NumTestIncidentStatusHistory;
+extern const IncidentHistory testIncidentHistory[];
+extern const size_t NumTestIncidentHistory;
 
 /**
  * get the test trigger data indexes whose serverId and hostId are
@@ -291,6 +291,6 @@ void loadTestDBLastInfo(void);
 void loadTestDBSeverityRankInfo(void);
 
 void loadTestDBCustomIncidentStatusInfo(void);
-void loadTestDBIncidentStatusHistory(void);
+void loadTestDBIncidentHistory(void);
 
 #endif // DBClientTest_h

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -105,8 +105,8 @@ typedef int SeverityRankStatusType;
 typedef int CustomIncidentStatusIdType;
 #define FMT_CUSTOM_INCIDENT_STATUS_ID "d"
 
-typedef uint64_t IncidentStatusHistoryIdType;
-#define FMT_INCIDENT_STATUS_HISTORY_ID PRIu64
+typedef uint64_t IncidentHistoryIdType;
+#define FMT_INCIDENT_HISTORY_ID PRIu64
 
 // Special Server IDs =========================================================
 static const ServerIdType ALL_SERVERS       = -1;

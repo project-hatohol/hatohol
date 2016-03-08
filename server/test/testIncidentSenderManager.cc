@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 Project Hatohol
+ * Copyright (C) 2014-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -103,7 +103,7 @@ void test_sendRedmineIncident(void)
 	DBHatohol dbHatohol;
 	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
-				"select * from incident_status_histories");
+				"select * from incident_histories");
 	string expected = "^1\\|293\\|0\\|New\\|\\|\\d+\\|\\d+$";
 	cut_assert_match(expected.c_str(), actual.c_str());
 }
@@ -132,7 +132,7 @@ void test_sendHatholIncident(void)
 
 	// check history
 	actual = execSQL(&dbMonitoring.getDBAgent(),
-			 "select * from incident_status_histories");
+			 "select * from incident_histories");
 	expected = "^1\\|193\\|0\\|NONE\\|\\|\\d+\\|\\d+$";
 	cut_assert_match(expected.c_str(), actual.c_str());
 }

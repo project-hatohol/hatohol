@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Project Hatohol
+ * Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -1975,205 +1975,205 @@ void test_getSystemInfoByInvalidUser(void)
 	  DBTablesMonitoring::getSystemInfo(systemInfo, option));
 }
 
-void test_addIncidentStatusHistory(void)
+void test_addIncidentHistory(void)
 {
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	string expected, actual;
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 
-	string statement = "select * from incident_status_histories;";
-	for (size_t i = 0; i < NumTestIncidentStatusHistory; i++) {
-		IncidentStatusHistory expectedIncidentStatusHistory =
-		  testIncidentStatusHistory[i];
-		expectedIncidentStatusHistory.id = i + 1;
+	string statement = "select * from incident_histories;";
+	for (size_t i = 0; i < NumTestIncidentHistory; i++) {
+		IncidentHistory expectedIncidentHistory =
+		  testIncidentHistory[i];
+		expectedIncidentHistory.id = i + 1;
 		expected +=
-		  makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
-		IncidentStatusHistory incidentStatusHistory =
-		  testIncidentStatusHistory[i];
-		dbMonitoring.addIncidentStatusHistory(incidentStatusHistory);
+		  makeIncidentHistoryOutput(expectedIncidentHistory);
+		IncidentHistory incidentHistory =
+		  testIncidentHistory[i];
+		dbMonitoring.addIncidentHistory(incidentHistory);
 	}
 	assertDBContent(&dbAgent, statement, expected);
 }
 
-void test_updateIncidentStatusHistory(void)
+void test_updateIncidentHistory(void)
 {
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	DBAgent &dbAgent = dbMonitoring.getDBAgent();
 
-	IncidentStatusHistory history = testIncidentStatusHistory[0];
+	IncidentHistory history = testIncidentHistory[0];
 	history.id = 1;
 	history.comment = "Oops!";
 
 	string expected;
-	for (size_t i = 0; i < NumTestIncidentStatusHistory; i++) {
-		IncidentStatusHistory expectedIncidentStatusHistory =
-		  testIncidentStatusHistory[i];
-		expectedIncidentStatusHistory.id = i + 1;
-		if (expectedIncidentStatusHistory.id == history.id)
-			expectedIncidentStatusHistory.comment = history.comment;
+	for (size_t i = 0; i < NumTestIncidentHistory; i++) {
+		IncidentHistory expectedIncidentHistory =
+		  testIncidentHistory[i];
+		expectedIncidentHistory.id = i + 1;
+		if (expectedIncidentHistory.id == history.id)
+			expectedIncidentHistory.comment = history.comment;
 		expected +=
-		  makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+		  makeIncidentHistoryOutput(expectedIncidentHistory);
 	}
 
-	dbMonitoring.updateIncidentStatusHistory(history);
+	dbMonitoring.updateIncidentHistory(history);
 
-	string statement("select * from incident_status_histories;");
+	string statement("select * from incident_histories;");
 	assertDBContent(&dbAgent, statement, expected);
 }
 
-void test_getIncidentStatusHistory(void)
+void test_getIncidentHistory(void)
 {
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	string expected, actual;
 
-	IncidentStatusHistoriesQueryOption option(USER_ID_SYSTEM);
+	IncidentHistoriesQueryOption option(USER_ID_SYSTEM);
 	option.setTargetUnifiedEventId(3);
 	option.setTargetUserId(1);
 
-	IncidentStatusHistory expectedIncidentStatusHistory =
-	  testIncidentStatusHistory[0];
-	expectedIncidentStatusHistory.id = 1;
-	expected = makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+	IncidentHistory expectedIncidentHistory =
+	  testIncidentHistory[0];
+	expectedIncidentHistory.id = 1;
+	expected = makeIncidentHistoryOutput(expectedIncidentHistory);
 
-	list<IncidentStatusHistory> incidentstatusHistoryList;
-	dbMonitoring.getIncidentStatusHistory(incidentstatusHistoryList, option);
-	for (auto incidentStatusHistory : incidentstatusHistoryList) {
-		actual += makeIncidentStatusHistoryOutput(incidentStatusHistory);
+	list<IncidentHistory> incidentHistoryList;
+	dbMonitoring.getIncidentHistory(incidentHistoryList, option);
+	for (auto incidentHistory : incidentHistoryList) {
+		actual += makeIncidentHistoryOutput(incidentHistory);
 	}
 
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_getIncidentStatusHistoryById(void)
+void test_getIncidentHistoryById(void)
 {
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	string expected, actual;
 
-	IncidentStatusHistoriesQueryOption option(USER_ID_SYSTEM);
+	IncidentHistoriesQueryOption option(USER_ID_SYSTEM);
 	option.setTargetId(2);
 
-	IncidentStatusHistory expectedIncidentStatusHistory =
-	  testIncidentStatusHistory[1];
-	expectedIncidentStatusHistory.id = 2;
-	expected = makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+	IncidentHistory expectedIncidentHistory =
+	  testIncidentHistory[1];
+	expectedIncidentHistory.id = 2;
+	expected = makeIncidentHistoryOutput(expectedIncidentHistory);
 
-	list<IncidentStatusHistory> incidentstatusHistoryList;
-	dbMonitoring.getIncidentStatusHistory(incidentstatusHistoryList, option);
-	for (auto incidentStatusHistory : incidentstatusHistoryList) {
-		actual += makeIncidentStatusHistoryOutput(incidentStatusHistory);
+	list<IncidentHistory> incidentHistoryList;
+	dbMonitoring.getIncidentHistory(incidentHistoryList, option);
+	for (auto incidentHistory : incidentHistoryList) {
+		actual += makeIncidentHistoryOutput(incidentHistory);
 	}
 
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_getIncidentStatusHistoryWithSortTimeAscending(void)
+void test_getIncidentHistoryWithSortTimeAscending(void)
 {
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	string expected, actual;
 
-	IncidentStatusHistoriesQueryOption option(USER_ID_SYSTEM);
-	option.setSortType(IncidentStatusHistoriesQueryOption::SORT_TIME,
+	IncidentHistoriesQueryOption option(USER_ID_SYSTEM);
+	option.setSortType(IncidentHistoriesQueryOption::SORT_TIME,
 			   DataQueryOption::SORT_ASCENDING);
 
-	for (size_t i = 0; i < NumTestIncidentStatusHistory; i++) {
-		IncidentStatusHistory expectedIncidentStatusHistory =
-		  testIncidentStatusHistory[i];
-		expectedIncidentStatusHistory.id = i + 1;
+	for (size_t i = 0; i < NumTestIncidentHistory; i++) {
+		IncidentHistory expectedIncidentHistory =
+		  testIncidentHistory[i];
+		expectedIncidentHistory.id = i + 1;
 		expected +=
-		  makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+		  makeIncidentHistoryOutput(expectedIncidentHistory);
 	}
 
-	list<IncidentStatusHistory> incidentstatusHistoryList;
-	dbMonitoring.getIncidentStatusHistory(incidentstatusHistoryList, option);
-	for (auto incidentStatusHistory : incidentstatusHistoryList) {
-		actual += makeIncidentStatusHistoryOutput(incidentStatusHistory);
+	list<IncidentHistory> incidentHistoryList;
+	dbMonitoring.getIncidentHistory(incidentHistoryList, option);
+	for (auto incidentHistory : incidentHistoryList) {
+		actual += makeIncidentHistoryOutput(incidentHistory);
 	}
 
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_getIncidentStatusHistoryWithSortTimeDescending(void)
+void test_getIncidentHistoryWithSortTimeDescending(void)
 {
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	string expected, actual;
 
-	IncidentStatusHistoriesQueryOption option(USER_ID_SYSTEM);
-	option.setSortType(IncidentStatusHistoriesQueryOption::SORT_TIME,
+	IncidentHistoriesQueryOption option(USER_ID_SYSTEM);
+	option.setSortType(IncidentHistoriesQueryOption::SORT_TIME,
 			   DataQueryOption::SORT_DESCENDING);
 
 	// Reverse access
-	for (size_t i = NumTestIncidentStatusHistory; i > 0; i--) {
-		IncidentStatusHistory expectedIncidentStatusHistory =
-		  testIncidentStatusHistory[i - 1];
-		expectedIncidentStatusHistory.id = i;
+	for (size_t i = NumTestIncidentHistory; i > 0; i--) {
+		IncidentHistory expectedIncidentHistory =
+		  testIncidentHistory[i - 1];
+		expectedIncidentHistory.id = i;
 		expected +=
-		  makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+		  makeIncidentHistoryOutput(expectedIncidentHistory);
 	}
 
-	list<IncidentStatusHistory> incidentstatusHistoryList;
-	dbMonitoring.getIncidentStatusHistory(incidentstatusHistoryList, option);
-	for (auto incidentStatusHistory : incidentstatusHistoryList) {
-		actual += makeIncidentStatusHistoryOutput(incidentStatusHistory);
+	list<IncidentHistory> incidentHistoryList;
+	dbMonitoring.getIncidentHistory(incidentHistoryList, option);
+	for (auto incidentHistory : incidentHistoryList) {
+		actual += makeIncidentHistoryOutput(incidentHistory);
 	}
 
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_getIncidentStatusHistoryWithSortUnifiedEventIdAscending(void)
+void test_getIncidentHistoryWithSortUnifiedEventIdAscending(void)
 {
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	string expected, actual;
 
-	IncidentStatusHistoriesQueryOption option(USER_ID_SYSTEM);
-	option.setSortType(IncidentStatusHistoriesQueryOption::SORT_UNIFIED_EVENT_ID,
+	IncidentHistoriesQueryOption option(USER_ID_SYSTEM);
+	option.setSortType(IncidentHistoriesQueryOption::SORT_UNIFIED_EVENT_ID,
 			   DataQueryOption::SORT_ASCENDING);
 
-	for (size_t i = 0; i < NumTestIncidentStatusHistory; i++) {
-		IncidentStatusHistory expectedIncidentStatusHistory =
-		  testIncidentStatusHistory[i];
-		expectedIncidentStatusHistory.id = i + 1;
+	for (size_t i = 0; i < NumTestIncidentHistory; i++) {
+		IncidentHistory expectedIncidentHistory =
+		  testIncidentHistory[i];
+		expectedIncidentHistory.id = i + 1;
 		expected +=
-		  makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+		  makeIncidentHistoryOutput(expectedIncidentHistory);
 	}
 
-	list<IncidentStatusHistory> incidentstatusHistoryList;
-	dbMonitoring.getIncidentStatusHistory(incidentstatusHistoryList, option);
-	for (auto incidentStatusHistory : incidentstatusHistoryList) {
-		actual += makeIncidentStatusHistoryOutput(incidentStatusHistory);
+	list<IncidentHistory> incidentHistoryList;
+	dbMonitoring.getIncidentHistory(incidentHistoryList, option);
+	for (auto incidentHistory : incidentHistoryList) {
+		actual += makeIncidentHistoryOutput(incidentHistory);
 	}
 
 	cppcut_assert_equal(expected, actual);
 }
 
-void test_getIncidentStatusHistoryWithSortUnifiedEventIdDescending(void)
+void test_getIncidentHistoryWithSortUnifiedEventIdDescending(void)
 {
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	string expected, actual;
 
-	IncidentStatusHistoriesQueryOption option(USER_ID_SYSTEM);
-	option.setSortType(IncidentStatusHistoriesQueryOption::SORT_UNIFIED_EVENT_ID,
+	IncidentHistoriesQueryOption option(USER_ID_SYSTEM);
+	option.setSortType(IncidentHistoriesQueryOption::SORT_UNIFIED_EVENT_ID,
 			   DataQueryOption::SORT_DESCENDING);
 
 	// Reverse access
-	for (size_t i = NumTestIncidentStatusHistory; i > 0; i--) {
-		IncidentStatusHistory expectedIncidentStatusHistory =
-		  testIncidentStatusHistory[i - 1];
-		expectedIncidentStatusHistory.id = i;
+	for (size_t i = NumTestIncidentHistory; i > 0; i--) {
+		IncidentHistory expectedIncidentHistory =
+		  testIncidentHistory[i - 1];
+		expectedIncidentHistory.id = i;
 		expected +=
-		  makeIncidentStatusHistoryOutput(expectedIncidentStatusHistory);
+		  makeIncidentHistoryOutput(expectedIncidentHistory);
 	}
 
-	list<IncidentStatusHistory> incidentstatusHistoryList;
-	dbMonitoring.getIncidentStatusHistory(incidentstatusHistoryList, option);
-	for (auto incidentStatusHistory : incidentstatusHistoryList) {
-		actual += makeIncidentStatusHistoryOutput(incidentStatusHistory);
+	list<IncidentHistory> incidentHistoryList;
+	dbMonitoring.getIncidentHistory(incidentHistoryList, option);
+	for (auto incidentHistory : incidentHistoryList) {
+		actual += makeIncidentHistoryOutput(incidentHistory);
 	}
 
 	cppcut_assert_equal(expected, actual);

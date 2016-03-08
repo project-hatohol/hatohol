@@ -121,11 +121,11 @@ void getUserNameTable(const DataQueryContextPtr &dataQueryContextPtr,
 void RestResourceIncident::handlerGetIncidentHistory(
   const UnifiedEventIdType unifiedEventId)
 {
-	list<IncidentStatusHistory> incidentHistoryList;
-	IncidentStatusHistoriesQueryOption option(m_dataQueryContextPtr);
+	list<IncidentHistory> incidentHistoryList;
+	IncidentHistoriesQueryOption option(m_dataQueryContextPtr);
 	option.setTargetUnifiedEventId(unifiedEventId);
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->getIncidentStatusHistories(incidentHistoryList, option);
+	dataStore->getIncidentHistories(incidentHistoryList, option);
 
 	map<UserIdType, string> userNameTable;
 	getUserNameTable(m_dataQueryContextPtr, userNameTable);
@@ -400,7 +400,7 @@ void RestResourceIncident::handlerIncidentComment(void)
 }
 
 bool RestResourceIncident::getRequestedIncidentHistory(
-  IncidentStatusHistory &history)
+  IncidentHistory &history)
 {
 	uint64_t id = getResourceId();
 	if (id == INVALID_ID) {
@@ -411,10 +411,10 @@ bool RestResourceIncident::getRequestedIncidentHistory(
 
 	// get the existing record
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	list<IncidentStatusHistory> incidentHistoryList;
-	IncidentStatusHistoriesQueryOption option(m_dataQueryContextPtr);
+	list<IncidentHistory> incidentHistoryList;
+	IncidentHistoriesQueryOption option(m_dataQueryContextPtr);
 	option.setTargetId(id);
-	dataStore->getIncidentStatusHistories(incidentHistoryList, option);
+	dataStore->getIncidentHistories(incidentHistoryList, option);
 	if (incidentHistoryList.empty()) {
 		REPLY_ERROR(this, HTERR_NOT_FOUND_TARGET_RECORD,
 		            "id: %" FMT_UNIFIED_EVENT_ID, id);
@@ -445,10 +445,10 @@ static HatoholError parseIncidentCommentParameter(
 }
 
 void RestResourceIncident::updateIncidentHistory(
-  IncidentStatusHistory &history)
+  IncidentHistory &history)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	HatoholError err = dataStore->updateIncidentStatusHistory(history);
+	HatoholError err = dataStore->updateIncidentHistory(history);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
@@ -464,7 +464,7 @@ void RestResourceIncident::updateIncidentHistory(
 
 void RestResourceIncident::handlerPutIncidentComment(void)
 {
-	IncidentStatusHistory history;
+	IncidentHistory history;
 	bool succeeded = getRequestedIncidentHistory(history);
 	if (!succeeded)
 		return;
@@ -481,7 +481,7 @@ void RestResourceIncident::handlerPutIncidentComment(void)
 
 void RestResourceIncident::handlerDeleteIncidentComment(void)
 {
-	IncidentStatusHistory history;
+	IncidentHistory history;
 	bool succeeded = getRequestedIncidentHistory(history);
 	if (!succeeded)
 		return;

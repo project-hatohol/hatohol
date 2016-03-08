@@ -113,7 +113,7 @@ void test_putIncident(void)
 
 	// check history
 	actual = execSQL(&dbMonitoring.getDBAgent(),
-			 "select * from incident_status_histories");
+			 "select * from incident_histories");
 	expected = "^1\\|123\\|2\\|IN PROGRESS\\|\\|\\d+\\|\\d+$";
 	cut_assert_match(expected.c_str(), actual.c_str());
 }
@@ -158,7 +158,7 @@ void test_putInvalidIncident(void)
 
 	// check history
 	actual = execSQL(&dbMonitoring.getDBAgent(),
-			 "select * from incident_status_histories");
+			 "select * from incident_histories");
 	expected = "";
 	cppcut_assert_equal(expected.c_str(), actual.c_str());
 }
@@ -270,7 +270,7 @@ void test_getIncident(void)
 void test_getIncidentHistory(void)
 {
 	loadTestDBIncidents();
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	startFaceRest();
 
 	RequestArg arg("/incident/3/history");
@@ -299,7 +299,7 @@ void test_getIncidentHistory(void)
 void test_getIncidentHistoryWithComment(void)
 {
 	loadTestDBIncidents();
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	startFaceRest();
 
 	RequestArg arg("/incident/4/history");
@@ -329,7 +329,7 @@ void test_getIncidentHistoryWithComment(void)
 void test_getIncidentHistoryForNonExistentIncident(void)
 {
 	loadTestDBIncidents();
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	startFaceRest();
 
 	RequestArg arg("/incident/1711718/history");
@@ -362,12 +362,12 @@ void test_getUnknownSubResource(void)
 void test_updateIncidentComment(void)
 {
 	loadTestDBIncidents();
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	startFaceRest();
 
 	const string comment = "Assign to @cosmo920";
 	RequestArg arg("/incident-comment/2");
-	arg.userId = testIncidentStatusHistory[1].userId;
+	arg.userId = testIncidentHistory[1].userId;
 	arg.request = "PUT";
 	arg.parameters["comment"] = comment;
 	getServerResponse(arg);
@@ -383,24 +383,24 @@ void test_updateIncidentComment(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
-				"select * from incident_status_histories"
+				"select * from incident_histories"
 				" where id=2");
-	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	IncidentHistory history = testIncidentHistory[1];
 	history.id = 2;
 	history.comment = comment;
-	string expected = makeIncidentStatusHistoryOutput(history);
+	string expected = makeIncidentHistoryOutput(history);
 	cppcut_assert_equal(expected, actual);
 }
 
 void test_updateIncidentCommentByNonOwner(void)
 {
 	loadTestDBIncidents();
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	startFaceRest();
 
 	const string comment = "Assign to @cosmo920";
 	RequestArg arg("/incident-comment/2");
-	arg.userId = testIncidentStatusHistory[1].userId + 1;
+	arg.userId = testIncidentHistory[1].userId + 1;
 	arg.request = "PUT";
 	arg.parameters["comment"] = comment;
 	getServerResponse(arg);
@@ -410,23 +410,23 @@ void test_updateIncidentCommentByNonOwner(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
-				"select * from incident_status_histories"
+				"select * from incident_histories"
 				" where id=2");
-	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	IncidentHistory history = testIncidentHistory[1];
 	history.id = 2;
-	string expected = makeIncidentStatusHistoryOutput(history);
+	string expected = makeIncidentHistoryOutput(history);
 	cppcut_assert_equal(expected, actual);
 }
 
 void test_updateIncidentCommentWithoutParameter(void)
 {
 	loadTestDBIncidents();
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	startFaceRest();
 
 	const string comment = "Assign to @cosmo920";
 	RequestArg arg("/incident-comment/2");
-	arg.userId = testIncidentStatusHistory[1].userId;
+	arg.userId = testIncidentHistory[1].userId;
 	arg.request = "PUT";
 	getServerResponse(arg);
 	string expectedResponse(
@@ -442,22 +442,22 @@ void test_updateIncidentCommentWithoutParameter(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
-				"select * from incident_status_histories"
+				"select * from incident_histories"
 				" where id=2");
-	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	IncidentHistory history = testIncidentHistory[1];
 	history.id = 2;
-	string expected = makeIncidentStatusHistoryOutput(history);
+	string expected = makeIncidentHistoryOutput(history);
 	cppcut_assert_equal(expected, actual);
 }
 
 void test_deleteIncidentComment(void)
 {
 	loadTestDBIncidents();
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	startFaceRest();
 
 	RequestArg arg("/incident-comment/2");
-	arg.userId = testIncidentStatusHistory[1].userId;
+	arg.userId = testIncidentHistory[1].userId;
 	arg.request = "DELETE";
 	getServerResponse(arg);
 	string expectedResponse(
@@ -472,23 +472,23 @@ void test_deleteIncidentComment(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
-				"select * from incident_status_histories"
+				"select * from incident_histories"
 				" where id=2");
-	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	IncidentHistory history = testIncidentHistory[1];
 	history.id = 2;
 	history.comment = "";
-	string expected = makeIncidentStatusHistoryOutput(history);
+	string expected = makeIncidentHistoryOutput(history);
 	cppcut_assert_equal(expected, actual);
 }
 
 void test_deleteIncidentCommentByNonOwner(void)
 {
 	loadTestDBIncidents();
-	loadTestDBIncidentStatusHistory();
+	loadTestDBIncidentHistory();
 	startFaceRest();
 
 	RequestArg arg("/incident-comment/2");
-	arg.userId = testIncidentStatusHistory[1].userId + 1;
+	arg.userId = testIncidentHistory[1].userId + 1;
 	arg.request = "DELETE";
 	getServerResponse(arg);
 	cppcut_assert_equal(403, arg.httpStatusCode);
@@ -497,11 +497,11 @@ void test_deleteIncidentCommentByNonOwner(void)
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
-				"select * from incident_status_histories"
+				"select * from incident_histories"
 				" where id=2");
-	IncidentStatusHistory history = testIncidentStatusHistory[1];
+	IncidentHistory history = testIncidentHistory[1];
 	history.id = 2;
-	string expected = makeIncidentStatusHistoryOutput(history);
+	string expected = makeIncidentHistoryOutput(history);
 	cppcut_assert_equal(expected, actual);
 }
 

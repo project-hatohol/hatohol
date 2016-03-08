@@ -1,5 +1,4 @@
-/*
- * Copyright (C) 2013-2015 Project Hatohol
+/* Copyright (C) 2013-2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -1655,7 +1654,7 @@ const CustomIncidentStatus testCustomIncidentStatus[] = {
 };
 const size_t NumTestCustomIncidentStatus = ARRAY_SIZE(testCustomIncidentStatus);
 
-const IncidentStatusHistory testIncidentStatusHistory[] = {
+const IncidentHistory testIncidentHistory[] = {
 {
 	AUTO_INCREMENT_VALUE,  // id
 	3,                     // unifiedId
@@ -1681,7 +1680,7 @@ const IncidentStatusHistory testIncidentStatusHistory[] = {
 	{1453451165, 0},       // createdAt
 },
 };
-const size_t NumTestIncidentStatusHistory = ARRAY_SIZE(testIncidentStatusHistory);
+const size_t NumTestIncidentHistory = ARRAY_SIZE(testIncidentHistory);
 
 const TriggerInfo &searchTestTriggerInfo(const EventInfo &eventInfo)
 {
@@ -2605,11 +2604,11 @@ void loadTestDBCustomIncidentStatusInfo(void)
 		dbConfig.upsertCustomIncidentStatus(customIncidentStatus, privilege);
 }
 
-void loadTestDBIncidentStatusHistory(void)
+void loadTestDBIncidentHistory(void)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 	OperationPrivilege privilege(USER_ID_SYSTEM);
-	for (auto incidentStatusHistory : testIncidentStatusHistory)
-		dbMonitoring.addIncidentStatusHistory(incidentStatusHistory);
+	for (auto incidentHistory : testIncidentHistory)
+		dbMonitoring.addIncidentHistory(incidentHistory);
 }
