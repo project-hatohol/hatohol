@@ -57,11 +57,6 @@ const ArmStatus &DataStoreFake::getArmStatus(void) const
 	return m_impl->armFake.getArmStatus();
 }
 
-void DataStoreFake::setCopyOnDemandEnable(bool enable)
-{
-	m_impl->armFake.setCopyOnDemandEnabled(enable);
-}
-
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------

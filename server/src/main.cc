@@ -251,15 +251,6 @@ int mainRoutine(int argc, char *argv[])
 	rest.start();
 
 	ctx.unifiedDataStore = UnifiedDataStore::getInstance();
-	bool enableCopyOnDemand = true;
-	ConfigManager::ConfigState state = confMgr->getCopyOnDemand();
-	if (state == ConfigManager::ENABLE)
-		enableCopyOnDemand = true;
-	else if (state == ConfigManager::DISABLE)
-		enableCopyOnDemand = false;
-	else
-		enableCopyOnDemand = cache.getConfig().isCopyOnDemandEnabled();
-	ctx.unifiedDataStore->setCopyOnDemandEnabled(enableCopyOnDemand);
 	ctx.unifiedDataStore->start();
 
 	// main loop of GLIB

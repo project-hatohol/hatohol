@@ -56,8 +56,6 @@ public:
 	void start(const bool &autoRun = true);
 
 	void stop(void);
-	bool getCopyOnDemandEnabled(void) const;
-	void setCopyOnDemandEnabled(bool enable);
 
 	/**
 	 * Add events in the Hatohol DB and executes action if needed.

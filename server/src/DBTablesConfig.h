@@ -183,7 +183,6 @@ public:
 	void setDatabaseDir(const std::string &dir);
 	int  getFaceRestPort(void);
 	void setFaceRestPort(int port);
-	bool isCopyOnDemandEnabled(void);
 
 	/**
 	 * Register the server type.

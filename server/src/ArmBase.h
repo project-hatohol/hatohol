@@ -62,9 +62,6 @@ public:
 	int getPollingInterval(void) const;
 	int getRetryInterval(void) const;
 
-	bool getCopyOnDemandEnabled(void) const;
-	void setCopyOnDemandEnabled(bool enable);
-
 	const std::string &getName(void) const;
 
 	void setServerConnectStatus(const ArmPollingResult &type);

@@ -37,7 +37,6 @@ public:
 	virtual const MonitoringServerInfo
 	  &getMonitoringServerInfo(void) const = 0;
 	virtual const ArmStatus &getArmStatus(void) const = 0;
-	virtual void setCopyOnDemandEnable(bool enable);
 	virtual bool isFetchItemsSupported(void);
 	virtual bool startOnDemandFetchItems(
 	  const LocalHostIdVector &hostIds,

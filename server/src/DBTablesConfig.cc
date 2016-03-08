@@ -87,6 +87,7 @@ static const ColumnDef COLUMN_DEF_SYSTEM[] = {
 	0,                                 // flags
 	"0",                               // defaultValue
 }, {
+	// obsolete
 	"enable_copy_on_demand",           // columnName
 	SQL_COLUMN_TYPE_INT,               // type
 	11,                                // columnLength
@@ -102,7 +103,7 @@ enum {
 	IDX_SYSTEM_DATABASE_DIR,
 	IDX_SYSTEM_ENABLE_FACE_MYSQL,
 	IDX_SYSTEM_FACE_REST_PORT,
-	IDX_SYSTEM_ENABLE_COPY_ON_DEMAND,
+	IDX_SYSTEM_ENABLE_COPY_ON_DEMAND, // obsolete
 	NUM_IDX_SYSTEM,
 };
 
@@ -1032,18 +1033,6 @@ void DBTablesConfig::setFaceRestPort(int port)
 	DBAgent::UpdateArg arg(tableProfileSystem);
 	arg.add(IDX_SYSTEM_FACE_REST_PORT, port);
 	getDBAgent().runTransaction(arg);
-}
-
-bool DBTablesConfig::isCopyOnDemandEnabled(void)
-{
-	DBAgent::SelectArg arg(tableProfileSystem);
-	arg.columnIndexes.push_back(IDX_SYSTEM_ENABLE_COPY_ON_DEMAND);
-	getDBAgent().runTransaction(arg);
-
-	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	HATOHOL_ASSERT(!grpList.empty(), "Obtained Table: empty");
-	ItemGroupStream itemGroupStream(*grpList.begin());
-	return itemGroupStream.read<int>();
 }
 
 void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)

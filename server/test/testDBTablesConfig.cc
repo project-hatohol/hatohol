@@ -900,12 +900,6 @@ void test_setGetFaceRestPort(void)
 	cppcut_assert_equal(portNumber, dbConfig.getFaceRestPort());
 }
 
-void test_isCopyOnDemandEnabledDefault(void)
-{
-	DECLARE_DBTABLES_CONFIG(dbConfig);
-	cut_assert_true(dbConfig.isCopyOnDemandEnabled());
-}
-
 void test_serverQueryOptionForAdmin(void)
 {
 	ServerQueryOption option(USER_ID_SYSTEM);

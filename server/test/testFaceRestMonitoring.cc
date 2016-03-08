@@ -533,9 +533,6 @@ void cut_setup(void)
 void cut_teardown(void)
 {
 	stopFaceRest();
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->setCopyOnDemandEnabled(false);
 }
 
 void test_hosts(void)
@@ -647,8 +644,6 @@ void test_items(void)
 
 void test_itemsAsyncWithNoArm(void)
 {
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->setCopyOnDemandEnabled(true);
 	assertItems("/item");
 }
 
@@ -658,7 +653,6 @@ void test_itemsAsyncWithNonExistentServers(void)
 		 "timeout values of ArmZabbixAPI.\n");
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	dataStore->setCopyOnDemandEnabled(true);
 	dataStore->start();
 	assertItems("/item");
 	dataStore->stop();
