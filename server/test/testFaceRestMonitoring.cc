@@ -162,7 +162,7 @@ static void _assertTriggers(
   const timespec &beginTime = {0, 0},
   const timespec &endTime = {0, 0},
   const size_t expectedNumTrigger = -1,
-  const string &hostname = "")
+  const StringMap query = StringMap())
 {
 	loadTestDBTriggers();
 	loadTestDBServerHostDef();
@@ -208,8 +208,12 @@ static void _assertTriggers(
 	if (endTime.tv_sec != 0 || endTime.tv_nsec != 0) {
 		queryMap["endTime"] = StringUtils::sprintf("%ld", endTime.tv_sec);
 	}
-	if (!hostname.empty())
-		queryMap["hostname"] = hostname;
+	StringMapConstIterator hostnameIt = query.find("hostname");
+	if (hostnameIt != query.end())
+		queryMap["hostname"] = hostnameIt->second;
+	StringMapConstIterator hostgrpNameIt = query.find("hostgroupName");
+	if (hostgrpNameIt != query.end())
+		queryMap["hostgroupName"] = hostgrpNameIt->second;
 	arg.parameters = queryMap;
 	JSONParser *parser = getResponseAsJSONParser(arg);
 	unique_ptr<JSONParser> parserPtr(parser);
@@ -582,8 +586,10 @@ void test_triggersWithTimeRangeAndHostname(void)
 {
 	timespec beginTime = {1362957197,0}, endTime = {1362957200,0};
 	size_t numExpectedTriggers = 3;
+	StringMap query;
+	query["hostname"] = "hostX1";
 	assertTriggers("/trigger", "foo", ALL_SERVERS, ALL_LOCAL_HOSTS,
-		       beginTime, endTime, numExpectedTriggers, "hostX1");
+		       beginTime, endTime, numExpectedTriggers, query);
 }
 
 void test_events(void)
