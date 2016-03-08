@@ -33,6 +33,9 @@ public:
 	static HatoholError parseEventParameter(
 	  EventsQueryOption &option, GHashTable *query,
 	  bool &isCountOnly);
+	static HatoholError parseHostgroupNameParameter(
+	  HostResourceQueryOption &option, GHashTable *query,
+	  DataQueryContextPtr &dataQueryContextPtr);
 };
 
 #endif // RestResourceUtils_h

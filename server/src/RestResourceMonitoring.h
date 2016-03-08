@@ -57,9 +57,6 @@ struct RestResourceMonitoring : public RestResourceMemberHandler
 	static const char *pathForHistory;
 	static const char *pathForHostgroup;
 
-protected:
-	void parseHostgroupNameParameter(
-	  TriggersQueryOption &option, GHashTable *query);
 };
 
 #endif // RestResourceMonitoring_h

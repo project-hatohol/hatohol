@@ -444,3 +444,23 @@ HatoholError RestResourceUtils::parseEventParameter(
 
 	return HatoholError(HTERR_OK);
 }
+
+HatoholError RestResourceUtils::parseHostgroupNameParameter(
+  HostResourceQueryOption &option, GHashTable *query, DataQueryContextPtr &dataQueryContextPtr)
+{
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	// Add constraints with hostgroup name
+	const char *targetHostgroupName =
+	  static_cast<const char*>(g_hash_table_lookup(query, "hostgroupName"));
+	if (targetHostgroupName && *targetHostgroupName) {
+		string hostgroupName = targetHostgroupName;
+		ServerHostGrpSetMap serverHostGrpSetMap;
+		HostgroupsQueryOption hostgroupOption(dataQueryContextPtr);
+		hostgroupOption.setTargetHostgroupName(hostgroupName);
+		dataStore->getServerHostGrpSetMap(serverHostGrpSetMap,
+						  hostgroupOption);
+		option.setSelectedHostgroupIds(serverHostGrpSetMap);
+	}
+
+	return HatoholError(HTERR_OK);
+}
