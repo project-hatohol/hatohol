@@ -700,14 +700,14 @@ var EventsView = function(userProfile, options) {
       resetQuickFilter();
     });
 
-    $(document).on("change",".toggleDescriptionFull",function() {
+    $(document).on("change",".toggleDescriptionFull", function() {
       var $this = $(this);
-	  var $table = $this.parents('table');
-	  if($this.is(':checked')){
-		  $table.addClass('descriptionFull');
-	  } else {
-		  $table.removeClass('descriptionFull');
-	  }
+      var $table = $this.parents('table');
+      if ($this.is(':checked')) {
+          $table.addClass('descriptionFull');
+      } else {
+        $table.removeClass('descriptionFull');
+      }
     });
 
     $(window).on('resize',setDescriptionWidth);
