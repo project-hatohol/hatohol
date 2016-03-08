@@ -377,17 +377,9 @@ void RestResourceMonitoring::handlerGetHost(void)
 	replyJSONData(agent);
 }
 
-void RestResourceMonitoring::handlerGetTrigger(void)
+void RestResourceMonitoring::parseHostgroupNameParameter(
+  TriggersQueryOption &option, GHashTable *query)
 {
-	TriggersQueryOption option(m_dataQueryContextPtr);
-	HatoholError err = parseTriggerParameter(option, m_query);
-	if (err != HTERR_OK) {
-		replyError(err);
-		return;
-	}
-
-	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
-	TriggerInfoList triggerList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	// Add constraints with hostgroup name
 	const char *targetHostgroupName =
@@ -401,6 +393,21 @@ void RestResourceMonitoring::handlerGetTrigger(void)
 						  hostgroupOption);
 		option.setSelectedHostgroupIds(serverHostGrpSetMap);
 	}
+}
+
+void RestResourceMonitoring::handlerGetTrigger(void)
+{
+	TriggersQueryOption option(m_dataQueryContextPtr);
+	HatoholError err = parseTriggerParameter(option, m_query);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
+	TriggerInfoList triggerList;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	parseHostgroupNameParameter(option, m_query);
 	dataStore->getTriggerList(triggerList, option);
 
 	JSONBuilder agent;
