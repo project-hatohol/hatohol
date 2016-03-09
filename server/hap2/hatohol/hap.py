@@ -63,13 +63,13 @@ def initialize_logger(parser=None):
 
 
 def setup_logger(args):
+    if args.log_conf_file is not None:
+        logging.config.fileConfig(args.log_conf_file)
+
     numeric_level = getattr(logging, args.loglevel.upper(), None)
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % loglevel)
     getLogger("hatohol").setLevel(numeric_level)
-
-    if args.log_conf_file is not None:
-        logging.config.fileConfig(args.log_conf_file)
 
 
 def handle_exception(raises=(SystemExit,)):
