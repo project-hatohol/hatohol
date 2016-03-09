@@ -521,7 +521,8 @@ std::string HostgroupsQueryOption::getHostgroupColumnName(const size_t &idx) con
 				   IDX_HOSTGROUP_LIST_ID_IN_SERVER);
 }
 
-bool HostgroupsQueryOption::isHostgroupUsed(void) const {
+bool HostgroupsQueryOption::isHostgroupUsed(void) const
+{
 	return false;
 }
 
