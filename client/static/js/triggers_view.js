@@ -300,6 +300,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host").selectpicker();
     $("#select-host-group").selectpicker();
     $("#select-hostname").selectpicker();
+    $("#select-host-group-name").selectpicker();
   }
 
   function setLoading(loading) {
@@ -312,6 +313,7 @@ var TriggersView = function(userProfile, options) {
       $("#select-host-group").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
       $("#select-hostname").attr("disabled", "disabled");
+      $("#select-host-group-name").attr("disabled", "disabled");
       $(".latest-button").attr("disabled", "disabled");
     } else {
       $("#begin-time").removeAttr("disabled");
@@ -324,6 +326,7 @@ var TriggersView = function(userProfile, options) {
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
       $("#select-hostname").removeAttr("disabled");
+      $("#select-host-group-name").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
 
       setupSelectPickers();
@@ -416,7 +419,7 @@ var TriggersView = function(userProfile, options) {
 
   function getTriggersQueryInURI() {
     var knownKeys = [
-      "serverId", "hostgroupId", "hostId", "hostname",
+      "serverId", "hostgroupId", "hostId", "hostname", "hostgroupName",
       "limit", "offset",
       "minimumSeverity", "status",
     ];
@@ -479,6 +482,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host-group").val("");
     $("#select-host").val("");
     $("#select-hostname").val("");
+    $("#select-host-group-name").val("");
 
     // refresh bootstrap-select selectpickers
     $("#select-severity").selectpicker('refresh');
@@ -487,6 +491,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host-group").selectpicker('refresh');
     $("#select-host").selectpicker('refresh');
     $("#select-hostname").selectpicker('refresh');
+    $("#select-host-group-name").selectpicker('refresh');
   }
 
   function formatDateTimeWithZeroSecond(d) {
