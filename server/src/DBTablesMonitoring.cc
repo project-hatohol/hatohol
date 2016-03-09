@@ -2188,6 +2188,32 @@ void DBTablesMonitoring::setTriggerInfoList(
 	getDBAgent().runTransaction(trx);
 }
 
+HatoholError DBTablesMonitoring::getTriggerBriefList(
+  list<string> &triggerBriefList, const TriggersQueryOption &option)
+{
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
+	DBAgent::SelectExArg arg(tableProfileTriggers);
+	arg.add(IDX_TRIGGERS_BRIEF);
+
+	arg.condition = option.getCondition();
+	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
+		return HatoholError(HTERR_OK);
+
+	getDBAgent().runTransaction(arg);
+
+	// check the result and copy
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	for (auto itemGrp : grpList) {
+		ItemGroupStream itemGroupStream(itemGrp);
+		string brief;
+
+		itemGroupStream >> brief;
+		triggerBriefList.push_back(brief);
+	}
+
+	return HatoholError(HTERR_OK);
+}
+
 int DBTablesMonitoring::getLastChangeTimeOfTrigger(const ServerIdType &serverId)
 {
 	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
