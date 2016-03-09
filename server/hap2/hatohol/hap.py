@@ -98,16 +98,6 @@ def handle_exception(raises=(SystemExit,)):
     return exctype, value
 
 
-class Signal:
-    """
-    This class is supposed to raise as an exception in order to
-    propagate some events and jump over stack frames.
-    """
-
-    def __init__(self, restart=False, critical=False):
-        self.restart = restart
-        self.critical = critical
-
 def _handle_ioerr(e, timeout, expired_time):
     if e.errno != errno.EINTR:
         raise
@@ -140,5 +130,17 @@ def MultiprocessingQueue(queue_class=multiprocessing.Queue):
     q.get = __get
     return q
 
+
 def MultiprocessingJoinableQueue():
     return MultiprocessingQueue(multiprocessing.JoinableQueue)
+
+
+class Signal:
+    """
+    This class is supposed to raise as an exception in order to
+    propagate some events and jump over stack frames.
+    """
+
+    def __init__(self, restart=False, critical=False):
+        self.restart = restart
+        self.critical = critical
