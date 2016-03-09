@@ -1911,10 +1911,10 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		}
 		parseTriggerStatus(parser,         eventInfo.status, errObj, true);
 		parseTriggerSeverity(parser,       eventInfo.severity, errObj, true);
-		PARSE_AS_MANDATORY("hostId",       eventInfo.hostIdInServer, errObj);
-		PARSE_AS_MANDATORY("hostName",     eventInfo.hostName, errObj);
-		PARSE_AS_MANDATORY("brief",        eventInfo.brief, errObj);
-		PARSE_AS_MANDATORY("extendedInfo", eventInfo.extendedInfo, errObj);
+		parser.read("hostId",       eventInfo.hostIdInServer);
+		parser.read("hostName",     eventInfo.hostName);
+		parser.read("brief",        eventInfo.brief);
+		parser.read("extendedInfo", eventInfo.extendedInfo);
 		parser.endElement();
 
 		eventInfo.globalHostId =
