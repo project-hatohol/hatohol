@@ -1692,6 +1692,8 @@ static bool parseTriggerStatus(JSONParser &parser, TriggerStatusType &status,
 		status = TRIGGER_STATUS_PROBLEM;
 	} else if (statusString == "UNKNOWN") {
 		status = TRIGGER_STATUS_UNKNOWN;
+	} else if (statusString == "") {
+		status = TRIGGER_STATUS_UNKNOWN;
 	} else {
 		MLPL_WARN("Unknown trigger status: %s\n", statusString.c_str());
 		status = TRIGGER_STATUS_UNKNOWN;
@@ -1723,6 +1725,8 @@ static bool parseTriggerSeverity(JSONParser &parser,
 		severity = TRIGGER_SEVERITY_CRITICAL;
 	} else if (severityString == "EMERGENCY") {
 		severity = TRIGGER_SEVERITY_EMERGENCY;
+	} else if (severityString == "") {
+		severity = TRIGGER_SEVERITY_UNKNOWN;
 	} else {
 		MLPL_WARN("Unknown trigger severity: %s\n",
 			  severityString.c_str());
@@ -1911,10 +1915,10 @@ static bool parseEventsParams(JSONParser &parser, EventInfoList &eventInfoList,
 		}
 		parseTriggerStatus(parser,         eventInfo.status, errObj, true);
 		parseTriggerSeverity(parser,       eventInfo.severity, errObj, true);
-		PARSE_AS_MANDATORY("hostId",       eventInfo.hostIdInServer, errObj);
-		PARSE_AS_MANDATORY("hostName",     eventInfo.hostName, errObj);
-		PARSE_AS_MANDATORY("brief",        eventInfo.brief, errObj);
-		PARSE_AS_MANDATORY("extendedInfo", eventInfo.extendedInfo, errObj);
+		parser.read("hostId",       eventInfo.hostIdInServer);
+		parser.read("hostName",     eventInfo.hostName);
+		parser.read("brief",        eventInfo.brief);
+		parser.read("extendedInfo", eventInfo.extendedInfo);
 		parser.endElement();
 
 		eventInfo.globalHostId =
