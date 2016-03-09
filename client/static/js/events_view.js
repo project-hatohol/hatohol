@@ -704,7 +704,7 @@ var EventsView = function(userProfile, options) {
       var $this = $(this);
       var $table = $this.parents('table');
       if ($this.is(':checked')) {
-          $table.addClass('descriptionFull');
+        $table.addClass('descriptionFull');
       } else {
         $table.removeClass('descriptionFull');
       }
@@ -1046,17 +1046,17 @@ var EventsView = function(userProfile, options) {
   }
 
   function setDescriptionWidth() {
-	  var descriptionWidth = $('.event-table-content table:eq(0)').width() / 4;
-	  if(!$('#descriptionWidthStyle').is('div')){
-	    $('body').append(
-          '<div id="descriptionWidthStyle" style="display:none;position:absolute;"></div>'
-		);
-	  }
-	  $('#descriptionWidthStyle').html(
-        '<style>.eventDescription,.eventDescription div {width:'+
-        descriptionWidth+
-        'px!important;}</style>'
+    var descriptionWidth = $('.event-table-content table:eq(0)').width() / 4;
+    if(!$('#descriptionWidthStyle').is('div')){
+      $('body').append(
+        '<div id="descriptionWidthStyle" style="display:none;position:absolute;"></div>'
       );
+    }
+    $('#descriptionWidthStyle').html(
+      '<style>.eventDescription,.eventDescription div {width:' +
+        descriptionWidth +
+        'px!important;}</style>'
+    );
   }
 
   function getEventDescription(event) {
@@ -1314,10 +1314,10 @@ var EventsView = function(userProfile, options) {
         header += ' class="incident" style="display:none;"';
       header += '>';
       header += definition.header;
-	  if (columnName == 'description')
-        header += '<label><input type="checkbox" class="toggleDescriptionFull"'+
-		($('#event-table-area .event-table-content table:eq(0)').is('.descriptionFull')?' checked':'')+
-		'>'+gettext("Show Full Text")+'</label>';
+      if (columnName == 'description')
+        header += '<label><input type="checkbox" class="toggleDescriptionFull"' +
+	($('#event-table-area .event-table-content table:eq(0)').is('.descriptionFull') ? ' checked' : '') +
+	'>' + gettext("Show Full Text") + '</label>';
       header += '</th>';
     }
 

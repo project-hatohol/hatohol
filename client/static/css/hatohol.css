@@ -754,26 +754,26 @@ td[id^="severity-rank-color"]:after {
 }
 
 .eventDescription div {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	word-break: keep-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
 }
 
 .descriptionFull .eventDescription div {
-	white-space: normal;
-	word-break: break-all;
+    white-space: normal;
+    word-break: break-all;
 }
 
 #column_description label {
-	margin: 0;
-	font-weight: normal;
-	color: #666666;
-	cursor: pointer;
+    margin: 0;
+    font-weight: normal;
+    color: #666666;
+    cursor: pointer;
 }
 
 #column_description label input {
     margin: 0 3px 0 10px;
-	vertical-align: -0.11em;
-	cursor: pointer;
+    vertical-align: -0.11em;
+    cursor: pointer;
 }
