@@ -1297,6 +1297,7 @@ var EventsView = function(userProfile, options) {
   function drawTableHeader() {
     var i, definition, columnName, isIncident = false;
     var header = '<tr>';
+    var isFullDescription;
 
     for (i = 0; i < self.columnNames.length; i++) {
       columnName = self.columnNames[i];
@@ -1314,10 +1315,13 @@ var EventsView = function(userProfile, options) {
         header += ' class="incident" style="display:none;"';
       header += '>';
       header += definition.header;
-      if (columnName == 'description')
-        header += '<label><input type="checkbox" class="toggleDescriptionFull"' +
-	($('#event-table-area .event-table-content table:eq(0)').is('.descriptionFull') ? ' checked' : '') +
-	'>' + gettext("Show Full Text") + '</label>';
+      if (columnName == 'description') {
+        isFullDescription = $('#event-table-area .event-table-content table:eq(0)').is('.descriptionFull');
+        header += '<label><input type="checkbox" class="toggleDescriptionFull"';
+        header += isFullDescription ? ' checked' : '';
+        header += '>';
+        header += gettext("Show Full Text") + '</label>';
+      }
       header += '</th>';
     }
 
