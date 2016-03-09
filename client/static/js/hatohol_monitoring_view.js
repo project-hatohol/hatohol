@@ -64,6 +64,13 @@ HatoholMonitoringView.prototype.getTargetHostname = function() {
   return name;
 };
 
+HatoholMonitoringView.prototype.getTargetHostgroupName = function() {
+  var name = $("#select-host-group-name").val();
+  if (name == "---------")
+    name = "";
+  return name;
+};
+
 HatoholMonitoringView.prototype.getTargetAppName = function() {
   var name = $("#select-application").val();
   if (name == "---------")
@@ -212,6 +219,34 @@ HatoholMonitoringView.prototype.setHostnameFilterCandidates =
   hostnameSelector.val(current);
 };
 
+HatoholMonitoringView.prototype.setHostgroupNameFilterCandidates =
+  function(servers)
+{
+  var id, server, groups, groupLabels = [], current;
+  var groupNameSelector =$('#select-host-group-name');
+
+  current = groupNameSelector.val();
+
+  this.setFilterCandidates(groupNameSelector);
+
+  if (!servers)
+    return;
+
+  for (var serverId in servers) {
+    server = servers[serverId];
+    groups = server.groups;
+    for (id in groups) {
+      groupLabels.push({
+        label: groups[id].name,
+        value: groups[id].name
+      });
+    }
+  }
+  groupLabels.sort(this.compareFilterLabel);
+  this.setFilterCandidates(groupNameSelector, groupLabels);
+  groupNameSelector.val(current);
+};
+
 HatoholMonitoringView.prototype.setApplicationFilterCandidates =
 function(candidates)
 {
@@ -227,10 +262,12 @@ HatoholMonitoringView.prototype.getHostFilterQuery = function() {
   var hostgroupId = this.getTargetHostgroupId();
   var hostId = this.getTargetHostId();
   var hostname = this.getTargetHostname();
+  var hostgroupName = this.getTargetHostgroupName();
   query.serverId = serverId ? serverId : "-1";
   query.hostgroupId = hostgroupId ? hostgroupId : "*";
   query.hostId = hostId ? hostId : "*";
   query.hostname = hostname;
+  query.hostgroupName = hostgroupName;
   return query;
 };
 
@@ -432,6 +469,16 @@ HatoholMonitoringView.prototype.setupHostFilters = function(servers, query, with
       $("#select-hostname").val("");
     } else {
       $("#select-hostname").val(query.hostName);
+    }
+  }
+
+  this.setHostgroupNameFilterCandidates(servers);
+
+  if (query && ("hostgroupName" in query)) {
+    if (query.hostname === "") {
+      $("#select-host-group-name").val("");
+    } else {
+      $("#select-host-group-name").val(query.hostgroupName);
     }
   }
 };
