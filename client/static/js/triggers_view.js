@@ -419,7 +419,8 @@ var TriggersView = function(userProfile, options) {
 
   function getTriggersQueryInURI() {
     var knownKeys = [
-      "serverId", "hostgroupId", "hostId", "hostname", "hostgroupName",
+      "serverId", "hostgroupId", "hostId",
+      "hostname", "hostgroupName",
       "limit", "offset",
       "minimumSeverity", "status",
     ];
