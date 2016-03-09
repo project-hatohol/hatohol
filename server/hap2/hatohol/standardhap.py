@@ -30,9 +30,23 @@ logger = getLogger("hatohol.standardhap:%s" % hapcommon.get_top_file_name())
 
 class StandardHap:
     def __init__(self, default_transporter="RabbitMQHapiConnector"):
-        parser = argparse.ArgumentParser()
-        hap.initialize_logger(parser)
+        parser = argparse.ArgumentParser(add_help=False)
+        group = parser.add_argument_group("Config")
 
+        help_msg = """
+        Designate a Config file. Default is None.
+        Other command line arguments takes precedence over config file item.
+        """
+        group.add_argument("--config", default=None, help=help_msg)
+        args, remaining_args = parser.parse_known_args()
+
+        if args.config:
+            parser = hap.ConfigFileParser(args.config, remaining_args, parser)
+        else:
+            #The line enable help message.
+            parser = argparse.ArgumentParser(parents=[parser])
+
+        hap.initialize_logger(parser)
         parser.add_argument("-p", "--disable-poller", action="store_true")
         parser.add_argument("--polling-targets", nargs="*",
                             choices=haplib.BasePoller.ACTIONS,
