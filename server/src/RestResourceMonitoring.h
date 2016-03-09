@@ -56,7 +56,6 @@ struct RestResourceMonitoring : public RestResourceMemberHandler
 	static const char *pathForItem;
 	static const char *pathForHistory;
 	static const char *pathForHostgroup;
-
 };
 
 #endif // RestResourceMonitoring_h
