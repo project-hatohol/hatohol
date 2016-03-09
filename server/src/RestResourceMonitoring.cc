@@ -389,6 +389,8 @@ void RestResourceMonitoring::handlerGetTrigger(void)
 	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
 	TriggerInfoList triggerList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	RestResourceUtils::parseHostgroupNameParameter(option, m_query,
+						       m_dataQueryContextPtr);
 	dataStore->getTriggerList(triggerList, option);
 
 	JSONBuilder agent;

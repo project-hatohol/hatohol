@@ -121,6 +121,9 @@ public:
 
 	HatoholError getHostgroups(HostgroupVect &hostgroups,
 	                           const HostgroupsQueryOption &option);
+	HatoholError getServerHostGrpSetMap(
+	  ServerHostGrpSetMap &serverHostGrpSetMap,
+	  const HostgroupsQueryOption &option);
 
 	/**
 	 * Add hosts. If there's hosts already exist, they will be updated.

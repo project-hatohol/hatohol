@@ -519,6 +519,14 @@ HatoholError UnifiedDataStore::getHostgroups(
 	return cache.getHost().getHostgroups(hostgroups, option);
 }
 
+HatoholError UnifiedDataStore::getServerHostGrpSetMap(
+  ServerHostGrpSetMap &serverHostGrpSetMap,
+  const HostgroupsQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	return cache.getHost().getServerHostGrpSetMap(serverHostGrpSetMap, option);
+}
+
 HatoholError UnifiedDataStore::upsertHosts(
   const ServerHostDefVect &serverHostDefs, HostHostIdMap *hostHostIdMapPtr,
   DBAgent::TransactionHooks *hooks)

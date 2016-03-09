@@ -168,8 +168,18 @@ class HostgroupsQueryOption : public HostResourceQueryOption {
 public:
 	HostgroupsQueryOption(const UserIdType &userId = INVALID_USER_ID);
 	HostgroupsQueryOption(DataQueryContext *dataQueryContext);
+	virtual ~HostgroupsQueryOption();
 
+	bool isHostgroupUsed(void) const override;
+
+	virtual std::string getCondition(void) const override;
+	void setTargetHostgroupName(const std::string &hostgroupName);
+	std::string getTargetHostgroupName(void) const;
 	std::string getHostgroupColumnName(const size_t &idx) const override;
+
+private:
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 
 class HostgroupMembersQueryOption: public HostResourceQueryOption {
@@ -305,6 +315,9 @@ public:
 	 */
 	HatoholError getHostgroups(HostgroupVect &hostgroups,
 	                           const HostgroupsQueryOption &option);
+	HatoholError getServerHostGrpSetMap(
+	  ServerHostGrpSetMap &serverHostGrpSetMap,
+	  const HostgroupsQueryOption &option);
 	HatoholError deleteHostgroupList(const GenericIdList &idList);
 
 	/**
