@@ -2195,6 +2195,7 @@ HatoholError DBTablesMonitoring::getTriggerBriefList(
 	DBAgent::SelectExArg arg(tableProfileTriggers);
 	arg.add(IDX_TRIGGERS_BRIEF);
 
+	arg.useDistinct = true;
 	arg.condition = option.getCondition();
 	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
 		return HatoholError(HTERR_OK);
