@@ -52,7 +52,7 @@ HatoholMonitoringView.prototype.getTargetHostgroupId = function() {
 
 HatoholMonitoringView.prototype.getTargetHostId = function() {
   var id = $("#select-host").val();
-  if (id ==="")
+  if (id === "")
     id = null;
   return id;
 };
