@@ -261,7 +261,9 @@ describe('EventsView', function() {
       expected += '<td class="severity1">Host</td>';
     }
 
-    expected += '<td class="severity1" title="Test description.">Test description.</td>';
+    expected += '<td class="eventDescription severity1" title="Test description.">';
+    expected += '<div>Test description.</div>';
+    expected += '</td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
@@ -293,8 +295,8 @@ describe('EventsView', function() {
       ' target="_blank">Server</a></td>';
     expected += '<td class="severity1"><a href="' + escapeHTML(hostURL) +
                 '" target="_blank">Host2</a></td>';
-    expected += '<td class="severity1" title="Expanded test description 2.">';
-    expected += 'Expanded test description 2.</td>';
+    expected += '<td class="eventDescription severity1" title="Expanded test description 2.">';
+    expected += '<div>Expanded test description 2.</div></td>';
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
@@ -398,7 +400,7 @@ describe('EventsView', function() {
       '</a></td>' +
       '<td class=""><a href="' + escapeHTML(serverURL) + '" target="_blank">Server</a></td>' +
       '<td class=""><a href="' + escapeHTML(hostURL) + '" target="_blank">Host</a></td>' +
-      '<td class="" title="Test description.">Test description.</td>';
+      '<td class="eventDescription " title="Test description."><div>Test description.</div></td>';
     var events = [
       $.extend({}, dummyEventInfo[0], {
 	  type: hatohol.EVENT_TYPE_GOOD,
@@ -415,7 +417,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     respond(eventsJson(dummyEventInfo, getDummyHAPI2ZabbixServerInfo()));
     expect($('tr').eq(0).text()).to.be(
-      "HandlingStatusSeverityPeriod Monitoring ServerHostBrief");
+      "HandlingStatusSeverityPeriod Monitoring ServerHostBriefShow Full Text");
     expect($('tr').eq(1).text()).to.be(
       " ProblemInformation" + getEventTimeString(dummyEventInfo[0]) +
       "ServerHostTest description.");
@@ -429,7 +431,7 @@ describe('EventsView', function() {
     respond(eventsJson(dummyEventInfo, getDummyHAPI2ZabbixServerInfo()),
 	    configJson);
     expect($('tr').eq(0).text()).to.be(
-      "DurationSeverityStatusBriefHostPeriod Monitoring Server");
+      "DurationSeverityStatusBriefShow Full TextHostPeriod Monitoring Server");
     expect($('tr').eq(1).text()).to.be(
       "02:46:40Information ProblemTest description.Host" +
       getEventTimeString(dummyEventInfo[0]) +
