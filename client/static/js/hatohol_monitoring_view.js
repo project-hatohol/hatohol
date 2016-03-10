@@ -475,7 +475,7 @@ HatoholMonitoringView.prototype.setupHostFilters = function(servers, query, with
   this.setHostgroupNameFilterCandidates(servers);
 
   if (query && ("hostgroupName" in query)) {
-    if (query.hostname === "") {
+    if (query.hostgroupName === "") {
       $("#select-host-group-name").val("");
     } else {
       $("#select-host-group-name").val(query.hostgroupName);
