@@ -38,44 +38,35 @@ var HatoholMonitoringView = function(userProfile) {
 
 HatoholMonitoringView.prototype.getTargetServerId = function() {
   var id = $("#select-server").val();
-  if (id == "---------")
+  if (id === "")
     id = null;
   return id;
 };
 
 HatoholMonitoringView.prototype.getTargetHostgroupId = function() {
   var id = $("#select-host-group").val();
-  if (id == "---------")
+  if (id === "")
     id = null;
   return id;
 };
 
 HatoholMonitoringView.prototype.getTargetHostId = function() {
   var id = $("#select-host").val();
-  if (id == "---------")
+  if (id ==="")
     id = null;
   return id;
 };
 
 HatoholMonitoringView.prototype.getTargetHostname = function() {
-  var name = $("#select-hostname").val();
-  if (name == "---------")
-    name = "";
-  return name;
+  return $("#select-hostname").val();
 };
 
 HatoholMonitoringView.prototype.getTargetHostgroupName = function() {
-  var name = $("#select-host-group-name").val();
-  if (name == "---------")
-    name = "";
-  return name;
+  return $("#select-host-group-name").val();
 };
 
 HatoholMonitoringView.prototype.getTargetAppName = function() {
-  var name = $("#select-application").val();
-  if (name == "---------")
-    name = "";
-  return name;
+  return $("#select-application").val();
 };
 
 HatoholMonitoringView.prototype.setFilterCandidates =
