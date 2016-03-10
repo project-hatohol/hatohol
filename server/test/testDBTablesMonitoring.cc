@@ -791,6 +791,26 @@ void test_getTriggerWithInvalidUserId(gconstpointer data)
 	assertGetTriggersWithFilter(arg);
 }
 
+void test_getTriggerBriefListWithoutOption(void)
+{
+	loadTestDBTriggers();
+	loadTestDBServerHostDef();
+	loadTestDBHostgroupMember();
+
+	list<string> triggerBriefList;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	dbMonitoring.getTriggerBriefList(triggerBriefList, option);
+	cppcut_assert_equal((size_t)10, triggerBriefList.size());
+	{
+		size_t i = 0;
+		for (auto triggerBrief : triggerBriefList) {
+			cppcut_assert_equal(testTriggerInfo[i].brief, triggerBrief);
+			i++;
+		}
+	}
+}
+
 void test_getTriggerBriefListWithOption(void)
 {
 	loadTestDBTriggers();
