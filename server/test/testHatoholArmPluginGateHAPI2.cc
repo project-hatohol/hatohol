@@ -1021,7 +1021,6 @@ void test_procedureHandlerPutEventsInvalidJSON(void)
 		" \"time\":\"20150323151300\", \"type\":\"GOOD\","
 		" \"status\": \"OK\", \"severity\":\"INFO\","
 		" \"hostName\":\"exampleHostName\","
-		" \"brief\":\"example brief\","
 		" \"extendedInfo\": \"sample extended info\"}],"
 		" \"lastInfo\":\"20150401175900\","
 		" \"fetchId\":\"1\"},\"id\":2374234}";
@@ -1033,7 +1032,7 @@ void test_procedureHandlerPutEventsInvalidJSON(void)
 		"\"error\":{\"code\":-32602,"
 		"\"message\":\"Invalid method parameter(s).\","
 		"\"data\":["
-		"\"Failed to parse mandatory member: 'hostId' does not exist.\""
+		"\"Failed to parse mandatory member: 'brief' does not exist.\""
 		"]}}";
 	cppcut_assert_equal(expected, actual);
 
