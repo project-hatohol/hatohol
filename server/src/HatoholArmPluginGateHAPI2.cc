@@ -1692,6 +1692,8 @@ static bool parseTriggerStatus(JSONParser &parser, TriggerStatusType &status,
 		status = TRIGGER_STATUS_PROBLEM;
 	} else if (statusString == "UNKNOWN") {
 		status = TRIGGER_STATUS_UNKNOWN;
+	} else if (statusString == "") {
+		status = TRIGGER_STATUS_UNKNOWN;
 	} else {
 		MLPL_WARN("Unknown trigger status: %s\n", statusString.c_str());
 		status = TRIGGER_STATUS_UNKNOWN;
@@ -1723,6 +1725,8 @@ static bool parseTriggerSeverity(JSONParser &parser,
 		severity = TRIGGER_SEVERITY_CRITICAL;
 	} else if (severityString == "EMERGENCY") {
 		severity = TRIGGER_SEVERITY_EMERGENCY;
+	} else if (severityString == "") {
+		severity = TRIGGER_SEVERITY_UNKNOWN;
 	} else {
 		MLPL_WARN("Unknown trigger severity: %s\n",
 			  severityString.c_str());
