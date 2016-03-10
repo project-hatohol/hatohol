@@ -700,10 +700,18 @@ var EventsView = function(userProfile, options) {
       resetQuickFilter();
     });
 
-    $("#toggle-abbreviating-event-descriptions").attr("checked", false);
-    $("#toggle-abbreviating-event-descriptions").change(function() {
-      load();
+    $(document).on("change",".toggleDescriptionFull", function() {
+      var $this = $(this);
+      var $table = $this.parents('table');
+      if ($this.is(':checked')) {
+        $table.addClass('descriptionFull');
+      } else {
+        $table.removeClass('descriptionFull');
+      }
     });
+
+    $(window).on('resize',setDescriptionWidth);
+    setDescriptionWidth();
   }
 
   function updateIncidentStatus() {
@@ -1037,6 +1045,20 @@ var EventsView = function(userProfile, options) {
       return description;
   }
 
+  function setDescriptionWidth() {
+    var descriptionWidth = $('.event-table-content table:eq(0)').width() / 4;
+    if(!$('#descriptionWidthStyle').is('div')){
+      $('body').append(
+        '<div id="descriptionWidthStyle" style="display:none;position:absolute;"></div>'
+      );
+    }
+    $('#descriptionWidthStyle').html(
+      '<style>.eventDescription,.eventDescription div {width:' +
+        descriptionWidth +
+        'px!important;}</style>'
+    );
+  }
+
   function getEventDescription(event) {
     var extendedInfo, name;
 
@@ -1143,9 +1165,9 @@ var EventsView = function(userProfile, options) {
   function renderTableDataEventDescription(event, server) {
     var description = getEventDescription(event);
 
-    return "<td class='" + getSeverityClass(event) +
-      "' title='" + escapeHTML(description) + "'>" +
-      escapeHTML(description) + "</td>";
+    return "<td class='eventDescription " + getSeverityClass(event) +
+      "' title='" + escapeHTML(description) + "'><div>" +
+      escapeHTML(description) + "</div></td>";
   }
 
   function renderTableDataEventType(event, server) {
@@ -1282,6 +1304,7 @@ var EventsView = function(userProfile, options) {
   function drawTableHeader() {
     var i, definition, columnName, isIncident = false;
     var header = '<tr>';
+    var isFullDescription;
 
     for (i = 0; i < self.columnNames.length; i++) {
       columnName = self.columnNames[i];
@@ -1299,6 +1322,13 @@ var EventsView = function(userProfile, options) {
         header += ' class="incident" style="display:none;"';
       header += '>';
       header += definition.header;
+      if (columnName == 'description') {
+        isFullDescription = $('#event-table-area .event-table-content table:eq(0)').is('.descriptionFull');
+        header += '<label><input type="checkbox" class="toggleDescriptionFull"';
+        header += isFullDescription ? ' checked' : '';
+        header += '>';
+        header += gettext("Show Full Text") + '</label>';
+      }
       header += '</th>';
     }
 
