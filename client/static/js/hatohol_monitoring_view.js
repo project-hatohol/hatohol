@@ -213,8 +213,9 @@ HatoholMonitoringView.prototype.setHostnameFilterCandidates =
 HatoholMonitoringView.prototype.setHostgroupNameFilterCandidates =
   function(servers)
 {
-  var id, server, groups, groupLabels = [], current;
+  var id, server, groups, rawGroupLabels = [], groupLabels = [], current;
   var groupNameSelector =$('#select-host-group-name');
+  var tempStorage = {};
 
   current = groupNameSelector.val();
 
@@ -227,11 +228,19 @@ HatoholMonitoringView.prototype.setHostgroupNameFilterCandidates =
     server = servers[serverId];
     groups = server.groups;
     for (id in groups) {
-      groupLabels.push({
+      rawGroupLabels.push({
         label: groups[id].name,
         value: groups[id].name
       });
     }
+  }
+
+  // Distinct group labels with label.
+  for (var i = 0; i < rawGroupLabels.length; i++) {
+    tempStorage[rawGroupLabels[i]['label']] = rawGroupLabels[i];
+  }
+  for (var key in tempStorage) {
+    groupLabels.push(tempStorage[key]);
   }
   groupLabels.sort(this.compareFilterLabel);
   this.setFilterCandidates(groupNameSelector, groupLabels);
