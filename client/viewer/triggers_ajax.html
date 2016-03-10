@@ -67,12 +67,7 @@
 	  <option value="">---------</option>
 	</select>
       </div>
-      <div class="filter-element">
-	<p><label>{% trans "Minimum Severity:" %}</label></p>
-	<select id="select-severity" class="form-control">
-	  <option value="">---------</option>
-	</select>
-      </div>
+
       <div class="filter-element">
 	<p><label>{% trans "Status:" %}</label></p>
 	<select id="select-status" class="form-control">
@@ -83,14 +78,20 @@
 	</select>
       </div>
       <div class="filter-element">
+	<p><label>{% trans "Hostgroup Name:" %}</label></p>
+	<select id="select-host-group-name" class="form-control"  data-live-search="true">
+	  <option value="">---------</option>
+	</select>
+      </div>
+      <div class="filter-element">
 	<p><label>{% trans "Hostname:" %}</label></p>
 	<select id="select-hostname" class="form-control"  data-live-search="true">
 	  <option value="">---------</option>
 	</select>
       </div>
       <div class="filter-element">
-	<p><label>{% trans "Hostgroup Name:" %}</label></p>
-	<select id="select-host-group-name" class="form-control"  data-live-search="true">
+	<p><label>{% trans "Minimum Severity:" %}</label></p>
+	<select id="select-severity" class="form-control">
 	  <option value="">---------</option>
 	</select>
       </div>
