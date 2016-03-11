@@ -791,7 +791,7 @@ void test_getTriggerWithInvalidUserId(gconstpointer data)
 	assertGetTriggersWithFilter(arg);
 }
 
-void test_getTriggerBriefListWithoutOption(void)
+void test_getTriggerBriefListOnlyWithOrderOption(void)
 {
 	loadTestDBTriggers();
 	loadTestDBServerHostDef();
@@ -800,12 +800,26 @@ void test_getTriggerBriefListWithoutOption(void)
 	list<string> triggerBriefList;
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setSortType(TriggersQueryOption::SORT_TIME,
+	                   DataQueryOption::SORT_ASCENDING);
 	dbMonitoring.getTriggerBriefList(triggerBriefList, option);
 	cppcut_assert_equal((size_t)10, triggerBriefList.size());
+	vector<string> expectedBriefs = {
+		"TEST Trigger Action",
+		"TEST Trigger 3",
+		"Status:Unknown, Severity:Critical",
+		"TEST Trigger Action 2",
+		"TEST Trigger 1b",
+		"TEST Trigger 1",
+		"TEST Trigger 1c",
+		"TEST Trigger 1a",
+		"TEST Trigger 1d",
+		"TEST Trigger 2",
+	};
 	{
 		size_t i = 0;
 		for (auto triggerBrief : triggerBriefList) {
-			cppcut_assert_equal(testTriggerInfo[i].brief, triggerBrief);
+			cppcut_assert_equal(expectedBriefs.at(i), triggerBrief);
 			i++;
 		}
 	}
