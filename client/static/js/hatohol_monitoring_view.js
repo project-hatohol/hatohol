@@ -213,7 +213,7 @@ HatoholMonitoringView.prototype.setHostnameFilterCandidates =
 HatoholMonitoringView.prototype.setHostgroupNameFilterCandidates =
   function(servers)
 {
-  var id, server, groups, rawGroupLabels = [], groupLabels = [], current;
+  var id, server, groups, groupLabels = [], current;
   var groupNameSelector =$('#select-host-group-name');
   var tempStorage = {};
 
