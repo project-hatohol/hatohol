@@ -43,7 +43,19 @@ void cut_teardown(void)
 	stopFaceRest();
 }
 
-void test_triggerBriefs(void)
+void test_triggerBriefsWithEmptyTriggers(void)
 {
+	startFaceRest();
+
+        RequestArg arg("/trigger/briefs");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	getServerResponse(arg);
+	string expected(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"briefs\":[]"
+	  "}");
+	assertEqualJSONString(expected, arg.response);
 }
 }
