@@ -2196,7 +2196,10 @@ HatoholError DBTablesMonitoring::getTriggerBriefList(
 	arg.add(IDX_TRIGGERS_BRIEF);
 
 	arg.useDistinct = true;
+
 	arg.condition = option.getCondition();
+	// Order By
+	arg.orderBy = option.getOrderBy();
 	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
 		return HatoholError(HTERR_OK);
 
