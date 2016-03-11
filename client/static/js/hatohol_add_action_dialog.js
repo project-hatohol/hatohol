@@ -891,11 +891,8 @@ HatoholAddActionDialog.prototype.onAppendMainElement = function() {
       self.setApplyButtonState(false);
   }
 
-  if (self.forIncidentSetting) {
+  if (self.forIncidentSetting)
     self.setupIncidentTrackersEditor();
-    $("#selectTriggerStatus").val("TRIGGER_STATUS_PROBLEM");
-    $("#selectTriggerSeverityCompType").val("CMP_EQ_GT");
-  }
 };
 
 HatoholAddActionDialog.prototype.setApplyButtonState = function(state) {
