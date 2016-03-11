@@ -58,4 +58,23 @@ void test_triggerBriefsWithEmptyTriggers(void)
 	  "}");
 	assertEqualJSONString(expected, arg.response);
 }
+
+void test_triggerBriefsWithTriggerParameters(void)
+{
+	loadTestDBTriggers();
+	startFaceRest();
+
+        RequestArg arg("/trigger/briefs?hostId=1129&beginTime=1362827198");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	getServerResponse(arg);
+	string expected(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"briefs\":["
+	  "{\"brief\":\"TEST Trigger 1d\"}"
+	  "]"
+	  "}");
+	assertEqualJSONString(expected, arg.response);
+}
 }

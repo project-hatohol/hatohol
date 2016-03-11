@@ -19,6 +19,7 @@
 
 
 #include "RestResourceTriggerBriefs.h"
+#include "RestResourceUtils.h"
 #include "UnifiedDataStore.h"
 
 using namespace std;
@@ -52,6 +53,13 @@ void RestResourceTriggerBriefs::handlerGetTriggerBriefs(void)
 
 	TriggersQueryOption option(m_dataQueryContextPtr);
 	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
+	HatoholError err
+	  = RestResourceUtils::parseHostResourceQueryParameter(option, m_query);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
 	list<string> triggerBriefList;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	dataStore->getTriggerBriefList(triggerBriefList, option);
