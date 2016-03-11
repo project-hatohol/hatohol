@@ -228,16 +228,12 @@ HatoholMonitoringView.prototype.setHostgroupNameFilterCandidates =
     server = servers[serverId];
     groups = server.groups;
     for (id in groups) {
-      rawGroupLabels.push({
+      var groupChioce = {
         label: groups[id].name,
         value: groups[id].name
-      });
+      };
+      tempStorage[groups[id].name] = groupChioce;
     }
-  }
-
-  // Distinct group labels with label.
-  for (var i = 0; i < rawGroupLabels.length; i++) {
-    tempStorage[rawGroupLabels[i]['label']] = rawGroupLabels[i];
   }
   for (var key in tempStorage) {
     groupLabels.push(tempStorage[key]);
