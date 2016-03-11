@@ -36,6 +36,9 @@ public:
 	static HatoholError parseHostgroupNameParameter(
 	  HostResourceQueryOption &option, GHashTable *query,
 	  DataQueryContextPtr &dataQueryContextPtr);
+	static HatoholError parseTriggerParameter(
+	  TriggersQueryOption &option,
+	  GHashTable *query);
 };
 
 #endif // RestResourceUtils_h

@@ -77,59 +77,6 @@ RestResourceMonitoring::~RestResourceMonitoring()
 {
 }
 
-static HatoholError parseTriggerParameter(TriggersQueryOption &option,
-					  GHashTable *query)
-{
-	if (!query)
-		return HatoholError(HTERR_OK);
-
-	HatoholError err;
-
-	// query parameters for HostResourceQueryOption
-	err = RestResourceUtils::parseHostResourceQueryParameter(option, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	// target hostname
-	const char *targetHostname =
-		static_cast<const char*>(g_hash_table_lookup(query, "hostname"));
-	if (targetHostname && *targetHostname) {
-		option.setHostnameList({targetHostname});
-	}
-
-	// minimum severity
-	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
-	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
-					    "%d", severity);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setMinimumSeverity(severity);
-
-	// trigger status
-	TriggerStatusType status = TRIGGER_STATUS_ALL;
-	err = getParam<TriggerStatusType>(query, "status",
-					  "%d", status);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTriggerStatus(status);
-
-	// begin time
-	timespec beginTime = { 0, 0 };
-	err = getParam<time_t>(query, "beginTime", "%ld", beginTime.tv_sec);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setBeginTime(beginTime);
-
-	// end time
-	timespec endTime = { 0, 0 };
-	err = getParam<time_t>(query, "endTime", "%ld", endTime.tv_sec);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setEndTime(endTime);
-
-	return HatoholError(HTERR_OK);
-}
-
 static HatoholError parseItemParameter(ItemsQueryOption &option,
 				       GHashTable *query)
 {
@@ -380,7 +327,7 @@ void RestResourceMonitoring::handlerGetHost(void)
 void RestResourceMonitoring::handlerGetTrigger(void)
 {
 	TriggersQueryOption option(m_dataQueryContextPtr);
-	HatoholError err = parseTriggerParameter(option, m_query);
+	HatoholError err = RestResourceUtils::parseTriggerParameter(option, m_query);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
