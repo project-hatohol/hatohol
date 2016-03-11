@@ -1323,7 +1323,8 @@ var EventsView = function(userProfile, options) {
       header += '>';
       header += definition.header;
       if (columnName == 'description') {
-        isFullDescription = $('#event-table-area .event-table-content table:eq(0)').is('.descriptionFull');
+        isFullDescription =
+          $('#event-table-area .event-table-content table:eq(0)').is('.descriptionFull');
         header += '<label><input type="checkbox" class="toggleDescriptionFull"';
         header += isFullDescription ? ' checked' : '';
         header += '>';
