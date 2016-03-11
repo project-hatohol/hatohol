@@ -824,6 +824,7 @@ void test_getTriggerBriefListWithOption(void)
 	TriggersQueryOption option(USER_ID_SYSTEM);
 	option.setTargetServerId(targetTriggerInfo.serverId);
 	option.setTargetId(targetTriggerInfo.id);
+	option.setExcludeFlags(EXCLUDE_SELF_MONITORING);
 	dbMonitoring.getTriggerBriefList(triggerBriefList, option);
 	cppcut_assert_equal((size_t)1, triggerBriefList.size());
 	cppcut_assert_equal(targetTriggerInfo.brief, *triggerBriefList.begin());
