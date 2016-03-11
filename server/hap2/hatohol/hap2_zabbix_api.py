@@ -30,17 +30,10 @@ logger = getLogger("hatohol.hap2_zabbix_api:%s" % hapcommon.get_top_file_name())
 MAX_NUMBER_OF_EVENTS_FROM_ZABBIX = 1000
 MAX_NUMBER_OF_EVENTS_OF_HAPI2 = 1000
 
-class PreviousHostsInfo:
-    def __init__(self):
-        self.hosts = list()
-        self.host_groups = list()
-        self.host_group_membership = list()
-
 
 class ZabbixAPIConductor(object):
     def __init__(self):
         self.__api = None
-        self.__previous_hosts_info = PreviousHostsInfo()
         self.__trigger_last_info = None
         self.__component_code = self.get_component_code()
 

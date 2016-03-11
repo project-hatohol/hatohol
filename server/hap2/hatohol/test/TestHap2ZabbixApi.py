@@ -23,13 +23,6 @@ import transporter
 import haplib
 import testutils
 
-class PreviousHostsInfo(unittest.TestCase):
-    def test_create(self):
-        previous_hosts_info = hap2_zabbix_api.PreviousHostsInfo()
-        self.assertEquals(previous_hosts_info.hosts, list())
-        self.assertEquals(previous_hosts_info.host_groups, list())
-        self.assertEquals(previous_hosts_info.host_group_membership, list())
-
 
 class ZabbixAPIConductor(unittest.TestCase):
     @classmethod
