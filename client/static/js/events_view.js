@@ -139,6 +139,10 @@ var EventsView = function(userProfile, options) {
       header: gettext("% Done"),
       body: renderTableDataIncidentDoneRatio,
     },
+    "userComment": {
+      header: "",
+      body: renderTableDataUserCommentButton,
+    },
   };
 
   // call the constructor of the super class
@@ -674,6 +678,7 @@ var EventsView = function(userProfile, options) {
     });
 
     $('button.latest-button').click(function() {
+      $('.userCommentRow.open').removeClass('open');
       $("#end-time").val("");
       $("#end-time").next(".clear-button").hide();
       load({ applyFilter: true });
@@ -782,8 +787,8 @@ var EventsView = function(userProfile, options) {
       url: "/incident",
       request: "POST",
       data: {
-	  unifiedEventId: eventId,
-	  incidentTrackerId: trackerId,
+        unifiedEventId: eventId,
+        incidentTrackerId: trackerId,
       },
       replyCallback: function() {
         var promise = applyIncidentStatus(eventId, status, errors);
@@ -1103,7 +1108,7 @@ var EventsView = function(userProfile, options) {
 
     html += "<td class='" + getSeverityClass(event) + "'>";
     if (serverURL && serverURL.indexOf("zabbix") >= 1 &&
-	!isSelfMonitoringHost(hostId)) {
+    !isSelfMonitoringHost(hostId)) {
       html +=
       "<a href='" + serverURL + "tr_events.php?&triggerid=" +
         triggerId + "&eventid=" + eventId +
@@ -1272,6 +1277,182 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
+  function renderTableDataUserCommentButton(event, server) {
+    var html = "";
+    var i, incidentHistoryData, commentDataLength = 0;
+
+    for (i = 0, l = event["incidentHistory"].length; i < l; i++) {
+      incidentHistoryData = event["incidentHistory"][i];
+      if (incidentHistoryData["comment"]) {
+        commentDataLength++;
+      }
+    }
+
+    html += "<td class='" + getSeverityClass(event) + "'>";
+    html += "<span class='userCommentButton'>";
+    if (commentDataLength)
+      html += "<span class='userCommentCount'>" + commentDataLength + "</span>";
+    else
+      html += "<span class='glyphicon glyphicon-pencil'></span>";
+    html += "<span class='glyphicon glyphicon-remove'></span>";
+    html += "</span>";
+    html += "</td>";
+
+    return html;
+  }
+
+  function renderTableDataUserCommentRow(event, server) {
+    var html = "";
+
+    var type = event["type"];
+    var color = "#dddddd";
+    if (type == hatohol.EVENT_TYPE_BAD) {
+      var severity = event["severity"];
+      var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+      color = severityRanks[severity].color;
+    }
+    html += "<tr class='userCommentRow'>";
+    html += "<td colspan='";
+    html += self.columnNames.length + 1;
+    html += "' style='border-color:";
+    html += color;
+    html += ";'>";
+
+    html += renderTableDataUserCommentContents(event, server);
+
+    html += "</td>";
+    html += "</tr>";
+
+    return html;
+  }
+
+  function renderTableDataUserCommentContents(event, server, submit) {
+    var html = "";
+    var i, incidentHistoryData, commentArray = [], commentData, commentedDate, timeZone;
+    var nowUnixTime = Math.round( new Date().getTime() / 1000 );
+    var newLimit = 7 * 24 * 60 * 60;
+    var weekday = [
+    ];
+
+    html += "<ul class='userCommentList";
+    if (submit) {
+      html += " userCommentListAfterSubmit";
+    }
+    html += "'>";
+
+    for (i = 0, l = event["incidentHistory"].length; i < l; i++) {
+      incidentHistoryData = event["incidentHistory"][i];
+      if (incidentHistoryData["comment"]) {
+        commentArray.push(incidentHistoryData);
+      }
+    }
+
+    for (i = 0, l = commentArray.length; i < l; i++) {
+      commentData = commentArray[i];
+      commentedDate = new Date(commentData["time"] * 1000);
+      timeZone = commentedDate.toString().match(/\(.*\)$/);
+      html += "<li>";
+      html += "<div class='userCommentLeft'>";
+      html += "<em class='userCommentIcon'";
+      html += " title='userIconPath/user_icon_" + commentData["userId"] + "'>";
+      html += "</em>";
+      html += "<p class='userCommentName'>";
+      html += commentData["userName"];
+      html += "</p>";
+      html += "<p class='userCommentedTime'>";
+      html += "<span>";
+      html += commentedDate.getFullYear() + "/";
+      html += toDoubleDigits(commentedDate.getMonth() + 1) + "/";
+      html += toDoubleDigits(commentedDate.getDate()) + " ";
+      html += getDayName(commentedDate.getDay()) + " ";
+      html += toDoubleDigits(commentedDate.getHours()) + ":";
+      html += toDoubleDigits(commentedDate.getMinutes()) + ":";
+      html += toDoubleDigits(commentedDate.getSeconds());
+      html += "</span>";
+      html += "<span>";
+      html += timeZone;
+      html += "</span>";
+      html += "</p>";
+      if (nowUnixTime - commentData["time"] < newLimit)
+        html += "<p><span class='userCommentNew'>NEW</span></p>";
+      html += "</div>";
+      html += "<div class='userCommentRight'>";
+      html += commentData["comment"].replace(/\n/g,"<br>");
+      html += "</div>";
+      html += "</li>";
+    }
+
+    html += "<li class='userCommentForm'>";
+    html += "<div class='userCommentLeft'>";
+    html += "<em class='userCommentIcon'";
+    html += " title='userIconPath/user_icon_urrentUserId'>";
+    html += "</em>";
+    html += "currentUserName";
+    html += "</div>";
+    html += "<div class='userCommentRight'>";
+    html += "<textarea placeholder='";
+    html += gettext("Input Comment") + "'>";
+    html += "</textarea>";
+    html += "<button type='button' class='cancelUserCommentButton'>";
+    html += gettext("Cancel");
+    html += "</button>";
+    html += "<button type='button' class='submitUserCommentButton'>";
+    html += gettext("Submit");
+    html += "</button>";
+    html += "</div>";
+    html += "</li>";
+    html += "<li class='userCommentAddForm'>";
+    html += "<div class='userCommentLeft'>";
+    html += "</div>";
+    html += "<div class='userCommentRight'>";
+    html += "<button type='button' class='addUserCommentButton'>";
+    html += gettext("Add Comment");
+    html += "</button>";
+    html += "</div>";
+    html += "</li>";
+    html += "</ul>";
+
+    return html;
+  }
+
+  function toDoubleDigits(number) {
+    number = "0" + number;
+    number = number.slice(-2);
+    return number;
+  }
+
+  function getDayName(number) {
+    var dayName = [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ];
+    return dayName[number];
+  }
+
+  function submitUserComment() {
+    var $userCommentForm = $(this).parents('.userCommentForm');
+    var $textarea = $userCommentForm.find('textarea:eq(0)');
+    var $tr = $userCommentForm.parents('.userCommentList');
+    alert('"' + $textarea.val() + '"\nComennted!!');
+    $tr.addClass('userCommentListAfterSubmit');
+  }
+
+  function cancelUserComment() {
+    var $userCommentForm = $(this).parents('.userCommentForm');
+    var $textarea = $userCommentForm.find('textarea:eq(0)');
+    $textarea.val("");
+  }
+
+  function addUserComment() {
+    var $tr = $(this).parents('.userCommentList');
+    $tr.removeClass('userCommentListAfterSubmit');
+  }
+
   function drawTableHeader() {
     var i, definition, columnName, isIncident = false;
     var header = '<tr>';
@@ -1295,6 +1476,12 @@ var EventsView = function(userProfile, options) {
       header += '</th>';
     }
 
+    definition = columnDefinitions["userComment"];
+    header += '<th';
+    header += ' id="column_user_comment"';
+    header += '>';
+    header += definition.header;
+    header += '</th>';
     header += '</tr>';
 
     return header;
@@ -1302,13 +1489,84 @@ var EventsView = function(userProfile, options) {
 
   function drawTableBody() {
     var html = "";
-    var x, y, serverId, server, event, columnName, definition;
+    var x, y, serverId, server, event, columnName, definition, commentCount;
     var haveIncident = self.rawData["haveIncident"];
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event = self.rawData["events"][x];
       serverId = event["serverId"];
       server = self.rawData["servers"][serverId];
+      // Dummy incidentHistory
+      event["incidentHistory"] = [
+        [
+
+          // 暫定的に改行を\nと定義（改行文字列は自由）
+          {
+            "id":"500",
+            "unifiedEventId":"13517",
+            "userId":"1",
+            "userName":"USER_1",
+            "status":"IN PROGRESS",
+            "comment":"改行テキスト\n\n改行テキスト改行テキスト\n改行テキスト",
+            "time":"1456221146"
+          },
+
+           // 1週間以内のコメントはNEW（１週間は暫定）
+          {
+            "id":"510",
+            "unifiedEventId":"13517",
+            "userId":"2",
+            "userName":"USER_2",
+            "status":"DONE",
+            "comment":"1週間以内のコメントはNEW（１週間は暫定）",
+            "time":"1457790447"
+          }
+        ],
+        [
+          {
+            "id":"230",
+            "unifiedEventId":"13517", // インシデントが紐ついているイベントのID
+            "userId":"0",  // 0はシステムによる自動作成
+            "userName":"USER_0",
+            "status":"NONE",  // 取りうる値はPUTの項を参照
+            "time":"1456221146" // UNIX時間
+          },
+
+          // 「対処」が「処理中」に変更された
+          {
+            "id":"233",
+            "unifiedEventId":"13517",
+            "userId":"4",
+            "userName":"USER_4",
+            "status":"IN PROGRESS",
+            "time":"1456231146"
+          },
+
+          // コメントが追加された
+          {
+            "id":"235",
+            "unifiedEventId":"13517",
+            "userId":"3",
+            "userName":"USER_3",
+            "status":"IN PROGRESS",
+            "comment":"ashieにアサインする!",
+            "time":"1456241146"
+         },
+
+           // 「対処」が「対処済」に変更され、
+           // コメントも同時に追加された
+          {
+            "id":"330",
+            "unifiedEventId":"13517",
+            "userId":"3",
+            "userName":"USER_3",
+            "status":"DONE",
+            "comment":"解決した!",
+            "time":"1456251146"
+          }
+        ]
+      ][x] || [];
+      // /Dummy incidentHistory
 
       html += "<tr>";
       for (y = 0; y < self.columnNames.length; y++) {
@@ -1318,7 +1576,12 @@ var EventsView = function(userProfile, options) {
           continue;
         html += definition.body(event, server);
       }
+
+      definition = columnDefinitions["userComment"];
+      html += definition.body(event, server);
       html += "</tr>";
+
+      html += renderTableDataUserCommentRow(event, server);
     }
 
     return html;
@@ -1357,6 +1620,15 @@ var EventsView = function(userProfile, options) {
       $(this).toggleClass('selected');
       setupChangeIncidentMenu();
     });
+
+    $('.userCommentButton').on('click', function() {
+      $(this).parents('tr').toggleClass('open')
+      .next().toggleClass('open');
+    });
+
+    $('.submitUserCommentButton').on('click', submitUserComment);
+    $('.cancelUserCommentButton').on('click', cancelUserComment);
+    $('.addUserCommentButton').on('click', addUserComment);
 
     setupSortColumn();
 
@@ -1441,7 +1713,8 @@ var EventsView = function(userProfile, options) {
 
     setupFilterValues();
     setupHandlingMenu();
-    drawTableContents();
+    if ($('.userCommentRow.open').length === 0)
+      drawTableContents();
     setupTableColor();
     updatePager();
     updateFilteringResult();
