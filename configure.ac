@@ -243,6 +243,7 @@ AC_OUTPUT([
 Makefile
 hatohol.spec
 client/static/js/hatohol_version.js
+client/hatohol/autotools_vars.py
 data/Makefile
 data/init.d/Makefile
 data/init.d/debian/hatohol.debian
