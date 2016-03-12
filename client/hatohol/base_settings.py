@@ -1,4 +1,4 @@
-# Copyright (C) 2013,2015 Project Hatohol
+# Copyright (C) 2013,2015-2016 Project Hatohol
 #
 # This file is part of Hatohol.
 #
@@ -19,6 +19,8 @@
 # Django settings for hatohol project.
 import os
 import logging
+import ConfigParser
+import autotools_vars as av
 from branding_settings import *
 
 PROJECT_HOME = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -229,3 +231,42 @@ ENABLED_PAGES = (
     #"http://www.hatohol.org/docs"
     #"#version"
 )
+
+def get_config_lines_from_file():
+    conf_lines = []
+
+    config = ConfigParser.ConfigParser()
+    selected = config.read(['webui.conf',
+                            av.SYSCONFDIR + '/hatohol/webui.conf'])
+    if len(selected) == 0:
+        return conf_lines
+
+    config_defs = (
+        ('generic', {
+            'allowed_hosts': lambda v: 'ALLOWED_HOSTS = %s' % v.split(),
+            'time_zone':     lambda v: 'TIME_ZONE = "%s"' % v.split(),
+        }),
+        ('database', {
+            'name': lambda v: 'DATABASES["default"]["NAME"] = "%s"' % v,
+            'user': lambda v: 'DATABASES["default"]["USER"] = "%s"' % v,
+            'password': lambda v: 'DATABASES["default"]["PASSWORD"] = "%s"' % v,
+            'host': lambda v: 'DATABASES["default"]["HOST""] = "%s"' % v,
+            'port': lambda v: 'DATABASES["default"]["PORT""] = "%s"' % v,
+        }),
+        ('server', {
+            'host': lambda v: 'DEFAULT_SERVER_ADDR = "%s"' % v,
+            'port': lambda v: 'DEFAULT_SERVER_PORT = %s' % v,
+        }),
+    )
+
+    for section, handlers in config_defs:
+        for (key, val) in config.items(section):
+            handler = handlers.get(key)
+            if handler:
+                conf_lines.append(handler(val))
+            else:
+                print 'Unknown keyword: [%s] %s (%s)' % (section, key, val)
+    return conf_lines
+
+for line in get_config_lines_from_file():
+    exec(line)
