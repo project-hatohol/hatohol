@@ -251,6 +251,8 @@ public:
 				const TriggersQueryOption &option);
 	void setTriggerInfoList(const TriggerInfoList &triggerInfoList,
 	                        const ServerIdType &serverId);
+	HatoholError getTriggerBriefList(std::list<std::string> &triggerBriefList,
+	                                 const TriggersQueryOption &option);
 	/**
 	 * get the last change time of the trigger that belongs to
 	 * the specified server
