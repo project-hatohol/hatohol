@@ -94,7 +94,11 @@ def get_top_file_name():
         top_frame = current_frame
         current_frame = top_frame.f_back
 
-    top_file_name = top_frame.f_globals["__file__"]
+    try:
+        top_file_name = top_frame.f_globals["__file__"]
+    except KeyError:
+        return "Interactive"
+
     slash_index = top_file_name.rfind("/")
     if slash_index:
         top_file_name = top_file_name[slash_index+1:]
