@@ -196,16 +196,8 @@ AC_SUBST(COVERAGE_LIBS)
 dnl **************************************************************
 dnl enable C++11
 dnl **************************************************************
-AC_ARG_ENABLE([cpp11],
-  [AS_HELP_STRING([--enable-cpp11], [Enable C++11 features (default is yes)])],
-  [],
-  [enable_cpp11=yes])
-
-if test "$enable_cpp11" == "yes"; then
-  AC_DEFINE(USE_CPP11, 1, [Define to 1 if you use C++11])
-  OPT_CXXFLAGS+=" -std=c++11"
-  AC_SUBST(OPT_CXXFLAGS)
-fi
+OPT_CXXFLAGS+=" -std=c++11"
+AC_SUBST(OPT_CXXFLAGS)
 
 dnl **************************************************************
 dnl Mocha, expect.js, and npm (indirectly node.js)

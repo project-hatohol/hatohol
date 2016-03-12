@@ -28,11 +28,6 @@
 #include <string>
 #include "config.h"
 
-#ifndef USE_CPP11
-#define override
-#define unique_ptr auto_ptr
-#endif
-
 typedef int DBTablesId;
 
 static const DBTablesId DB_TABLES_ID_CONFIG     = 0x0010;
