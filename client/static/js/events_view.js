@@ -160,6 +160,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function start() {
+    $('#update-time').appendTo('#update-time-wrap');
     $.when(loadUserConfig(), loadSeverityRank(), loadCustomIncidentStatus()).done(function() {
       self.userConfig.setFilterCandidates(eventPropertyChoices);
       load();
@@ -477,9 +478,7 @@ var EventsView = function(userProfile, options) {
       self.currentPage = 0;
     }
     self.startConnection(getQuery(options), updateCore);
-    var summaryShown = $("#event-table-area").hasClass("col-md-10");
-    if (summaryShown)
-      self.startConnection(getSummaryQuery(), updateSummary);
+    self.startConnection(getSummaryQuery(), updateSummary);
     $(document.body).scrollTop(0);
   }
 

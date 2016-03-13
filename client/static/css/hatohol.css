@@ -501,75 +501,106 @@ html {
     padding-left: 15px;
 }
 
-#event-table-area.col-md-10 {
-    border-left: none;
+#eventHeaderSummary {
+  position: absolute;
+  left: 0px;
+  top: 64px;
+  width: 100%;
 }
 
-#event-table-area.col-md-12 {
-    border-left: #f5f5f5 solid 44px;
+#eventHeaderSummary #SummarySidebar {
+  margin: 0 0 0 152px;
 }
 
-#SummarySidebar .nav-sidebar #select-summary-filter {
-    margin-bottom: 18px;
+#eventHeaderSummary #SummarySidebar > button {
+  float: left;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 10px;
+  text-align: left;
+  font-weight: bold;
+  white-space: nowrap;
+  border: #cccccc solid 1px;
+  border-left: none;
+  font-weight: normal;
+  background: #ffffff;
+  background: linear-gradient(to bottom,  #ffffff 1%,#f2f2f2 100%);
+  background: -moz-linear-gradient(top,  #ffffff 1%, #f2f2f2 100%);
+  background: -webkit-linear-gradient(top,  #ffffff 1%,#f2f2f2 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f2f2f2',GradientType=0 );
 }
 
-#SummarySidebar .nav-sidebar button {
-    text-align: left;
-    width: 100%;
-    margin-bottom: 8px;
-    color: #428bca;
-    font-weight: bold;
-    white-space: normal;
+#eventHeaderSummary #SummarySidebar > button:first-child {
+  border-left: #cccccc solid 1px;
 }
 
-#SummarySidebar .nav-sidebar button:hover,
-#SummarySidebar .nav-sidebar button:focus {
-  color: #2a6496;
+#eventHeaderSummary #SummarySidebar > button:hover {
   text-decoration: underline;
 }
 
-#SummarySidebar {
-    padding-top: 20px;
+#eventHeaderSummary #SummarySidebar > button.on,
+#eventHeaderSummary #SummarySidebar > button:focus {
+  background: #e3e3e3;
 }
 
-#SummarySidebar h3 {
-    margin: 0 0 10px;
-    font-size: 18px;
-    font-weight: bold;
+#eventHeaderSummary #SummarySidebar button .badge {
+  margin-left: 3px;
+  font-size: 12px;
+  font-weight: bold;
+  background: #e8800b;
+  color: #fffff;
 }
 
-#SummarySidebar .nav-sidebar button .badge {
-    margin-left: 10px;
-    font-size: 16px;
+#eventHeaderSummary #SummarySidebar > button.on .badge,
+#eventHeaderSummary #SummarySidebar > button:focus .badge {
+  background: #ffffff;
+  color: #666666;
 }
 
-#SummarySidebar .nav-sidebar button #numOfUnAssignedEvents,
-#SummarySidebar .nav-sidebar button #numOfImportantEvents {
-    background-color: #ff3333;
+#eventHeaderSummary #select-summary-filter {
+  position: relative;
+  left: 10px;
+  top: 7px;
+  width: auto;
+  font-size: 12px;
 }
 
-#SummarySidebar .nav-sidebar button #numOfImportantEventOccurredHosts {
-    background-color: #999999;
+#eventHeaderSummary #eventHeaderSummaryRight {
+  position: absolute;
+  right: 15px;
+  top: 7px;
 }
 
-#toggle-sidebar {
-    position: absolute;
-    left: -34px;
-    top: 10px;
-    width: 24px;
-    height: 24px;
-    line-height: 24px;
-    padding: 0px;
-    text-align: center;
-    font-size: 11px;
-    color: #999999;
-    background: #dddddd;
+#eventHeaderSummary #eventHeaderSummaryRight > * {
+  float: left;
 }
 
-#controller-container-title {
-    margin: 0 0 20px;
-    font-size: 18px;
-    font-weight: bold;
+#eventHeaderSummary #eventHeaderSummaryRight > #update-time-wrap {
+  display: inline-block;
+  background: #ffffff;
+  border: #dddddd solid 1px;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  -moz-border-radius: 4px 0 0 4px;
+  -webkit-border-radius: 4px 0 0 4px;
+  white-space: nowrap;
+}
+
+#eventHeaderSummary #eventHeaderSummaryRight > #update-time-wrap > #update-time {
+  position: static;
+  display: inline-block;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 10px;
+  font-style: italic;
+}
+
+#eventHeaderSummary #eventHeaderSummaryRight > .latest-button {
+  margin: 0 10px 0 0;
+  color: #333333;
+  background-color: #e3e3e3;
+  border-color: #e3e3e3;
+  border-radius: 0 4px 4px 0;
 }
 
 #controller-container .latest-button {
