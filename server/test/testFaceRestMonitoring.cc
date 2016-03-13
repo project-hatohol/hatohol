@@ -295,8 +295,26 @@ static void _assertEvents(const string &path,
 			assertStartObject(parser, "incident");
 			const IncidentInfo incident
 			  = expectedEventsArg.getExpectedIncidentInfo(eventInfo);
+			assertValueInParser(parser, "trackerId",
+					    incident.trackerId);
+			assertValueInParser(parser, "identifier",
+					    incident.identifier);
 			assertValueInParser(parser, "location",
 					    incident.location);
+			assertValueInParser(parser, "status",
+					    incident.status);
+			assertValueInParser(parser, "priority",
+					    incident.priority);
+			assertValueInParser(parser, "assignee",
+					    incident.assignee);
+			assertValueInParser(parser, "doneRatio",
+					    incident.doneRatio);
+			assertValueInParser(parser, "commentCount",
+					    incident.commentCount);
+			assertValueInParser(parser, "createdAt",
+					    incident.createdAt.tv_sec);
+			assertValueInParser(parser, "updatedAt",
+					    incident.updatedAt.tv_sec);
 			parser->endElement();
 		} else {
 			assertNoValueInParser(parser, "incident");

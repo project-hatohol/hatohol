@@ -452,6 +452,7 @@ static void addIncident(FaceRest::ResourceHandler *job, JSONBuilder &agent,
 	agent.add("priority", incident.priority);
 	agent.add("assignee", incident.assignee);
 	agent.add("doneRatio", incident.doneRatio);
+	agent.add("commentCount", incident.commentCount);
 	agent.add("createdAt", incident.createdAt.tv_sec);
 	agent.add("updatedAt", incident.updatedAt.tv_sec);
 	agent.endObject();
