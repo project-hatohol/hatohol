@@ -107,7 +107,7 @@ void test_putIncident(void)
 				" where unified_event_id=123");
 	string expected =
 		"^5\\|2\\|2\\|3\\|123\\|\\|IN PROGRESS\\|taro\\|"
-		"1412957360\\|0\\|\\d+\\|\\d+\\|HIGH\\|30\\|123$";
+		"1412957360\\|0\\|\\d+\\|\\d+\\|HIGH\\|30\\|123\\|0$";
 	cut_assert_match(expected.c_str(), actual.c_str());
 
 	// check history
