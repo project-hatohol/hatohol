@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2016 Project Hatohol
+ * Copyright (C) 2013-2015 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -280,10 +280,8 @@ FaceRest::~FaceRest()
 
 	MLPL_INFO("FaceRest: stop process: started.\n");
 	if (m_impl->soupServer) {
-#ifndef SOUP_VERSION_2_48
 		SoupSocket *sock = soup_server_get_listener(m_impl->soupServer);
 		soup_socket_disconnect(sock);
-#endif // SOUP_VERSION_2_48
 		m_impl->removeAllHandlers();
 		g_object_unref(m_impl->soupServer);
 	}
@@ -338,10 +336,8 @@ struct FaceRest::Impl::MainThreadCleaner {
 
 	void run(void)
 	{
-#ifndef SOUP_VERSION_2_48
 		if (impl->soupServer && running)
 			soup_server_quit(impl->soupServer);
-#endif // SOUP_VERSION_2_48
 	}
 };
 
@@ -381,16 +377,9 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 	Reaper<Impl::MainThreadCleaner>
 	   reaper(&cleaner, Impl::MainThreadCleaner::callgate);
 
-#ifdef SOUP_VERSION_2_48
-	m_impl->soupServer = soup_server_new(
-	  SOUP_SERVER_SERVER_HEADER, "Hatohol/" VERSION,
-	  NULL);
-#else // SOUP_VERSION_2_48
-	m_impl->soupServer = soup_server_new(
-	  SOUP_SERVER_PORT, m_impl->port,
-	  SOUP_SERVER_ASYNC_CONTEXT, m_impl->gMainCtx,
-	  NULL);
-#endif // SOUP_VERSION_2_48
+	m_impl->soupServer = soup_server_new(SOUP_SERVER_PORT, m_impl->port,
+	                                    SOUP_SERVER_ASYNC_CONTEXT,
+	                                    m_impl->gMainCtx, NULL);
 	if (errno == EADDRINUSE)
 		MLPL_ERR("%s", Utils::getUsingPortInfo(m_impl->port).c_str());
 	HATOHOL_ASSERT(m_impl->soupServer,
@@ -423,25 +412,7 @@ gpointer FaceRest::mainThread(HatoholThreadArg *arg)
 
 	if (m_impl->param)
 		m_impl->param->setupDoneNotifyFunc();
-#ifdef SOUP_VERSION_2_48
-	SoupServerListenOptions options
-	  = static_cast<SoupServerListenOptions>(0);
-	GError *error = NULL;
-	gboolean succeeded = soup_server_listen_all(m_impl->soupServer,
-						    m_impl->port,
-						    options,
-						    &error);
-	if (!succeeded) {
-		const char *message = error ? error->message : "Unknown reason";
-		HATOHOL_ASSERT(m_impl->soupServer,
-			       "Failed to listen: %s\n",
-			       message);
-		if (error)
-			g_error_free(error);
-	}
-#else // SOUP_VERSION_2_48
 	soup_server_run_async(m_impl->soupServer);
-#endif // SOUP_VERSION_2_48
 	cleaner.running = true;
 
 	if (isAsyncMode())
