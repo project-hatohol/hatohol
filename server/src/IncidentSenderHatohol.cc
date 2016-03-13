@@ -93,6 +93,7 @@ struct IncidentSenderHatohol::Impl
 		incidentInfo.priority = "";
 		incidentInfo.assignee = "";
 		incidentInfo.doneRatio = 0;
+		incidentInfo.commentCount = 0;
 		incidentInfo.createdAt.tv_sec = currentTime.tv_sec;
 		incidentInfo.createdAt.tv_nsec = currentTime.tv_nsec;
 		incidentInfo.updatedAt = incidentInfo.createdAt;

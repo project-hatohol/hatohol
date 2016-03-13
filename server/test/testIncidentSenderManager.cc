@@ -123,7 +123,7 @@ void test_sendHatholIncident(void)
 	cppcut_assert_equal(true, succeeded);
 
 	string expected =
-	  "^5\\|3\\|1\\|2\\|193\\|\\|NONE\\|\\|\\d+\\|\\d+\\|\\d+\\|\\d+\\|\\|0\\|193$";
+	  "^5\\|3\\|1\\|2\\|193\\|\\|NONE\\|\\|\\d+\\|\\d+\\|\\d+\\|\\d+\\|\\|0\\|193\\|0$";
 	DBHatohol dbHatohol;
 	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),

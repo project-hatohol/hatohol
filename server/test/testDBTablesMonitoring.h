@@ -343,6 +343,8 @@ struct AssertGetEventsArg
 			incident.createdAt.tv_nsec = 0;
 			incident.updatedAt.tv_sec  = 0;
 			incident.updatedAt.tv_nsec = 0;
+			incident.unifiedEventId = 0;
+			incident.commentCount = 0;
 			return incident;
 		} else {
 			return *eventIncidentMap[key];

@@ -63,7 +63,7 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENT_HISTORIES =
 //   * remove 'item_group_name' from COLUMN_DEF_ITEMS
 //   * Add COLUMN_DEF_ITEM_GROUPS_NAME
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
-  DBTables::Version::getPackedVer(0, 2, 0);
+  DBTables::Version::getPackedVer(0, 2, 1);
 
 static StatisticsCounter *eventsCounters[] = {
   new StatisticsCounter(10),
@@ -782,6 +782,15 @@ static const ColumnDef COLUMN_DEF_INCIDENTS[] = {
 	SQL_KEY_NONE,                      // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
+}, {
+	"comment_count",                   // columnName
+	SQL_COLUMN_TYPE_INT,               // type
+	11,                                // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
 },
 };
 
@@ -801,6 +810,7 @@ enum {
 	IDX_INCIDENTS_PRIORITY,
 	IDX_INCIDENTS_DONE_RATIO,
 	IDX_INCIDENTS_UNIFIED_EVENT_ID,
+	IDX_INCIDENTS_COMMENT_COUNT,
 	NUM_IDX_INCIDENTS,
 };
 
@@ -2514,6 +2524,7 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 		builder.add(IDX_INCIDENTS_PRIORITY);
 		builder.add(IDX_INCIDENTS_DONE_RATIO);
 		builder.add(IDX_INCIDENTS_UNIFIED_EVENT_ID);
+		builder.add(IDX_INCIDENTS_COMMENT_COUNT);
 	}
 
 	// Condition
@@ -2579,6 +2590,8 @@ HatoholError DBTablesMonitoring::getEventInfoList(
 			itemGroupStream >> incidentInfo.updatedAt.tv_nsec;
 			itemGroupStream >> incidentInfo.priority;
 			itemGroupStream >> incidentInfo.doneRatio;
+			itemGroupStream >> incidentInfo.unifiedEventId;
+			itemGroupStream >> incidentInfo.commentCount;
 			incidentInfo.statusCode
 				= IncidentInfo::STATUS_UNKNOWN; // TODO: add column?
 			incidentInfo.serverId  = eventInfo.serverId;
@@ -3212,6 +3225,7 @@ HatoholError DBTablesMonitoring::updateIncidentInfo(IncidentInfo &incidentInfo)
 	arg.add(IDX_INCIDENTS_UPDATED_AT_NS, incidentInfo.updatedAt.tv_nsec);
 	arg.add(IDX_INCIDENTS_PRIORITY, incidentInfo.priority);
 	arg.add(IDX_INCIDENTS_DONE_RATIO, incidentInfo.doneRatio);
+	arg.add(IDX_INCIDENTS_COMMENT_COUNT, incidentInfo.commentCount);
 	arg.condition = StringUtils::sprintf(
 	  "%s=%s AND %s=%s",
 	  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_TRACKER_ID].columnName,
@@ -3267,6 +3281,7 @@ HatoholError DBTablesMonitoring::getIncidentInfoVect(
 		itemGroupStream >> incidentInfo.priority;
 		itemGroupStream >> incidentInfo.doneRatio;
 		itemGroupStream >> incidentInfo.unifiedEventId;
+		itemGroupStream >> incidentInfo.commentCount;
 		incidentInfo.statusCode = IncidentInfo::STATUS_UNKNOWN; // TODO: add column?
 	}
 
@@ -3683,6 +3698,7 @@ void DBTablesMonitoring::addIncidentInfoWithoutTransaction(
 	arg.add(incidentInfo.priority);
 	arg.add(incidentInfo.doneRatio);
 	arg.add(incidentInfo.unifiedEventId);
+	arg.add(incidentInfo.commentCount);
 	arg.upsertOnDuplicate = true;
 	dbAgent.insert(arg);
 }
@@ -3691,10 +3707,12 @@ static bool updateDB(
   DBAgent &dbAgent, const DBTables::Version &oldPackedVer, void *data)
 {
 	const int &oldVer = oldPackedVer.getPackedVer();
-	if (oldVer <= DBTables::Version::getPackedVer(0, 1, 1)) {
-		// add a new column "extended_info" to events
-		DBAgent::AddColumnsArg addColumnsArg(tableProfileEvents);
-		addColumnsArg.columnIndexes.push_back(IDX_EVENTS_EXTENDED_INFO);
+	if (oldVer == DBTables::Version::getPackedVer(0, 2, 0)) {
+		// add a new column "comment_count" to incidents
+		// since (0, 2, 1)
+		DBAgent::AddColumnsArg addColumnsArg(tableProfileIncidents);
+		addColumnsArg.columnIndexes.push_back(
+		  IDX_INCIDENTS_COMMENT_COUNT);
 		dbAgent.addColumns(addColumnsArg);
 		return true;
 	}

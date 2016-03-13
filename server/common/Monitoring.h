@@ -254,6 +254,9 @@ struct IncidentInfo {
 
 	/* fetched from a monitoring system (since 14.12) */
 	uint64_t           unifiedEventId;
+
+	/* since 16.04 */
+	int                commentCount;
 };
 
 typedef std::vector<IncidentInfo>        IncidentInfoVect;

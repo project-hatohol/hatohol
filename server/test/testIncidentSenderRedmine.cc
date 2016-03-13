@@ -247,6 +247,7 @@ static void makeExpectedIncidentInfo(IncidentInfo &incident,
 	incident.updatedAt.tv_sec = postedIssue.updatedOn;
 	incident.updatedAt.tv_nsec = 0;
 	incident.unifiedEventId = event.unifiedId;
+	incident.commentCount = 0;
 }
 
 void _assertSend(const HatoholErrorCode &expected,

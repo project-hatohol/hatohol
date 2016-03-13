@@ -67,7 +67,7 @@ void test_send(void)
 	cppcut_assert_equal(HTERR_OK, err.getCode());
 
 	string expected =
-	  "^1\\|3\\|1\\|2\\|931\\|\\|NONE\\|\\|\\d+\\|\\d+\\|\\d+\\|\\d+\\|\\|0\\|931$";
+	  "^1\\|3\\|1\\|2\\|931\\|\\|NONE\\|\\|\\d+\\|\\d+\\|\\d+\\|\\d+\\|\\|0\\|931|0$";
 	DBHatohol dbHatohol;
 	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
@@ -106,7 +106,7 @@ void test_updateStatus(gconstpointer data)
 	string expected(
 	  string("^5\\|2\\|2\\|3\\|123\\|\\|") +
 	  string(status) +
-	  string ("\\|\\|1412957360\\|0\\|\\d+\\|\\d+\\|\\|0\\|123$"));
+	  string ("\\|\\|1412957360\\|0\\|\\d+\\|\\d+\\|\\|0\\|123|0$"));
 	DBHatohol dbHatohol;
 	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
@@ -179,7 +179,7 @@ void test_userDefinedStatus(gconstpointer data)
 	string expected(
 	  string("^5\\|2\\|2\\|3\\|123\\|\\|") +
 	  string(incidentInfo.status) +
-	  string ("\\|\\|1412957360\\|0\\|\\d+\\|\\d+\\|\\|0\\|123$"));
+	  string ("\\|\\|1412957360\\|0\\|\\d+\\|\\d+\\|\\|0\\|123|0$"));
 	DBHatohol dbHatohol;
 	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
 	string actual = execSQL(&dbMonitoring.getDBAgent(),
