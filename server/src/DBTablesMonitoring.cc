@@ -3353,6 +3353,9 @@ HatoholError DBTablesMonitoring::addIncidentHistory(
 
 	DBAgent &dbAgent = getDBAgent();
 	dbAgent.runTransaction(arg, &incidentHistoryId);
+
+	updateIncidentCommentCount(incidentHistory.unifiedEventId);
+
 	return HatoholError(HTERR_OK);
 }
 
@@ -3405,6 +3408,9 @@ HatoholError DBTablesMonitoring::updateIncidentHistory(
 	  COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_ID].columnName,
 	  rhs(incidentHistory.id));
 	getDBAgent().runTransaction(trx);
+
+	updateIncidentCommentCount(incidentHistory.unifiedEventId);
+
 	return HatoholError(HTERR_OK);
 }
 
@@ -3445,6 +3451,77 @@ HatoholError DBTablesMonitoring::getIncidentHistory(
 	}
 
 	return HTERR_OK;
+}
+
+size_t DBTablesMonitoring::getIncidentCommentCount(
+  UnifiedEventIdType unifiedEventId)
+{
+	const ColumnDef &unifiedEventIdColumnDef =
+	  COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_UNIFIED_EVENT_ID];
+	const ColumnDef &commentColumnDef =
+	  COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_COMMENT];
+	DBClientJoinBuilder builder(tableProfileIncidentHistories);
+	string stmt =
+	  StringUtils::sprintf("count(distinct %s)",
+	    COLUMN_DEF_INCIDENT_HISTORIES[IDX_INCIDENT_HISTORIES_ID].columnName);
+	DBAgent::SelectExArg &arg = builder.build();
+	arg.add(stmt, SQL_COLUMN_TYPE_INT);
+	arg.condition
+	  = StringUtils::sprintf("%s=%" FMT_UNIFIED_EVENT_ID " and "
+				 "%s is not null and %s<>''",
+				 unifiedEventIdColumnDef.columnName,
+				 unifiedEventId,
+				 commentColumnDef.columnName,
+				 commentColumnDef.columnName);
+
+	getDBAgent().runTransaction(arg);
+
+	// get the result
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupStream itemGroupStream(*grpList.begin());
+	return itemGroupStream.read<int>();
+}
+
+HatoholError DBTablesMonitoring::updateIncidentCommentCount(
+  UnifiedEventIdType unifiedEventId)
+{
+	struct TrxProc : public DBAgent::TransactionProc {
+		HatoholError err;
+		DBAgent::UpdateArg arg;
+
+		TrxProc(void)
+		: arg(tableProfileIncidents)
+		{
+		}
+
+		bool hasRecord(DBAgent &dbAgent)
+		{
+			return dbAgent.isRecordExisting(
+				 TABLE_NAME_INCIDENTS,
+				 arg.condition);
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			if (!hasRecord(dbAgent)) {
+				err = HTERR_NOT_FOUND_TARGET_RECORD;
+				return;
+			}
+			dbAgent.update(arg);
+			err = HTERR_OK;
+		}
+	} trx;
+
+	DBTermCStringProvider rhs(*getDBAgent().getDBTermCodec());
+	DBAgent::UpdateArg &arg = trx.arg;
+	size_t commentCount = getIncidentCommentCount(unifiedEventId);
+	arg.add(IDX_INCIDENTS_COMMENT_COUNT, commentCount);
+	arg.condition = StringUtils::sprintf(
+	  "%s=%s",
+	  COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_UNIFIED_EVENT_ID].columnName,
+	  rhs(unifiedEventId));
+	getDBAgent().runTransaction(trx);
+	return trx.err;
 }
 
 // ---------------------------------------------------------------------------
