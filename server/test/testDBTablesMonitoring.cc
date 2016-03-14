@@ -2055,7 +2055,7 @@ static const IncidentInfo *findIncidentInfoWithUnifiedEventId(
 		if (testIncidentInfo[i].unifiedEventId == unifiedEventId)
 			return &testIncidentInfo[i];
 	}
-	return NULL;
+	return nullptr;
 }
 
 void test_incremaentIncidentCommentCount(void)
