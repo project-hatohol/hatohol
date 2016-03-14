@@ -1,4 +1,4 @@
-# Copyright (C) 2013 Project Hatohol
+# Copyright (C) 2013,2016 Project Hatohol
 #
 # This file is part of Hatohol.
 #
@@ -17,38 +17,54 @@
 
 import os
 import logging
-
-DEFAULT_SERVER_ADDR = 'localhost'
-DEFAULT_SERVER_PORT = 33194
-
-SERVER_ADDR = DEFAULT_SERVER_ADDR
-SERVER_PORT = DEFAULT_SERVER_PORT
+from django.conf import settings
 
 SESSION_NAME_META = 'HTTP_X_HATOHOL_SESSION'
-logger = logging.getLogger(__name__)
+
+# As the following source code, priority of the way to select
+# the Hatohol server is the following.
+#
+# 1. Environment variable
+# 2. settings (webui.conf)
+# 3. This module's default
+#
+DEFAULT_SERVER_ADDR = 'localhost'
+DEFAULT_SERVER_PORT = 33194
 
 SERVER_ADDR_ENV_NAME = 'HATOHOL_SERVER_ADDR'
 SERVER_PORT_ENV_NAME = 'HATOHOL_SERVER_PORT'
 
+SERVER_ADDR = None
+SERVER_PORT = None
 
-def _setup():
-    # server
-    global SERVER_ADDR
-    server_addr = os.getenv(SERVER_ADDR_ENV_NAME)
-    if server_addr:
-        SERVER_ADDR = server_addr
-        logger.info('Server addr: %s' % SERVER_ADDR)
-    else:
-        SERVER_ADDR = DEFAULT_SERVER_ADDR
+# 1. Env. var.
+if SERVER_ADDR is None:
+    addr = os.getenv(SERVER_ADDR_ENV_NAME)
+    if addr:
+        SERVER_ADDR = addr
 
-    # port
-    global SERVER_PORT
-    server_port = os.getenv(SERVER_PORT_ENV_NAME)
-    if server_port:
-        SERVER_PORT = int(server_port)
-        logger.info('Server port: %d' % SERVER_PORT)
-    else:
-        SERVER_PORT = DEFAULT_SERVER_PORT
+if SERVER_PORT is None:
+    port = os.getenv(SERVER_PORT_ENV_NAME)
+    if port:
+        SERVER_PORT = int(port)
+
+# 2. settings.HATOHOL_SERVER_ADDR and PORT are read from 'webui.conf'
+if SERVER_ADDR is None:
+    if hasattr(settings, 'HATOHOL_SERVER_ADDR'):
+        SERVER_ADDR = settings.HATOHOL_SERVER_ADDR
+
+if SERVER_PORT is None:
+    if hasattr(settings, 'HATOHOL_SERVER_PORT'):
+        SERVER_PORT = settings.HATOHOL_SERVER_PORT
+
+# 3. Deafult
+if SERVER_ADDR is None:
+    SERVER_ADDR = DEFAULT_SERVER_ADDR
+if SERVER_PORT is None:
+    SERVER_PORT = DEFAULT_SERVER_PORT
+
+logger = logging.getLogger(__name__)
+logger.info('Hatohol server addr: %s, port: %d' % (SERVER_ADDR, SERVER_PORT))
 
 
 def get_address():
@@ -57,6 +73,3 @@ def get_address():
 
 def get_port():
     return SERVER_PORT
-
-
-_setup()
