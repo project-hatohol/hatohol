@@ -48,7 +48,6 @@ var EventsView = function(userProfile, options) {
 
   setupEventsTable();
   setupToggleFilter();
-  setupToggleSidebar();
 
   if (self.options.disableTimeRangeFilter) {
    // Don't enable datetimepicker for tests.
@@ -300,16 +299,6 @@ var EventsView = function(userProfile, options) {
     });
     setupFilterValues();
     resetQuickFilter();
-
-    // summary
-    if (config.config["events.show-sidebar"] == "false") {
-      $("#event-table-area").removeClass("col-md-10");
-      $("#event-table-area").addClass("col-md-12");
-      $("#sidebar-left-glyph").toggle();
-      $("#sidebar-right-glyph").toggle();
-    } else {
-      $("#SummarySidebar").show();
-    }
   }
 
   function updatePager() {
@@ -939,23 +928,6 @@ var EventsView = function(userProfile, options) {
     });
   }
 
-  function setupToggleSidebar() {
-    $("#toggle-sidebar").show();
-    $("#toggle-sidebar").click(function(){
-      $("#SummarySidebar").toggle();
-      $("#event-table-area").toggleClass("col-md-12");
-      $("#event-table-area").toggleClass("col-md-10");
-      $("#sidebar-left-glyph").toggle();
-      $("#sidebar-right-glyph").toggle();
-      self.userConfig.saveValue("events.show-sidebar",
-                                $("#event-table-area").hasClass("col-md-10"));
-      var summaryShown = $("#event-table-area").hasClass("col-md-10");
-      if (summaryShown) {
-        self.startConnection(getSummaryQuery(), updateSummary);
-      }
-    });
-  }
-
   function setLoading(loading) {
     if (loading) {
       $("#begin-time").attr("disabled", "disabled");
@@ -1462,9 +1434,6 @@ var EventsView = function(userProfile, options) {
   }
 
   function updateSummary(reply) {
-    if (!$("#SummarySidebar").is(":visible"))
-      return;
-
     if (reply)
       self.rawSummaryData = reply;
 
