@@ -65,6 +65,13 @@ HatoholMonitoringView.prototype.getTargetHostgroupName = function() {
   return $("#select-host-group-name").val();
 };
 
+HatoholMonitoringView.prototype.getTargetTriggerBrief = function() {
+  var name = $("#select-trigger-brief").val();
+  if (name == "---------")
+    name = "";
+  return name;
+};
+
 HatoholMonitoringView.prototype.getTargetAppName = function() {
   return $("#select-application").val();
 };
@@ -243,6 +250,34 @@ HatoholMonitoringView.prototype.setHostgroupNameFilterCandidates =
   groupNameSelector.val(current);
 };
 
+HatoholMonitoringView.prototype.setTriggerBriefsFilterCandidates =
+  function(triggerBriefs)
+{
+  var id, server, brief, briefLabels = [], current;
+  var triggerBriefSelector = $('#select-trigger-brief');
+
+  current = triggerBriefSelector.val();
+
+  this.setFilterCandidates(triggerBriefSelector);
+
+  if (!triggerBriefs)
+    return;
+
+  var briefs = triggerBriefs.briefs;
+  var length = briefs.length;
+  for (var i = 0; i < length; i++) {
+    brief = briefs[i].brief;
+    var briefChioce = {
+      label: brief,
+      value: brief
+    };
+    briefLabels.push(briefChioce);
+  }
+  briefLabels.sort(this.compareFilterLabel);
+  this.setFilterCandidates(triggerBriefSelector, briefLabels);
+  triggerBriefSelector.val(current);
+};
+
 HatoholMonitoringView.prototype.setApplicationFilterCandidates =
 function(candidates)
 {
@@ -259,11 +294,13 @@ HatoholMonitoringView.prototype.getHostFilterQuery = function() {
   var hostId = this.getTargetHostId();
   var hostname = this.getTargetHostname();
   var hostgroupName = this.getTargetHostgroupName();
+  var triggerBrief = this.getTargetTriggerBrief();
   query.serverId = serverId ? serverId : "-1";
   query.hostgroupId = hostgroupId ? hostgroupId : "*";
   query.hostId = hostId ? hostId : "*";
   query.hostname = hostname;
   query.hostgroupName = hostgroupName;
+  query.triggerBrief = triggerBrief;
   return query;
 };
 

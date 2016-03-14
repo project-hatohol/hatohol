@@ -225,6 +225,19 @@ var TriggersView = function(userProfile, options) {
       $("#select-status").val(query.status);
   }
 
+  function setupTriggerBriefsFilterValues(triggerBriefs, query) {
+    if (!triggerBriefs)
+      triggerBriefs = self.rawTriggerBriefsData;
+
+    if (!query)
+      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+
+    self.setTriggerBriefsFilterCandidates(triggerBriefs);
+
+    if ("triggerBrief" in query)
+      $("#select-trigger-brief").val(query.triggerBrief);
+  }
+
   function setupTableColor() {
     var severityRanks = self.rawSeverityRankData["SeverityRanks"];
     var severity, color;
@@ -442,7 +455,7 @@ var TriggersView = function(userProfile, options) {
   function getTriggersQueryInURI() {
     var knownKeys = [
       "serverId", "hostgroupId", "hostId",
-      "hostname", "hostgroupName",
+      "hostname", "hostgroupName","triggerBrief",
       "limit", "offset",
       "minimumSeverity", "status",
     ];
