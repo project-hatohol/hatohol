@@ -1343,11 +1343,9 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataUserCommentContents(event, server, submit) {
     var html = "";
-    var i, incidentHistoryData, commentArray = [], commentData, commentedDate, timeZone;
+    var i, incidentHistoryData, commentArray = [], commentData, commentedDate;
     var nowUnixTime = Math.round( new Date().getTime() / 1000 );
     var newLimit = 7 * 24 * 60 * 60;
-    var weekday = [
-    ];
 
     html += "<ul class='userCommentList";
     if (submit) {
@@ -1355,20 +1353,14 @@ var EventsView = function(userProfile, options) {
     }
     html += "'>";
 
-    for (i = 0, l = event["incidentHistory"].length; i < l; i++) {
+    for (i = 0; i < event["incidentHistory"].length; i++) {
       incidentHistoryData = event["incidentHistory"][i];
       if (incidentHistoryData["comment"]) {
         commentArray.push(incidentHistoryData);
       }
     }
 
-    timeZone = jstz.determine();
-    if (typeof (timeZone) === 'undefined') {
-      timeZone = "";
-    } else {
-      timeZone = timeZone.name();
-    }
-    for (i = 0, l = commentArray.length; i < l; i++) {
+    for (i = 0; i < commentArray.length; i++) {
       commentData = commentArray[i];
       commentedDate = new Date(commentData["time"] * 1000);
       html += "<li>";
@@ -1377,30 +1369,69 @@ var EventsView = function(userProfile, options) {
       html += " title='userIconPath/user_icon_" + commentData["userId"] + "'>";
       html += "</em>";
       html += "<p class='userCommentName'>";
-      html += commentData["userName"];
+      html += escapeHTML(commentData["userName"]);
       html += "</p>";
       html += "<p class='userCommentedTime'>";
       html += "<span>";
-      html += commentedDate.getFullYear() + "/";
-      html += padDigit(commentedDate.getMonth() + 1, 2) + "/";
-      html += padDigit(commentedDate.getDate(), 2) + " ";
-      html += getDayName(commentedDate.getDay(), 2) + " ";
-      html += padDigit(commentedDate.getHours(), 2) + ":";
-      html += padDigit(commentedDate.getMinutes(), 2) + ":";
-      html += padDigit(commentedDate.getSeconds(), 2);
+      html += getCommentedDate(commentedDate);
       html += "</span>";
       html += "<span>";
-      html += timeZone;
+      html += getTimeZone();
       html += "</span>";
       html += "</p>";
       if (nowUnixTime - commentData["time"] < newLimit)
         html += "<p><span class='userCommentNew'>NEW</span></p>";
       html += "</div>";
       html += "<div class='userCommentRight'>";
-      html += commentData["comment"].replace(/\n/g,"<br>");
+      html += escapeHTML(commentData["comment"]).replace(/\n/g,"<br>");
       html += "</div>";
       html += "</li>";
     }
+
+    html += appendUserCommentForm();
+    html += "</ul>";
+
+    return html;
+  }
+
+  function getCommentedDate(date) {
+    var html = "";
+
+    html += date.getFullYear() + "/";
+    html += padDigit(date.getMonth() + 1, 2) + "/";
+    html += padDigit(date.getDate(), 2) + " ";
+    html += getDayName(date.getDay(), 2) + " ";
+    html += padDigit(date.getHours(), 2) + ":";
+    html += padDigit(date.getMinutes(), 2) + ":";
+    html += padDigit(date.getSeconds(), 2);
+
+    return html;
+  }
+
+  function getDayName(number) {
+    var dayName = [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ];
+    return dayName[number];
+  }
+
+  function getTimeZone() {
+    var timeZone = jstz.determine();
+    if (typeof (timeZone) === 'undefined') {
+      return "";
+    } else {
+      return timeZone.name();
+    }
+  }
+
+  function appendUserCommentForm() {
+    var html = "";
 
     html += "<li class='userCommentForm'>";
     html += "<div class='userCommentLeft'>";
@@ -1430,22 +1461,8 @@ var EventsView = function(userProfile, options) {
     html += "</button>";
     html += "</div>";
     html += "</li>";
-    html += "</ul>";
 
     return html;
-  }
-
-  function getDayName(number) {
-    var dayName = [
-      "Sun",
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri",
-      "Sat"
-    ];
-    return dayName[number];
   }
 
   function drawTableHeader() {
@@ -1564,7 +1581,7 @@ var EventsView = function(userProfile, options) {
               "userId":"1",
               "userName":"USER_1",
               "status":"IN PROGRESS",
-              "comment":"改行テキスト\n\n改行テキスト改行テキスト\n改行テキスト",
+              "comment":"<p>Pタグ</p>改行テキスト\n\n改行テキスト改行テキスト\n改行テキスト",
               "time":"1456221146"
             },
             {
@@ -1621,21 +1638,24 @@ var EventsView = function(userProfile, options) {
       .next().toggleClass('open');
     });
 
-    $('.submitUserCommentButton').on('click', function() {
+    $(document).off('click', '.submitUserCommentButton')
+    .on('click', '.submitUserCommentButton', function() {
       var $userCommentForm = $(this).parents('.userCommentForm');
       var $textarea = $userCommentForm.find('textarea:eq(0)');
       var $tr = $userCommentForm.parents('.userCommentList');
-      alert('"' + $textarea.val() + '"\nComennted!!');
+      alert('"' + $textarea.val() + '"\nCommented!!');
       $tr.addClass('userCommentListAfterSubmit');
     });
 
-    $('.cancelUserCommentButton').on('click', function() {
+    $(document).off('click', '.cancelUserCommentButton')
+    .on('click', '.cancelUserCommentButton', function() {
       var $userCommentForm = $(this).parents('.userCommentForm');
       var $textarea = $userCommentForm.find('textarea:eq(0)');
       $textarea.val("");
     });
 
-    $('.addUserCommentButton').on('click', function() {
+    $(document).off('click', '.addUserCommentButton')
+    .on('click', '.addUserCommentButton', function() {
       var $tr = $(this).parents('.userCommentList');
       $tr.removeClass('userCommentListAfterSubmit');
     });
