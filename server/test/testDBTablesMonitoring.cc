@@ -2058,7 +2058,7 @@ static const IncidentInfo *findIncidentInfoWithUnifiedEventId(
 	return nullptr;
 }
 
-void test_incremaentIncidentCommentCount(void)
+void test_incrementIncidentCommentCount(void)
 {
 	loadTestDBIncidents();
 
@@ -2082,7 +2082,7 @@ void test_incremaentIncidentCommentCount(void)
 	assertDBContent(&dbAgent, statement, expected);
 }
 
-void test_notIncremaentIncidentCommentCount(void)
+void test_notIncrementIncidentCommentCount(void)
 {
 	loadTestDBIncidents();
 
