@@ -70,7 +70,6 @@ libhatohol_la_SOURCES = \
 	RestResourceSystem.cc RestResourceSystem.h \
 	RestResourceSeverityRank.cc RestResourceSeverityRank.h \
 	RestResourceSummary.cc RestResourceSummary.h \
-	RestResourceTriggerBriefs.cc RestResourceTriggerBriefs.h \
 	RestResourceUser.cc RestResourceUser.h \
 	SelfMonitor.cc SelfMonitor.h \
 	SessionManager.cc SessionManager.h \

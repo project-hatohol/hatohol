@@ -35,6 +35,7 @@ const char *RestResourceMonitoring::pathForEvent     = "/event";
 const char *RestResourceMonitoring::pathForItem      = "/item";
 const char *RestResourceMonitoring::pathForHistory   = "/history";
 const char *RestResourceMonitoring::pathForHostgroup = "/hostgroup";
+const char *RestResourceMonitoring::pathForTriggerBriefs = "/trigger/briefs";
 
 void RestResourceMonitoring::registerFactories(FaceRest *faceRest)
 {
@@ -66,6 +67,10 @@ void RestResourceMonitoring::registerFactories(FaceRest *faceRest)
 	  pathForHistory,
 	  new RestResourceMonitoringFactory(
 	    faceRest, &RestResourceMonitoring::handlerGetHistory));
+	faceRest->addResourceHandlerFactory(
+	  pathForTriggerBriefs,
+	  new RestResourceMonitoringFactory(
+	    faceRest, &RestResourceMonitoring::handlerGetTriggerBriefs));
 }
 
 RestResourceMonitoring::RestResourceMonitoring(FaceRest *faceRest, HandlerFunc handler)
@@ -781,6 +786,42 @@ void RestResourceMonitoring::handlerGetHostgroup(void)
 		agent.add("groupName", hostgrp.name);
 		addHostsIsMemberOfGroup(this, agent,
 		                        hostgrp.serverId, hostgrp.idInServer);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJSONData(agent);
+}
+
+
+void RestResourceMonitoring::handlerGetTriggerBriefs(void)
+{
+	if (!httpMethodIs("GET")) {
+		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
+	}
+
+	TriggersQueryOption option(m_dataQueryContextPtr);
+	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
+	HatoholError err
+	  = RestResourceUtils::parseHostResourceQueryParameter(option, m_query);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	list<string> triggerBriefList;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getTriggerBriefList(triggerBriefList, option);
+
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.startArray("briefs");
+	for (auto brief : triggerBriefList) {
+		agent.startObject();
+		agent.add("brief", brief);
 		agent.endObject();
 	}
 	agent.endArray();

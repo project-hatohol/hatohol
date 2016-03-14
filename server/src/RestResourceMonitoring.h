@@ -39,6 +39,7 @@ struct RestResourceMonitoring : public RestResourceMemberHandler
 	void handlerGetItem(void);
 	void replyGetItem(void);
 	void handlerGetHistory(void);
+	void handlerGetTriggerBriefs(void);
 	void itemFetchedCallback(Closure0 *closure);
 	void historyFetchedCallback(Closure1<HistoryInfoVect> *closure,
 				    const HistoryInfoVect &historyInfoVect);
@@ -56,6 +57,7 @@ struct RestResourceMonitoring : public RestResourceMemberHandler
 	static const char *pathForItem;
 	static const char *pathForHistory;
 	static const char *pathForHostgroup;
+        static const char *pathForTriggerBriefs;
 };
 
 #endif // RestResourceMonitoring_h
