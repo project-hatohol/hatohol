@@ -33,6 +33,7 @@ var TriggersView = function(userProfile, options) {
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.rawSeverityRankData = {};
   self.severityRanksMap = {};
+  self.rawTriggerBriefsData = {};
   self.options = options || {};
 
   setupToggleFilter();
@@ -61,7 +62,7 @@ var TriggersView = function(userProfile, options) {
   start();
 
   function start() {
-    $.when(loadUserConfig(), loadSeverityRank()).done(function() {
+    $.when(loadUserConfig(), loadSeverityRank(), loadTriggerBriefs()).done(function() {
       load();
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
@@ -111,6 +112,27 @@ var TriggersView = function(userProfile, options) {
               choices[i].label = rank.label;
           }
         }
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
+  }
+
+  function loadTriggerBriefs() {
+    var deferred = new $.Deferred();
+    new HatoholConnector({
+      url: "/trigger/briefs",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        self.rawTriggerBriefsData = reply;
+        setupTriggerBriefsFilterValues();
+
         deferred.resolve();
       },
       parseErrorCallback: function() {
