@@ -66,10 +66,7 @@ HatoholMonitoringView.prototype.getTargetHostgroupName = function() {
 };
 
 HatoholMonitoringView.prototype.getTargetTriggerBrief = function() {
-  var name = $("#select-trigger-brief").val();
-  if (name == "---------")
-    name = "";
-  return name;
+  return $("#select-trigger-brief").val();
 };
 
 HatoholMonitoringView.prototype.getTargetAppName = function() {
