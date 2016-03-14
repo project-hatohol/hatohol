@@ -249,8 +249,8 @@ def get_config_lines_from_file():
             'port': lambda v: 'DATABASES["default"]["PORT""] = "%s"' % v,
         }),
         ('server', {
-            'host': lambda v: 'DEFAULT_SERVER_ADDR = "%s"' % v,
-            'port': lambda v: 'DEFAULT_SERVER_PORT = %s' % v,
+            'host': lambda v: 'HATOHOL_SERVER_ADDR = "%s"' % v,
+            'port': lambda v: 'HATOHOL_SERVER_PORT = %s' % v,
         }),
     )
 
