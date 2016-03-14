@@ -336,6 +336,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host-group").selectpicker();
     $("#select-hostname").selectpicker();
     $("#select-host-group-name").selectpicker();
+    $("#select-trigger-brief").selectpicker();
   }
 
   function setLoading(loading) {
@@ -349,6 +350,7 @@ var TriggersView = function(userProfile, options) {
       $("#select-host").attr("disabled", "disabled");
       $("#select-hostname").attr("disabled", "disabled");
       $("#select-host-group-name").attr("disabled", "disabled");
+      $("#select-trigger-brief").attr("disabled", "disabled");
       $(".latest-button").attr("disabled", "disabled");
     } else {
       $("#begin-time").removeAttr("disabled");
@@ -362,6 +364,7 @@ var TriggersView = function(userProfile, options) {
         $("#select-host").removeAttr("disabled");
       $("#select-hostname").removeAttr("disabled");
       $("#select-host-group-name").removeAttr("disabled");
+      $("#select-trigger-brief").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
 
       setupSelectPickers();
@@ -519,6 +522,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host").val("");
     $("#select-hostname").val("");
     $("#select-host-group-name").val("");
+    $("#select-trigger-brief").val("");
 
     // refresh bootstrap-select selectpickers
     $("#select-severity").selectpicker('refresh');
@@ -528,6 +532,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host").selectpicker('refresh');
     $("#select-hostname").selectpicker('refresh');
     $("#select-host-group-name").selectpicker('refresh');
+    $("#select-trigger-brief").selectpicker('refresh');
   }
 
   function formatDateTimeWithZeroSecond(d) {
