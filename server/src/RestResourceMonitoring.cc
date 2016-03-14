@@ -794,7 +794,6 @@ void RestResourceMonitoring::handlerGetHostgroup(void)
 	replyJSONData(agent);
 }
 
-
 void RestResourceMonitoring::handlerGetTriggerBriefs(void)
 {
 	if (!httpMethodIs("GET")) {
