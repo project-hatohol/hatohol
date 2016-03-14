@@ -57,7 +57,7 @@ struct RestResourceMonitoring : public RestResourceMemberHandler
 	static const char *pathForItem;
 	static const char *pathForHistory;
 	static const char *pathForHostgroup;
-        static const char *pathForTriggerBriefs;
+	static const char *pathForTriggerBriefs;
 };
 
 #endif // RestResourceMonitoring_h
