@@ -797,7 +797,7 @@ void RestResourceMonitoring::handlerGetHostgroup(void)
 void RestResourceMonitoring::handlerGetTriggerBriefs(void)
 {
 	if (!httpMethodIs("GET")) {
-		MLPL_ERR("Unknown method: %s\n", m_message->method);
+		MLPL_ERR("Method %s is not allowed.\n", m_message->method);
 		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
 	}
 
