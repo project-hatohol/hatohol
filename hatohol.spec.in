@@ -244,7 +244,7 @@ rm -rf %{buildroot}
 %{_datadir}/hatohol/hatohol.debian
 %{_datadir}/hatohol/hatohol.service
 %{_datadir}/hatohol/hatohol.conf
-%{_sysconfdir}/hatohol/hatohol.conf
+%config %{_sysconfdir}/hatohol/hatohol.conf
 %if %is_el6
 %{_sysconfdir}/init.d/hatohol
 %attr(0755,hatohol,hatohol) %dir %{_localstatedir}/run/hatohol
@@ -267,7 +267,7 @@ rm -rf %{buildroot}
 %files web
 %defattr(-,root,root,-)
 %{_libexecdir}/hatohol/client/*
-%{_sysconfdir}/httpd/conf.d/hatohol.conf
+%config %{_sysconfdir}/httpd/conf.d/hatohol.conf
 
 %files devel
 %defattr(-,root,root,-)
@@ -301,7 +301,7 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.pyo
-%{_sysconfdir}/hatohol/hap2-logging.conf
+%config %{_sysconfdir}/hatohol/hap2-logging.conf
 
 %files hap2-rabbitmq-connector
 %{python_sitelib}/hatohol/rabbitmqconnector.py
