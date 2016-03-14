@@ -413,6 +413,13 @@ void UnifiedDataStore::getTriggerList(TriggerInfoList &triggerList,
 	cache.getMonitoring().getTriggerInfoList(triggerList, option);
 }
 
+void UnifiedDataStore::getTriggerBriefList(
+  list<string> &triggerBriefList, const TriggersQueryOption &option)
+{
+	ThreadLocalDBCache cache;
+	cache.getMonitoring().getTriggerBriefList(triggerBriefList, option);
+}
+
 SmartTime UnifiedDataStore::getTimestampOfLastTrigger(
   const ServerIdType &serverId)
 {

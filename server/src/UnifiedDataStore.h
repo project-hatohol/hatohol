@@ -78,6 +78,8 @@ public:
 
 	void getTriggerList(TriggerInfoList &triggerList,
 	                    const TriggersQueryOption &option);
+	void getTriggerBriefList(std::list<std::string> &triggerBriefList,
+	                         const TriggersQueryOption &option);
 
 	/**
 	 * Get the last change time of the trigger that belongs to

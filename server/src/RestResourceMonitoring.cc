@@ -35,6 +35,7 @@ const char *RestResourceMonitoring::pathForEvent     = "/event";
 const char *RestResourceMonitoring::pathForItem      = "/item";
 const char *RestResourceMonitoring::pathForHistory   = "/history";
 const char *RestResourceMonitoring::pathForHostgroup = "/hostgroup";
+const char *RestResourceMonitoring::pathForTriggerBriefs = "/trigger/briefs";
 
 void RestResourceMonitoring::registerFactories(FaceRest *faceRest)
 {
@@ -66,6 +67,10 @@ void RestResourceMonitoring::registerFactories(FaceRest *faceRest)
 	  pathForHistory,
 	  new RestResourceMonitoringFactory(
 	    faceRest, &RestResourceMonitoring::handlerGetHistory));
+	faceRest->addResourceHandlerFactory(
+	  pathForTriggerBriefs,
+	  new RestResourceMonitoringFactory(
+	    faceRest, &RestResourceMonitoring::handlerGetTriggerBriefs));
 }
 
 RestResourceMonitoring::RestResourceMonitoring(FaceRest *faceRest, HandlerFunc handler)
@@ -75,59 +80,6 @@ RestResourceMonitoring::RestResourceMonitoring(FaceRest *faceRest, HandlerFunc h
 
 RestResourceMonitoring::~RestResourceMonitoring()
 {
-}
-
-static HatoholError parseTriggerParameter(TriggersQueryOption &option,
-					  GHashTable *query)
-{
-	if (!query)
-		return HatoholError(HTERR_OK);
-
-	HatoholError err;
-
-	// query parameters for HostResourceQueryOption
-	err = RestResourceUtils::parseHostResourceQueryParameter(option, query);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-
-	// target hostname
-	const char *targetHostname =
-		static_cast<const char*>(g_hash_table_lookup(query, "hostname"));
-	if (targetHostname && *targetHostname) {
-		option.setHostnameList({targetHostname});
-	}
-
-	// minimum severity
-	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
-	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
-					    "%d", severity);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setMinimumSeverity(severity);
-
-	// trigger status
-	TriggerStatusType status = TRIGGER_STATUS_ALL;
-	err = getParam<TriggerStatusType>(query, "status",
-					  "%d", status);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setTriggerStatus(status);
-
-	// begin time
-	timespec beginTime = { 0, 0 };
-	err = getParam<time_t>(query, "beginTime", "%ld", beginTime.tv_sec);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setBeginTime(beginTime);
-
-	// end time
-	timespec endTime = { 0, 0 };
-	err = getParam<time_t>(query, "endTime", "%ld", endTime.tv_sec);
-	if (err != HTERR_OK && err != HTERR_NOT_FOUND_PARAMETER)
-		return err;
-	option.setEndTime(endTime);
-
-	return HatoholError(HTERR_OK);
 }
 
 static HatoholError parseItemParameter(ItemsQueryOption &option,
@@ -380,7 +332,7 @@ void RestResourceMonitoring::handlerGetHost(void)
 void RestResourceMonitoring::handlerGetTrigger(void)
 {
 	TriggersQueryOption option(m_dataQueryContextPtr);
-	HatoholError err = parseTriggerParameter(option, m_query);
+	HatoholError err = RestResourceUtils::parseTriggerParameter(option, m_query);
 	if (err != HTERR_OK) {
 		replyError(err);
 		return;
@@ -834,6 +786,41 @@ void RestResourceMonitoring::handlerGetHostgroup(void)
 		agent.add("groupName", hostgrp.name);
 		addHostsIsMemberOfGroup(this, agent,
 		                        hostgrp.serverId, hostgrp.idInServer);
+		agent.endObject();
+	}
+	agent.endArray();
+	agent.endObject();
+
+	replyJSONData(agent);
+}
+
+void RestResourceMonitoring::handlerGetTriggerBriefs(void)
+{
+	if (!httpMethodIs("GET")) {
+		MLPL_ERR("Method %s is not allowed.\n", m_message->method);
+		replyHttpStatus(SOUP_STATUS_METHOD_NOT_ALLOWED);
+	}
+
+	TriggersQueryOption option(m_dataQueryContextPtr);
+	option.setExcludeFlags(EXCLUDE_INVALID_HOST);
+	HatoholError err
+	  = RestResourceUtils::parseHostResourceQueryParameter(option, m_query);
+	if (err != HTERR_OK) {
+		replyError(err);
+		return;
+	}
+
+	list<string> triggerBriefList;
+	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
+	dataStore->getTriggerBriefList(triggerBriefList, option);
+
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	agent.startArray("briefs");
+	for (auto brief : triggerBriefList) {
+		agent.startObject();
+		agent.add("brief", brief);
 		agent.endObject();
 	}
 	agent.endArray();
