@@ -146,8 +146,10 @@ describe('TriggersView', function() {
     };
   }
 
-  function respond(config, triggers, severityRanks) {
+  function respond(triggers, config, severityRanks) {
     var header = { "Content-Type": "application/json" };
+    config = config || "{}";
+    severityRanks = severityRanks || severityRanksJson(defaultSeverityRanks);
     this.requests[0].respond(200, header, config);
     this.requests[1].respond(200, header, severityRanks);
     this.requests[2].respond(200, header, triggers);
@@ -198,7 +200,7 @@ describe('TriggersView', function() {
   it('new with empty data', function() {
     var view = new TriggersView(getOperator(), testOptions);
     var heads = $("div#" + TEST_FIXTURE_ID + " h2");
-    respond('{}', triggersJson());
+    respond(triggersJson());
 
     expect(heads).to.have.length(1);
     expect($("#table")).to.have.length(1);
@@ -208,7 +210,7 @@ describe('TriggersView', function() {
   it('Base elements', function() {
     var view = new TriggersView(getOperator(), testOptions);
     var heads = $("div#" + TEST_FIXTURE_ID + " h2");
-    respond('{}', triggersJson(defaultTriggers));
+    respond(triggersJson(defaultTriggers));
 
     expect(heads).to.have.length(1);
     expect($("#table")).to.have.length(1);
@@ -227,7 +229,7 @@ describe('TriggersView', function() {
       '</td>' +
       '<td class="">Zabbix_SELF</td>' +
       '<td class=""><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
-    respond('{}', triggersJson(defaultTriggers, defaultServers), severityRanksJson(defaultSeverityRanks));
+    respond(triggersJson(defaultTriggers, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultTriggers.length + 1);
     expect($('tr').eq(1).html()).to.be(expected);
@@ -243,7 +245,7 @@ describe('TriggersView', function() {
       '<td class="" data-sort-value="0">-</td>' +
       '<td class="">Host2</td>' +
       '<td class=""><a href="' + eventURL + '">Host name of zabbix_agentd was changed on TestHost0</a></td>';
-    respond('{}', triggersJson(defaultTriggers, defaultServers));
+    respond(triggersJson(defaultTriggers, defaultServers), "{}", "{}");
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultTriggers.length + 1);
     expect($('tr').eq(2).html()).to.be(expected);
@@ -251,28 +253,17 @@ describe('TriggersView', function() {
 
   it('With a problem trigger', function() {
     var view = new TriggersView(getOperator(), testOptions);
-
-    // Some platofrom such as Ubuntu 14.04.2, the obtained string has a space
-    // at the tail of the following style line. However, other platform
-    // such as TravisCI doesn't. So we use regular expression here.
-    var eventURL = "ajax_events\\?serverId=1&amp;triggerId=18446744073709550616";
-    var color = 'style="background-color: rgb\\(255, 0, 0\\); ?"';
-    var expected =
-      '<td class="severity5" '+ color + '>Zabbix</td>' +
-      '<td class="severity5" data-sort-value="5" ' +
-        color + '>Emergency!</td>' +
-      '<td class="status1 severity5" data-sort-value="1" ' +
-        color + '>Problem</td>' +
-      '<td class="severity5" data-sort-value="1422584694" ' + color + '>' +
-        formatDate(1422584694) + '</td>' +
-      '<td class="severity5" ' + color + '>Zabbix_SELF</td>' +
-      '<td class="severity5" ' + color +
-        '><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
     var triggers = [$.extend({}, defaultTriggers[0])];
+    var i, bgColors = [], bgColorsExpected = [];
     triggers[0].status = hatohol.TRIGGER_STATUS_PROBLEM;
-    respond('{}', triggersJson(triggers, defaultServers), severityRanksJson(defaultSeverityRanks));
+    respond(triggersJson(triggers, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(triggers.length + 1);
-    expect($('tr').eq(1).html()).to.match(new RegExp(expected));
+    expect($('tr:eq(1) td.severity5')).to.have.length(6);
+    for (i = 0; i < 6; i++) {
+      bgColors.push($('td.severity5').eq(i).css("background-color"));
+      bgColorsExpected.push("rgb(255, 0, 0)");
+    }
+    expect(bgColors).to.eql(bgColorsExpected);
   });
 });
