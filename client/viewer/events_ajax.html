@@ -61,26 +61,26 @@
 
       <div id="controller-container">
 	<form class="form-inline hatohol-filter-toolbar">
-    <div class="clearfix">
-	<div class="pull-left">
-	  <h3 id="controller-container-title"></h3>
-          <span id="filtering-options-brief"><span aria-hiden="true" class="glyphicon glyphicon-tag"></span><span id="filtering-options-brief-line"/></span>
-	</div>
-	<div class="pull-right">
-	  <a href="#" id="hide" data-toggle="dropdown">
-	    <span class="glyphicon glyphicon-chevron-down" id="filter-right-glyph"></span>
-	    <span class="glyphicon glyphicon-chevron-up" id="filter-down-glyph" style="display: none;"></span>
-        {% trans "Filtering Options" %}
-	  </a>
-	</div>
-    </div>
+	  <div class="clearfix">
+	    <div class="pull-left">
+	      <h3 id="controller-container-title"></h3>
+              <span id="filtering-options-brief"><span aria-hiden="true" class="glyphicon glyphicon-tag"></span><span id="filtering-options-brief-line"/></span>
+	    </div>
+	    <div class="pull-right">
+	      <a href="#" id="hide" data-toggle="dropdown">
+		<span class="glyphicon glyphicon-chevron-down" id="filter-right-glyph"></span>
+		<span class="glyphicon glyphicon-chevron-up" id="filter-down-glyph" style="display: none;"></span>
+		{% trans "Filtering Options" %}
+	      </a>
+	    </div>
+	  </div>
 	  <div id="hideDiv"  style="display: none; margin-bottom: 16px;">
 	    <div class="calendar-element">
               <p><label>{% trans "Period:" %}</label></p>
               <input type="text" id="begin-time" class="form-control filter-time-range">
               <span class="clear-button glyphicon glyphicon-remove-circle" style="display: none;"></span>
 	    </div>
-        　～　
+            　～　
 	    <div class="calendar-element">
               <input type="text" id="end-time" class="form-control filter-time-range" placeholder="{% trans "Current time" %}">
               <span class="clear-button glyphicon glyphicon-remove-circle" style="display: none;"></span>
@@ -140,14 +140,14 @@
 	      <select id="select-filter" class="form-control">
 	      </select>
 	    </div>
-        <div style="text-align:center;">
-          <button id="reset-all-filter" type="button" class="btn btn-default reset-apply-all-filter">
-          {% trans "Reset" %}
-          </button>　
+            <div style="text-align:center;">
+              <button id="reset-all-filter" type="button" class="btn btn-default reset-apply-all-filter">
+		{% trans "Reset" %}
+              </button>　
 	      <button id="apply-all-filter" type="button" class="btn btn-info btn-apply-all-filter">
-		  {% trans "Filter" %}
+		{% trans "Filter" %}
 	      </button>
-        </div>
+            </div>
 	  </div>
 	</form>
 
@@ -164,7 +164,7 @@
 	    </div>
       	  </form>
 	</div>
-     </div>
+      </div>
 
       <div class="event-table-content">
 	<table class="table table-condensed table-hover" id="table">
@@ -203,38 +203,38 @@
 	  <div class="tab-content">
 	    <div class="tab-pane fade in active" id="view-config">
 	      <div class="boxed-group">
-	      <p><label for="auto-reload-interval">{% trans "Auto reload interval (5 - 600 sec)" %}</p>
-	      <p>
-		<div id="auto-reload-interval-slider"></div>
-		<span style="float: right;">
-		<input id="auto-reload-interval" type="text" class="form-control">
-		<label class="unit">{% trans "seconds" %}</label>
-		</span>
-	      </p>
+		<p><label for="auto-reload-interval">{% trans "Auto reload interval (5 - 600 sec)" %}</p>
+		<p>
+		  <div id="auto-reload-interval-slider"></div>
+		  <span style="float: right;">
+		    <input id="auto-reload-interval" type="text" class="form-control">
+		    <label class="unit">{% trans "seconds" %}</label>
+		  </span>
+		</p>
 	      </div>
 	      <hr>
 	      <p>
 		<span>
-		<label for="num-rows-per-page">{% trans "Number of rows per page" %}</label>
+		  <label for="num-rows-per-page">{% trans "Number of rows per page" %}</label>
 		</span>
 		<span style="float: right;">
-		<input id="num-rows-per-page" type="text" class="form-control">
-		<label class="unit">{% trans "rows" %}</label>
+		  <input id="num-rows-per-page" type="text" class="form-control">
+		  <label class="unit">{% trans "rows" %}</label>
 		</span>
 	      </p>
 	      <hr>
 
-		  <p><strong>{% trans "Display Item" %}</strong></p>
+	      <p><strong>{% trans "Display Item" %}</strong></p>
 	      <div class="row">
 		<div class="col-xs-5">
 
-          <p style="text-align:center"><label for="column-selector">{% trans "Selectable" %}</label></p>
+		  <p style="text-align:center"><label for="column-selector">{% trans "Selectable" %}</label></p>
 
 		  <select name="from[]" id="column-selector"
-		    class="form-control" size="8" multiple="multiple">
+			  class="form-control" size="8" multiple="multiple">
 		  </select>
-          
-          <button type="button" id="all-left-column-selector" class="btn btn-default" style="margin-top: 10px;">
+
+		  <button type="button" id="all-left-column-selector" class="btn btn-default" style="margin-top: 10px;">
 		    {% trans "Select All" %}
 		  </button>
 		</div>
@@ -253,10 +253,10 @@
 		  <p style="text-align:center"><label for="column-selector-selected">{% trans "Selected" %}</label></p>
 
 		  <select name="to[]" id="column-selector-selected"
-		    class="form-control" size="8" multiple="multiple">
+			  class="form-control" size="8" multiple="multiple">
 		  </select>
-          
-          <button type="button" id="all-right-column-selector" class="btn btn-default" style="margin-top: 10px;">
+
+		  <button type="button" id="all-right-column-selector" class="btn btn-default" style="margin-top: 10px;">
 		    {% trans "Select All" %}
 		  </button>
 		</div>
@@ -380,7 +380,7 @@
 		    <div class="col-xs-5">
 		      <p><label for="severity-filter-selector">{% trans "Candidates" %}</label></p>
 		      <select name="from[]" id="severity-filter-selector"
-			    class="form-control" size="6" multiple="multiple">
+			      class="form-control" size="6" multiple="multiple">
 		      </select>
 		    </div>
 
