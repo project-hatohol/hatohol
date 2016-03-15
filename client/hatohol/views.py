@@ -146,8 +146,7 @@ def json_settings_handler(request, id, model_class, view_path):
         response = http.HttpResponse(to_json(model),
                                      content_type=content_type,
                                      status=201)
-        response['Location'] = reverse('hatohol.views.graphs',
-                                       args=[model.id])
+        response['Location'] = reverse(view_path, args=[model.id])
         return response
     elif request.method == 'PUT':
         if id is None:
@@ -205,4 +204,4 @@ def graphs(request, id):
 
 def event_filters(request, id):
     return json_settings_handler(request, id, EventFilter,
-                                 'hatohol.views.evnet_filters')
+                                 'hatohol.views.event_filters')
