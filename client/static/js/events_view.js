@@ -483,6 +483,14 @@ var EventsView = function(userProfile, options) {
     $("#select-server").val("");
     $("#select-host-group").val("");
     $("#select-host").val("");
+
+    // refresh bootstrap-select selectpickers
+    $("#select-incident").selectpicker('refresh');
+    $("#select-type").selectpicker('refresh');
+    $("#select-severity").selectpicker('refresh');
+    $("#select-server").selectpicker('refresh');
+    $("#select-host-group").selectpicker('refresh');
+    $("#select-host").selectpicker('refresh');
   }
 
   function removeUnselectableFilterCandidates(filterConfig, type, serverId) {
@@ -652,6 +660,11 @@ var EventsView = function(userProfile, options) {
     }
   }
 
+  function refreshSelectPickers() {
+    $("#select-host").selectpicker('refresh');
+    $("#select-host-group").selectpicker('refresh');
+  }
+
   function setupCallbacks() {
     $('#select-summary-filter').change(function() {
       load();
@@ -659,6 +672,7 @@ var EventsView = function(userProfile, options) {
 
     $('#select-server').change(function() {
       setupFilterValues(undefined, {});
+      refreshSelectPickers();
     });
 
     $('button.latest-button').click(function() {
@@ -928,6 +942,16 @@ var EventsView = function(userProfile, options) {
     });
   }
 
+  function setupSelectPickers() {
+    $("#select-incident").selectpicker();
+    $("#select-type").selectpicker();
+    $("#select-severity").selectpicker();
+    $("#select-server").selectpicker();
+    $("#select-host-group").selectpicker();
+    $("#select-host").selectpicker();
+    $("#select-filter").selectpicker();
+  }
+
   function setLoading(loading) {
     if (loading) {
       $("#begin-time").attr("disabled", "disabled");
@@ -950,6 +974,8 @@ var EventsView = function(userProfile, options) {
         $("#select-host").removeAttr("disabled");
       $("#select-filter").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
+
+      setupSelectPickers();
     }
   }
 
