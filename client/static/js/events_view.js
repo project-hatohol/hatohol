@@ -1436,9 +1436,11 @@ var EventsView = function(userProfile, options) {
     html += "<li class='userCommentForm'>";
     html += "<div class='userCommentLeft'>";
     html += "<em class='userCommentIcon'";
-    html += " title='userIconPath/user_icon_urrentUserId'>";
+    html += " title='userIconPath/user_icon_";
+    html += userProfile.user.userId;
+    html += "'>";
     html += "</em>";
-    html += "currentUserName";
+    html += escapeHTML(userProfile.user.name);
     html += "</div>";
     html += "<div class='userCommentRight'>";
     html += "<textarea placeholder='";
