@@ -372,6 +372,8 @@ public:
 	HatoholError getIncidentHistory(
 	  std::list<IncidentHistory> &IncidentHistoriesList,
 	  const IncidentHistoriesQueryOption &option);
+	size_t getIncidentCommentCount(UnifiedEventIdType unifiedEventId);
+	HatoholError updateIncidentCommentCount(UnifiedEventIdType unifiedEventId);
 
 protected:
 	static SetupInfo &getSetupInfo(void);

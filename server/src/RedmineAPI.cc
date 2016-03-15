@@ -115,6 +115,9 @@ bool parseIssue(JSONParser &agent, IncidentInfo &incidentInfo)
 	agent.read("done_ratio", doneRatio);
 	incidentInfo.doneRatio = doneRatio;
 
+	// TODO
+	incidentInfo.commentCount = 0;
+
 	if (!parseDateTime(agent, "created_on", incidentInfo.createdAt))
 		return false;
 	if (!parseDateTime(agent, "updated_on", incidentInfo.updatedAt))

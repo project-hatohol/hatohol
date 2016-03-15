@@ -2048,6 +2048,60 @@ void test_addIncidentHistory(void)
 	assertDBContent(&dbAgent, statement, expected);
 }
 
+static const IncidentInfo *findIncidentInfoWithUnifiedEventId(
+  const UnifiedEventIdType unifiedEventId)
+{
+	for (size_t i = 0; i < NumTestIncidentInfo; i++) {
+		if (testIncidentInfo[i].unifiedEventId == unifiedEventId)
+			return &testIncidentInfo[i];
+	}
+	return nullptr;
+}
+
+void test_incrementIncidentCommentCount(void)
+{
+	loadTestDBIncidents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	IncidentHistory history = testIncidentHistory[1];
+	dbMonitoring.addIncidentHistory(history);
+	history.status = "DONE";
+	history.comment = "Done.";
+	history.createdAt.tv_sec += 60;
+	dbMonitoring.addIncidentHistory(history);
+
+	IncidentInfo incident =
+	  *findIncidentInfoWithUnifiedEventId(history.unifiedEventId);
+	incident.commentCount = 2;
+	string statement =
+	  StringUtils::sprintf(
+	    "select * from incidents where unified_event_id=%"
+	    FMT_UNIFIED_EVENT_ID, history.unifiedEventId);
+	string expected = makeIncidentOutput(incident);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	assertDBContent(&dbAgent, statement, expected);
+}
+
+void test_notIncrementIncidentCommentCount(void)
+{
+	loadTestDBIncidents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	IncidentHistory history = testIncidentHistory[1];
+	history.comment = "";
+	dbMonitoring.addIncidentHistory(history);
+
+	IncidentInfo incident =
+	  *findIncidentInfoWithUnifiedEventId(history.unifiedEventId);
+	string statement =
+	  StringUtils::sprintf(
+	    "select * from incidents where unified_event_id=%"
+	    FMT_UNIFIED_EVENT_ID, history.unifiedEventId);
+	string expected = makeIncidentOutput(incident);
+	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+	assertDBContent(&dbAgent, statement, expected);
+}
+
 void test_updateIncidentHistory(void)
 {
 	loadTestDBIncidentHistory();

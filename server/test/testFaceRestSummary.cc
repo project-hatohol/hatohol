@@ -55,6 +55,7 @@ const IncidentInfo unAssignedIncidentInfo[] = {
 	{1412957360, 0},          // updatedAt
 	IncidentInfo::STATUS_UNKNOWN, // statusCode
 	7,                        // unifiedId
+	0,                        // commentCount
 },
 };
 const size_t NumUnAssginedTestIncidentInfo = ARRAY_SIZE(unAssignedIncidentInfo);

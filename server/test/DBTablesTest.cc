@@ -1151,6 +1151,7 @@ const IncidentInfo testIncidentInfo[] = {
 	{1412957260, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
 	3,                        // unifiedId
+	0,                        // commentCount
 },
 {
 	3,                        // trackerId
@@ -1167,6 +1168,7 @@ const IncidentInfo testIncidentInfo[] = {
 	{1412957290, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
 	4,                        // unifiedId
+	0,                        // commentCount
 },
 {
 	5,                        // trackerId
@@ -1183,6 +1185,7 @@ const IncidentInfo testIncidentInfo[] = {
 	{1412957360, 0},          // updatedAt
 	IncidentInfo::STATUS_OPENED,// statusCode
 	123,                      // unifiedId
+	0,                        // commentCount
 },
 };
 const size_t NumTestIncidentInfo = ARRAY_SIZE(testIncidentInfo);
