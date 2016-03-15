@@ -33,6 +33,7 @@ var TriggersView = function(userProfile, options) {
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.rawSeverityRankData = {};
   self.severityRanksMap = {};
+  self.rawTriggerBriefsData = {};
   self.options = options || {};
 
   setupToggleFilter();
@@ -61,7 +62,7 @@ var TriggersView = function(userProfile, options) {
   start();
 
   function start() {
-    $.when(loadUserConfig(), loadSeverityRank()).done(function() {
+    $.when(loadUserConfig(), loadSeverityRank(), loadTriggerBriefs()).done(function() {
       load();
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
@@ -111,6 +112,27 @@ var TriggersView = function(userProfile, options) {
               choices[i].label = rank.label;
           }
         }
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
+  }
+
+  function loadTriggerBriefs() {
+    var deferred = new $.Deferred();
+    new HatoholConnector({
+      url: "/trigger/briefs",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        self.rawTriggerBriefsData = reply;
+        setupTriggerBriefsFilterValues();
+
         deferred.resolve();
       },
       parseErrorCallback: function() {
@@ -201,6 +223,19 @@ var TriggersView = function(userProfile, options) {
       $("#select-severity").val(query.minimumSeverity);
     if ("status" in query)
       $("#select-status").val(query.status);
+  }
+
+  function setupTriggerBriefsFilterValues(triggerBriefs, query) {
+    if (!triggerBriefs)
+      triggerBriefs = self.rawTriggerBriefsData;
+
+    if (!query)
+      query = self.lastQuery ? self.lastQuery : self.baseQuery;
+
+    self.setTriggerBriefsFilterCandidates(triggerBriefs);
+
+    if ("triggerBrief" in query)
+      $("#select-trigger-brief").val(query.triggerBrief);
   }
 
   function setupTableColor() {
@@ -301,6 +336,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host-group").selectpicker();
     $("#select-hostname").selectpicker();
     $("#select-host-group-name").selectpicker();
+    $("#select-trigger-brief").selectpicker();
   }
 
   function setLoading(loading) {
@@ -314,6 +350,7 @@ var TriggersView = function(userProfile, options) {
       $("#select-host").attr("disabled", "disabled");
       $("#select-hostname").attr("disabled", "disabled");
       $("#select-host-group-name").attr("disabled", "disabled");
+      $("#select-trigger-brief").attr("disabled", "disabled");
       $(".latest-button").attr("disabled", "disabled");
     } else {
       $("#begin-time").removeAttr("disabled");
@@ -327,6 +364,7 @@ var TriggersView = function(userProfile, options) {
         $("#select-host").removeAttr("disabled");
       $("#select-hostname").removeAttr("disabled");
       $("#select-host-group-name").removeAttr("disabled");
+      $("#select-trigger-brief").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
 
       setupSelectPickers();
@@ -420,7 +458,7 @@ var TriggersView = function(userProfile, options) {
   function getTriggersQueryInURI() {
     var knownKeys = [
       "serverId", "hostgroupId", "hostId",
-      "hostname", "hostgroupName",
+      "hostname", "hostgroupName","triggerBrief",
       "limit", "offset",
       "minimumSeverity", "status",
     ];
@@ -484,6 +522,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host").val("");
     $("#select-hostname").val("");
     $("#select-host-group-name").val("");
+    $("#select-trigger-brief").val("");
 
     // refresh bootstrap-select selectpickers
     $("#select-severity").selectpicker('refresh');
@@ -493,6 +532,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host").selectpicker('refresh');
     $("#select-hostname").selectpicker('refresh');
     $("#select-host-group-name").selectpicker('refresh');
+    $("#select-trigger-brief").selectpicker('refresh');
   }
 
   function formatDateTimeWithZeroSecond(d) {

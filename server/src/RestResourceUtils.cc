@@ -485,6 +485,14 @@ HatoholError RestResourceUtils::parseTriggerParameter(
 		option.setHostnameList({targetHostname});
 	}
 
+	// target trigger brief
+	const char *targetTriggerBrief =
+		static_cast<const char*>(g_hash_table_lookup(query, "triggerBrief"));
+	if (targetTriggerBrief && *targetTriggerBrief) {
+		string triggerBrief = targetTriggerBrief;
+		option.setTriggerBrief(triggerBrief);
+	}
+
 	// minimum severity
 	TriggerSeverityType severity = TRIGGER_SEVERITY_UNKNOWN;
 	err = getParam<TriggerSeverityType>(query, "minimumSeverity",
