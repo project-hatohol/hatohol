@@ -110,6 +110,20 @@ describe('TriggersView', function() {
     disableTimeRangeFilter: true,
   };
 
+  var defaultBriefs = [
+    {
+      "brief": "Too many processes running on {HOST.NAME}"
+    },
+    {
+      "brief":"Too many processes on {HOST.NAME}"
+    },
+    {
+      "brief":"Failed in connecting to Broker."
+    },
+    {
+      "brief":"HAP2 connection unavailable."
+    }
+  ];
   function getOperator() {
     var operator = {
       "userId": 3,
@@ -138,6 +152,16 @@ describe('TriggersView', function() {
     });
   }
 
+  function briefsJson(briefs) {
+    if (!briefs)
+      briefs = [];
+    return JSON.stringify({
+      apiVersion: hatohol.FACE_REST_API_VERSION,
+      errorCode: hatohol.HTERR_OK,
+      briefs: briefs,
+    });
+  }
+
   function fakeAjax() {
     var requests = this.requests = [];
     this.xhr = sinon.useFakeXMLHttpRequest();
@@ -146,13 +170,15 @@ describe('TriggersView', function() {
     };
   }
 
-  function respond(triggers, config, severityRanks) {
+  function respond(triggers, config, severityRanks, briefs) {
     var header = { "Content-Type": "application/json" };
     config = config || "{}";
+    briefs = briefs || briefsJson(defaultBriefs);
     severityRanks = severityRanks || severityRanksJson(defaultSeverityRanks);
     this.requests[0].respond(200, header, config);
     this.requests[1].respond(200, header, severityRanks);
-    this.requests[2].respond(200, header, triggers);
+    this.requests[2].respond(200, header, briefs);
+    this.requests[3].respond(200, header, triggers);
   }
 
   function restoreAjax() {
