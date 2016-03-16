@@ -641,7 +641,7 @@ html {
 #hideDiv .filter-element {
     width: 33%;
     margin: 0;
-    padding: 0 0 20px 0;
+    padding: 0 0 12px 0;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
