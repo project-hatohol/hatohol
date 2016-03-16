@@ -647,6 +647,10 @@ html {
     -webkit-box-sizing: border-box;
 }
 
+#hideDiv .bootstrap-select.btn-group > .disabled {
+    background-color: #adadad;
+}
+
 #hideDiv .filter-element select {
     width: 50%;
 }
