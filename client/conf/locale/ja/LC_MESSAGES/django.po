@@ -644,19 +644,16 @@ msgid "Triggers"
 msgstr "トリガー"
 
 #: viewer/triggers_ajax.html:81
-#, fuzzy
 msgid "Hostgroup Name:"
-msgstr "ホスト名"
+msgstr "グループ名:"
 
 #: viewer/triggers_ajax.html:87
-#, fuzzy
 msgid "Hostname:"
-msgstr "ホスト名"
+msgstr "ホスト名:"
 
 #: viewer/triggers_ajax.html:99
-#, fuzzy
 msgid "Trigger Brief:"
-msgstr "トリガー"
+msgstr "トリガー概要:"
 
 #: viewer/triggers_ajax.html:117
 msgid "# of triggers per page"
