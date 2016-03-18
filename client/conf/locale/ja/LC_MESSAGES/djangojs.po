@@ -829,11 +829,11 @@ msgstr "このプラグインタイプは廃止されました。"
 
 #: static/js/hatohol_def.js:285
 msgid "Input queue name has been used by other plugin."
-msgstr "入力したキュー名は他のプラグインに使用されています。"
+msgstr "入力したキュー名は他のプラグインで使用されています。"
 
 #: static/js/hatohol_def.js:286
 msgid "Input queue name has been reserved by Hatohol server."
-msgstr "入力したキュー名はHatoholサーバーに予約されています。"
+msgstr "入力したキュー名はHatoholサーバーで予約されています。"
 
 #: static/js/hatohol_events_view_config.js:481
 msgid "Add a new filter"
