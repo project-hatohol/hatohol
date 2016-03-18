@@ -350,7 +350,7 @@ msgstr "正常に作成されました。"
 
 #: static/js/events_view.js:1328
 msgid "Show Full Text"
-msgstr ""
+msgstr "全て表示する"
 
 #: static/js/graphs_view.js:39
 msgid "Do you delete the selected items ?"
@@ -829,11 +829,11 @@ msgstr "このプラグインタイプは廃止されました。"
 
 #: static/js/hatohol_def.js:285
 msgid "Input queue name has been used by other plugin."
-msgstr ""
+msgstr "入力したキュー名は他のプラグインに使用されています。"
 
 #: static/js/hatohol_def.js:286
 msgid "Input queue name has been reserved by Hatohol server."
-msgstr ""
+msgstr "入力したキュー名はHatoholサーバーに予約されています。"
 
 #: static/js/hatohol_events_view_config.js:481
 msgid "Add a new filter"
