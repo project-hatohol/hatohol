@@ -1308,7 +1308,7 @@ var EventsView = function(userProfile, options) {
 
     html += "<td class='" + getSeverityClass(event) + "'>";
     html += "<span class='userCommentButton'>";
-    if (event["incident"]["commentCount"] === "0")
+    if (!event["incident"]["commentCount"])
       html += "<span class='glyphicon glyphicon-pencil'></span>";
     else
       html += "<span class='userCommentCount'>" + event["incident"]["commentCount"] + "</span>";
@@ -1514,10 +1514,6 @@ var EventsView = function(userProfile, options) {
       serverId = event["serverId"];
       server = self.rawData["servers"][serverId];
 
-      // Dummy event.incident.commentCount
-      event["incident"]["commentCount"] = ["0","9","99","999"][x] || "0";
-      // /Dummy event.incident.commentCount
-
       html += "<tr>";
       for (y = 0; y < self.columnNames.length; y++) {
         columnName = self.columnNames[y];
@@ -1552,6 +1548,52 @@ var EventsView = function(userProfile, options) {
     }
   }
 
+  function loadComments($tr, unifiedEventId) {
+    new HatoholConnector({
+      url: "/incident/" + unifiedEventId + "/history",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        var html = renderTableDataUserCommentContents(reply);
+        $tr.next().find('td:eq(0)').html(html);
+      },
+      parseErrorCallback: function() {
+        var message = parser.getMessage();
+        if (!message) {
+          message =
+            gettext("An unknown error occured on getting comments for the event: ") +
+            unifiedEventId;
+        }
+        if (parser.optionMessages)
+          message += " " + parser.optionMessages;
+        hatoholErrorMsgBox(messge);
+      },
+    });
+  }
+
+  function postComment($tr, unifiedEventId, comment) {
+    var url = "/incident";
+    url += "/" + unifiedEventId;
+    new HatoholConnector({
+      url: url,
+      request: "PUT",
+      data: { comment: comment },
+      replyCallback: function() {
+        loadComments($tr, unifiedEventId);
+      },
+      parseErrorCallback: function(reply, parser) {
+        var message = parser.getMessage();
+        if (!message) {
+          message =
+            gettext("An unknown error occured on posting a comment for the event: ") +
+            unifiedEventId;
+        }
+        if (parser.optionMessages)
+          message += " " + parser.optionMessages;
+        hatoholErrorMsgBox(messge);
+      },
+    });
+  }
+
   function drawTableContents() {
     $("#table thead").empty();
     $("#table thead").append(drawTableHeader());
@@ -1571,82 +1613,22 @@ var EventsView = function(userProfile, options) {
 
     $('.userCommentButton').on('click', function() {
       var $tr = $(this).parents('tr');
-      if (!$tr.is('.open')) {
-
-        // Dummy incidentHistory
-        var server = "";
-        var event = {
-          "incidentHistory": [
-            {
-              "id":"500",
-              "unifiedEventId":"13517",
-              "userId":"1",
-              "userName":"USER_1",
-              "status":"IN PROGRESS",
-              "comment":"<p>Pタグ</p>改行テキスト\n\n改行テキスト改行テキスト\n改行テキスト",
-              "time":"1456221146"
-            },
-            {
-              "id":"510",
-              "unifiedEventId":"13517",
-              "userId":"2",
-              "userName":"USER_2",
-              "status":"DONE",
-              "comment":"1週間以内のコメントはNEW（１週間は暫定）",
-              "time":"1457790447"
-            },
-            {
-              "id":"230",
-              "unifiedEventId":"13517",
-              "userId":"0",
-              "userName":"USER_0",
-              "status":"NONE",
-              "time":"1456221146"
-            },
-            {
-              "id":"233",
-              "unifiedEventId":"13517",
-              "userId":"4",
-              "userName":"USER_4",
-              "status":"IN PROGRESS",
-              "time":"1456231146"
-            },
-            {
-              "id":"235",
-              "unifiedEventId":"13517",
-              "userId":"3",
-              "userName":"USER_3",
-              "status":"IN PROGRESS",
-              "comment":"ashieにアサインする!",
-              "time":"1456241146"
-            },
-            {
-              "id":"330",
-              "unifiedEventId":"13517",
-              "userId":"3",
-              "userName":"USER_3",
-              "status":"DONE",
-              "comment":"解決した!",
-              "time":"1456251146"
-            }
-          ]
-        };
-        // /Dummy incidentHistory
-
-        var html = renderTableDataUserCommentContents(event, server);
-        $tr.next().find('td:eq(0)').html(html);
-      }
+      var unifiedEventId = $tr.children('td').first().attr("data-unified-id");
+      if (!$tr.is('.open'))
+        loadComments($tr, unifiedEventId);
       $tr.toggleClass('open')
-      .next().toggleClass('open');
+        .next().toggleClass('open');
     });
 
     $(document).off('click', '.submitUserCommentButton')
     .on('click', '.submitUserCommentButton', function() {
       var $userCommentForm = $(this).parents('.userCommentForm');
       var $textarea = $userCommentForm.find('textarea:eq(0)');
-      var $tr = $userCommentForm.parents('.userCommentList');
-      alert('"' + $textarea.val() + '"\nCommented!!');
-      $tr.addClass('userCommentListAfterSubmit');
+      var comment = $textarea.val();
+      var $tr = $userCommentForm.parents('.userCommentRow').prev("tr");
+      var unifiedEventId = $tr.children('td').first().attr("data-unified-id");
+
+      postComment($tr, unifiedEventId, comment);
     });
 
     $(document).off('click', '.cancelUserCommentButton')
