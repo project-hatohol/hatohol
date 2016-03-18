@@ -162,6 +162,9 @@ def generate_label_gettext(generators):
     print 'gettext("Passive mode");'
     print 'gettext("Tenant name");'
     print 'gettext("Keystone URL");'
+    print 'gettext("IP address");'
+    print 'gettext("Web UI URL");'
+    print 'gettext("Polling interval (sec)");'
 
 
 def main():
