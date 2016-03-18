@@ -178,7 +178,7 @@ static HatoholError parseIncidentParameter(
 }
 
 static HatoholError parseIncidentParameter(
-  IncidentInfo &incidentInfo, string comment,
+  IncidentInfo &incidentInfo, string &comment,
   GHashTable *query, const bool &forUpdate = false)
 {
 	const bool allowEmpty = forUpdate;

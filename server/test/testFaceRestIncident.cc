@@ -226,6 +226,57 @@ void test_postIncidentForUnknownEvent(void)
 	assertEqualJSONString(expectedResponse, arg.response);
 }
 
+void test_putIncidentComment(void)
+{
+	loadTestDBIncidents();
+	startFaceRest();
+
+	size_t index = 2;
+	IncidentInfo expectedIncident = testIncidentInfo[index];
+	expectedIncident.status = "IN PROGRESS";
+	expectedIncident.priority = "HIGH";
+	expectedIncident.assignee = "@Mnagakawa";
+	expectedIncident.doneRatio = 30;
+	string path(
+	  StringUtils::sprintf("/incident/%" FMT_UNIFIED_EVENT_ID,
+			       expectedIncident.unifiedEventId));
+	RequestArg arg(path);
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	arg.request = "PUT";
+	incidentInfo2StringMap(expectedIncident, arg.parameters);
+	arg.parameters["comment"] = "Assigned to @Mnagakawa";
+
+	// check the response
+	getServerResponse(arg);
+	string expectedResponse(
+	  "{"
+	  "\"apiVersion\":4,"
+	  "\"errorCode\":0,"
+	  "\"unifiedEventId\":123"
+	  "}");
+	cppcut_assert_equal(200, arg.httpStatusCode);
+	cppcut_assert_equal(expectedResponse, arg.response);
+
+	// check the content in the DB
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	string actual = execSQL(&dbMonitoring.getDBAgent(),
+				"select * from incidents"
+				" where unified_event_id=123");
+	string expected =
+		"^5\\|2\\|2\\|3\\|123\\|\\|IN PROGRESS\\|@Mnagakawa\\|"
+		"1412957360\\|0\\|\\d+\\|\\d+\\|HIGH\\|30\\|123\\|1$";
+	cut_assert_match(expected.c_str(), actual.c_str());
+
+	// check history
+	actual = execSQL(&dbMonitoring.getDBAgent(),
+			 "select * from incident_histories");
+	expected =
+		"^1\\|123\\|2\\|IN PROGRESS\\|Assigned to @Mnagakawa\\|"
+		"\\d+\\|\\d+$";
+	cut_assert_match(expected.c_str(), actual.c_str());
+}
+
 void test_getIncidentWithoutId(void)
 {
 	loadTestDBIncidents();
