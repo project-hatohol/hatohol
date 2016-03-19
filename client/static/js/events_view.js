@@ -1506,7 +1506,7 @@ var EventsView = function(userProfile, options) {
 
   function drawTableBody() {
     var html = "";
-    var x, y, serverId, server, event, columnName, definition, commentCount;
+    var x, y, serverId, server, event, columnName, definition;
     var haveIncident = self.rawData["haveIncident"];
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
