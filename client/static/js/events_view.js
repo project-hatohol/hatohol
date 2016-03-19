@@ -1548,6 +1548,18 @@ var EventsView = function(userProfile, options) {
     }
   }
 
+  function updateCommentCount($tr, incidentHistory) {
+    var i, commentCount = 0;
+
+    for (i = 0; i < incidentHistory.length; i++) {
+      if (incidentHistory[i].comment)
+        ++commentCount;
+    }
+    $tr.find(".userCommentCount").text(commentCount);
+    
+    // TODO: Should we also update self.rawData?
+  }
+
   function loadComments($tr, unifiedEventId) {
     new HatoholConnector({
       url: "/incident/" + unifiedEventId + "/history",
@@ -1555,6 +1567,7 @@ var EventsView = function(userProfile, options) {
       replyCallback: function(reply, parser) {
         var html = renderTableDataUserCommentContents(reply);
         $tr.next().find('td:eq(0)').html(html);
+        updateCommentCount($tr, reply.incidentHistory);
       },
       parseErrorCallback: function() {
         var message = parser.getMessage();
