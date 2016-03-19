@@ -1321,20 +1321,16 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataUserCommentRow(event, server) {
     var html = "";
-
     var type = event["type"];
-    var color = "#dddddd";
-    if (type == hatohol.EVENT_TYPE_BAD) {
-      var severity = event["severity"];
-      var severityRanks = self.rawSeverityRankData["SeverityRanks"];
-      color = severityRanks[severity].color;
-    }
+    var severity = event["severity"];
+
     html += "<tr class='userCommentRow'>";
     html += "<td colspan='";
     html += self.columnNames.length + 1;
-    html += "' style='border-color:";
-    html += color;
-    html += ";'>";
+    html += "'";
+    if (type == hatohol.EVENT_TYPE_BAD)
+      html += " class='commentsForSeverity" + severity + "'"
+    html += ">";
     html += "</td>";
     html += "</tr>";
 
@@ -1727,6 +1723,7 @@ var EventsView = function(userProfile, options) {
       severity = severityRanks[x].status;
       color = severityRanks[x].color;
       $('td.severity' + severity).css("background-color", color);
+      $('td.commentsForSeverity' + severity).css("border-color", color);
     }
   }
 
