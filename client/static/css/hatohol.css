@@ -639,12 +639,20 @@ html {
 }
 
 #hideDiv .filter-element {
-    width: 33%;
-    margin: 0;
-    padding: 0 0 12px 0;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
+  display: inline-table;
+  width: 33%;
+  margin: 0;
+  padding: 0 0 12px 0;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+#hideDiv .filter-element p {
+  display: table-cell;
+  vertical-align: middle;
+  height: auto;
+  line-height: 100%;
 }
 
 #hideDiv .bootstrap-select.btn-group > .disabled {
