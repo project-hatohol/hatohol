@@ -1341,7 +1341,7 @@ var EventsView = function(userProfile, options) {
     var html = "";
     var i, incidentHistoryData, commentArray = [], commentData, commentedDate;
     var nowUnixTime = Math.round( new Date().getTime() / 1000 );
-    var newLimit = 7 * 24 * 60 * 60;
+    var newLimit = 1 * 24 * 60 * 60;
 
     html += "<ul class='userCommentList";
     if (submit) {
