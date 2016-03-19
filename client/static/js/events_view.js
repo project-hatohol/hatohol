@@ -1640,10 +1640,9 @@ var EventsView = function(userProfile, options) {
     .on('click', '.submitUserCommentButton', function() {
       var $userCommentForm = $(this).parents('.userCommentForm');
       var $textarea = $userCommentForm.find('textarea:eq(0)');
-      var comment = $textarea.val();
       var $tr = $userCommentForm.parents('.userCommentRow').prev("tr");
       var unifiedEventId = $tr.children('td').first().attr("data-unified-id");
-
+      var comment = $textarea.val();
       postComment($tr, unifiedEventId, comment);
     });
 
