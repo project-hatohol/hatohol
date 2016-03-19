@@ -231,6 +231,7 @@ describe('EventsView', function() {
   function testTableContents(serverURL, hostURL, dummyServerInfo, params){
     var view = new EventsView(getOperator(), testOptions);
     var expected = "";
+    var numHeaderRow = 1;
 
     expected += '<td class="severity1 event-type1">' +
       '<span class="eventStatus glyphicon glyphicon-remove-sign"></span> Problem</td>';
@@ -267,7 +268,7 @@ describe('EventsView', function() {
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
-    expect($('#table tr')).to.have.length(dummyEventInfo.length + 1);
+    expect($('#table tr')).to.have.length(dummyEventInfo.length * 2 + numHeaderRow);
     expect($('tr').eq(1).html()).to.contain(expected);
     expect($('td').eq(3).html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
   }
@@ -276,7 +277,7 @@ describe('EventsView', function() {
                                                     dummyServerInfo, params)
   {
     var view = new EventsView(getOperator(), testOptions);
-    var expected = "";
+    var expected = "", expectedEventIndex = 1, numHeaderRow = 1;
 
     expected += '<td class="severity1 event-type1">' +
       '<span class="eventStatus glyphicon glyphicon-remove-sign"></span> Problem</td>';
@@ -300,8 +301,8 @@ describe('EventsView', function() {
 
     respond(eventsJson(dummyEventInfo, dummyServerInfo));
     expect($('#table')).to.have.length(1);
-    expect($('#table tr')).to.have.length(dummyEventInfo.length + 1);
-    expect($('tr').eq(2).html()).to.contain(expected);
+    expect($('#table tr')).to.have.length(dummyEventInfo.length * 2 + numHeaderRow);
+    expect($('tr').eq(expectedEventIndex * 2 + numHeaderRow).html()).to.contain(expected);
     expect($('td').eq(3).html()).to.match(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/);
   }
 
@@ -407,9 +408,10 @@ describe('EventsView', function() {
 	  status: hatohol.TRIGGER_STATUS_PROBLEM,
       })
     ];
+    var numHeaderRow = 1;
     respond(eventsJson(events, getDummyHAPI2ZabbixServerInfo()));
     expect($('#table')).to.have.length(1);
-    expect($('#table tr')).to.have.length(events.length + 1);
+    expect($('#table tr')).to.have.length(events.length * 2 + numHeaderRow);
     expect($('tr').eq(1).html()).to.contain(expected);
   });
 
