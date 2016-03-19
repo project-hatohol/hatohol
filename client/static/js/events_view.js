@@ -1614,10 +1614,17 @@ var EventsView = function(userProfile, options) {
     $('.userCommentButton').on('click', function() {
       var $tr = $(this).parents('tr');
       var unifiedEventId = $tr.children('td').first().attr("data-unified-id");
-      if (!$tr.is('.open'))
+
+      if (!$tr.is('.open')) {
         loadComments($tr, unifiedEventId);
+        self.disableAutoRefresh();
+      }
+
       $tr.toggleClass('open')
         .next().toggleClass('open');
+
+      if ($('.userCommentRow.open').length === 0 && self.currentPage === 0)
+          self.enableAutoRefresh(load, self.reloadIntervalSeconds);
     });
 
     $(document).off('click', '.submitUserCommentButton')
@@ -1724,8 +1731,7 @@ var EventsView = function(userProfile, options) {
 
     setupFilterValues();
     setupHandlingMenu();
-    if ($('.userCommentRow.open').length === 0)
-      drawTableContents();
+    drawTableContents();
     setupTableColor();
     updatePager();
     updateFilteringResult();
