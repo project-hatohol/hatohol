@@ -1329,7 +1329,7 @@ var EventsView = function(userProfile, options) {
     html += self.columnNames.length + 1;
     html += "'";
     if (type == hatohol.EVENT_TYPE_BAD)
-      html += " class='commentsForSeverity" + severity + "'"
+      html += " class='commentsForSeverity" + severity + "'";
     html += ">";
     html += "</td>";
     html += "</tr>";
