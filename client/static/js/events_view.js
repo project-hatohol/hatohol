@@ -138,6 +138,10 @@ var EventsView = function(userProfile, options) {
       header: gettext("% Done"),
       body: renderTableDataIncidentDoneRatio,
     },
+    "userComment": {
+      header: gettext("Comment"),
+      body: renderTableDataUserCommentButton,
+    },
   };
 
   // call the constructor of the super class
@@ -676,6 +680,7 @@ var EventsView = function(userProfile, options) {
     });
 
     $('button.latest-button').click(function() {
+      $('.userCommentRow.open').removeClass('open');
       $("#end-time").val("");
       $("#end-time").next(".clear-button").hide();
       load({ applyFilter: true });
@@ -1298,6 +1303,170 @@ var EventsView = function(userProfile, options) {
     return html;
   }
 
+  function renderTableDataUserCommentButton(event, server) {
+    var html = "";
+
+    html += "<td class='" + getSeverityClass(event) + "'>";
+    html += "<span class='userCommentButton'>";
+    if (event["incident"]["commentCount"] === "0")
+      html += "<span class='glyphicon glyphicon-pencil'></span>";
+    else
+      html += "<span class='userCommentCount'>" + event["incident"]["commentCount"] + "</span>";
+    html += "<span class='glyphicon glyphicon-remove'></span>";
+    html += "</span>";
+    html += "</td>";
+
+    return html;
+  }
+
+  function renderTableDataUserCommentRow(event, server) {
+    var html = "";
+
+    var type = event["type"];
+    var color = "#dddddd";
+    if (type == hatohol.EVENT_TYPE_BAD) {
+      var severity = event["severity"];
+      var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+      color = severityRanks[severity].color;
+    }
+    html += "<tr class='userCommentRow'>";
+    html += "<td colspan='";
+    html += self.columnNames.length + 1;
+    html += "' style='border-color:";
+    html += color;
+    html += ";'>";
+    html += "</td>";
+    html += "</tr>";
+
+    return html;
+  }
+
+  function renderTableDataUserCommentContents(event, server, submit) {
+    var html = "";
+    var i, incidentHistoryData, commentArray = [], commentData, commentedDate;
+    var nowUnixTime = Math.round( new Date().getTime() / 1000 );
+    var newLimit = 7 * 24 * 60 * 60;
+
+    html += "<ul class='userCommentList";
+    if (submit) {
+      html += " userCommentListAfterSubmit";
+    }
+    html += "'>";
+
+    for (i = 0; i < event["incidentHistory"].length; i++) {
+      incidentHistoryData = event["incidentHistory"][i];
+      if (incidentHistoryData["comment"]) {
+        commentArray.push(incidentHistoryData);
+      }
+    }
+
+    for (i = 0; i < commentArray.length; i++) {
+      commentData = commentArray[i];
+      commentedDate = new Date(commentData["time"] * 1000);
+      html += "<li>";
+      html += "<div class='userCommentLeft'>";
+      html += "<em class='userCommentIcon'";
+      html += " title='userIconPath/user_icon_" + commentData["userId"] + "'>";
+      html += "</em>";
+      html += "<p class='userCommentName'>";
+      html += escapeHTML(commentData["userName"]);
+      html += "</p>";
+      html += "<p class='userCommentedTime'>";
+      html += "<span>";
+      html += getCommentedDate(commentedDate);
+      html += "</span>";
+      html += "<span>";
+      html += getTimeZone();
+      html += "</span>";
+      html += "</p>";
+      if (nowUnixTime - commentData["time"] < newLimit)
+        html += "<p><span class='userCommentNew'>NEW</span></p>";
+      html += "</div>";
+      html += "<div class='userCommentRight'>";
+      html += escapeHTML(commentData["comment"]).replace(/\n/g,"<br>");
+      html += "</div>";
+      html += "</li>";
+    }
+
+    html += appendUserCommentForm();
+    html += "</ul>";
+
+    return html;
+  }
+
+  function getCommentedDate(date) {
+    var html = "";
+
+    html += date.getFullYear() + "/";
+    html += padDigit(date.getMonth() + 1, 2) + "/";
+    html += padDigit(date.getDate(), 2) + " ";
+    html += getDayName(date.getDay(), 2) + " ";
+    html += padDigit(date.getHours(), 2) + ":";
+    html += padDigit(date.getMinutes(), 2) + ":";
+    html += padDigit(date.getSeconds(), 2);
+
+    return html;
+  }
+
+  function getDayName(number) {
+    var dayName = [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ];
+    return dayName[number];
+  }
+
+  function getTimeZone() {
+    var timeZone = jstz.determine();
+    if (typeof (timeZone) === 'undefined') {
+      return "";
+    } else {
+      return timeZone.name();
+    }
+  }
+
+  function appendUserCommentForm() {
+    var html = "";
+
+    html += "<li class='userCommentForm'>";
+    html += "<div class='userCommentLeft'>";
+    html += "<em class='userCommentIcon'";
+    html += " title='userIconPath/user_icon_";
+    html += userProfile.user.userId;
+    html += "'>";
+    html += "</em>";
+    html += escapeHTML(userProfile.user.name);
+    html += "</div>";
+    html += "<div class='userCommentRight'>";
+    html += "<textarea placeholder='";
+    html += gettext("Input Comment") + "'>";
+    html += "</textarea>";
+    html += "<button type='button' class='cancelUserCommentButton'>";
+    html += gettext("Cancel");
+    html += "</button>";
+    html += "<button type='button' class='submitUserCommentButton'>";
+    html += gettext("Submit");
+    html += "</button>";
+    html += "</div>";
+    html += "</li>";
+    html += "<li class='userCommentAddForm'>";
+    html += "<div class='userCommentLeft'>";
+    html += "</div>";
+    html += "<div class='userCommentRight'>";
+    html += "<button type='button' class='addUserCommentButton'>";
+    html += gettext("Add Comment");
+    html += "</button>";
+    html += "</div>";
+    html += "</li>";
+
+    return html;
+  }
+
   function drawTableHeader() {
     var i, definition, columnName, isIncident = false;
     var header = '<tr>';
@@ -1337,13 +1506,17 @@ var EventsView = function(userProfile, options) {
 
   function drawTableBody() {
     var html = "";
-    var x, y, serverId, server, event, columnName, definition;
+    var x, y, serverId, server, event, columnName, definition, commentCount;
     var haveIncident = self.rawData["haveIncident"];
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event = self.rawData["events"][x];
       serverId = event["serverId"];
       server = self.rawData["servers"][serverId];
+
+      // Dummy event.incident.commentCount
+      event["incident"]["commentCount"] = ["0","9","99","999"][x] || "0";
+      // /Dummy event.incident.commentCount
 
       html += "<tr>";
       for (y = 0; y < self.columnNames.length; y++) {
@@ -1353,7 +1526,10 @@ var EventsView = function(userProfile, options) {
           continue;
         html += definition.body(event, server);
       }
+
       html += "</tr>";
+
+      html += renderTableDataUserCommentRow(event, server);
     }
 
     return html;
@@ -1391,6 +1567,99 @@ var EventsView = function(userProfile, options) {
     $('.incident.selectable').on('click', function() {
       $(this).toggleClass('selected');
       setupChangeIncidentMenu();
+    });
+
+    $('.userCommentButton').on('click', function() {
+      var $tr = $(this).parents('tr');
+      if (!$tr.is('.open')) {
+
+        // Dummy incidentHistory
+        var server = "";
+        var event = {
+          "incidentHistory": [
+            {
+              "id":"500",
+              "unifiedEventId":"13517",
+              "userId":"1",
+              "userName":"USER_1",
+              "status":"IN PROGRESS",
+              "comment":"<p>Pタグ</p>改行テキスト\n\n改行テキスト改行テキスト\n改行テキスト",
+              "time":"1456221146"
+            },
+            {
+              "id":"510",
+              "unifiedEventId":"13517",
+              "userId":"2",
+              "userName":"USER_2",
+              "status":"DONE",
+              "comment":"1週間以内のコメントはNEW（１週間は暫定）",
+              "time":"1457790447"
+            },
+            {
+              "id":"230",
+              "unifiedEventId":"13517",
+              "userId":"0",
+              "userName":"USER_0",
+              "status":"NONE",
+              "time":"1456221146"
+            },
+            {
+              "id":"233",
+              "unifiedEventId":"13517",
+              "userId":"4",
+              "userName":"USER_4",
+              "status":"IN PROGRESS",
+              "time":"1456231146"
+            },
+            {
+              "id":"235",
+              "unifiedEventId":"13517",
+              "userId":"3",
+              "userName":"USER_3",
+              "status":"IN PROGRESS",
+              "comment":"ashieにアサインする!",
+              "time":"1456241146"
+            },
+            {
+              "id":"330",
+              "unifiedEventId":"13517",
+              "userId":"3",
+              "userName":"USER_3",
+              "status":"DONE",
+              "comment":"解決した!",
+              "time":"1456251146"
+            }
+          ]
+        };
+        // /Dummy incidentHistory
+
+        var html = renderTableDataUserCommentContents(event, server);
+        $tr.next().find('td:eq(0)').html(html);
+      }
+      $tr.toggleClass('open')
+      .next().toggleClass('open');
+    });
+
+    $(document).off('click', '.submitUserCommentButton')
+    .on('click', '.submitUserCommentButton', function() {
+      var $userCommentForm = $(this).parents('.userCommentForm');
+      var $textarea = $userCommentForm.find('textarea:eq(0)');
+      var $tr = $userCommentForm.parents('.userCommentList');
+      alert('"' + $textarea.val() + '"\nCommented!!');
+      $tr.addClass('userCommentListAfterSubmit');
+    });
+
+    $(document).off('click', '.cancelUserCommentButton')
+    .on('click', '.cancelUserCommentButton', function() {
+      var $userCommentForm = $(this).parents('.userCommentForm');
+      var $textarea = $userCommentForm.find('textarea:eq(0)');
+      $textarea.val("");
+    });
+
+    $(document).off('click', '.addUserCommentButton')
+    .on('click', '.addUserCommentButton', function() {
+      var $tr = $(this).parents('.userCommentList');
+      $tr.removeClass('userCommentListAfterSubmit');
     });
 
     setupSortColumn();
@@ -1473,7 +1742,8 @@ var EventsView = function(userProfile, options) {
 
     setupFilterValues();
     setupHandlingMenu();
-    drawTableContents();
+    if ($('.userCommentRow.open').length === 0)
+      drawTableContents();
     setupTableColor();
     updatePager();
     updateFilteringResult();
