@@ -30,6 +30,14 @@ td.severity2 { background-color: #FDFD96; }
 td.severity1 { background-color: #CCE2CC; }
 td.severity0 { background-color: #BCBCBC; }
 
+tr.userCommentRow td { border-color: #DDDDDD; }
+td.commentsForSeverity5 { border-color: #FF0000; }
+td.commentsForSeverity4 { border-color: #FF8888; }
+td.commentsForSeverity3 { border-color: #DDAAAA; }
+td.commentsForSeverity2 { border-color: #FDFD96; }
+td.commentsForSeverity1 { border-color: #CCE2CC; }
+td.commentsForSeverity0 { border-color: #BCBCBC; }
+
 td.healthy   { background-color: #AAFFAA; }
 td.unknown   { background-color: #BCBCBC; }
 
