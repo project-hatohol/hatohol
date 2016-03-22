@@ -295,6 +295,9 @@ rm -rf %{buildroot}
 %{python_sitelib}/hatohol/transporter.py
 %{python_sitelib}/hatohol/transporter.pyc
 %{python_sitelib}/hatohol/transporter.pyo
+%{python_sitelib}/hatohol/autotools_vars.py
+%{python_sitelib}/hatohol/autotools_vars.pyc
+%{python_sitelib}/hatohol/autotools_vars.pyo
 %{python_sitelib}/hatohol/transporters/__init__.py
 %{python_sitelib}/hatohol/transporters/__init__.pyc
 %{python_sitelib}/hatohol/transporters/__init__.pyo
