@@ -46,6 +46,7 @@ var EventsView = function(userProfile, options) {
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
   self.abbreviateDescriptionLength = 30;
 
+  setupSelectPickers();
   setupEventsTable();
   setupToggleFilter();
 
@@ -484,13 +485,7 @@ var EventsView = function(userProfile, options) {
     $("#select-host-group").val("");
     $("#select-host").val("");
 
-    // refresh bootstrap-select selectpickers
-    $("#select-incident").selectpicker('refresh');
-    $("#select-type").selectpicker('refresh');
-    $("#select-severity").selectpicker('refresh');
-    $("#select-server").selectpicker('refresh');
-    $("#select-host-group").selectpicker('refresh');
-    $("#select-host").selectpicker('refresh');
+    refreshSelectPickers();
   }
 
   function removeUnselectableFilterCandidates(filterConfig, type, serverId) {
@@ -608,6 +603,8 @@ var EventsView = function(userProfile, options) {
       removeUnselectableFilterCandidates(filterConfig, "host", serverId);
     }
 
+    refreshSelectPickers();
+
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
     if ("type" in query)
@@ -661,8 +658,13 @@ var EventsView = function(userProfile, options) {
   }
 
   function refreshSelectPickers() {
-    $("#select-host").selectpicker('refresh');
+    $("#select-filter").selectpicker('refresh');
+    $("#select-incident").selectpicker('refresh');
+    $("#select-type").selectpicker('refresh');
+    $("#select-severity").selectpicker('refresh');
+    $("#select-server").selectpicker('refresh');
     $("#select-host-group").selectpicker('refresh');
+    $("#select-host").selectpicker('refresh');
   }
 
   function setupCallbacks() {
@@ -672,7 +674,6 @@ var EventsView = function(userProfile, options) {
 
     $('#select-server').change(function() {
       setupFilterValues(undefined, {});
-      refreshSelectPickers();
     });
 
     $('button.latest-button').click(function() {
@@ -974,9 +975,10 @@ var EventsView = function(userProfile, options) {
         $("#select-host").removeAttr("disabled");
       $("#select-filter").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
-
-      setupSelectPickers();
     }
+
+    // add/remove "disabled" attribute
+    refreshSelectPickers();
   }
 
   function parseData(replyData) {

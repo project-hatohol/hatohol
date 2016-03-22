@@ -36,6 +36,7 @@ var TriggersView = function(userProfile, options) {
   self.rawTriggerBriefsData = {};
   self.options = options || {};
 
+  setupSelectPickers();
   setupToggleFilter();
   if (self.options.disableTimeRangeFilter) {
    // Don't enable datetimepicker for tests.
@@ -219,6 +220,8 @@ var TriggersView = function(userProfile, options) {
     self.setupHostFilters(servers, query);
     resetTriggerPropertyFilter("severity");
 
+    refreshSelectPickers();
+
     if ("minimumSeverity" in query)
       $("#select-severity").val(query.minimumSeverity);
     if ("status" in query)
@@ -293,8 +296,14 @@ var TriggersView = function(userProfile, options) {
   }
 
   function refreshSelectPickers() {
-    $("#select-host").selectpicker('refresh');
+    $("#select-severity").selectpicker('refresh');
+    $("#select-status").selectpicker('refresh');
+    $("#select-server").selectpicker('refresh');
     $("#select-host-group").selectpicker('refresh');
+    $("#select-host").selectpicker('refresh');
+    $("#select-hostname").selectpicker('refresh');
+    $("#select-host-group-name").selectpicker('refresh');
+    $("#select-trigger-brief").selectpicker('refresh');
   }
 
   function setupCallbacks() {
@@ -302,7 +311,6 @@ var TriggersView = function(userProfile, options) {
       resetHostQuerySelector('#select-host-group');
       resetHostQuerySelector('#select-host');
       setupFilterValues();
-      refreshSelectPickers();
 
       function resetHostQuerySelector(selectorId) {
         if (!selectorId)
@@ -366,9 +374,10 @@ var TriggersView = function(userProfile, options) {
       $("#select-host-group-name").removeAttr("disabled");
       $("#select-trigger-brief").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
-
-      setupSelectPickers();
     }
+
+    // add/remove "disabled" attribute
+    refreshSelectPickers();
   }
 
   function getTriggerName(trigger) {
@@ -524,15 +533,7 @@ var TriggersView = function(userProfile, options) {
     $("#select-host-group-name").val("");
     $("#select-trigger-brief").val("");
 
-    // refresh bootstrap-select selectpickers
-    $("#select-severity").selectpicker('refresh');
-    $("#select-status").selectpicker('refresh');
-    $("#select-server").selectpicker('refresh');
-    $("#select-host-group").selectpicker('refresh');
-    $("#select-host").selectpicker('refresh');
-    $("#select-hostname").selectpicker('refresh');
-    $("#select-host-group-name").selectpicker('refresh');
-    $("#select-trigger-brief").selectpicker('refresh');
+    refreshSelectPickers();
   }
 
   function formatDateTimeWithZeroSecond(d) {
