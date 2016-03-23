@@ -441,14 +441,9 @@ string HostsQueryOption::getCondition(void) const
 	return condition;
 }
 
-void HostsQueryOption::addStatus(const HostStatus &status)
+void HostsQueryOption::setStatusSet(const set<HostStatus> &statuses)
 {
-	m_impl->statuses.insert(status);
-}
-
-void HostsQueryOption::removeStatus(const HostStatus &status)
-{
-	m_impl->statuses.erase(status);
+	m_impl->statuses = statuses;
 }
 
 set<HostStatus> &HostsQueryOption::getStatusSet(void) const
@@ -1388,8 +1383,7 @@ HatoholError DBTablesHost::syncHosts(
 {
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.removeStatus(HOST_STAT_ALL);
-	option.addStatus(HOST_STAT_NORMAL);
+	option.setStatusSet({HOST_STAT_NORMAL});
 	option.setTargetServerId(serverId);
 
 	ServerHostDefVect _currHosts;

@@ -54,10 +54,12 @@ static void initParamChecker(
 	if (typeid(option) == typeid(HostsQueryOption)) {
 		HostsQueryOption &hostsQueryOption =
 		  dynamic_cast<HostsQueryOption &>(option);
-		HostStatus status = hostsQueryOption.getStatus();
-		if (status != HOST_STAT_ALL) {
-			expected += StringUtils::sprintf(" AND status=%d",
-			                                 status);
+		set<HostStatus> statuses = hostsQueryOption.getStatusSet();
+		for (auto &status : statuses) {
+			if (status != HOST_STAT_ALL) {
+				expected += StringUtils::sprintf(" AND status=%d",
+								 status);
+			}
 		}
 	}
 	// TODO: call setHostgroupId()
@@ -710,14 +712,21 @@ void test_hostsQueryOptionFromDataQueryContext(gconstpointer data)
 void test_hostsQueryOptionGetValidtyDefault(void)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	cppcut_assert_equal(HOST_STAT_ALL, option.getStatus());
+	auto &statuses = option.getStatusSet();
+	cppcut_assert_equal((size_t)1, statuses.size());
+	for (auto &status : statuses)
+		cppcut_assert_equal(HOST_STAT_ALL, status);
 }
 
 void test_hostsQueryOptionSetGetValidty(void)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setStatus(HOST_STAT_NORMAL);
-	cppcut_assert_equal(HOST_STAT_NORMAL, option.getStatus());
+	HostStatus expectedStatus = HOST_STAT_NORMAL;
+	option.setStatusSet({expectedStatus});
+	auto &statuses = option.getStatusSet();
+	cppcut_assert_equal((size_t)1, statuses.size());
+	for (auto &status : statuses)
+		cppcut_assert_equal(expectedStatus, status);
 }
 
 void data_hostsQueryOptionGetConditionForHostValid(void)
@@ -728,8 +737,7 @@ void data_hostsQueryOptionGetConditionForHostValid(void)
 void test_hostsQueryOptionGetConditionForHostValid(gconstpointer data)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setStatus(HOST_STAT_NORMAL);
-	cppcut_assert_equal(HOST_STAT_NORMAL, option.getStatus());
+	option.setStatusSet({HOST_STAT_NORMAL});
 	string expected = StringUtils::sprintf("status=%d", HOST_STAT_NORMAL);
 	fixupForFilteringDefunctServer(data, expected, option);
 }
