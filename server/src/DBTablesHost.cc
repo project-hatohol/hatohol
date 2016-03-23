@@ -398,10 +398,10 @@ static const HostResourceQueryOption::Synapse synapseHostsQueryOption(
   IDX_HOSTGROUP_MEMBER_GROUP_ID);
 
 struct HostsQueryOption::Impl {
-	HostStatus status;
+	set<HostStatus> statuses;
 
 	Impl()
-	: status(HOST_STAT_ALL)
+	: statuses({HOST_STAT_ALL})
 	{
 	}
 };
@@ -425,26 +425,35 @@ HostsQueryOption::~HostsQueryOption(void)
 string HostsQueryOption::getCondition(void) const
 {
 	string condition = HostResourceQueryOption::getCondition();
-	if (m_impl->status == HOST_STAT_ALL)
+	if (m_impl->statuses.count(HOST_STAT_ALL))
 		return condition;
-	if (!condition.empty())
-		condition += " AND ";
 
 	string columnName =
 	  tableProfileServerHostDef.columnDefs[IDX_HOST_SERVER_HOST_DEF_HOST_STATUS].columnName;
-	condition += StringUtils::sprintf("%s=%d",
-	                                  columnName.c_str(), m_impl->status);
+	string statuses;
+	SeparatorInjector commaInjector(",");
+	for(const auto &status: m_impl->statuses) {
+		commaInjector(statuses);
+		statuses += to_string(status);
+	}
+	addCondition(condition, StringUtils::sprintf("%s IN (%s)",
+	             columnName.c_str(), statuses.c_str()));
 	return condition;
 }
 
-void HostsQueryOption::setStatus(const HostStatus &status)
+void HostsQueryOption::addStatus(const HostStatus &status)
 {
-	m_impl->status = status;
+	m_impl->statuses.insert(status);
 }
 
-HostStatus HostsQueryOption::getStatus(void) const
+void HostsQueryOption::removeStatus(const HostStatus &status)
 {
-	return m_impl->status;
+	m_impl->statuses.erase(status);
+}
+
+set<HostStatus> &HostsQueryOption::getStatusSet(void) const
+{
+	return m_impl->statuses;
 }
 
 // ---------------------------------------------------------------------------
@@ -1379,7 +1388,8 @@ HatoholError DBTablesHost::syncHosts(
 {
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setStatus(HOST_STAT_NORMAL);
+	option.removeStatus(HOST_STAT_ALL);
+	option.addStatus(HOST_STAT_NORMAL);
 	option.setTargetServerId(serverId);
 
 	ServerHostDefVect _currHosts;
