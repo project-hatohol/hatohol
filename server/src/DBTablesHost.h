@@ -156,8 +156,9 @@ public:
 
 	virtual std::string getCondition(void) const override;
 
-	void setStatus(const HostStatus &status);
-	HostStatus getStatus(void) const;
+	void addStatus(const HostStatus &status);
+	void removeStatus(const HostStatus &status);
+	std::set<HostStatus> &getStatusSet(void) const;
 
 private:
 	struct Impl;
