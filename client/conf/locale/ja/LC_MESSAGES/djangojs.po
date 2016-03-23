@@ -269,8 +269,8 @@ msgid "Severity"
 msgstr "深刻度"
 
 #: static/js/events_view.js:114
-msgid "Period"
-msgstr "期間"
+msgid "Date and Time"
+msgstr "日付"
 
 #: static/js/events_view.js:118 static/js/hatohol_trigger_selector.js:49
 msgid "Brief"

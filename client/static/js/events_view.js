@@ -112,7 +112,7 @@ var EventsView = function(userProfile, options) {
       body: renderTableDataEventSeverity,
     },
     "time": {
-      header: gettext("Period"),
+      header: gettext("Date and Time"),
       body: renderTableDataEventTime,
     },
     "description": {
