@@ -103,6 +103,9 @@ def delete_unnecessary_records_by_date(table_name, date, db, cursor):
     elif 'action_logs' in table_name:
         query = 'DELETE FROM action_logs WHERE queuing_time < "%s"' % \
                 make_sql_interpretable_time(date)
+    elif 'incident_histories' in table_name:
+        time_sec = make_unix_time(date)
+        query = 'DELETE FROM incident_histories WHERE created_at_sec < %d' % time_sec
 
     run_sql_query(db, cursor, query)
 
@@ -112,6 +115,9 @@ def delete_unncessary_records_by_number(table_name, number, db, cursor):
         query = 'DELETE FROM events ORDER BY time_sec ASC LIMIT %d' % number
     elif 'action_logs' in table_name:
         query = 'DELETE FROM action_logs ORDER BY queuing_time ASC LIMIT %d' % number
+    elif 'incident_histories' in table_name:
+        query = 'DELETE FROM incident_histories ORDER BY created_at_sec ASC LIMIT %d'\
+                % number
 
     run_sql_query(db, cursor, query)
 
@@ -159,7 +165,8 @@ if __name__ == '__main__':
                         help='A password for the database server. '
                         'If the password is not set, give \'\' '
                         'for this argument.')
-    parser.add_argument('--table', choices=['events', 'action_logs'],
+    parser.add_argument('--table',
+                        choices=['events', 'action_logs', 'incident_histories'],
                         type=str, required=True,
                         help='Only the specified table is housekeeped.')
     subparsers = parser.add_subparsers(dest='cmd',
