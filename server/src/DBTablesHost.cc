@@ -1388,7 +1388,8 @@ HatoholError DBTablesHost::syncHosts(
 {
 	// Make a set that contains current hosts records
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setStatus(HOST_STAT_NORMAL);
+	option.removeStatus(HOST_STAT_ALL);
+	option.addStatus(HOST_STAT_NORMAL);
 	option.setTargetServerId(serverId);
 
 	ServerHostDefVect _currHosts;
