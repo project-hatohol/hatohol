@@ -432,7 +432,7 @@ string HostsQueryOption::getCondition(void) const
 	  tableProfileServerHostDef.columnDefs[IDX_HOST_SERVER_HOST_DEF_HOST_STATUS].columnName;
 	string statuses;
 	SeparatorInjector commaInjector(",");
-	for(const auto &status: m_impl->statuses) {
+	for (const auto &status : m_impl->statuses) {
 		commaInjector(statuses);
 		statuses += to_string(status);
 	}
