@@ -419,7 +419,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     respond(eventsJson(dummyEventInfo, getDummyHAPI2ZabbixServerInfo()));
     expect($('tr').eq(0).text()).to.be(
-      "HandlingStatusSeverityPeriod Monitoring ServerHostBriefShow Full Text");
+      "HandlingStatusSeverityDate and Time Monitoring ServerHostBriefShow Full Text");
     expect($('tr').eq(1).text()).to.be(
       " ProblemInformation" + getEventTimeString(dummyEventInfo[0]) +
       "ServerHostTest description.");
@@ -433,7 +433,7 @@ describe('EventsView', function() {
     respond(eventsJson(dummyEventInfo, getDummyHAPI2ZabbixServerInfo()),
 	    configJson);
     expect($('tr').eq(0).text()).to.be(
-      "DurationSeverityStatusBriefShow Full TextHostPeriod Monitoring Server");
+      "DurationSeverityStatusBriefShow Full TextHostDate and Time Monitoring Server");
     expect($('tr').eq(1).text()).to.be(
       "02:46:40Information ProblemTest description.Host" +
       getEventTimeString(dummyEventInfo[0]) +
