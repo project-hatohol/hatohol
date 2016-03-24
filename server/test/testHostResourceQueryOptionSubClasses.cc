@@ -54,7 +54,7 @@ static void initParamChecker(
 	if (typeid(option) == typeid(HostsQueryOption)) {
 		HostsQueryOption &hostsQueryOption =
 		  dynamic_cast<HostsQueryOption &>(option);
-		set<HostStatus> statuses = hostsQueryOption.getStatusSet();
+		const auto &statuses = hostsQueryOption.getStatusSet();
 		for (auto &status : statuses) {
 			if (status != HOST_STAT_ALL) {
 				expected += StringUtils::sprintf(" AND status=%d",
