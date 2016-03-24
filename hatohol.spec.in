@@ -295,6 +295,9 @@ rm -rf %{buildroot}
 %{python_sitelib}/hatohol/transporter.py
 %{python_sitelib}/hatohol/transporter.pyc
 %{python_sitelib}/hatohol/transporter.pyo
+%{python_sitelib}/hatohol/autotools_vars.py
+%{python_sitelib}/hatohol/autotools_vars.pyc
+%{python_sitelib}/hatohol/autotools_vars.pyo
 %{python_sitelib}/hatohol/transporters/__init__.py
 %{python_sitelib}/hatohol/transporters/__init__.pyc
 %{python_sitelib}/hatohol/transporters/__init__.pyo
@@ -302,6 +305,7 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.pyo
+%config %{_sysconfdir}/hatohol/hap2.conf
 %config %{_sysconfdir}/hatohol/hap2-logging.conf
 
 %files hap2-rabbitmq-connector

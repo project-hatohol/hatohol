@@ -253,8 +253,10 @@ server/mlpl/mlpl.pc
 server/common/Makefile
 server/src/Makefile
 server/hap2/Makefile
+server/hap2/hap2.conf
 server/hap2/hap2-control-functions.sh
 server/hap2/hatohol/Makefile
+server/hap2/hatohol/autotools_vars.py
 server/data/Makefile
 server/tools/Makefile
 server/tools/hatohol-db-initiator
