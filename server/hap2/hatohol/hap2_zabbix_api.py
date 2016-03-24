@@ -86,7 +86,7 @@ class ZabbixAPIConductor(object):
 
         if fetch_id is not None:
             update_type = "ALL"
-            triggers = self.__api.get_triggers(host_ids =  host_ids)
+            triggers = self.__api.get_triggers(host_ids=host_ids)
         else:
             update_type = "UPDATED"
             triggers = self.__api.get_triggers(self.__trigger_last_info, host_ids)
