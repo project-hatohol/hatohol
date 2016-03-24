@@ -44,15 +44,16 @@ def initialize_logger(parser=None):
     argparse.ArgumentParser object or None. If this parameter is not None,
     arguments for configuring logging parameters is added to the parser.
     """
-    # This level is used until set_logger_level() is called.
+    # This level is used until setup_loggerl() is called.
     # TODO: Shoud be configurable. For example, by environment variable
     handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
     fmt = "%(asctime)s %(levelname)8s [%(process)5d] %(name)s:%(lineno)d:  " \
           "%(message)s"
     formatter = logging.Formatter(fmt)
     handler.setFormatter(formatter)
-    getLogger("hatohol").addHandler(handler)
+    hatohol_logger = getLogger("hatohol")
+    hatohol_logger.addHandler(handler)
+    hatohol_logger.setLevel(logging.INFO)
 
     if parser is not None:
         choices = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
