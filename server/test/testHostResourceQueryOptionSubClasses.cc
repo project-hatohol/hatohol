@@ -712,7 +712,7 @@ void test_hostsQueryOptionFromDataQueryContext(gconstpointer data)
 void test_hostsQueryOptionGetValidtyDefault(void)
 {
 	HostsQueryOption option(USER_ID_SYSTEM);
-	auto &statuses = option.getStatusSet();
+	const auto &statuses = option.getStatusSet();
 	cppcut_assert_equal((size_t)1, statuses.size());
 	for (auto &status : statuses)
 		cppcut_assert_equal(HOST_STAT_ALL, status);
@@ -723,7 +723,7 @@ void test_hostsQueryOptionSetGetValidty(void)
 	HostsQueryOption option(USER_ID_SYSTEM);
 	HostStatus expectedStatus = HOST_STAT_NORMAL;
 	option.setStatusSet({expectedStatus});
-	auto &statuses = option.getStatusSet();
+	const auto &statuses = option.getStatusSet();
 	cppcut_assert_equal((size_t)1, statuses.size());
 	for (auto &status : statuses)
 		cppcut_assert_equal(expectedStatus, status);
