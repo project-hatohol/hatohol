@@ -44,7 +44,7 @@ def initialize_logger(parser=None):
     argparse.ArgumentParser object or None. If this parameter is not None,
     arguments for configuring logging parameters is added to the parser.
     """
-    # This level is used until set_logger_level() is called.
+    # This level is used until setup_logger() is called.
     # TODO: Shoud be configurable. For example, by environment variable
     handler = logging.StreamHandler()
     fmt = "%(asctime)s %(levelname)8s [%(process)5d] %(name)s:%(lineno)d:  " \
