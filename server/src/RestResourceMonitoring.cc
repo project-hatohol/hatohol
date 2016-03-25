@@ -424,6 +424,8 @@ void RestResourceMonitoring::handlerGetEvent(void)
 		return;
 	}
 
+	RestResourceUtils::parseHostgroupNameParameter(option, m_query,
+						       m_dataQueryContextPtr);
 	if (isCountOnly) {
 		JSONBuilder agent;
 		agent.startObject();
