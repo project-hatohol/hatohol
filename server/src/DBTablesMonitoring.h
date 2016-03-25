@@ -69,6 +69,8 @@ public:
 	const timespec &getBeginTime(void);
 	void setEndTime(const timespec &endTime);
 	const timespec &getEndTime(void);
+	void setHostnameList(const std::list<std::string> &hostnameList);
+	const std::list<std::string> getHostnameList(void);
 
 	void setEventTypes(const std::set<EventType> &types);
 	const std::set<EventType> &getEventTypes(void) const;
@@ -79,6 +81,9 @@ public:
 
 	void setIncidentStatuses(const std::set<std::string> &statuses);
 	const std::set<std::string> &getIncidentStatuses(void) const;
+
+	std::string makeHostnameListCondition(
+	  const std::list<std::string> &hostnameList) const;
 
 private:
 	struct Impl;
