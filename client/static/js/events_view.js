@@ -615,18 +615,14 @@ var EventsView = function(userProfile, options) {
       $("#select-type").val(query.type);
   }
 
-  function setupHandlingMenu() {
+  function shouldEnableHandlingFeature() {
     var trackers = self.rawData.incidentTrackers;
     var enableIncident = self.rawData["haveIncident"];
     var hasIncidentTypeHatohol = false;
     var hasIncidentTypeOthers = false;
 
-    if (!self.rawData["haveIncident"]) {
-      $("#select-incident-container").hide();
-      $("#change-incident-container").hide();
-      fixupEventsTableHeight();
-      return;
-    }
+    if (!enableIncident)
+      return false;
 
     if (typeof trackers == "object") {
       $.map(trackers, function(tracker, key) {
@@ -644,19 +640,19 @@ var EventsView = function(userProfile, options) {
       });
     }
 
-    if (hasIncidentTypeHatohol && !hasIncidentTypeOthers) {
+    return (hasIncidentTypeHatohol && !hasIncidentTypeOthers);
+  }
+
+  function setupHandlingMenu() {
+    if (shouldEnableHandlingFeature()) {
       $("#select-incident-container").show();
       $("#change-incident-container").show();
-      $("#IncidentTypeHatoholNotAssignedEventLabel").show();
-      $("#IncidentTypeHatoholImportantEventLabel").show();
-      $("#IncidentTypeHatoholImportantEventProgress").show();
+      $(".incidentCheckbox").show();
       fixupEventsTableHeight();
     } else {
       $("#select-incident-container").hide();
       $("#change-incident-container").hide();
-      $("#IncidentTypeHatoholNotAssignedEventLabel").hide();
-      $("#IncidentTypeHatoholImportantEventLabel").hide();
-      $("#IncidentTypeHatoholImportantEventProgress").hide();
+      $(".incidentCheckbox").hide();
       fixupEventsTableHeight();
     }
   }
@@ -1244,7 +1240,9 @@ var EventsView = function(userProfile, options) {
         html += " data-tracker-id=''";
     }
     html += " style='display:none;'>";
-    html += "<span class='incidentCheckbox'><span class='glyphicon glyphicon-ok'></span></span>";
+    html += "<span class='incidentCheckbox' style='display: none;'>";
+    html += "<span class='glyphicon glyphicon-ok'></span>";
+    html += "</span>";
 
     if (!incident)
       return html + "</td>";
@@ -1741,8 +1739,8 @@ var EventsView = function(userProfile, options) {
     self.durations = parseData(self.rawData);
 
     setupFilterValues();
-    setupHandlingMenu();
     drawTableContents();
+    setupHandlingMenu();
     setupTableColor();
     updatePager();
     updateFilteringResult();
