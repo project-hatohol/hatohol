@@ -21,18 +21,44 @@
 import argparse
 from logging import getLogger
 import signal
+import os
 from hatohol import hap
 from hatohol import haplib
 from hatohol import transporter
 from hatohol import hapcommon
+from hatohol import autotools_vars
+import logging
 
 logger = getLogger("hatohol.standardhap:%s" % hapcommon.get_top_file_name())
 
 class StandardHap:
     def __init__(self, default_transporter="RabbitMQHapiConnector"):
-        parser = argparse.ArgumentParser()
-        hap.initialize_logger(parser)
+        parser = argparse.ArgumentParser(add_help=False)
+        group = parser.add_argument_group("Config")
 
+        help_msg = """
+        A configuration file.
+        Other command line arguments override items in the config. file.
+        """
+        group.add_argument("--config", default=None, help=help_msg)
+        args, remaining_args = parser.parse_known_args()
+
+        config_path = None
+        if args.config:
+            config_path = args.config
+        else:
+            default_conf_path = autotools_vars.SYSCONFDIR + "/hatohol/hap2.conf"
+            if os.path.isfile(default_conf_path):
+                config_path = default_conf_path
+        if config_path:
+            parser = hap.ConfigFileParser(config_path, remaining_args, parser)
+        else:
+            #The line enable help message.
+            parser = argparse.ArgumentParser(parents=[parser])
+
+        hap.initialize_logger(parser)
+        if config_path:
+            logger.info("Configuration file: %s" % config_path)
         parser.add_argument("-p", "--disable-poller", action="store_true")
         parser.add_argument("--polling-targets", nargs="*",
                             choices=haplib.BasePoller.ACTIONS,

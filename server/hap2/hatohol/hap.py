@@ -33,6 +33,8 @@ import errno
 import time
 import traceback
 import multiprocessing
+import argparse
+import ConfigParser
 from hatohol import hapcommon
 
 logger = getLogger("hatohol.hap:%s" % hapcommon.get_top_file_name())
@@ -64,13 +66,13 @@ def initialize_logger(parser=None):
 
 
 def setup_logger(args):
+    if args.log_conf_file is not None:
+        logging.config.fileConfig(args.log_conf_file)
+
     numeric_level = getattr(logging, args.loglevel.upper(), None)
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % loglevel)
     getLogger("hatohol").setLevel(numeric_level)
-
-    if args.log_conf_file is not None:
-        logging.config.fileConfig(args.log_conf_file)
 
 
 def handle_exception(raises=(SystemExit,)):
@@ -97,16 +99,6 @@ def handle_exception(raises=(SystemExit,)):
         raise
     return exctype, value
 
-
-class Signal:
-    """
-    This class is supposed to raise as an exception in order to
-    propagate some events and jump over stack frames.
-    """
-
-    def __init__(self, restart=False, critical=False):
-        self.restart = restart
-        self.critical = critical
 
 def _handle_ioerr(e, timeout, expired_time):
     if e.errno != errno.EINTR:
@@ -140,5 +132,55 @@ def MultiprocessingQueue(queue_class=multiprocessing.Queue):
     q.get = __get
     return q
 
+
 def MultiprocessingJoinableQueue():
     return MultiprocessingQueue(multiprocessing.JoinableQueue)
+
+
+class Signal:
+    """
+    This class is supposed to raise as an exception in order to
+    propagate some events and jump over stack frames.
+    """
+
+    def __init__(self, restart=False, critical=False):
+        self.restart = restart
+        self.critical = critical
+
+
+class ConfigFileParser():
+    def __init__(self, conf_path, remaining_args, parser):
+        config_parser = ConfigParser.SafeConfigParser(allow_no_value=True)
+        config_parser.read(conf_path)
+        self.item_dict = dict(config_parser.items("hap2"))
+        self.parser = argparse.ArgumentParser(parents=[parser])
+        self.group = self.parser.add_argument_group("Variables")
+        self.remaining_args = remaining_args
+
+    def add_argument(self, *args, **kwargs):
+        default_value = None
+        if kwargs.has_key("default"):
+            default_value = kwargs.pop("default")
+
+        for arg in args:
+            arg_name = self.__remove_and_replace_hyphen(arg)
+            if self.item_dict.has_key(arg_name):
+                default_value = self.item_dict[arg_name]
+                break
+            else:
+                continue
+
+        if kwargs.has_key("type") and default_value:
+            default_value = kwargs["type"](default_value)
+        if not default_value:
+            default_value = None
+        self.group.add_argument(default=default_value, *args, **kwargs)
+
+    def parse_args(self):
+        return self.parser.parse_args(self.remaining_args)
+
+    def __remove_and_replace_hyphen(self, argument_name):
+        while argument_name[0] == "-":
+            argument_name = argument_name[1:]
+
+        return argument_name.replace("-", "_")

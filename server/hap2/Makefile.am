@@ -12,6 +12,7 @@ hatohol_hap2_DATA = \
 	hap2-control-functions.sh
 
 pkgsysconf_DATA = \
+	hap2.conf \
 	hap2-logging.conf
 pkgsysconfdir = $(sysconfdir)/$(PACKAGE)
 
@@ -50,6 +51,7 @@ nobase_hatohol_hap2_SCRIPTS = \
 
 EXTRA_DIST = \
 	hap2-control-functions.sh.in \
+	hap2.conf \
 	hap2-logging.conf \
 	$(hatohol_hap2_SCRIPTS) \
 	$(hatohol_hap2_DATA) \
