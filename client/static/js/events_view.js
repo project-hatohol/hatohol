@@ -119,10 +119,10 @@ var EventsView = function(userProfile, options) {
       header: gettext("Brief"),
       body: renderTableDataEventDescription,
     },
-    "duration": {
-      header: gettext("Duration"),
-      body: renderTableDataEventDuration,
-    },
+//    "duration": {
+//      header: gettext("Duration"),
+//      body: renderTableDataEventDuration,
+//    },
     "incidentStatus": {
       header: gettext("Handling"),
       body: renderTableDataIncidentStatus,
