@@ -119,10 +119,12 @@ var EventsView = function(userProfile, options) {
       header: gettext("Brief"),
       body: renderTableDataEventDescription,
     },
-    "duration": {
-      header: gettext("Duration"),
-      body: renderTableDataEventDuration,
-    },
+// The following lines were hidden temporary.
+// After release 16.04, we add new API to Hatohol server and re-display this column.
+//    "duration": {
+//      header: gettext("Duration"),
+//      body: renderTableDataEventDuration,
+//    },
     "incidentStatus": {
       header: gettext("Handling"),
       body: renderTableDataIncidentStatus,
