@@ -673,6 +673,20 @@ void test_eventsWithTimeRange(void)
 		     eventsArg);
 }
 
+void test_eventsWithHostname(void)
+{
+	AssertGetEventsArg eventsArg(NULL);
+	eventsArg.excludeDefunctServers = true;
+	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	eventsArg.sortType = EventsQueryOption::SORT_TIME;
+	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
+	eventsArg.hostname = "hostX1";
+	eventsArg.fixup();
+
+	assertEvents("/event?hostname=hostX1",
+		     eventsArg);
+}
+
 void test_items(void)
 {
 	assertItems("/item");
