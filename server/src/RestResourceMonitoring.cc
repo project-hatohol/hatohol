@@ -129,7 +129,7 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	ServerHostDefVect svHostDefs;
 	HostsQueryOption option(job->m_dataQueryContextPtr);
 	option.setTargetServerId(svInfo.id);
-	option.setStatus(HOST_STAT_NORMAL);
+	option.setStatusSet({HOST_STAT_NORMAL});
 	err = dataStore->getServerHostDefs(svHostDefs, option);
 	if (err != HTERR_OK)
 		return err;

@@ -224,7 +224,7 @@ class APIForTest:
 
         return test_host_groups
 
-    def get_triggers(self, request_since=None, host_id=None):
+    def get_triggers(self, request_since=None, host_ids=None):
         test_triggers = [{"extendedInfo": "sample extended info",
                           "brief": "example brief",
                           "hostName": "exampleName",

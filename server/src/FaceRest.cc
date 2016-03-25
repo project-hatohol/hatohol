@@ -948,7 +948,7 @@ static void addHostsMap(
 	// TODO:
 	// This is a workaround to show host name that was deleted in the
 	// Event page. We should save host name in Event table.
-	option.setStatus(HOST_STAT_ALL);
+	option.setStatusSet({HOST_STAT_NORMAL, HOST_STAT_SELF_MONITOR});
 
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	THROW_HATOHOL_EXCEPTION_IF_NOT_OK(

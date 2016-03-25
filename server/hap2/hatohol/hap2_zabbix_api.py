@@ -84,14 +84,19 @@ class ZabbixAPIConductor(object):
         if self.__trigger_last_info is None:
             self.__trigger_last_info = self.get_last_info("trigger")
 
-        triggers = self.__api.get_triggers(self.__trigger_last_info, host_ids)
+        if fetch_id is not None:
+            update_type = "ALL"
+            triggers = self.__api.get_triggers(host_ids=host_ids)
+        else:
+            update_type = "UPDATED"
+            triggers = self.__api.get_triggers(self.__trigger_last_info, host_ids)
+
         if not len(triggers):
             return
 
         self.__trigger_last_info = \
             hapcommon.get_biggest_num_of_dict_array(triggers,
                                                     "lastChangeTime")
-        update_type = "ALL" if fetch_id is not None else "UPDATED"
 
         self.divide_and_put_data(self.put_triggers, triggers,
                            update_type=update_type,

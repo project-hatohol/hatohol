@@ -595,7 +595,7 @@ void test_procedureHandlerPutHosts(void)
 	DBTablesHost &dbHost = cache.getHost();
 	ServerHostDefVect hostDefVect;
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setStatus(HOST_STAT_NORMAL);
+	option.setStatusSet({HOST_STAT_NORMAL});
 	option.setTargetServerId(monitoringServerInfo.id);
 	dbHost.getServerHostDefs(hostDefVect, option);
 	string actualOutput;
@@ -641,7 +641,7 @@ void test_procedureHandlerPutHostsInvalidJSON(void)
 	DBTablesHost &dbHost = cache.getHost();
 	ServerHostDefVect hostDefVect;
 	HostsQueryOption option(USER_ID_SYSTEM);
-	option.setStatus(HOST_STAT_NORMAL);
+	option.setStatusSet({HOST_STAT_NORMAL});
 	option.setTargetServerId(monitoringServerInfo.id);
 	dbHost.getServerHostDefs(hostDefVect, option);
 	cppcut_assert_equal(hostDefVect.size(), static_cast<size_t>(0));
