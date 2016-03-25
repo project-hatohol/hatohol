@@ -212,18 +212,18 @@ var ActionsView = function(userProfile) {
 
       var triggerStatus = actionDef.triggerStatus;
       var triggerStatusLabel = "ANY";
-      if (triggerStatus !== undefined)
+      if (triggerStatus !== null)
         triggerStatusLabel = makeTriggerStatusLabel(triggerStatus);
       s += "<td>" + triggerStatusLabel + "</td>";
 
       var triggerSeverity = actionDef.triggerSeverity;
       var severityLabel = "ANY";
-      if (triggerSeverity !== undefined)
+      if (triggerSeverity !== null)
         severityLabel = makeSeverityLabel(triggerSeverity);
 
       var severityCompType = actionDef.triggerSeverityComparatorType;
       var severityCompLabel = "";
-      if (triggerSeverity !== undefined)
+      if (triggerSeverity !== null)
         severityCompLabel = makeSeverityCompTypeLabel(severityCompType);
 
       s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
