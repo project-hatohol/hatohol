@@ -36,6 +36,9 @@
       <button type="button" class="btn btn-info latest-button">
         <span class="glyphicon glyphicon-refresh"></span>
       </button>
+      <button class="btn btn-default" data-toggle="modal" data-target="#triggers-view-config">
+        <i class="glyphicon  glyphicon-cog"></i> {% trans "Config" %}
+      </button>
     </div>
   </div>
 
@@ -155,6 +158,53 @@
     <ul class="pagination">
     </ul>
   </div>
+
+  <div class="modal fade" id="triggers-view-config" tabindex="-1" role="dialog"
+       aria-labelledby="triggers-view-config-label">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+	  </button>
+          <h4 class="modal-title" id="triggers-view-config-label">{% trans "Triggers Page Setting" %}</h4>
+	</div>
+	<div class="modal-body">
+
+	  <!--
+	  <ul id="config-tab-list" class="nav nav-tabs">
+	    <li class="active"><a href="#view-config" data-toggle="tab">{% trans "View" %}</a></li>
+	  </ul>
+	  -->
+	  <div class="tab-content">
+	    <div class="tab-pane fade in active" id="view-config">
+	      <div class="boxed-group">
+		<p><label for="auto-reload-interval">{% trans "Auto reload interval (5 - 600 sec)" %}</p>
+		<p>
+		  <div id="auto-reload-interval-slider"></div>
+		  <span style="float: right;">
+		    <input id="auto-reload-interval" type="text" class="form-control">
+		    <label class="unit">{% trans "seconds" %}</label>
+		  </span>
+		</p>
+	      </div>
+	      <hr>
+	      <p>
+		<span>
+		  <label for="num-rows-per-page">{% trans "Number of rows per page" %}</label>
+		</span>
+		<span style="float: right;">
+		  <input id="num-rows-per-page" type="text" class="form-control">
+		  <label class="unit">{% trans "rows" %}</label>
+		</span>
+	      </p>
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
 
