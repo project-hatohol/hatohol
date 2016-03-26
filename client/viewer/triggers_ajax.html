@@ -126,12 +126,6 @@
       </div>
 
     </div>
-    <div class="outer-accordion-container">
-      <div class="pull-left">
-        <label for="num-records-per-page">{% trans "# of triggers per page" %}</label>
-        <input type="text" id="num-records-per-page" class="form-control num-records-per-page" style="width:4em;">
-      </div>
-    </div>
   </form>
 
   <div class="hatohol-pager">
@@ -201,6 +195,14 @@
 	    </div>
 	  </div>
 	</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+	    {% trans "Cancel" %}
+	  </button>
+          <button id="config-save" type="button" class="btn btn-primary">
+	    {% trans "Save changes" %}
+	  </button>
+        </div>
       </div>
     </div>
   </div>
@@ -214,6 +216,7 @@
 
 {% block logic %}
   <script src="{{ STATIC_URL }}js/triggers_view.js"></script>
+  <script src="{{ STATIC_URL }}js/hatohol_triggers_view_config.js"></script>
   <script type="text/javascript">
     userProfile.addOnLoadCb(function() {
       var view = new TriggersView(userProfile);

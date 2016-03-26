@@ -73,20 +73,17 @@ var TriggersView = function(userProfile, options) {
 
   function loadUserConfig() {
     var deferred = new $.Deferred();
-    self.userConfig.get({
-      itemNames:['num-triggers-per-page'],
-      successCallback: function(conf) {
-        self.baseQuery.limit =
-          self.userConfig.findOrDefault(conf, 'num-triggers-per-page',
-                                        self.baseQuery.limit);
+    self.userConfig = new HatoholTriggersViewConfig({
+      loadedCallback: function(config) {
+        applyConfig(config);
         updatePager();
         setupFilterValues();
         setupCallbacks();
         deferred.resolve();
       },
-      connectErrorCallback: function(XMLHttpRequest) {
-        showXHRError(XMLHttpRequest);
-        deferred.reject();
+      savedCallback: function(config) {
+        applyConfig(config);
+        load();
       },
     });
     return deferred.promise();
@@ -146,22 +143,9 @@ var TriggersView = function(userProfile, options) {
     return deferred.promise();
   }
 
-  function showXHRError(XMLHttpRequest) {
-    var errorMsg = "Error: " + XMLHttpRequest.status + ": " +
-      XMLHttpRequest.statusText;
-    hatoholErrorMsgBox(errorMsg);
-  }
-
-  function saveConfig(items) {
-    self.userConfig.store({
-      items: items,
-      successCallback: function() {
-        // we just ignore it
-      },
-      connectErrorCallback: function(XMLHttpRequest) {
-        showXHRError(XMLHttpRequest);
-      },
-    });
+  function applyConfig(config) {
+    self.reloadIntervalSeconds = config.getValue('triggers.auto-reload.interval');
+    self.baseQuery.limit = config.getValue('triggers.num-rows-per-page');
   }
 
   function updatePager() {
@@ -169,10 +153,8 @@ var TriggersView = function(userProfile, options) {
       numTotalRecords: rawData ? rawData["totalNumberOfTriggers"] : -1,
       numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
-        if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
+        if (self.pager.numRecordsPerPage != self.baseQuery.limit)
           self.baseQuery.limit = self.pager.numRecordsPerPage;
-          saveConfig({'num-triggers-per-page': self.baseQuery.limit});
-        }
         load({page: page});
       }
     });
