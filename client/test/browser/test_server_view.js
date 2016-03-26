@@ -160,10 +160,8 @@ describe('ServerView', function() {
     var view = new ServersView(userProfile);
     respond();
 
-    var hostnameColumn = $('td.server-url-link');
-    var ipAddressColumn = $('td.server-ip-link');
-    expect(hostnameColumn).to.have.length(expectedVisibleLinkNums);
-    expect(ipAddressColumn).to.have.length(expectedVisibleLinkNums);
+    var nicknameColumn = $('td.server-url-link');
+    expect(nicknameColumn).to.have.length(expectedVisibleLinkNums);
   }
 
   function checkGetStatusLabel(stat, expectMsg, expectMsgClass) {
