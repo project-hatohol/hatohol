@@ -17,7 +17,7 @@
   }
 
   function pushWarning() {
-    importantEventCount ++;
+    importantEventCount = $("#numOfUnAssignedEvents").text() * 1;
     if (importantEventCount > 0) {
       notify.createNotification(
         gettext('Failure has occurred.'),
