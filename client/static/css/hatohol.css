@@ -501,18 +501,18 @@ html {
     padding-left: 15px;
 }
 
-#eventHeaderSummary {
+#summaryBar {
   position: absolute;
   left: 0px;
   top: 64px;
   width: 100%;
 }
 
-#eventHeaderSummary #SummarySidebar {
+#summaryBar {
   margin: 0 0 0 152px;
 }
 
-#eventHeaderSummary #SummarySidebar > button {
+#summaryBar > button {
   float: left;
   height: 48px;
   line-height: 48px;
@@ -530,20 +530,20 @@ html {
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f2f2f2',GradientType=0 );
 }
 
-#eventHeaderSummary #SummarySidebar > button:first-child {
+#summaryBar > button:first-child {
   border-left: #cccccc solid 1px;
 }
 
-#eventHeaderSummary #SummarySidebar > button:hover {
+#summaryBar > button:hover {
   text-decoration: underline;
 }
 
-#eventHeaderSummary #SummarySidebar > button.on,
-#eventHeaderSummary #SummarySidebar > button:focus {
+#summaryBar > button.on,
+#summaryBar > button:focus {
   background: #e3e3e3;
 }
 
-#eventHeaderSummary #SummarySidebar button .badge {
+#summaryBar button .badge {
   margin-left: 3px;
   font-size: 12px;
   font-weight: bold;
@@ -551,13 +551,13 @@ html {
   color: #fffff;
 }
 
-#eventHeaderSummary #SummarySidebar > button.on .badge,
-#eventHeaderSummary #SummarySidebar > button:focus .badge {
+#summaryBar > button.on .badge,
+#summaryBar > button:focus .badge {
   background: #ffffff;
   color: #666666;
 }
 
-#eventHeaderSummary #select-summary-filter {
+#summaryBar #select-summary-filter {
   position: relative;
   left: 10px;
   top: 7px;
@@ -565,17 +565,17 @@ html {
   font-size: 12px;
 }
 
-#eventHeaderSummary #eventHeaderSummaryRight {
+#summaryBar #summaryBarRight {
   position: absolute;
-  right: 15px;
+  right: 170px;
   top: 7px;
 }
 
-#eventHeaderSummary #eventHeaderSummaryRight > * {
+#summaryBar #summaryBarRight > * {
   float: left;
 }
 
-#eventHeaderSummary #eventHeaderSummaryRight > #update-time-wrap {
+#summaryBar #summaryBarRight > #update-time-wrap {
   display: inline-block;
   background: #ffffff;
   border: #dddddd solid 1px;
@@ -586,7 +586,7 @@ html {
   white-space: nowrap;
 }
 
-#eventHeaderSummary #eventHeaderSummaryRight > #update-time-wrap > #update-time {
+#summaryBar #summaryBarRight > #update-time-wrap > #update-time {
   position: static;
   display: inline-block;
   height: 32px;
@@ -595,7 +595,7 @@ html {
   font-style: italic;
 }
 
-#eventHeaderSummary #eventHeaderSummaryRight > .latest-button {
+#summaryBar #summaryBarRight > .latest-button {
   margin: 0 10px 0 0;
   color: #333333;
   background-color: #e3e3e3;
