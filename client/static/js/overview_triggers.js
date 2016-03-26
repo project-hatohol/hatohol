@@ -39,7 +39,12 @@ var OverviewTriggers = function(userProfile) {
 
   self.setupHostQuerySelectorCallback(
     load, '#select-server', '#select-host-group', '#select-host');
+
   $("#select-severity, #select-status").change(function() {
+    load();
+  });
+
+  $('button.latest-button').click(function() {
     load();
   });
 

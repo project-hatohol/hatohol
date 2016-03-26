@@ -45,6 +45,10 @@ var OverviewItems = function(userProfile) {
     load();
   });
 
+  $('button.latest-button').click(function() {
+    load();
+  });
+
   function parseData(replyData) {
     var parsedData = {};
     var nickName, hostName, itemName;
