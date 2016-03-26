@@ -4,7 +4,7 @@
   var importantEventCount = 0;
   var noMonitoringTime = 0;
   var timeLimit = 10;
-  var pushInterval = 20;
+  var pushInterval = 35;
 
   function severityMonitor() {
     noMonitoringTime ++;
