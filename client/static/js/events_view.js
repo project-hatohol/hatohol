@@ -1305,15 +1305,18 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataUserCommentButton(event, server) {
     var html = "";
+    var incident = event["incident"];
 
     html += "<td class='" + getSeverityClass(event) + "'>";
-    html += "<span class='userCommentButton'>";
-    if (!event["incident"]["commentCount"])
-      html += "<span class='glyphicon glyphicon-pencil'></span>";
-    else
-      html += "<span class='userCommentCount'>" + event["incident"]["commentCount"] + "</span>";
-    html += "<span class='glyphicon glyphicon-remove'></span>";
-    html += "</span>";
+    if (incident) {
+      html += "<span class='userCommentButton'>";
+      if (!event["incident"]["commentCount"])
+        html += "<span class='glyphicon glyphicon-pencil'></span>";
+      else
+        html += "<span class='userCommentCount'>" + incident["commentCount"] + "</span>";
+      html += "<span class='glyphicon glyphicon-remove'></span>";
+      html += "</span>";
+    }
     html += "</td>";
 
     return html;
