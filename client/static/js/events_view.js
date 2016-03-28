@@ -166,7 +166,6 @@ var EventsView = function(userProfile, options) {
   }
 
   function start() {
-    $('#update-time').appendTo('#update-time-wrap');
     $.when(loadUserConfig(), loadSeverityRank(), loadCustomIncidentStatus()).done(function() {
       self.userConfig.setFilterCandidates(eventPropertyChoices);
       load();
