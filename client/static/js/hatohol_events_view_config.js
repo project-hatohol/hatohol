@@ -435,7 +435,7 @@ HatoholEventsViewConfig.prototype.getDefaultConfig = function() {
     'events.num-rows-per-page': "300",
     'events.columns':
       "incidentStatus,type,severity,time," +
-      "monitoringServerName,hostName,description",
+      "monitoringServerName,hostName,description,userComment",
     'events.sort.type': "time",
     'events.sort.order': "" + hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
     'events.default-filter-id': "0",
