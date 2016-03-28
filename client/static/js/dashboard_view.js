@@ -29,6 +29,10 @@ var DashboardView = function(userProfile) {
 
   load();
 
+  $('button.latest-button').click(function() {
+    load();
+  });
+
   function parseData(replyData) {
     var parsedData = {};
     var serverStatus, hostStatus, systemStatus;

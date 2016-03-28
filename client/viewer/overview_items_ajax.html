@@ -28,6 +28,17 @@
 <div id="main">
   <h2>{% trans "Overview : Items" %}</h2>
 
+  <div id="summaryBar">
+    <div id="summaryBarRight">
+      <div id="update-time-wrap">
+	<div id="update-time"> {% trans "Last Update:"%} None </div>
+      </div>
+      <button type="button" class="btn btn-info latest-button">
+        <span class="glyphicon glyphicon-refresh"></span>
+      </button>
+    </div>
+  </div>
+
   <form class="form-inline hatohol-filter-toolbar">
     <!-- Not supported yet
     <label>{% trans "Minimum Severity:" %}</label>

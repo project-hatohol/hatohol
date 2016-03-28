@@ -102,6 +102,10 @@ var LatestView = function(userProfile) {
   function setupCallbacks() {
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host', '#select-application');
+
+    $('button.latest-button').click(function() {
+      load();
+    });
   }
 
   function parseData(replyData) {

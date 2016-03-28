@@ -29,30 +29,30 @@
 
   <h2 style="margin-left: 20px;">{% trans "Event" %}</h2>
 
-  <div id="eventHeaderSummary">
-    <div id="SummarySidebar">
-      <button>
-        {% trans "All Events" %}
-      </button>
-      <button>
-        {% trans "Unhandled Important Events" %}<span class="badge" id="numOfUnAssignedEvents">N/A</span>
-      </button>
-      <button>
-        {% trans "Important Events" %}<span class="badge" id="numOfImportantEvents">N/A</span>
-      </button>
-      <button style="display: none;">
-        {% trans "Hosts with important events" %}<span class="badge" id="numOfImportantEventOccurredHosts">N/A</span>
-      </button>
-      <select id="select-summary-filter" class="form-control"></select>
-      <div id="eventHeaderSummaryRight">
-        <div id="update-time-wrap"></div>
-        <button type="button" class="btn btn-info latest-button">
-          <span class="glyphicon glyphicon-refresh"></span>
-        </button>
-        <button class="btn btn-default" data-toggle="modal" data-target="#events-view-config">
-          <i class="glyphicon  glyphicon-cog"></i> {% trans "Config" %}
-        </button>
+  <div id="summaryBar">
+    <button>
+      {% trans "All Events" %}
+    </button>
+    <button>
+      {% trans "Unhandled Important Events" %}<span class="badge" id="numOfUnAssignedEvents">N/A</span>
+    </button>
+    <button>
+      {% trans "Important Events" %}<span class="badge" id="numOfImportantEvents">N/A</span>
+    </button>
+    <button style="display: none;">
+      {% trans "Hosts with important events" %}<span class="badge" id="numOfImportantEventOccurredHosts">N/A</span>
+    </button>
+    <select id="select-summary-filter" class="form-control"></select>
+    <div id="summaryBarRight">
+      <div id="update-time-wrap">
+	<div id="update-time"> {% trans "Last Update:"%} None </div>
       </div>
+      <button type="button" class="btn btn-info latest-button">
+        <span class="glyphicon glyphicon-refresh"></span>
+      </button>
+      <button class="btn btn-default" data-toggle="modal" data-target="#events-view-config">
+        <i class="glyphicon  glyphicon-cog"></i> {% trans "Config" %}
+      </button>
     </div>
   </div>
 
