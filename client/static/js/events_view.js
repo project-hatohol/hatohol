@@ -44,7 +44,6 @@ var EventsView = function(userProfile, options) {
   self.isFilteringOptionsUsed = false;
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
-  self.abbreviateDescriptionLength = 30;
 
   setupSelectPickers();
   setupEventsTable();
@@ -1070,11 +1069,7 @@ var EventsView = function(userProfile, options) {
     } catch(e) {
     }
 
-    if ($("#toggle-abbreviating-event-descriptions").is(":checked")) {
-      return name ? abbreviateDescription(name) : abbreviateDescription(event["brief"]);
-    } else {
-      return name ? name : event["brief"];
-    }
+    return name ? name : event["brief"];
   }
 
   function getIncident(event) {
