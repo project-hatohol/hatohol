@@ -119,6 +119,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_version.js \
 	static/js/hatohol_item_update.js \
 	static/js/hatohol_events_view_config.js \
+	static/js/hatohol_triggers_view_config.js \
 	viewer/urls.py \
 	viewer/__init__.py \
 	viewer/models.py \
