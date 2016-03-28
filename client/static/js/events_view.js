@@ -376,6 +376,7 @@ var EventsView = function(userProfile, options) {
   function getEventsQueryInURI() {
     var knownKeys = [
       "serverId", "hostgroupId", "hostId",
+      "hostname", "hostgroupName",
       "limit", "offset", "limitOfUnifiedId",
       "sortType", "sortOrder",
       "type", "minimumSeverity", "status", "triggerId",
@@ -488,6 +489,8 @@ var EventsView = function(userProfile, options) {
     $("#select-server").val("");
     $("#select-host-group").val("");
     $("#select-host").val("");
+    $("#select-hostname").val("");
+    $("#select-host-group-name").val("");
 
     refreshSelectPickers();
   }
@@ -669,6 +672,8 @@ var EventsView = function(userProfile, options) {
     $("#select-server").selectpicker('refresh');
     $("#select-host-group").selectpicker('refresh');
     $("#select-host").selectpicker('refresh');
+    $("#select-hostname").selectpicker('refresh');
+    $("#select-host-group-name").selectpicker('refresh');
   }
 
   function setupCallbacks() {
@@ -955,6 +960,8 @@ var EventsView = function(userProfile, options) {
     $("#select-server").selectpicker();
     $("#select-host-group").selectpicker();
     $("#select-host").selectpicker();
+    $("#select-hostname").selectpicker();
+    $("#select-host-group-name").selectpicker();
     $("#select-filter").selectpicker();
   }
 
@@ -967,6 +974,8 @@ var EventsView = function(userProfile, options) {
       $("#select-type").attr("disabled", "disabled");
       $("#select-server").attr("disabled", "disabled");
       $("#select-host").attr("disabled", "disabled");
+      $("#select-hostname").attr("disabled", "disabled");
+      $("#select-host-group-name").attr("disabled", "disabled");
       $("#select-filter").attr("disabled", "disabled");
       $(".latest-button").attr("disabled", "disabled");
     } else {
@@ -978,6 +987,8 @@ var EventsView = function(userProfile, options) {
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
+      $("#select-hostname").removeAttr("disabled");
+      $("#select-host-group-name").removeAttr("disabled");
       $("#select-filter").removeAttr("disabled");
       $(".latest-button").removeAttr("disabled");
     }
