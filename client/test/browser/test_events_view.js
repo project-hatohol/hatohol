@@ -419,7 +419,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     respond(eventsJson(dummyEventInfo, getDummyHAPI2ZabbixServerInfo()));
     expect($('tr').eq(0).text()).to.be(
-      "HandlingStatusSeverityDate and Time Monitoring ServerHostBriefShow Full Text");
+      "HandlingStatusSeverityDate and Time Monitoring ServerHostBriefShow Full TextComment");
     expect($('tr').eq(1).text()).to.be(
       " ProblemInformation" + getEventTimeString(dummyEventInfo[0]) +
       "ServerHostTest description.");
