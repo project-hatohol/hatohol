@@ -1213,7 +1213,7 @@ void test_eventsWithHostgroupNameFilter(void)
 	}
 	string expected = contents;
 	expected.erase(remove(expected.begin(), expected.end(), '\n'), expected.end());
-	cppcut_assert_equal(expected, arg.response);
+	assertEqualJSONString(expected, arg.response);
 }
 
 void test_getNumberOfEvents(void)
