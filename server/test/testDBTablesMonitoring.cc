@@ -1985,6 +1985,39 @@ void test_getEventsSelectByIncidentStatuses(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_getEventsSelectByEmptyIncidentStatus(void)
+{
+	loadTestDBServerHostDef();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+	loadTestDBEvents();
+	loadTestDBIncidents();
+
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+
+	EventsQueryOption option(USER_ID_SYSTEM);
+	set<string> statuses;
+	statuses.insert("");
+	option.setIncidentStatuses(statuses);
+
+	EventInfoList events;
+	dbMonitoring.getEventInfoList(events, option, NULL);
+	string actual = sortedJoin(events);
+	string expected(
+	  "1|3|1389123457|0|0|3|1|1|11|235013|hostX2|TEST Trigger 1b|\n"
+	  "2147418113|1|1362957117|0|1|3|1|1|4293844428|10002|defunctSv1Host1|"
+	    "defunctSv1Host1 material|\n"
+	  "3|1|1362957200|0|0|2|1|2|35|10001|hostZ1|TEST Trigger 2|"
+	    "{\"expandedDescription\":\"Test Trigger on hostZ1\"}\n"
+	  "3|2|1362958000|0|0|3|1|1|41|10002|hostZ2|TEST Trigger 3|\n"
+	  "3|3|1390000000|123456789|1|2|1|2|35|10001|hostZ1|TEST Trigger 2|"
+	    "{\"expandedDescription\":\"Test Trigger on hostZ1\"}\n"
+	  "3|4|1390000100|123456789|2|4|2|4|41|10002|hostZ2|"
+	    "Status:Unknown, Severity:Critical|\n"
+);
+	cppcut_assert_equal(expected, actual);
+}
+
 void test_getSystemInfo(void)
 {
 	DataQueryOption option(findUserWith(OPPRVLG_GET_SYSTEM_INFO));
