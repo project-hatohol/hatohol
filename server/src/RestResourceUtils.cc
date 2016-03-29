@@ -337,6 +337,13 @@ HatoholError RestResourceUtils::parseEventParameter(
 		return err;
 	option.setTriggerId(triggerId);
 
+	// target hostname
+	const char *targetHostname =
+		static_cast<const char*>(g_hash_table_lookup(query, "hostname"));
+	if (targetHostname && *targetHostname) {
+		option.setHostnameList({targetHostname});
+	}
+
 	// sort type
 	EventsQueryOption::SortType sortType = EventsQueryOption::SORT_TIME;
 	err = parseSortTypeFromQuery(sortType, query);

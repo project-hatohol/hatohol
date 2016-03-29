@@ -673,6 +673,20 @@ void test_eventsWithTimeRange(void)
 		     eventsArg);
 }
 
+void test_eventsWithHostname(void)
+{
+	AssertGetEventsArg eventsArg(NULL);
+	eventsArg.excludeDefunctServers = true;
+	eventsArg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	eventsArg.sortType = EventsQueryOption::SORT_TIME;
+	eventsArg.sortDirection = EventsQueryOption::SORT_DESCENDING;
+	eventsArg.hostname = "hostX1";
+	eventsArg.fixup();
+
+	assertEvents("/event?hostname=hostX1",
+		     eventsArg);
+}
+
 void test_items(void)
 {
 	assertItems("/item");
@@ -1174,6 +1188,31 @@ void test_eventsWithIncidentStatusesFilter(void)
 
 	expected += getExpectedServers() + ",";
 	expected += getExpectedIncidentTrackers() + "}";
+	assertEqualJSONString(expected, arg.response);
+}
+
+void test_eventsWithHostgroupNameFilter(void)
+{
+	loadTestDBEvents();
+	loadTestDBServerHostDef();
+	loadTestDBHostgroup();
+	loadTestDBHostgroupMember();
+	startFaceRest();
+
+	RequestArg arg("/event?hostgroupName=Monitor+Servers");
+	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
+	getServerResponse(arg);
+	gchar *contents = NULL;
+	gsize length;
+	string path = getFixturesDir() + "events-with-hostgroup-name-filter-response.json";
+	gboolean succeeded =
+		g_file_get_contents(path.c_str(), &contents, &length, NULL);
+	if (!succeeded) {
+		THROW_HATOHOL_EXCEPTION("Failed to read file: %s",
+					path.c_str());
+	}
+	string expected = contents;
+	expected.erase(remove(expected.begin(), expected.end(), '\n'), expected.end());
 	assertEqualJSONString(expected, arg.response);
 }
 

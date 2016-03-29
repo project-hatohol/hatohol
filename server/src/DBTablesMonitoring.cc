@@ -1010,6 +1010,7 @@ struct EventsQueryOption::Impl {
 	set<TriggerStatusType> triggerStatuses;
 	set<string> incidentStatuses;
 	vector<string> groupByColumns;
+	list<string> hostnameList;
 
 	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
@@ -1020,7 +1021,8 @@ struct EventsQueryOption::Impl {
 	  triggerStatus(TRIGGER_STATUS_ALL),
 	  triggerId(ALL_TRIGGERS),
 	  beginTime({0, 0}),
-	  endTime({0, 0})
+	  endTime({0, 0}),
+	  hostnameList({})
 	{
 	}
 };
@@ -1128,6 +1130,11 @@ string EventsQueryOption::getCondition(void) const
 			m_impl->endTime.tv_sec,
 			getColumnName(IDX_EVENTS_TIME_NS).c_str(),
 			m_impl->endTime.tv_nsec);
+	}
+
+	if (!m_impl->hostnameList.empty()) {
+		addCondition(condition,
+			     makeHostnameListCondition(m_impl->hostnameList));
 	}
 
 	string typeCondition;
@@ -1325,6 +1332,16 @@ void EventsQueryOption::setEndTime(const timespec &_endTime)
 	m_impl->endTime = _endTime;
 }
 
+void EventsQueryOption::setHostnameList(const list<string> &hostnameList)
+{
+	m_impl->hostnameList = hostnameList;
+}
+
+const list<string> EventsQueryOption::getHostnameList(void)
+{
+	return m_impl->hostnameList;
+}
+
 const timespec &EventsQueryOption::getEndTime(void)
 {
 	return m_impl->endTime;
@@ -1370,6 +1387,23 @@ void EventsQueryOption::setIncidentStatuses(const std::set<std::string> &statuse
 const std::set<std::string> &EventsQueryOption::getIncidentStatuses(void) const
 {
 	return m_impl->incidentStatuses;
+}
+
+string EventsQueryOption::makeHostnameListCondition(
+  const list<string> &hostnameList) const
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_EVENTS[IDX_EVENTS_HOST_NAME];
+	SeparatorInjector commaInjector(",");
+	DBTermCStringProvider rhs(*getDBTermCodec());
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (auto hostname : hostnameList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%s", rhs(hostname.c_str()));
+	}
+
+	condition += ")";
+	return condition;
 }
 
 //

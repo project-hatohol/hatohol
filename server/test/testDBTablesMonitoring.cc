@@ -278,6 +278,28 @@ void _assertTriggerInfo(const TriggerInfo &expect, const TriggerInfo &actual)
 }
 #define assertTriggerInfo(E,A) cut_trace(_assertTriggerInfo(E,A))
 
+static
+void _assertEventInfo(const EventInfo &expect, const EventInfo &actual)
+{
+	cppcut_assert_equal(expect.unifiedId, actual.unifiedId);
+	cppcut_assert_equal(expect.serverId, actual.serverId);
+	cppcut_assert_equal(expect.id, actual.id);
+	cppcut_assert_equal(expect.time.tv_sec,
+	                    actual.time.tv_sec);
+	cppcut_assert_equal(expect.time.tv_nsec,
+	                    actual.time.tv_nsec);
+	cppcut_assert_equal(expect.type, actual.type);
+	cppcut_assert_equal(expect.triggerId, actual.triggerId);
+	cppcut_assert_equal(expect.status, actual.status);
+	cppcut_assert_equal(expect.severity, actual.severity);
+	cppcut_assert_equal(expect.globalHostId, actual.globalHostId);
+	cppcut_assert_equal(expect.hostIdInServer, actual.hostIdInServer);
+	cppcut_assert_equal(expect.hostName, actual.hostName);
+	cppcut_assert_equal(expect.brief, actual.brief);
+	cppcut_assert_equal(expect.extendedInfo, actual.extendedInfo);
+}
+#define assertEventInfo(E,A) cut_trace(_assertEventInfo(E,A))
+
 static void prepareDataForAllHostgroupIds(void)
 {
 	set<HostgroupIdType> hostgroupIdSet = getTestHostgroupIdSet();
@@ -1536,6 +1558,33 @@ void test_getEventWithTimeRange(gconstpointer data)
 	arg.beginTime = {1363000000, 0};
 	arg.endTime = {1389123457, 0};
 	assertGetEventsWithFilter(arg);
+}
+
+void test_getEventWithHostnameList(void) {
+	loadTestDBEvents();
+
+	EventInfoList eventInfoList;
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setHostnameList({"hostX1"});
+	option.setSortType(EventsQueryOption::SORT_UNIFIED_ID,
+	                   DataQueryOption::SORT_ASCENDING);
+	dbMonitoring.getEventInfoList(eventInfoList, option);
+	EventInfo expectedEventInfo[] = {
+		testEventInfo[2],
+		testEventInfo[3],
+	};
+	// unifiedId is auto increment.
+	expectedEventInfo[0].unifiedId = 3;
+	expectedEventInfo[1].unifiedId = 4;
+
+	{
+		size_t i = 0;
+		for (auto eventInfo : eventInfoList) {
+			assertEventInfo(expectedEventInfo[i], eventInfo);
+			++i;
+		}
+	}
 }
 
 void data_getEventsWithIncidentInfo(void)

@@ -198,6 +198,7 @@ struct AssertGetEventsArg
 	std::map<const EventInfo *, uint64_t> idMap;
 	IncidentInfoVect actualIncidentInfoVect;
 	bool withIncidentInfo;
+	std::string hostname;
 	std::map<std::string, const IncidentInfo *> eventIncidentMap;
 
  AssertGetEventsArg(gconstpointer ddtParam,
@@ -239,6 +240,8 @@ struct AssertGetEventsArg
 			option.setBeginTime(beginTime);
 		if (endTime.tv_sec != 0 || endTime.tv_nsec)
 			option.setEndTime(endTime);
+		if (!hostname.empty())
+			option.setHostnameList({hostname});
 		option.setSortType(sortType, sortDirection);
 		option.setType(type);
 		option.setMinimumSeverity(minSeverity);
@@ -286,6 +289,11 @@ struct AssertGetEventsArg
 				return true;
 			}
 		}
+
+		if (!hostname.empty()) {
+			if (info->hostName != hostname)
+				return true;
+                }
 
 		return false;
 	}
