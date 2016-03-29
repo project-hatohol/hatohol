@@ -1175,6 +1175,7 @@ string EventsQueryOption::getCondition(void) const
 	string incidentStatusCondition;
 	for (const auto &status: m_impl->incidentStatuses) {
 		DBTermCStringProvider rhs(*getDBTermCodec());
+
 		addCondition(
 		  incidentStatusCondition,
 		  StringUtils::sprintf(
@@ -1183,6 +1184,16 @@ string EventsQueryOption::getCondition(void) const
 		    COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_STATUS].columnName,
 		    rhs(status)),
 		  ADD_TYPE_OR);
+
+		if (status.empty()) {
+			addCondition(
+			  incidentStatusCondition,
+			  StringUtils::sprintf(
+			    "%s.%s is NULL",
+			    DBTablesMonitoring::TABLE_NAME_INCIDENTS,
+			    COLUMN_DEF_INCIDENTS[IDX_INCIDENTS_STATUS].columnName),
+			  ADD_TYPE_OR);
+		}
 	}
 	if (m_impl->incidentStatuses.size() > 1)
 		incidentStatusCondition =
