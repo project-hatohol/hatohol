@@ -30,13 +30,13 @@
   <h2 style="margin-left: 20px;">{% trans "Event" %}</h2>
 
   <div id="summaryBar">
-    <button>
+    <button id="summaryAllEvents">
       {% trans "All Events" %}
     </button>
-    <button>
+    <button id="summaryUnhandledImportantEvents">
       {% trans "Unhandled Important Events" %}<span class="badge" id="numOfUnAssignedEvents">N/A</span>
     </button>
-    <button>
+    <button id="summaryImportantEvents">
       {% trans "Important Events" %}<span class="badge" id="numOfImportantEvents">N/A</span>
     </button>
     <button style="display: none;">

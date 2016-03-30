@@ -428,7 +428,7 @@ HatoholError RestResourceUtils::parseEventParameter(
 	  g_hash_table_lookup(query, "incidentStatuses"));
 	if (value && *value) {
 		StringVector values;
-		StringUtils::split(values, value, ',');
+		StringUtils::split(values, value, ',', false);
 		std::set<string> statuses;
 		for (auto &status: values)
 			statuses.insert(status);

@@ -380,6 +380,7 @@ var EventsView = function(userProfile, options) {
       "limit", "offset", "limitOfUnifiedId",
       "sortType", "sortOrder",
       "type", "minimumSeverity", "status", "triggerId",
+      "severities", "incidentStatuses",
     ];
     var i, allParams = deparam(), query = {};
     for (i = 0; i < knownKeys.length; i++) {
@@ -672,7 +673,40 @@ var EventsView = function(userProfile, options) {
     $("#select-host-group-name").selectpicker('refresh');
   }
 
+  function getImportantSeverities() {
+    var importantSeverities = [];
+    $.map(self.severityRanksMap, function(rank, key) {
+      if (rank.asImportant)
+        importantSeverities.push(key);
+    });
+    return importantSeverities;
+  }
+
   function setupCallbacks() {
+    $('#summaryAllEvents').click(function() {
+      document.location.href = "ajax_events";
+    });
+
+    $('#summaryUnhandledImportantEvents').click(function() {
+      var query = { incidentStatuses: ["NONE", "HOLD", ""].join(",") };
+      var importantSeverities = getImportantSeverities();
+
+      if (importantSeverities.length > 0)
+        query.severities = importantSeverities.join(",");
+
+      document.location.href = "ajax_events?" + $.param(query);
+    });
+
+    $('#summaryImportantEvents').click(function() {
+      var query = {};
+      var importantSeverities = getImportantSeverities();
+
+      if (importantSeverities.length > 0)
+        query.severities = importantSeverities.join(",");
+
+      document.location.href = "ajax_events?" + $.param(query);
+    });
+
     $('#select-summary-filter').change(function() {
       load();
     });
