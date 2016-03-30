@@ -42,8 +42,6 @@ void cut_setup(void)
 void cut_teardown(void)
 {
 	stopFaceRest();
-
-	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 }
 
 static void incidentInfo2StringMap(
