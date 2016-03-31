@@ -420,10 +420,10 @@ var TriggersView = function(userProfile, options) {
       html += "<td class='" + severityClass + "'>" +
         escapeHTML(hostName) + "</td>";
       html += "<td class='" + severityClass + "'>" +
-	"<a href='ajax_events?serverId=" + escapeHTML(serverId) +
-	"&triggerId=" + escapeHTML(trigger["id"]) + "'>" +
-	escapeHTML(triggerName) +
-	"</a></td>";
+        "<a href='ajax_events?serverId=" + escapeHTML(serverId) +
+        "&triggerId=" + escapeHTML(trigger["id"]) + "'>" +
+        escapeHTML(triggerName) +
+        "</a></td>";
       html += "</tr>";
     }
 
