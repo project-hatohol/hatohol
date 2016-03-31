@@ -191,25 +191,22 @@ var ServersView = function(userProfile) {
              "data-container='body' " +
            ">" + escapeHTML(gettext("Checking")) + "</td>";
       s += "<td>" + makeMonitoringSystemTypeLabel(o) + "</td>";
+
       if (serverURL) {
         s += "<td class='server-url-link'><a href='" + serverURL +
-          "' target='_blank'>" + escapeHTML(o["hostName"])  + "</a></td>";
-        s += "<td class='server-ip-link'><a href='" + serverURL +
-          "' target='_blank'>" + escapeHTML(ip) + "</a></td>";
-      } else if (o["type"] == hatohol.MONITORING_SYSTEM_HAPI_CEILOMETER){
-        s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
-        s += "<td>N/A</td>";
+          "' target='_blank'>" + escapeHTML(o["nickname"])  + "</a></td>";
       } else {
-        s += "<td>" + escapeHTML(o["hostName"])  + "</td>";
-        s += "<td>" + escapeHTML(ip) + "</td>";
+        s += "<td>" + escapeHTML(o["nickname"])  + "</td>";
       }
-      s += "<td>" + escapeHTML(o["nickname"])  + "</td>";
+      s += "<td>" + escapeHTML(o["baseURL"])  + "</td>";
+
       if (mapsURL) {
         s += "<td><a href='" + mapsURL + "' target='_blank'>" +
           gettext('Show Maps') + "</a></td>";
       } else {
         s += "<td></td>";
       }
+
       s += "<td id='server-info-" + escapeHTML(serverId) + "'" +
            "  data-title='" + gettext("Server ID") + ": " + escapeHTML(serverId) + "'" +
            "  data-html=true" +
