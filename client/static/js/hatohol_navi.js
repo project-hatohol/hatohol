@@ -171,8 +171,8 @@ var HatoholNavi = function(userProfile, currentPage) {
       klass = "active";
     } else {
       title = '<a href=' + menuItem.href +
-              ' onClick="hatoholTracer.pass(HatoholTracePoint.PRE_HREF_CHANGE)"'
-              + '>' + menuItem.title + '</a>';
+              ' onClick="hatoholTracer.pass(HatoholTracePoint.PRE_HREF_CHANGE)"' +
+              '>' + menuItem.title + '</a>';
       klass = undefined;
     }
 
