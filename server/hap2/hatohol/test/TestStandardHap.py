@@ -93,8 +93,8 @@ class TestStandardHap(unittest.TestCase):
             return self.__received_ms_info
 
     def test_normal_run(self):
-        hap = self.StandardHapTestee()
         sys.argv = [sys.argv[0], "--transporter", "EzTransporter"]
+        hap = self.StandardHapTestee()
         hap()
         hap.enable_handling_sigchld(False)
         expect_ms = haplib.MonitoringServerInfo(json.loads(EzTransporter.TEST_MONITORING_SERVER_RESULT))
