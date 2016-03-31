@@ -415,6 +415,13 @@ function sortObjectArray(obj, key, order) {
   });
 }
 
+// A utility function for the link inside the Hatohol Web
+// with calling a required tracer function.
+function domesticLink(uri) {
+  hatoholTracer.pass(HatoholTracePoint.PRE_HREF_CHANGE);
+  document.location.href = uri;
+}
+
 (function(global) {
   function Namespace(str) {
     var spaces = str.split('.');
