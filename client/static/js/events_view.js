@@ -684,7 +684,7 @@ var EventsView = function(userProfile, options) {
 
   function setupCallbacks() {
     $('#summaryAllEvents').click(function() {
-      document.location.href = "ajax_events";
+      domesticLink("ajax_events");
     });
 
     $('#summaryUnhandledImportantEvents').click(function() {
@@ -694,7 +694,7 @@ var EventsView = function(userProfile, options) {
       if (importantSeverities.length > 0)
         query.severities = importantSeverities.join(",");
 
-      document.location.href = "ajax_events?" + $.param(query);
+      domesticLink("ajax_events?" + $.param(query));
     });
 
     $('#summaryImportantEvents').click(function() {
@@ -704,7 +704,7 @@ var EventsView = function(userProfile, options) {
       if (importantSeverities.length > 0)
         query.severities = importantSeverities.join(",");
 
-      document.location.href = "ajax_events?" + $.param(query);
+      domesticLink("ajax_events?" + $.param(query));
     });
 
     $('#select-summary-filter').change(function() {

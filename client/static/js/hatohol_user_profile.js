@@ -52,7 +52,7 @@ var HatoholUserProfile = function(user) {
       new HatoholConnector({
         url: '/logout',
         replyCallback: function(reply, parser) {
-          document.location.href = "ajax_dashboard";
+          domesticLink("ajax_dashboard");
         },
         parseErrorCallback: hatoholErrorMsgBoxForParser
       });
