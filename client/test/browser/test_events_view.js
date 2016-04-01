@@ -435,7 +435,7 @@ describe('EventsView', function() {
     expect($('tr').eq(0).text()).to.be(
       "SeverityStatusBriefShow Full TextHostDate and Time Monitoring Server");
     expect($('tr').eq(1).text()).to.be(
-      "02:46:40Information ProblemTest description.Host" +
+      "Information ProblemTest description.Host" +
       getEventTimeString(dummyEventInfo[0]) +
       "Server");
   });
