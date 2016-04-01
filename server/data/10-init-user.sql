@@ -1,0 +1,2 @@
+INSERT users VALUES (0, 'admin', 'ceb9c20bcd933be100cb3c387be1dd30a48292e6bc447b6358e02b8bbfddd59c', 268435455);
+INSERT users VALUES (0, 'guest', '84983c60f7daadc1cb8698621f802c0d9f9a3c3c295c810748fb048115c186ec', 0);
