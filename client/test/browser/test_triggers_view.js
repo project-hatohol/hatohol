@@ -254,7 +254,9 @@ describe('TriggersView', function() {
       formatDate(1422584694) +
       '</td>' +
       '<td class="">Zabbix_SELF</td>' +
-      '<td class=""><a href="' + eventURL + '">Failed in connecting to Zabbix.</a></td>';
+      '<td class="">' +
+      anchorTagForDomesticLink(eventURL, 'Failed in connecting to Zabbix.') +
+      '</td>';
     respond(triggersJson(defaultTriggers, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultTriggers.length + 1);
@@ -270,7 +272,10 @@ describe('TriggersView', function() {
       '<td class="status0" data-sort-value="0">OK</td>' +
       '<td class="" data-sort-value="0">-</td>' +
       '<td class="">Host2</td>' +
-      '<td class=""><a href="' + eventURL + '">Host name of zabbix_agentd was changed on TestHost0</a></td>';
+      '<td class="">' +
+      anchorTagForDomesticLink(
+        eventURL, 'Host name of zabbix_agentd was changed on TestHost0') +
+      '</td>';
     respond(triggersJson(defaultTriggers, defaultServers), "{}", "{}");
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultTriggers.length + 1);

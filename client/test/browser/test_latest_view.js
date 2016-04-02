@@ -132,7 +132,7 @@ describe('LatestView', function() {
       formatDate(1415232279) +
       '</td>' +
       '<td>54.28 %</td>' +
-      '<td><a href="' + historyURL + '">Graph</a></td>';
+      '<td>' + anchorTagForDomesticLink(historyURL, 'Graph') + '</td>';
     respond('{}', itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);
