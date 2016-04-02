@@ -632,4 +632,13 @@ describe('flags', function() {
   });
 });
 
+describe('anchorTagForDomesticLink', function() {
+  it('generates an HTML', function() {
+    var expected = '<a href="foo/x.html" ' +
+                   'onClick="domesticLink(\'foo/x.html\'); return false;">' +
+                   'link to X</a>';
+    expect(anchorTagForDomesticLink('foo/x.html', 'link to X')).to.be(expected);
+  });
+});
+
 });
