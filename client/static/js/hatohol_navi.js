@@ -170,9 +170,7 @@ var HatoholNavi = function(userProfile, currentPage) {
       title = '<a>' + menuItem.title + '</a>';
       klass = "active";
     } else {
-      title = '<a href=' + menuItem.href +
-              ' onClick="hatoholTracer.pass(HatoholTracePoint.PRE_HREF_CHANGE)"' +
-              '>' + menuItem.title + '</a>';
+      title = anchorTagForDomesticLink(menuItem.href, menuItem.title);
       klass = undefined;
     }
 
