@@ -116,7 +116,8 @@ describe("GraphsView", function() {
       '<input class="selectcheckbox" graphid="2" type="checkbox">' +
       '</td>' +
       '<td>2</td>' +
-      '<td><a href="ajax_history?id=2">Graph1</a></td>'
+      '<td>' + anchorTagForDomesticLink('ajax_history?id=2', 'Graph1') +
+      '</td>';
 
     respond(defaultGraphs);
     expect(view).to.be.a(GraphsView);
