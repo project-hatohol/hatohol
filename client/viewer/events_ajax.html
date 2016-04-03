@@ -621,6 +621,7 @@
 {% block option %}
   <script src="{{ STATIC_URL }}js.external/multiselect.min.js"></script>
   <script src="{{ STATIC_URL }}js.external/bootstrap-select.js"></script>
+  <script src="{{ STATIC_URL }}js.external/desktop-notify-min.js"></script>
 {% endblock %}
 
 {% block logic %}
@@ -641,4 +642,5 @@
       });
     }());
   </script>
+  <script src="{{ STATIC_URL }}js/push_notify.js"></script>
 {% endblock %}
