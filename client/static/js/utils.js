@@ -422,11 +422,13 @@ function domesticLink(uri) {
   document.location.href = uri;
 }
 
-function anchorTagForDomesticLink(uri, label)
+function anchorTagForDomesticLink(uri, label, klass)
 {
   tag = '<a href="' + uri + '"' +
-        ' onClick="domesticLink(\'' + uri + '\'); return false;"' +
-        '>' + label + '</a>';
+        ' onClick="domesticLink(\'' + uri + '\'); return false;"';
+  if (klass)
+    tag += ' class="' + klass + '"';
+  tag += '>' + label + '</a>';
   return tag;
 }
 
