@@ -18,6 +18,7 @@
 
 # Django settings for hatohol project.
 import os
+from hatohol.branding_settings import *
 
 PROJECT_HOME = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../..'))
@@ -195,6 +196,8 @@ LOGGING = {
 LOCALE_PATHS = (
     os.path.join(PROJECT_HOME, "conf", "locale"),
 )
+
+ENABLED_PAGES = ()
 
 import django
 if django.VERSION >= (1, 7):
