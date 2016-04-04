@@ -420,12 +420,11 @@ var TriggersView = function(userProfile, options) {
       html += "<td class='" + severityClass + "'>" +
         escapeHTML(hostName) + "</td>";
       html += "<td class='" + severityClass + "'>" +
-        "<a href='ajax_events?serverId=" + escapeHTML(serverId) +
-        "&triggerId=" + escapeHTML(trigger["id"]) + "'" +
-        " onClick='hatoholTracer.pass(HatoholTracePoint.PRE_HREF_CHANGE)'" +
-        ">" +
-        escapeHTML(triggerName) +
-        "</a></td>";
+        anchorTagForDomesticLink(
+          'ajax_events?serverId=' + escapeHTML(serverId) +
+          '&triggerId=' + escapeHTML(trigger["id"]),
+          escapeHTML(triggerName));
+        + "</td>";
       html += "</tr>";
     }
 

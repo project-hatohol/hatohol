@@ -87,9 +87,11 @@ var GraphsView = function(userProfile) {
       table += "<input class='selectcheckbox' graphID='" + graphID +
 	"' type='checkbox'></td>";
       table += "<td>" + graphID + "</td>";
-      table += "<td><a href=\"" + graphURL +  "\">" + title + "</a></td>";
-      table += "<td><a href=\"ajax_history?mode=edit&id=" + graphID + "\" " +
-        "class='btn btn-default'>" + gettext("EDIT") + "</a></td>";
+      table += "<td>" + anchorTagForDomesticLink(graphURL, title) + "</td>";
+
+      var editURL = "ajax_history?mode=edit&id=" + graphID;
+      table += "<td>" + anchorTagForDomesticLink(editURL, gettext("EDIT"),
+                                                 "btn btn-default") + "</td>";
       table += "</tr>";
     });
     return table;

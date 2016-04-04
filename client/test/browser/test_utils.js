@@ -632,4 +632,21 @@ describe('flags', function() {
   });
 });
 
+describe('anchorTagForDomesticLink', function() {
+  it('generates an HTML', function() {
+    var expected = '<a href="foo/x.html" ' +
+                   'onclick="domesticLink(\'foo/x.html\'); return false;">' +
+                   'link to X</a>';
+    expect(anchorTagForDomesticLink('foo/x.html', 'link to X')).to.be(expected);
+  });
+
+  it('handles class parameter', function() {
+    var expected = '<a href="foo/x.html" ' +
+                   'onclick="domesticLink(\'foo/x.html\'); return false;" ' +
+                   'class="btn foo X">label</a>';
+    var actual = anchorTagForDomesticLink('foo/x.html', 'label', 'btn foo X');
+    expect(actual).to.be(expected);
+  });
+});
+
 });

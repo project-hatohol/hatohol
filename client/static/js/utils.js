@@ -422,6 +422,16 @@ function domesticLink(uri) {
   document.location.href = uri;
 }
 
+function anchorTagForDomesticLink(uri, label, klass)
+{
+  tag = '<a href="' + uri + '"' +
+        ' onclick="domesticLink(\'' + uri + '\'); return false;"';
+  if (klass)
+    tag += ' class="' + klass + '"';
+  tag += '>' + label + '</a>';
+  return tag;
+}
+
 (function(global) {
   function Namespace(str) {
     var spaces = str.split('.');

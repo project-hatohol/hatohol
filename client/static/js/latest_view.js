@@ -151,10 +151,7 @@ var LatestView = function(userProfile) {
   function getGraphLink(item) {
     if (!item || !item["lastValue"] || isNaN(item["lastValue"]))
       return "";
-    var link = "<a href='" + getGraphURL(item) + "'>";
-    link += gettext("Graph");
-    link += "</a>";
-    return link;
+    return anchorTagForDomesticLink(getGraphURL(item), gettext("Graph"));
   }
 
   function drawTableBody(replyData) {
