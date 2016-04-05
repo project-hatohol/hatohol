@@ -43,8 +43,42 @@ We recommend to set '90-'.
 
 ## 3. How to provide WebUI plugin
 
+You should create WebUI plugin for JavaScript on /hatohol/client/static/js.plugin.
 
+The following codes are most simple plugin.
+
+```
+(function(hatohol) {
+    var self = hatohol.registerPlugin("Your Plugin UUID",
+                                      "Your Plugin Name", int(Plugin sort priority));
+    }(hatohol));
+
+```
 
 ## 4. How to packaging a plugin
 
+You write the followings codes for each sections of /hatohol/hatohol.spec.in.
+
+
+```
+%package hap2-nagios-livestatus
+Summary: Nagios livestatus plugins of HAPI2.0
+Group: Applications/System
+Requires: hatohol-hap2-common = %{version}
+```
+
+```
+%description hap2-nagios-livestatus
+Nagios livestatus plugin for hatohol arm plugins version 2.0.
+```
+
+%files hap2-nagios-livestatus
+%{_datadir}/hatohol/sql/90-server-type-hap2-nagios-livestatus.sql
+%{_libexecdir}/hatohol/hap2/start-stop-hap2-nagios-livestatus.sh
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.py
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.pyc
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.pyo
+
+%post hap2-nagios-livestatus
+pip install python-mk-livestatus
 
