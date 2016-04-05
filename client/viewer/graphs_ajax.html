@@ -30,12 +30,15 @@
 
   <form class="form-inline">
     <div class="btn-toolbar" role="toolbar">
-      <a href="ajax_history?mode=create"
+      {% with "ajax_history?mode=create" as url %}
+      <a href="{{ url }}"
          type="button"
+         onclick="domesticLink('{{ url }}'); return false;"
          class="btn btn-default">
         <span class="glyphicon glyphicon-plus"></span>
         {% trans "ADD" %}
       </a>
+      {% endwith %}
       <button id="delete-graph-button"
               type="button"
               class="btn btn-default"
