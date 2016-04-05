@@ -1330,8 +1330,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 		// Store devided itemInfoList into m_ItemInfoSequentialIdMapRequestIdMap.
 		itemInfoListSequentialIdMap[devideInfo.serialId] = itemList;
-		m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.insert(
-		  make_pair(devideInfo.requestId, itemInfoListSequentialIdMap));
+		m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.emplace(
+		  devideInfo.requestId, itemInfoListSequentialIdMap);
 	}
 
 	parser.endObject(); // params
