@@ -60,7 +60,7 @@ var HistoryView = function(userProfile, options) {
       if (self.grpahId)
         return;
       if (!self.config.histories || self.config.histories.length <= 0)
-        window.location.href = "ajax_graphs";
+        domesticLink("ajax_graphs");
     });
   }
 
