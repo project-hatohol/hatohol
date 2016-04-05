@@ -121,6 +121,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
+	multimap<string, map<int64_t, ItemInfoList>> m_ItemInfoListSequentialIdMapRequestIdMultiMap;
 	SelfMonitorPtr monitorPluginInternal;
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
@@ -1307,9 +1308,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList itemList;
+	ItemInfoList collectedItemList;
 	JSONRPCError errObj;
 	string fetchId;
 	DevideInfo devideInfo;
+	bool devided = false;
+	map<int64_t, ItemInfoList> itemInfoListSequentialIdMap;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1321,8 +1325,13 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	}
 	if (parser.isMember("devideInfo")) {
 		parser.startObject("devideInfo");
-		parseDevideInfo(parser, devideInfo, errObj);
+		devided = parseDevideInfo(parser, devideInfo, errObj);
 		parser.endObject(); // devideInfo
+
+		// Store devided itemInfoList into m_ItemInfoSequentialIdMapRequestIdMap.
+		itemInfoListSequentialIdMap[devideInfo.serialId] = itemList;
+		m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.insert(
+		  make_pair(devideInfo.requestId, itemInfoListSequentialIdMap));
 	}
 
 	parser.endObject(); // params
@@ -1334,7 +1343,36 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		  &errObj.getErrors(), &parser);
 	}
 
-	dataStore->addItemList(itemList);
+	if (devided && !devideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	}
+
+	if (devided) {
+		for (auto &elemPair : m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap) {
+			if (devideInfo.requestId != elemPair.first)
+				continue;
+
+			for (auto it = elemPair.second.begin(); it != elemPair.second.end(); ++it) {
+				collectedItemList.splice(collectedItemList.end(), it->second);
+				elemPair.second.erase(it);
+			}
+		}
+	}
+
+	if (devided) {
+		dataStore->addItemList(collectedItemList);
+	} else {
+		dataStore->addItemList(itemList);
+	}
 
 	if (!fetchId.empty()) {
 		m_impl->runFetchCallback(fetchId);
