@@ -1220,6 +1220,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	return builder.generate();
 }
 
+static bool parseDevideInfo(JSONParser &parser, DevideInfo &devideInfo,
+                            JSONRPCError &errObj)
+{
+	PARSE_AS_MANDATORY("isLast", devideInfo.isLast, errObj);
+	PARSE_AS_MANDATORY("serialId", devideInfo.serialId, errObj);
+	PARSE_AS_MANDATORY("requestId", devideInfo.requestId, errObj);
+
+	return true;
+}
+
 static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			    const MonitoringServerInfo &serverInfo,
 			    const HostInfoCache &hostInfoCache,
@@ -1299,6 +1309,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	ItemInfoList itemList;
 	JSONRPCError errObj;
 	string fetchId;
+	DevideInfo devideInfo;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1307,6 +1318,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	parseItemParams(parser, itemList, serverInfo, hostInfoCache, errObj);
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
+	}
+	if (parser.isMember("devideInfo")) {
+		parser.startObject("devideInfo");
+		parseDevideInfo(parser, devideInfo, errObj);
+		parser.endObject(); // devideInfo
 	}
 
 	parser.endObject(); // params
