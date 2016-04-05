@@ -56,7 +56,7 @@ var HistoryView = function(userProfile, options) {
     self.itemSelector.show();
     $('#hatohol-item-list').on('hide.bs.modal', function (e) {
       if (!isCreateMode())
-	return;
+        return;
       if (self.grpahId)
         return;
       if (!self.config.histories || self.config.histories.length <= 0)
