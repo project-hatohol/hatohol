@@ -121,7 +121,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
-	multimap<string, map<int64_t, ItemInfoList>> m_ItemInfoListSequentialIdMapRequestIdMultiMap;
+	multimap<string, pair<int64_t, ItemInfoList>> m_ItemInfoListSequentialIdMapRequestIdMultiMap;
 	SelfMonitorPtr monitorPluginInternal;
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
@@ -1313,7 +1313,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	string fetchId;
 	DevideInfo devideInfo;
 	bool devided = false;
-	map<int64_t, ItemInfoList> itemInfoListSequentialIdMap;
+	pair<int64_t, ItemInfoList> itemInfoListSequentialIdPair;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1329,9 +1329,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		parser.endObject(); // devideInfo
 
 		// Store devided itemInfoList into m_ItemInfoSequentialIdMapRequestIdMap.
-		itemInfoListSequentialIdMap[devideInfo.serialId] = itemList;
+		itemInfoListSequentialIdPair = make_pair(devideInfo.serialId, itemList);
 		m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.emplace(
-		  devideInfo.requestId, itemInfoListSequentialIdMap);
+		  devideInfo.requestId, itemInfoListSequentialIdPair);
 	}
 
 	parser.endObject(); // params
@@ -1357,14 +1357,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	}
 
 	if (devided) {
-		for (auto &elemPair : m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap) {
-			if (devideInfo.requestId != elemPair.first)
+		for (auto &elemMultiMap : m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap) {
+			if (devideInfo.requestId != elemMultiMap.first)
 				continue;
 
-			for (auto it = elemPair.second.begin(); it != elemPair.second.end(); ++it) {
-				collectedItemList.splice(collectedItemList.end(), it->second);
-				elemPair.second.erase(it);
-			}
+			collectedItemList.splice(collectedItemList.end(), elemMultiMap.second.second);
+		}
+
+		auto range =
+			m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap
+			  .equal_range(devideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
 		}
 	}
 
