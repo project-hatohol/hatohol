@@ -25,7 +25,7 @@
 #include "JSONBuilder.h"
 #include "DBTablesLastInfo.h"
 
-struct DevideInfo {
+struct DivideInfo {
 	bool isLast;
 	int64_t serialId;
 	std::string  requestId;

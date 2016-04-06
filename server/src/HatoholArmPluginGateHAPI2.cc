@@ -1228,12 +1228,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	return builder.generate();
 }
 
-static bool parseDevideInfo(JSONParser &parser, DevideInfo &devideInfo,
+static bool parseDivideInfo(JSONParser &parser, DivideInfo &divideInfo,
                             JSONRPCError &errObj)
 {
-	PARSE_AS_MANDATORY("isLast", devideInfo.isLast, errObj);
-	PARSE_AS_MANDATORY("serialId", devideInfo.serialId, errObj);
-	PARSE_AS_MANDATORY("requestId", devideInfo.requestId, errObj);
+	PARSE_AS_MANDATORY("isLast", divideInfo.isLast, errObj);
+	PARSE_AS_MANDATORY("serialId", divideInfo.serialId, errObj);
+	PARSE_AS_MANDATORY("requestId", divideInfo.requestId, errObj);
 
 	return true;
 }
@@ -1318,8 +1318,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	ItemInfoList collectedItemList;
 	JSONRPCError errObj;
 	string fetchId;
-	DevideInfo devideInfo;
-	bool devided = false;
+	DivideInfo divideInfo;
+	bool divided = false;
 	pair<SerialId, ItemInfoList> itemInfoListSequentialIdPair;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
@@ -1330,14 +1330,14 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
 	}
-	if (parser.isMember("devideInfo")) {
-		parser.startObject("devideInfo");
-		devided = parseDevideInfo(parser, devideInfo, errObj);
-		parser.endObject(); // devideInfo
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
 
-		itemInfoListSequentialIdPair = make_pair(devideInfo.serialId, itemList);
+		itemInfoListSequentialIdPair = make_pair(divideInfo.serialId, itemList);
 		m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.emplace(
-		  devideInfo.requestId, itemInfoListSequentialIdPair);
+		  divideInfo.requestId, itemInfoListSequentialIdPair);
 	}
 
 	parser.endObject(); // params
@@ -1349,7 +1349,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (devided && !devideInfo.isLast) {
+	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
 		JSONBuilder builder;
@@ -1362,9 +1362,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		return builder.generate();
 	}
 
-	if (devided) {
+	if (divided) {
 		for (auto &elemMultiMap : m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap) {
-			if (devideInfo.requestId != elemMultiMap.first)
+			if (divideInfo.requestId != elemMultiMap.first)
 				continue;
 
 			collectedItemList.splice(collectedItemList.end(), elemMultiMap.second.second);
@@ -1372,13 +1372,13 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 		auto range =
 			m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap
-			  .equal_range(devideInfo.requestId);
+			  .equal_range(divideInfo.requestId);
 		for (auto it = range.first; it != range.second; ++it) {
 			m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
 		}
 	}
 
-	if (devided) {
+	if (divided) {
 		dataStore->addItemList(collectedItemList);
 	} else {
 		dataStore->addItemList(itemList);
@@ -1438,8 +1438,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	HistoryInfoVect collectedHistoryInfoVect;
 	JSONRPCError errObj;
 	string fetchId;
-	bool devided = false;
-	DevideInfo devideInfo;
+	bool divided = false;
+	DivideInfo divideInfo;
 	pair<SerialId, HistoryInfoVect> historyInfoVectSequentialIdPair;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
@@ -1450,15 +1450,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
 	}
-	if (parser.isMember("devideInfo")) {
-		parser.startObject("devideInfo");
-		devided = parseDevideInfo(parser, devideInfo, errObj);
-		parser.endObject(); // devideInfo
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
 
-		historyInfoVectSequentialIdPair = make_pair(devideInfo.serialId,
+		historyInfoVectSequentialIdPair = make_pair(divideInfo.serialId,
 		                                            historyInfoVect);
 		m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.emplace(
-		  devideInfo.requestId, historyInfoVectSequentialIdPair);
+		  divideInfo.requestId, historyInfoVectSequentialIdPair);
 	}
 	parser.endObject(); // params
 
@@ -1469,7 +1469,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (devided && !devideInfo.isLast) {
+	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
 		JSONBuilder builder;
@@ -1482,9 +1482,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		return builder.generate();
 	}
 
-	if (devided) {
+	if (divided) {
 		for (auto &elemMultiMap : m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap) {
-			if (devideInfo.requestId != elemMultiMap.first)
+			if (divideInfo.requestId != elemMultiMap.first)
 				continue;
 
 			collectedHistoryInfoVect.insert(collectedHistoryInfoVect.end(),
@@ -1494,14 +1494,14 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 
 		auto range =
 			m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
-			  .equal_range(devideInfo.requestId);
+			  .equal_range(divideInfo.requestId);
 		for (auto it = range.first; it != range.second; ++it) {
 			m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
 		}
 	}
 
 	if (!fetchId.empty()) {
-		if (devided) {
+		if (divided) {
 			m_impl->runFetchHistoryCallback(fetchId, collectedHistoryInfoVect);
 		} else {
 			m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
@@ -1570,8 +1570,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	ServerHostDefVect hostInfoVect;
 	ServerHostDefVect collectedHostInfoVect;
 	JSONRPCError errObj;
-	DevideInfo devideInfo;
-	bool devided = false;
+	DivideInfo divideInfo;
+	bool divided = false;
 	pair<SerialId, ServerHostDefVect> hostInfoVectSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_HOST);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
@@ -1585,15 +1585,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
-	if (parser.isMember("devideInfo")) {
-		parser.startObject("devideInfo");
-		devided = parseDevideInfo(parser, devideInfo, errObj);
-		parser.endObject(); // devideInfo
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
 
-		hostInfoVectSequentialIdPair = make_pair(devideInfo.serialId,
+		hostInfoVectSequentialIdPair = make_pair(divideInfo.serialId,
 		                                         hostInfoVect);
 		m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.emplace(
-		  devideInfo.requestId, hostInfoVectSequentialIdPair);
+		  divideInfo.requestId, hostInfoVectSequentialIdPair);
 	}
 	parser.endObject(); // params
 
@@ -1604,7 +1604,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (devided && !devideInfo.isLast) {
+	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
 		JSONBuilder builder;
@@ -1617,9 +1617,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		return builder.generate();
 	}
 
-	if (devided) {
+	if (divided) {
 		for (auto &elemMultiMap : m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap) {
-			if (devideInfo.requestId != elemMultiMap.first)
+			if (divideInfo.requestId != elemMultiMap.first)
 				continue;
 
 			collectedHostInfoVect.insert(collectedHostInfoVect.end(),
@@ -1629,7 +1629,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 
 		auto range =
 			m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap
-			  .equal_range(devideInfo.requestId);
+			  .equal_range(divideInfo.requestId);
 		for (auto it = range.first; it != range.second; ++it) {
 			m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
 		}
@@ -1648,7 +1648,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		}
 	};
 
-	if (devided) {
+	if (divided) {
 		updateHostsInfo(collectedHostInfoVect);
 	} else {
 		updateHostsInfo(hostInfoVect);
@@ -1701,8 +1701,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	HostgroupVect hostgroupVect;
 	HostgroupVect collectedHostgroupVect;
 	JSONRPCError errObj;
-	bool devided = false;
-	DevideInfo devideInfo;
+	bool divided = false;
+	DivideInfo divideInfo;
 	pair<SerialId, HostgroupVect> hostgroupVectSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_HOST_GROUP);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
@@ -1715,15 +1715,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
-	if (parser.isMember("devideInfo")) {
-		parser.startObject("devideInfo");
-		devided = parseDevideInfo(parser, devideInfo, errObj);
-		parser.endObject(); // devideInfo
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
 
-		hostgroupVectSequentialIdPair = make_pair(devideInfo.serialId,
+		hostgroupVectSequentialIdPair = make_pair(divideInfo.serialId,
 		                                          hostgroupVect);
 		m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.emplace(
-		  devideInfo.requestId, hostgroupVectSequentialIdPair);
+		  divideInfo.requestId, hostgroupVectSequentialIdPair);
 	}
 	parser.endObject(); // params
 
@@ -1734,7 +1734,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (devided && !devideInfo.isLast) {
+	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
 		JSONBuilder builder;
@@ -1747,9 +1747,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		return builder.generate();
 	}
 
-	if (devided) {
+	if (divided) {
 		for (auto &elemMultiMap : m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap) {
-			if (devideInfo.requestId != elemMultiMap.first)
+			if (divideInfo.requestId != elemMultiMap.first)
 				continue;
 
 			collectedHostgroupVect.insert(collectedHostgroupVect.end(),
@@ -1759,7 +1759,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 
 		auto range =
 			m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap
-			  .equal_range(devideInfo.requestId);
+			  .equal_range(divideInfo.requestId);
 		for (auto it = range.first; it != range.second; ++it) {
 			m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.erase(it);
 		}
@@ -1775,7 +1775,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		}
 	};
 
-	if (devided) {
+	if (divided) {
 		updateHostGroupsInfo(collectedHostgroupVect);
 	} else {
 		updateHostGroupsInfo(hostgroupVect);
@@ -1850,8 +1850,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	HostgroupMemberVect hostgroupMembershipVect;
 	HostgroupMemberVect collectedHostgroupMembershipVect;
 	JSONRPCError errObj;
-	bool devided = false;
-	DevideInfo devideInfo;
+	bool divided = false;
+	DivideInfo divideInfo;
 	pair<SerialId, HostgroupMemberVect> hostgroupMembershipVectSequentialIdPair;
 	Impl::UpsertLastInfoHook
 	 lastInfoUpserter(*m_impl, LAST_INFO_HOST_GROUP_MEMBERSHIP);
@@ -1870,15 +1870,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
-	if (parser.isMember("devideInfo")) {
-		parser.startObject("devideInfo");
-		devided = parseDevideInfo(parser, devideInfo, errObj);
-		parser.endObject(); // devideInfo
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
 
 		hostgroupMembershipVectSequentialIdPair =
-		  make_pair(devideInfo.serialId, hostgroupMembershipVect);
+		  make_pair(divideInfo.serialId, hostgroupMembershipVect);
 		m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.emplace(
-		  devideInfo.requestId, hostgroupMembershipVectSequentialIdPair);
+		  divideInfo.requestId, hostgroupMembershipVectSequentialIdPair);
 	}
 	parser.endObject(); // params
 
@@ -1889,7 +1889,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (devided && !devideInfo.isLast) {
+	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
 		JSONBuilder builder;
@@ -1902,9 +1902,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		return builder.generate();
 	}
 
-	if (devided) {
+	if (divided) {
 		for (auto &elemMultiMap : m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap) {
-			if (devideInfo.requestId != elemMultiMap.first)
+			if (divideInfo.requestId != elemMultiMap.first)
 				continue;
 
 			collectedHostgroupMembershipVect.insert(
@@ -1915,7 +1915,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 
 		auto range =
 			m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
-			  .equal_range(devideInfo.requestId);
+			  .equal_range(divideInfo.requestId);
 		for (auto it = range.first; it != range.second; ++it) {
 			m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.erase(it);
 		}
@@ -1934,7 +1934,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		}
 	};
 
-	if (devided) {
+	if (divided) {
 		updateHostGroupMembershipInfo(collectedHostgroupMembershipVect);
 	} else {
 		updateHostGroupMembershipInfo(hostgroupMembershipVect);
@@ -2076,8 +2076,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	TriggerInfoList triggerInfoList;
 	TriggerInfoList collectedTriggerInfoList;
 	JSONRPCError errObj;
-	DevideInfo devideInfo;
-	bool devided = false;
+	DivideInfo divideInfo;
+	bool divided = false;
 	pair<SerialId, TriggerInfoList> triggerInfoListSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_TRIGGER);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
@@ -2096,15 +2096,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
-	if (parser.isMember("devideInfo")) {
-		parser.startObject("devideInfo");
-		devided = parseDevideInfo(parser, devideInfo, errObj);
-		parser.endObject(); // devideInfo
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
 
-		triggerInfoListSequentialIdPair = make_pair(devideInfo.serialId,
+		triggerInfoListSequentialIdPair = make_pair(divideInfo.serialId,
 							    triggerInfoList);
 		m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.emplace(
-		  devideInfo.requestId, triggerInfoListSequentialIdPair);
+		  divideInfo.requestId, triggerInfoListSequentialIdPair);
 	}
 	parser.endObject(); // params
 
@@ -2115,7 +2115,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (devided && !devideInfo.isLast) {
+	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
 		JSONBuilder builder;
@@ -2128,9 +2128,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		return builder.generate();
 	}
 
-	if (devided) {
+	if (divided) {
 		for (auto &elemMultiMap : m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap) {
-			if (devideInfo.requestId != elemMultiMap.first)
+			if (divideInfo.requestId != elemMultiMap.first)
 				continue;
 
 			collectedTriggerInfoList.splice(collectedTriggerInfoList.end(),
@@ -2139,7 +2139,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 		auto range =
 			m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap
-			  .equal_range(devideInfo.requestId);
+			  .equal_range(divideInfo.requestId);
 		for (auto it = range.first; it != range.second; ++it) {
 			m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.erase(it);
 		}
@@ -2155,7 +2155,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		}
 	};
 
-	if (devided) {
+	if (divided) {
 		updateTriggers(collectedTriggerInfoList);
 	} else {
 		updateTriggers(triggerInfoList);
@@ -2265,8 +2265,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	EventInfoList collectedEventInfoList;
 	JSONRPCError errObj;
 	string fetchId;
-	DevideInfo devideInfo;
-	bool devided = false;
+	DivideInfo divideInfo;
+	bool divided = false;
 	pair<SerialId, EventInfoList> eventInfoListSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_EVENT);
 	bool mayMoreFlag = false;
@@ -2288,15 +2288,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
-	if (parser.isMember("devideInfo")) {
-		parser.startObject("devideInfo");
-		devided = parseDevideInfo(parser, devideInfo, errObj);
-		parser.endObject(); // devideInfo
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
 
-		eventInfoListSequentialIdPair = make_pair(devideInfo.serialId,
+		eventInfoListSequentialIdPair = make_pair(divideInfo.serialId,
 							  eventInfoList);
 		m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.emplace(
-		  devideInfo.requestId, eventInfoListSequentialIdPair);
+		  divideInfo.requestId, eventInfoListSequentialIdPair);
 	}
 	parser.endObject(); // params
 
@@ -2307,7 +2307,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (devided && !devideInfo.isLast) {
+	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
 		JSONBuilder builder;
@@ -2320,9 +2320,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		return builder.generate();
 	}
 
-	if (devided) {
+	if (divided) {
 		for (auto &elemMultiMap : m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap) {
-			if (devideInfo.requestId != elemMultiMap.first)
+			if (divideInfo.requestId != elemMultiMap.first)
 				continue;
 
 			collectedEventInfoList.splice(collectedEventInfoList.end(),
@@ -2331,13 +2331,13 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 
 		auto range =
 			m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap
-			  .equal_range(devideInfo.requestId);
+			  .equal_range(divideInfo.requestId);
 		for (auto it = range.first; it != range.second; ++it) {
 			m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.erase(it);
 		}
 	}
 
-	if (devided) {
+	if (divided) {
 		dataStore->addEventList(collectedEventInfoList, lastInfoUpserter);
 	} else {
 		dataStore->addEventList(eventInfoList, lastInfoUpserter);
@@ -2398,8 +2398,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	VMInfoVect vmInfoVect;
 	VMInfoVect collectedVMInfoVect;
 	JSONRPCError errObj;
-	DevideInfo devideInfo;
-	bool devided = false;
+	DivideInfo divideInfo;
+	bool divided = false;
 	pair<SerialId, VMInfoVect> vmInfoVectSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl,
 	                                          LAST_INFO_HOST_PARENT);
@@ -2415,15 +2415,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
-	if (parser.isMember("devideInfo")) {
-		parser.startObject("devideInfo");
-		devided = parseDevideInfo(parser, devideInfo, errObj);
-		parser.endObject(); // devideInfo
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
 
-		vmInfoVectSequentialIdPair = make_pair(devideInfo.serialId,
+		vmInfoVectSequentialIdPair = make_pair(divideInfo.serialId,
 						       vmInfoVect);
 		m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.emplace(
-		  devideInfo.requestId, vmInfoVectSequentialIdPair);
+		  divideInfo.requestId, vmInfoVectSequentialIdPair);
 	}
 	parser.endObject(); // params
 
@@ -2434,7 +2434,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 		  &errObj.getErrors(), &parser);
 	}
 
-	if (devided && !devideInfo.isLast) {
+	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
 		JSONBuilder builder;
@@ -2447,9 +2447,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 		return builder.generate();
 	}
 
-	if (devided) {
+	if (divided) {
 		for (auto &elemMultiMap : m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap) {
-			if (devideInfo.requestId != elemMultiMap.first)
+			if (divideInfo.requestId != elemMultiMap.first)
 				continue;
 
 			collectedVMInfoVect.insert(
@@ -2460,13 +2460,13 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 		auto range =
 			m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap
-			  .equal_range(devideInfo.requestId);
+			  .equal_range(divideInfo.requestId);
 		for (auto it = range.first; it != range.second; ++it) {
 			m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
 		}
 	}
 
-	if (devided) {
+	if (divided) {
 		dbHost.upsertVMInfoVect(collectedVMInfoVect, lastInfoUpserter);
 	} else {
 		dbHost.upsertVMInfoVect(vmInfoVect, lastInfoUpserter);
