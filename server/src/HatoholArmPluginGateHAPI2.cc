@@ -128,6 +128,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	multimap<RequestId, pair<SerialId, HostgroupMemberVect>> m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, TriggerInfoList>> m_TriggerInfoListSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, EventInfoList>> m_EventInfoListSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, VMInfoVect>> m_VMInfoVectSequentialIdMapRequestIdMultiMap;
 	SelfMonitorPtr monitorPluginInternal;
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
@@ -2395,7 +2396,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
 	VMInfoVect vmInfoVect;
+	VMInfoVect collectedVMInfoVect;
 	JSONRPCError errObj;
+	DevideInfo devideInfo;
+	bool devided = false;
+	pair<SerialId, VMInfoVect> vmInfoVectSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl,
 	                                          LAST_INFO_HOST_PARENT);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
@@ -2410,6 +2415,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
+	if (parser.isMember("devideInfo")) {
+		parser.startObject("devideInfo");
+		devided = parseDevideInfo(parser, devideInfo, errObj);
+		parser.endObject(); // devideInfo
+
+		vmInfoVectSequentialIdPair = make_pair(devideInfo.serialId,
+						       vmInfoVect);
+		m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.emplace(
+		  devideInfo.requestId, vmInfoVectSequentialIdPair);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -2419,7 +2434,43 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 		  &errObj.getErrors(), &parser);
 	}
 
-	dbHost.upsertVMInfoVect(vmInfoVect, lastInfoUpserter);
+	if (devided && !devideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	}
+
+	if (devided) {
+		for (auto &elemMultiMap : m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap) {
+			if (devideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedVMInfoVect.insert(
+			  collectedVMInfoVect.end(),
+			  elemMultiMap.second.second.begin(),
+			  elemMultiMap.second.second.end());
+		}
+
+		auto range =
+			m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap
+			  .equal_range(devideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	if (devided) {
+		dbHost.upsertVMInfoVect(collectedVMInfoVect, lastInfoUpserter);
+	} else {
+		dbHost.upsertVMInfoVect(vmInfoVect, lastInfoUpserter);
+	}
 
 	// TODO: make failure clause
 	string result = "SUCCESS";
