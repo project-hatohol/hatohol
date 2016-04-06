@@ -123,6 +123,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
 	multimap<RequestId, pair<SerialId, ItemInfoList>> m_ItemInfoListSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, HistoryInfoVect>> m_HistoryInfoVectSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, ServerHostDefVect>> m_HostInfoVectSequentialIdMapRequestIdMultiMap;
 	SelfMonitorPtr monitorPluginInternal;
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
@@ -1562,7 +1563,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect hostInfoVect;
+	ServerHostDefVect collectedHostInfoVect;
 	JSONRPCError errObj;
+	DevideInfo devideInfo;
+	bool devided = false;
+	pair<SerialId, ServerHostDefVect> hostInfoVectSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_HOST);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
@@ -1575,6 +1580,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
+	if (parser.isMember("devideInfo")) {
+		parser.startObject("devideInfo");
+		devided = parseDevideInfo(parser, devideInfo, errObj);
+		parser.endObject(); // devideInfo
+
+		hostInfoVectSequentialIdPair = make_pair(devideInfo.serialId,
+		                                         hostInfoVect);
+		m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.emplace(
+		  devideInfo.requestId, hostInfoVectSequentialIdPair);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -1584,15 +1599,54 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		  &errObj.getErrors(), &parser);
 	}
 
-	// TODO: reflect error in response
-	if (checkInvalidHosts) {
-		dataStore->syncHosts(hostInfoVect, serverInfo.id,
-	                             m_impl->hostInfoCache, lastInfoUpserter);
+	if (devided && !devideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	}
+
+	if (devided) {
+		for (auto &elemMultiMap : m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap) {
+			if (devideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedHostInfoVect.insert(collectedHostInfoVect.end(),
+						     elemMultiMap.second.second.begin(),
+						     elemMultiMap.second.second.end());
+		}
+
+		auto range =
+			m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap
+			  .equal_range(devideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	auto updateHostsInfo = [&](ServerHostDefVect &hostInfoVect){
+		// TODO: reflect error in response
+		if (checkInvalidHosts) {
+			dataStore->syncHosts(hostInfoVect, serverInfo.id,
+					     m_impl->hostInfoCache, lastInfoUpserter);
+		} else {
+			HostHostIdMap hostsMap;
+			dataStore->upsertHosts(hostInfoVect, &hostsMap,
+					       lastInfoUpserter);
+			m_impl->hostInfoCache.update(hostInfoVect, &hostsMap);
+		}
+	};
+
+	if (devided) {
+		updateHostsInfo(collectedHostInfoVect);
 	} else {
-		HostHostIdMap hostsMap;
-		dataStore->upsertHosts(hostInfoVect, &hostsMap,
-		                       lastInfoUpserter);
-		m_impl->hostInfoCache.update(hostInfoVect, &hostsMap);
+		updateHostsInfo(hostInfoVect);
 	}
 
 	// TODO: add error clause
