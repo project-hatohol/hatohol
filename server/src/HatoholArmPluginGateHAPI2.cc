@@ -122,6 +122,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	map<string, Closure0 *> m_fetchClosureMap;
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
 	multimap<RequestId, pair<SerialId, ItemInfoList>> m_ItemInfoListSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, HistoryInfoVect>> m_HistoryInfoVectSequentialIdMapRequestIdMultiMap;
 	SelfMonitorPtr monitorPluginInternal;
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
@@ -1428,8 +1429,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
   JSONParser &parser)
 {
 	HistoryInfoVect historyInfoVect;
+	HistoryInfoVect collectedHistoryInfoVect;
 	JSONRPCError errObj;
 	string fetchId;
+	bool devided = false;
+	DevideInfo devideInfo;
+	pair<SerialId, HistoryInfoVect> historyInfoVectSequentialIdPair;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
@@ -1438,6 +1443,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 			   serverInfo, errObj);
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
+	}
+	if (parser.isMember("devideInfo")) {
+		parser.startObject("devideInfo");
+		devided = parseDevideInfo(parser, devideInfo, errObj);
+		parser.endObject(); // devideInfo
+
+		historyInfoVectSequentialIdPair = make_pair(devideInfo.serialId,
+		                                            historyInfoVect);
+		m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.emplace(
+		  devideInfo.requestId, historyInfoVectSequentialIdPair);
 	}
 	parser.endObject(); // params
 
@@ -1448,8 +1463,43 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		  &errObj.getErrors(), &parser);
 	}
 
+	if (devided && !devideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	}
+
+	if (devided) {
+		for (auto &elemMultiMap : m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap) {
+			if (devideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedHistoryInfoVect.insert(collectedHistoryInfoVect.end(),
+							elemMultiMap.second.second.begin(),
+							elemMultiMap.second.second.end());
+		}
+
+		auto range =
+			m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
+			  .equal_range(devideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
 	if (!fetchId.empty()) {
-		m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
+		if (devided) {
+			m_impl->runFetchHistoryCallback(fetchId, collectedHistoryInfoVect);
+		} else {
+			m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
+		}
 	}
 
 	// TODO: add error clause
