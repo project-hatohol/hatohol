@@ -127,6 +127,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	multimap<RequestId, pair<SerialId, HostgroupVect>> m_HostgroupVectSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, HostgroupMemberVect>> m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, TriggerInfoList>> m_TriggerInfoListSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, EventInfoList>> m_EventInfoListSequentialIdMapRequestIdMultiMap;
 	SelfMonitorPtr monitorPluginInternal;
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
@@ -2260,8 +2261,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList eventInfoList;
+	EventInfoList collectedEventInfoList;
 	JSONRPCError errObj;
 	string fetchId;
+	DevideInfo devideInfo;
+	bool devided = false;
+	pair<SerialId, EventInfoList> eventInfoListSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_EVENT);
 	bool mayMoreFlag = false;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
@@ -2282,6 +2287,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
+	if (parser.isMember("devideInfo")) {
+		parser.startObject("devideInfo");
+		devided = parseDevideInfo(parser, devideInfo, errObj);
+		parser.endObject(); // devideInfo
+
+		eventInfoListSequentialIdPair = make_pair(devideInfo.serialId,
+							  eventInfoList);
+		m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.emplace(
+		  devideInfo.requestId, eventInfoListSequentialIdPair);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -2291,7 +2306,41 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		  &errObj.getErrors(), &parser);
 	}
 
-	dataStore->addEventList(eventInfoList, lastInfoUpserter);
+	if (devided && !devideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	}
+
+	if (devided) {
+		for (auto &elemMultiMap : m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap) {
+			if (devideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedEventInfoList.splice(collectedEventInfoList.end(),
+							elemMultiMap.second.second);
+		}
+
+		auto range =
+			m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap
+			  .equal_range(devideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	if (devided) {
+		dataStore->addEventList(collectedEventInfoList, lastInfoUpserter);
+	} else {
+		dataStore->addEventList(eventInfoList, lastInfoUpserter);
+	}
 
 	if (!mayMoreFlag)
 		m_impl->runFetchCallback(fetchId);
