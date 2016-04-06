@@ -31,6 +31,9 @@ struct DevideInfo {
 	std::string  requestId;
 };
 
+using RequestId = std::string;
+using SerialId = int64_t;
+
 class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterfaceHAPI2 {
 public:
 	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo,

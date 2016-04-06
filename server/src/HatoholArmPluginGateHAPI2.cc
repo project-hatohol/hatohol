@@ -121,7 +121,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
-	multimap<string, pair<int64_t, ItemInfoList>> m_ItemInfoListSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, ItemInfoList>> m_ItemInfoListSequentialIdMapRequestIdMultiMap;
 	SelfMonitorPtr monitorPluginInternal;
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
@@ -1313,7 +1313,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	string fetchId;
 	DevideInfo devideInfo;
 	bool devided = false;
-	pair<int64_t, ItemInfoList> itemInfoListSequentialIdPair;
+	pair<SerialId, ItemInfoList> itemInfoListSequentialIdPair;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
