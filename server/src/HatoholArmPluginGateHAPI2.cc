@@ -125,6 +125,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	multimap<RequestId, pair<SerialId, HistoryInfoVect>> m_HistoryInfoVectSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, ServerHostDefVect>> m_HostInfoVectSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, HostgroupVect>> m_HostgroupVectSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, HostgroupMemberVect>> m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap;
 	SelfMonitorPtr monitorPluginInternal;
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
@@ -1844,7 +1845,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupMemberVect hostgroupMembershipVect;
+	HostgroupMemberVect collectedHostgroupMembershipVect;
 	JSONRPCError errObj;
+	bool devided = false;
+	DevideInfo devideInfo;
+	pair<SerialId, HostgroupMemberVect> hostgroupMembershipVectSequentialIdPair;
 	Impl::UpsertLastInfoHook
 	 lastInfoUpserter(*m_impl, LAST_INFO_HOST_GROUP_MEMBERSHIP);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
@@ -1862,6 +1867,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
+	if (parser.isMember("devideInfo")) {
+		parser.startObject("devideInfo");
+		devided = parseDevideInfo(parser, devideInfo, errObj);
+		parser.endObject(); // devideInfo
+
+		hostgroupMembershipVectSequentialIdPair =
+		  make_pair(devideInfo.serialId, hostgroupMembershipVect);
+		m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.emplace(
+		  devideInfo.requestId, hostgroupMembershipVectSequentialIdPair);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -1871,14 +1886,55 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		  &errObj.getErrors(), &parser);
 	}
 
-	// TODO: reflect error in response
-	if (checkInvalidHostGroupMembership) {
-		dataStore->syncHostgroupMembers(hostgroupMembershipVect,
-		                                serverInfo.id,
-		                                lastInfoUpserter);
+	if (devided && !devideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	}
+
+	if (devided) {
+		for (auto &elemMultiMap : m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap) {
+			if (devideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedHostgroupMembershipVect.insert(
+			  collectedHostgroupMembershipVect.end(),
+			  elemMultiMap.second.second.begin(),
+			  elemMultiMap.second.second.end());
+		}
+
+		auto range =
+			m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
+			  .equal_range(devideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	auto updateHostGroupMembershipInfo =
+	  [&](HostgroupMemberVect &hostgroupMembershipVect) {
+		// TODO: reflect error in response
+		if (checkInvalidHostGroupMembership) {
+			dataStore->syncHostgroupMembers(hostgroupMembershipVect,
+							serverInfo.id,
+							lastInfoUpserter);
+		} else {
+			dataStore->upsertHostgroupMembers(hostgroupMembershipVect,
+							  lastInfoUpserter);
+		}
+	};
+
+	if (devided) {
+		updateHostGroupMembershipInfo(collectedHostgroupMembershipVect);
 	} else {
-		dataStore->upsertHostgroupMembers(hostgroupMembershipVect,
-		                                  lastInfoUpserter);
+		updateHostGroupMembershipInfo(hostgroupMembershipVect);
 	}
 
 	// add error clause
