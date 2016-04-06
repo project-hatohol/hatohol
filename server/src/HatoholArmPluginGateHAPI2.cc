@@ -126,6 +126,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	multimap<RequestId, pair<SerialId, ServerHostDefVect>> m_HostInfoVectSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, HostgroupVect>> m_HostgroupVectSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, HostgroupMemberVect>> m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, TriggerInfoList>> m_TriggerInfoListSequentialIdMapRequestIdMultiMap;
 	SelfMonitorPtr monitorPluginInternal;
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
@@ -2071,7 +2072,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	ThreadLocalDBCache cache;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerInfoList;
+	TriggerInfoList collectedTriggerInfoList;
 	JSONRPCError errObj;
+	DevideInfo devideInfo;
+	bool devided = false;
+	pair<SerialId, TriggerInfoList> triggerInfoListSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_TRIGGER);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
@@ -2089,6 +2094,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
+	if (parser.isMember("devideInfo")) {
+		parser.startObject("devideInfo");
+		devided = parseDevideInfo(parser, devideInfo, errObj);
+		parser.endObject(); // devideInfo
+
+		triggerInfoListSequentialIdPair = make_pair(devideInfo.serialId,
+							    triggerInfoList);
+		m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.emplace(
+		  devideInfo.requestId, triggerInfoListSequentialIdPair);
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -2098,12 +2113,50 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		  &errObj.getErrors(), &parser);
 	}
 
-	// TODO: reflect error in response
-	if (checkInvalidTriggers) {
-		dataStore->syncTriggers(triggerInfoList, serverInfo.id,
-		                        lastInfoUpserter);
+	if (devided && !devideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	}
+
+	if (devided) {
+		for (auto &elemMultiMap : m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap) {
+			if (devideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedTriggerInfoList.splice(collectedTriggerInfoList.end(),
+							elemMultiMap.second.second);
+		}
+
+		auto range =
+			m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap
+			  .equal_range(devideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	auto updateTriggers = [&](TriggerInfoList &triggerInfoList) {
+		// TODO: reflect error in response
+		if (checkInvalidTriggers) {
+			dataStore->syncTriggers(triggerInfoList, serverInfo.id,
+						lastInfoUpserter);
+		} else {
+			dataStore->addTriggers(triggerInfoList, lastInfoUpserter);
+		}
+	};
+
+	if (devided) {
+		updateTriggers(collectedTriggerInfoList);
 	} else {
-		dataStore->addTriggers(triggerInfoList, lastInfoUpserter);
+		updateTriggers(triggerInfoList);
 	}
 
 	if (!fetchId.empty()) {
