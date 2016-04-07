@@ -284,7 +284,6 @@ void test_addServerHapiJSON(void)
 	params["uuid"] = armPluginInfo.uuid;
 
 	assertAddServerWithSetup(params, HTERR_OK);
-	assertAddServerWithSetup(params, HTERR_FAILED_TO_CREATE_DATA_STORE);
 
 	// check the content in the DB
 	ThreadLocalDBCache cache;
