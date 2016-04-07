@@ -481,6 +481,124 @@ void test_procedureHandlerPutItems(void)
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
+void test_procedureHandlerPutItemsWithDivideInfo(void)
+{
+	loadDummyHosts();
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
+		" \"params\":{\"items\":["
+		// 1st item
+		"{\"itemId\":\"1\", \"hostId\":\"1\","
+		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"},"
+		// 2nd item
+		" {\"itemId\":\"2\", \"hostId\":\"1\","
+		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175531\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"}],"
+		// others
+		" \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"  \"requestId\":\"2029dcdd-db29-4ac4-8006-3d975874b5a8\"}"
+		" }, \"id\":83241245}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
+		" \"params\":{\"items\":["
+		// 3rd item
+		" {\"itemId\":\"3\", \"hostId\":\"1\","
+		" \"brief\":\"example wiht empty itemGroupName array\","
+		" \"lastValueTime\":\"20151117095531\","
+		" \"lastValue\":\"Alpha Beta Gamma\","
+		" \"itemGroupName\":[], \"unit\":\"Kelvin\"}],"
+		// others
+		" \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":1,"
+		"  \"requestId\":\"2029dcdd-db29-4ac4-8006-3d975874b5a8\"}"
+		" }, \"id\":83241245}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_ITEMS, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":83241245}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_ITEMS, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":83241245}";
+	cppcut_assert_equal(expected2, actual2);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	ItemInfoList itemInfoList;
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getItemInfoList(itemInfoList, option);
+	ItemInfoList expectedItemInfoList;
+	ItemInfo item1, item2, item3;
+	timespec timeStamp;
+	string lastValueTime;
+
+	lastValueTime = "20150410175523";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item1.serverId       = 302;
+	item1.id             = "1";
+	item1.globalHostId   = 10;
+	item1.hostIdInServer = "1";
+	item1.brief          = "example brief";
+	item1.lastValueTime  = timeStamp;
+	item1.lastValue      = "example value";
+	item1.categoryNames  = {"example name"};
+	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	item1.delay          = 0;
+	item1.unit           = "example unit";
+	expectedItemInfoList.push_back(item1);
+
+	lastValueTime = "20150410175531";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item2.serverId       = 302;
+	item2.id             = "2";
+	item2.globalHostId   = 10;
+	item2.hostIdInServer = "1";
+	item2.brief          = "example brief";
+	item2.lastValueTime  = timeStamp;
+	item2.lastValue      = "example value";
+	item2.categoryNames  = {"example name"};
+	item2.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	item2.delay          = 0;
+	item2.unit           = "example unit";
+	expectedItemInfoList.push_back(item2);
+
+	lastValueTime = "20151117095531";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item3.serverId       = 302;
+	item3.id             = "3";
+	item3.globalHostId   = 10;
+	item3.hostIdInServer = "1";
+	item3.brief          = "example wiht empty itemGroupName array";
+	item3.lastValueTime  = timeStamp;
+	item3.lastValue      = "Alpha Beta Gamma";
+	item3.categoryNames.clear();
+	item3.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	item3.delay          = 0;
+	item3.unit           = "Kelvin";
+	expectedItemInfoList.push_back(item3);
+
+	string actualOutput;
+	for (auto itemInfo : itemInfoList) {
+		actualOutput += makeItemOutput(itemInfo);
+	}
+	string expectedOutput;
+	for (auto itemInfo : expectedItemInfoList) {
+		expectedOutput += makeItemOutput(itemInfo);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
 void test_procedureHandlerPutItemsInvalidJSON(void)
 {
 	loadDummyHosts();
