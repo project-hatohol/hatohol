@@ -42,9 +42,6 @@ const char *ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME = "HATOHOL_DB_DIR";
 static const char *DEFAULT_DATABASE_DIR = "/tmp";
 static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 
-int ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
-static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
-  = 60 * 60 * 24; // 24 hours
 const char *ConfigManager::DEFAULT_PID_FILE_PATH = LOCALSTATEDIR "/run/hatohol.pid";
 
 static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
@@ -118,7 +115,6 @@ CommandLineOptions::CommandLineOptions(void)
   dbPassword(NULL),
   foreground(FALSE),
   testMode(FALSE),
-  loadOldEvents(FALSE),
   faceRestPort(-1),
   faceRestNumWorkers(0)
 {
@@ -141,7 +137,6 @@ struct ConfigManager::Impl {
 	AtomicValue<int>      faceRestPort;
 	string                user;
 	string                pidFilePath;
-	bool                  loadOldEvents;
 	int                   faceRestNumWorkers;
 
 	// methods
@@ -152,7 +147,6 @@ struct ConfigManager::Impl {
 	  testMode(false),
 	  faceRestPort(0),
 	  pidFilePath(DEFAULT_PID_FILE_PATH),
-	  loadOldEvents(false),
 	  faceRestNumWorkers(0)
 	{
 	}
@@ -234,8 +228,6 @@ struct ConfigManager::Impl {
 			pidFilePath = cmdLineOpts.pidFilePath;
 		if (cmdLineOpts.user)
 			user = cmdLineOpts.user;
-		if (cmdLineOpts.loadOldEvents)
-			loadOldEvents = cmdLineOpts.loadOldEvents;
 		if (cmdLineOpts.faceRestNumWorkers > 0)
 			faceRestNumWorkers = cmdLineOpts.faceRestNumWorkers;
 	}
@@ -333,10 +325,6 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		{"log-level",
 		 'l', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseLogLevel,
 		 "Log level: DBG, INFO, WARN, ERR, CRIT, or BUG. ", NULL},
-		{"load-old-events",
-		 0, 0, G_OPTION_ARG_NONE,
-		 &cmdLineOpts->loadOldEvents,
-		 "Load old events when adding new monitoring server.", NULL},
 		{"face-rest-workers",
 		 'T', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestNumWorkers,
 		 "Number of FaceRest worker threads", NULL},
@@ -438,11 +426,6 @@ int ConfigManager::getDBServerPort(void) const
 	return m_impl->dbServerPort;
 }
 
-int ConfigManager::getAllowedTimeOfActionForOldEvents(void)
-{
-	return DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS;
-}
-
 int ConfigManager::getMaxNumberOfRunningCommandAction(void)
 {
 	return DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION;
@@ -495,11 +478,6 @@ string ConfigManager::getPidFilePath(void) const
 string ConfigManager::getUser(void) const
 {
 	return m_impl->user;
-}
-
-bool ConfigManager::getLoadOldEvents(void) const
-{
-	return m_impl->loadOldEvents;
 }
 
 int ConfigManager::getFaceRestNumWorkers(void) const
