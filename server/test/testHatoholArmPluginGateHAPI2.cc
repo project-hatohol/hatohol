@@ -658,6 +658,45 @@ void test_procedureHandlerPutHistory(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutHistoryWithDivideInfo(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
+		" \"params\":{\"itemId\":\"1\","
+		" \"samples\":[{\"value\":\"exampleValue\","
+		"  \"time\":\"20150323113032.000000000\"},"
+		"  {\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
+		" \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"   \"requestId\":\"3aa730a1-53dd-4e58-a327-f486c841da6e\"}"
+		"}, \"id\":-83241245}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
+		" \"params\":{\"itemId\":\"1\","
+		" \"samples\":[{\"value\":\"exampleValue\","
+		" \"time\":\"20150323113034.000000000\"},"
+		"{\"value\":\"exampleValue2\",\"time\":\"20150323113035.000000000\"}],"
+		" \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":1,"
+		"   \"requestId\":\"3aa730a1-53dd-4e58-a327-f486c841da6e\"}"
+		"}, \"id\":-83241245}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_HISTORY, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":-83241245}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_HISTORY, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":-83241245}";
+	cppcut_assert_equal(expected2, actual2);
+}
+
 void test_procedureHandlerPutHistoryInvalidJSON(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
