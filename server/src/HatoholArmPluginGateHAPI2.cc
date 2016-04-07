@@ -1338,6 +1338,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		itemInfoListSequentialIdPair = make_pair(divideInfo.serialId, itemList);
 		m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, itemInfoListSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					"actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 
 	parser.endObject(); // params
@@ -1459,6 +1471,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		                                            historyInfoVect);
 		m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, historyInfoVectSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) !=expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					"actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
@@ -1594,6 +1618,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		                                         hostInfoVect);
 		m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, hostInfoVectSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					"actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
@@ -1724,6 +1760,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		                                          hostgroupVect);
 		m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, hostgroupVectSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					"actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
@@ -1879,6 +1927,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		  make_pair(divideInfo.serialId, hostgroupMembershipVect);
 		m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, hostgroupMembershipVectSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					"actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
@@ -2105,6 +2165,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 							    triggerInfoList);
 		m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, triggerInfoListSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					"actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
@@ -2297,6 +2369,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 							  eventInfoList);
 		m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, eventInfoListSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					"actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
@@ -2424,6 +2508,18 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 						       vmInfoVect);
 		m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, vmInfoVectSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					"actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
