@@ -28,17 +28,13 @@ libhatohol_common_la_SOURCES = \
 	UsedCountable.cc UsedCountable.h \
 	Utils.cc Utils.h \
 	UsedCountablePtr.cc UsedCountablePtr.h \
-	ZabbixAPI.cc ZabbixAPI.h
-
-if HAVE_LIBRABBITMQ
-libhatohol_common_la_SOURCES += \
+	ZabbixAPI.cc ZabbixAPI.h \
 	AMQPConnectionInfo.cc AMQPConnectionInfo.h \
 	AMQPConnection.cc AMQPConnection.h \
 	AMQPConsumer.cc AMQPConsumer.h \
 	AMQPPublisher.cc AMQPPublisher.h \
 	AMQPMessageHandler.cc AMQPMessageHandler.h \
 	HatoholArmPluginInterfaceHAPI2.cc HatoholArmPluginInterfaceHAPI2.h
-endif
 
 AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \

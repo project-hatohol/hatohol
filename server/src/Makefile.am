@@ -77,14 +77,10 @@ libhatohol_la_SOURCES = \
 	SQLUtils.cc SQLUtils.h \
 	StatisticsCounter.cc StatisticsCounter.h \
 	TriggerFetchWorker.cc TriggerFetchWorker.h \
-	UnifiedDataStore.cc UnifiedDataStore.h
-
-if HAVE_LIBRABBITMQ
-libhatohol_la_SOURCES += \
+	UnifiedDataStore.cc UnifiedDataStore.h \
 	GateJSONEventMessage.cc GateJSONEventMessage.h \
 	HatoholArmPluginGateJSON.cc HatoholArmPluginGateJSON.h \
 	HatoholArmPluginGateHAPI2.cc HatoholArmPluginGateHAPI2.h
-endif
 
 AM_CXXFLAGS = \
 	$(OPT_CXXFLAGS) \
