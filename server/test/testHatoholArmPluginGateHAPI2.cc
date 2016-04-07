@@ -1311,6 +1311,98 @@ void test_procedureHandlerPutTriggers(void)
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
+void test_procedureHandlerPutTriggersWithDivideInfo(void)
+{
+	loadDummyHosts();
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putTriggers\","
+		" \"params\":{\"updateType\":\"UPDATED\","
+		" \"lastInfo\":\"201504061606\", \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"   \"requestId\":\"62cf68a6-e6b4-4b88-9e0a-9a494b6b5d19\"},"
+		" \"triggers\":[{\"triggerId\":\"1\", \"status\":\"OK\","
+		" \"severity\":\"INFO\",\"lastChangeTime\":\"20150323175800\","
+		" \"hostId\":\"1\", \"hostName\":\"exampleHostName\","
+		" \"brief\":\"example brief\","
+		" \"extendedInfo\": \"sample extended info\"}]},\"id\":34031}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putTriggers\","
+		" \"params\":{\"updateType\":\"UPDATED\","
+		" \"lastInfo\":\"201604071600\", \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"   \"requestId\":\"62cf68a6-e6b4-4b88-9e0a-9a494b6b5d19\"},"
+		" \"triggers\":[{\"triggerId\":\"2\", \"status\":\"NG\","
+		" \"severity\":\"INFO\",\"lastChangeTime\":\"20150323275800\","
+		" \"hostId\":\"1\", \"hostName\":\"exampleHostName\","
+		" \"brief\":\"example problem brief\","
+		" \"extendedInfo\": \"sample extended problem info\"}]},\"id\":34031}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_TRIGGERS, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_TRIGGERS, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
+	cppcut_assert_equal(expected2, actual2);
+	timespec timeStamp1;
+	HatoholArmPluginGateHAPI2::parseTimeStamp("20150323175800", timeStamp1);
+	timespec timeStamp2;
+	HatoholArmPluginGateHAPI2::parseTimeStamp("20150323275800", timeStamp2);
+	TriggerInfoList expectedTriggerInfoList =
+	{
+		{
+			monitoringServerInfo.id, // serverId
+			"1",                     // id
+			TRIGGER_STATUS_OK,       // status
+			TRIGGER_SEVERITY_INFO,   // severity
+			timeStamp1,              // lastChangeTime
+			10,                      // globalHostId
+			"1",                     // hostIdInServer
+			"exampleHostName",       // hostName
+			"example brief",         // brief
+			"sample extended info",  // extendedInfo
+			TRIGGER_VALID,           // validity
+		},
+		{
+			monitoringServerInfo.id,       // serverId
+			"2",                           // id
+			TRIGGER_STATUS_PROBLEM,        // status
+			TRIGGER_SEVERITY_INFO,         // severity
+			timeStamp2,                    // lastChangeTime
+			10,                            // globalHostId
+			"1",                           // hostIdInServer
+			"exampleHostName",             // hostName
+			"example problem brief",       // brief
+			"sample extended problem info", // extendedInfo
+			TRIGGER_VALID,                 // validity
+		}
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	option.setExcludeFlags(EXCLUDE_SELF_MONITORING);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+	string actualOutput;
+	for (auto trigger : triggerInfoList) {
+		actualOutput += makeTriggerOutput(trigger);
+	}
+	string expectedOutput;
+	for (auto trigger : expectedTriggerInfoList) {
+		expectedOutput += makeTriggerOutput(trigger);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
 void test_procedureHandlerPutTriggersInvalidJSON(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
