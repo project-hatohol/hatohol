@@ -21,6 +21,7 @@
 #include <atomic>
 #include <chrono>
 #include <thread>
+#include <algorithm>
 #include <Hatohol.h>
 #include <HatoholArmPluginGateHAPI2.h>
 #include <AMQPConnection.h>
@@ -807,19 +808,20 @@ void test_procedureHandlerPutHostsWithDivideInfo(void)
 	ServerHostDefVect expectedHostVect =
 	{
 		{
-			2,                       // id
-			10,                      // hostId
-			monitoringServerInfo.id, // serverId
-			"2",                     // hostIdInServer
-			"exampleHostName2",      // name
-		},
-		{
 			1,                       // id
 			10,                      // hostId
 			monitoringServerInfo.id, // serverId
 			"1",                     // hostIdInServer
 			"exampleHostName1",      // name
 		},
+		{
+			2,                       // id
+			10,                      // hostId
+			monitoringServerInfo.id, // serverId
+			"2",                     // hostIdInServer
+			"exampleHostName2",      // name
+		},
+
 	};
 
 	ThreadLocalDBCache cache;
@@ -832,8 +834,13 @@ void test_procedureHandlerPutHostsWithDivideInfo(void)
 	string actualOutput;
 	{
 		size_t i = 0;
+		sort(begin(hostDefVect), end(hostDefVect),
+		     [](ServerHostDef lhs, ServerHostDef rhs) -> int {
+			     return lhs.hostIdInServer < rhs.hostIdInServer;
+		     });
 		for (auto host : hostDefVect) {
 			actualOutput += makeHostsOutput(host, i);
+			++i;
 		}
 	}
 	string expectedOutput;
@@ -841,6 +848,7 @@ void test_procedureHandlerPutHostsWithDivideInfo(void)
 		size_t i = 0;
 		for (auto host : expectedHostVect) {
 			expectedOutput += makeHostsOutput(host, i);
+			++i;
 		}
 	}
 	cppcut_assert_equal(expectedOutput, actualOutput);
