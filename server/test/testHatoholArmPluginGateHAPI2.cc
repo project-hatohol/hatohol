@@ -772,6 +772,80 @@ void test_procedureHandlerPutHosts(void)
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
+void test_procedureHandlerPutHostsWithDivideInfo(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHosts\", \"params\":"
+		"{\"hosts\":[{\"hostId\":\"1\", \"hostName\":\"exampleHostName1\"}],"
+		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201504091052\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"   \"requestId\":\"aee4039b-29fe-4478-a2a2-99c0f4a4dbfd\"}"
+		"}, \"id\":\"deadbeaf\"}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHosts\", \"params\":"
+		"{\"hosts\":[{\"hostId\":\"2\", \"hostName\":\"exampleHostName2\"}],"
+		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201604091500\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"   \"requestId\":\"aee4039b-29fe-4478-a2a2-99c0f4a4dbfd\"}"
+		"}, \"id\":\"deadbeaf\"}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_HOSTS, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_HOSTS, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
+	cppcut_assert_equal(expected2, actual2);
+
+	ServerHostDefVect expectedHostVect =
+	{
+		{
+			2,                       // id
+			10,                      // hostId
+			monitoringServerInfo.id, // serverId
+			"2",                     // hostIdInServer
+			"exampleHostName2",      // name
+		},
+		{
+			1,                       // id
+			10,                      // hostId
+			monitoringServerInfo.id, // serverId
+			"1",                     // hostIdInServer
+			"exampleHostName1",      // name
+		},
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	ServerHostDefVect hostDefVect;
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setStatusSet({HOST_STAT_NORMAL});
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getServerHostDefs(hostDefVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		for (auto host : hostDefVect) {
+			actualOutput += makeHostsOutput(host, i);
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto host : expectedHostVect) {
+			expectedOutput += makeHostsOutput(host, i);
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
 void test_procedureHandlerPutHostsInvalidJSON(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
