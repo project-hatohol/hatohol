@@ -33,6 +33,7 @@ from datetime import datetime
 from datetime import timedelta
 import random
 import copy
+import uuid
 from hatohol import hap
 from hatohol import hapcommon
 from hatohol import transporter
@@ -454,24 +455,26 @@ class HapiProcessor:
         self.__sender.request("putArmInfo", params, request_id)
         self.__wait_response(request_id)
 
-    def put_hosts(self, hosts):
+    def put_hosts(self, hosts, params):
         hosts.sort()
         if self.__previous_hosts == hosts:
             logger.debug("hosts are not changed.")
             return
-        hosts_params = {"updateType": "ALL", "hosts": hosts}
+        params["updateType"] = "ALL"
+        params["hosts"] =  hosts
         request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
-        self.__sender.request("putHosts", hosts_params, request_id)
+        self.__sender.request("putHosts", params, request_id)
         self.__wait_response(request_id)
         self.__previous_hosts = hosts
 
-    def put_host_groups(self, host_groups):
+    def put_host_groups(self, host_groups, params):
         host_groups.sort()
         if self.__previous_host_groups == host_groups:
             logger.debug("Host groups are not changed.")
             return
-        params = {"updateType": "ALL", "hostGroups": host_groups}
+        params["updateType"] = "ALL"
+        params["hostGroups"] =  host_groups
         request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("putHostGroups", params, request_id)
@@ -479,25 +482,25 @@ class HapiProcessor:
         self.__previous_host_groups = host_groups
 
 
-    def put_host_group_membership(self, hg_membership):
+    def put_host_group_membership(self, hg_membership, params):
         hg_membership.sort()
         if self.__previous_host_group_membership == hg_membership:
             logger.debug("Host group membership is not changed.")
             return
 
-        hg_membership_params = {"updateType": "ALL",
-                                "hostGroupMembership": hg_membership}
+        params["updateType"] = "ALL"
+        params["hostGroupMembership"] =  hg_membership
         request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
-        self.__sender.request("putHostGroupMembership",
-                              hg_membership_params, request_id)
+        self.__sender.request("putHostGroupMembership", params, request_id)
         self.__wait_response(request_id)
         self.__previous_host_group_membership = hg_membership
 
-    def put_triggers(self, triggers, update_type,
+    def put_triggers(self, triggers, params, update_type,
                      last_info=None, fetch_id=None):
 
-        params = {"triggers": triggers, "updateType": update_type}
+        params["updateType"] = update_type
+        params["triggers"] = triggers
         if last_info is not None:
             params["lastInfo"] = last_info
         if fetch_id is not None:
@@ -516,11 +519,12 @@ class HapiProcessor:
     def generate_event_last_info(self, events):
         return hapcommon.get_biggest_num_of_dict_array(events, "eventId")
 
-    def put_events(self, events, fetch_id=None, last_info_generator=None):
+    def put_events(self, events, params, fetch_id=None,
+                   last_info_generator=None):
         if last_info_generator is None:
             last_info_generator = self.generate_event_last_info
         last_info = str(last_info_generator(events))
-        params = {"events": events}
+        params["events"] = events
 
         if fetch_id is not None:
             params["fetchId"] = fetch_id
@@ -536,15 +540,18 @@ class HapiProcessor:
         if fetch_id is None:
             self.set_event_last_info(last_info)
 
-    def put_items(self, items, fetch_id):
-        params = {"fetchId": fetch_id, "items": items}
+    def put_items(self, items, params, fetch_id):
+        params["fetchId"] = fetch_id
+        params["items"] = items
         request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("putItems", params, request_id)
         self.__wait_response(request_id)
 
-    def put_history(self, samples, item_id, fetch_id):
-        params = {"fetchId": fetch_id, "itemId": item_id, "samples": samples}
+    def put_history(self, samples, params, item_id, fetch_id):
+        params["fetchId"] = fetch_id
+        params["itemId"] = item_id
+        params["samples"] = samples
         request_id = self.__generate_request_id(self.__component_code)
         self.__wait_acknowledge(request_id)
         self.__sender.request("putHistory", params, request_id)
@@ -554,6 +561,9 @@ class HapiProcessor:
         chunk_size = DEFAULT_MAX_CHUNK_SIZE
         copy_contents = copy.copy(contents)
 
+        serial_id = 0
+        is_last = False
+        request_id = str(uuid.uuid4())
         while True:
             num_contents = len(copy_contents)
             if num_contents == 0:
@@ -564,8 +574,17 @@ class HapiProcessor:
                     count += 1
 
                 for num in range(0, count):
+                    params = dict()
+                    if num == count-1:
+                        is_last = True
+                    if count > 1:
+                        hapcommon.insert_divide_info_to_params(params,
+                                                               serial_id,
+                                                               is_last,
+                                                               request_id)
                     chunk_contents = copy_contents[0: chunk_size]
-                    put_func(chunk_contents, *args, **kwargs)
+                    put_func(chunk_contents, params, *args, **kwargs)
+                    serial_id += 1
                     del copy_contents[0: chunk_size]
             except OverCapacity:
                 chunk_size = chunk_size * 3 / 4
