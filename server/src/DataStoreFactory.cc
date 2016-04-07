@@ -23,10 +23,8 @@
 
 #include "DataStoreFactory.h"
 #include "DataStoreFake.h"
-#ifdef HAVE_LIBRABBITMQ
 #include "HatoholArmPluginGateJSON.h"
 #include "HatoholArmPluginGateHAPI2.h"
-#endif
 
 DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
                                     const bool &autoStart)
@@ -34,7 +32,6 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 	switch (svInfo.type) {
 	case MONITORING_SYSTEM_FAKE:
 		return new DataStoreFake(svInfo, autoStart);
-#ifdef HAVE_LIBRABBITMQ
 	case MONITORING_SYSTEM_HAPI_JSON:
 	{
 		return new HatoholArmPluginGateJSON(svInfo, autoStart);
@@ -43,7 +40,6 @@ DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
 	{
 		return new HatoholArmPluginGateHAPI2(svInfo, autoStart);
 	}
-#endif
 	default:
 		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);
 	}
