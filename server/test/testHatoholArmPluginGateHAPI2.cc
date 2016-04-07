@@ -1118,6 +1118,110 @@ void test_procedureHandlerPutHostGroupMembership(void)
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
+void test_procedureHandlerPutHostGroupMembershipWithDivideInfo(void)
+{
+	loadDummyHosts();
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroupMembership\","
+		" \"params\":{\"hostGroupMembership\":[{\"hostId\":\"1\","
+		" \"groupIds\":[\"1\", \"2\"]}],"
+		" \"lastInfo\":\"20150409105600\", \"updateType\":\"ALL\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"   \"requestId\":\"b6f13d37-0adc-4ded-aaec-823f8cf19bff\"}"
+		"},"
+		" \"id\":9342}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroupMembership\","
+		" \"params\":{\"hostGroupMembership\":[{\"hostId\":\"2\","
+		" \"groupIds\":[\"2\", \"5\"]}, {\"hostId\":\"4\","
+		" \"groupIds\":[\"5\"]}],"
+		" \"lastInfo\":\"20160407152500\", \"updateType\":\"ALL\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":1,"
+		"   \"requestId\":\"b6f13d37-0adc-4ded-aaec-823f8cf19bff\"}"
+		"},"
+		" \"id\":9342}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(
+	  HAPI2_PUT_HOST_GROUP_MEMEBRSHIP, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":9342}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(
+	  HAPI2_PUT_HOST_GROUP_MEMEBRSHIP, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":9342}";
+	cppcut_assert_equal(expected2, actual2);
+
+	HostgroupMemberVect expectedHostgroupMemberVect =
+	{
+		{
+			1,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // hostIdInServer
+			"1",                     // hostGroupIdInServer
+			10,                      // hostId
+		},
+		{
+			2,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // hostIdInServer
+			"2",                     // hostGroupIdInServer
+			10,                      // hostId
+		},
+		{
+			3,                       // id
+			monitoringServerInfo.id, // serverId
+			"2",                     // hostIdInServer
+			"2",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+		{
+			4,                       // id
+			monitoringServerInfo.id, // serverId
+			"2",                     // hostIdInServer
+			"5",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+		{
+			5,                       // id
+			monitoringServerInfo.id, // serverId
+			"4",                     // hostIdInServer
+			"5",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	HostgroupMemberVect hostgroupMemberVect;
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getHostgroupMembers(hostgroupMemberVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroupMember : hostgroupMemberVect) {
+			actualOutput += makeMapHostsHostgroupsOutput(hostgroupMember, i);
+			i++;
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroupMember : expectedHostgroupMemberVect) {
+			expectedOutput += makeMapHostsHostgroupsOutput(hostgroupMember, i);
+			i++;
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
 void test_procedureHandlerPutHostGroupMembershipInvalidJSON(void)
 {
 	loadDummyHosts();
