@@ -517,7 +517,7 @@ void test_procedureHandlerPutItemsWithDivideInfo(void)
 		// others
 		" \"fetchId\":\"1\","
 		" \"divideInfo\":"
-		"  {\"isLast\":true,\"serialId\":1,"
+		"  {\"isLast\":true,\"serialId\":2,"
 		"  \"requestId\":\"2029dcdd-db29-4ac4-8006-3d975874b5a8\"}"
 		" }, \"id\":83241245}";
 	JSONParser parser1(json1);
@@ -681,7 +681,7 @@ void test_procedureHandlerPutHistoryWithDivideInfo(void)
 		"{\"value\":\"exampleValue2\",\"time\":\"20150323113035.000000000\"}],"
 		" \"fetchId\":\"1\","
 		" \"divideInfo\":"
-		"  {\"isLast\":true,\"serialId\":1,"
+		"  {\"isLast\":true,\"serialId\":2,"
 		"   \"requestId\":\"3aa730a1-53dd-4e58-a327-f486c841da6e\"}"
 		"}, \"id\":-83241245}";
 	JSONParser parser1(json1);
@@ -1140,7 +1140,7 @@ void test_procedureHandlerPutHostGroupMembershipWithDivideInfo(void)
 		" \"groupIds\":[\"5\"]}],"
 		" \"lastInfo\":\"20160407152500\", \"updateType\":\"ALL\","
 		" \"divideInfo\":"
-		"  {\"isLast\":true,\"serialId\":1,"
+		"  {\"isLast\":true,\"serialId\":2,"
 		"   \"requestId\":\"b6f13d37-0adc-4ded-aaec-823f8cf19bff\"}"
 		"},"
 		" \"id\":9342}";
