@@ -1324,6 +1324,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
 	parseItemParams(parser, itemList, serverInfo, hostInfoCache, errObj);
@@ -1364,14 +1375,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
-		JSONBuilder builder;
-		builder.startObject();
-		builder.add("jsonrpc", "2.0");
-		builder.add("result", result);
-		setResponseId(parser, builder);
-		builder.endObject();
-
-		return builder.generate();
+		return jsonResponse(result);
 	}
 
 	if (divided) {
@@ -1402,14 +1406,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 	// TODO: add error clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoVect,
@@ -1456,6 +1453,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseHistoryParams(parser, historyInfoVect,
 			   serverInfo, errObj);
@@ -1496,14 +1504,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
-		JSONBuilder builder;
-		builder.startObject();
-		builder.add("jsonrpc", "2.0");
-		builder.add("result", result);
-		setResponseId(parser, builder);
-		builder.endObject();
-
-		return builder.generate();
+		return jsonResponse(result);
 	}
 
 	if (divided) {
@@ -1534,13 +1535,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 
 	// TODO: add error clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect,
@@ -1601,6 +1596,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseHostsParams(parser, hostInfoVect, serverInfo, errObj);
 
@@ -1643,14 +1649,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
-		JSONBuilder builder;
-		builder.startObject();
-		builder.add("jsonrpc", "2.0");
-		builder.add("result", result);
-		setResponseId(parser, builder);
-		builder.endObject();
-
-		return builder.generate();
+		return jsonResponse(result);
 	}
 
 	if (divided) {
@@ -1692,13 +1691,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 
 	// TODO: add error clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseHostGroupsParams(JSONParser &parser,
@@ -1744,6 +1737,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseHostGroupsParams(parser, hostgroupVect, serverInfo, errObj);
 	string updateType;
@@ -1785,14 +1789,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
-		JSONBuilder builder;
-		builder.startObject();
-		builder.add("jsonrpc", "2.0");
-		builder.add("result", result);
-		setResponseId(parser, builder);
-		builder.endObject();
-
-		return builder.generate();
+		return jsonResponse(result);
 	}
 
 	if (divided) {
@@ -1831,13 +1828,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 
 	// TODO: Add failure clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 
@@ -1906,6 +1897,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
 	parseHostGroupMembershipParams(parser,
@@ -1952,14 +1954,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
-		JSONBuilder builder;
-		builder.startObject();
-		builder.add("jsonrpc", "2.0");
-		builder.add("result", result);
-		setResponseId(parser, builder);
-		builder.endObject();
-
-		return builder.generate();
+		return jsonResponse(result);
 	}
 
 	if (divided) {
@@ -2002,13 +1997,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 
 	// add error clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseTriggerStatus(JSONParser &parser, TriggerStatusType &status,
@@ -2143,6 +2132,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseTriggersParams(parser, triggerInfoList,
 	                    serverInfo, m_impl->hostInfoCache, errObj);
@@ -2190,14 +2190,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
-		JSONBuilder builder;
-		builder.startObject();
-		builder.add("jsonrpc", "2.0");
-		builder.add("result", result);
-		setResponseId(parser, builder);
-		builder.endObject();
-
-		return builder.generate();
+		return jsonResponse(result);
 	}
 
 	if (divided) {
@@ -2239,13 +2232,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 	// add failure
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseEventType(JSONParser &parser, EventInfo &eventInfo,
@@ -2345,6 +2332,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
 
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseEventsParams(parser, eventInfoList, serverInfo,
 	                  m_impl->hostInfoCache, errObj);
@@ -2394,14 +2392,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
-		JSONBuilder builder;
-		builder.startObject();
-		builder.add("jsonrpc", "2.0");
-		builder.add("result", result);
-		setResponseId(parser, builder);
-		builder.endObject();
-
-		return builder.generate();
+		return jsonResponse(result);
 	}
 
 	if (divided) {
@@ -2432,13 +2423,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 
 	// TODO: add error clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseHostParentsParams(
@@ -2492,6 +2477,17 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 	parseHostParentsParams(parser, vmInfoVect, errObj);
 
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
+
 	string updateType;
 	bool checkInvalidHostParents = parseUpdateType(parser, updateType, errObj);
 	MLPL_BUG("Take into account the result: checkInvalidHostParents: %d.",
@@ -2533,14 +2529,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	if (divided && !divideInfo.isLast) {
 		// TODO: add error clause
 		string result = "SUCCESS";
-		JSONBuilder builder;
-		builder.startObject();
-		builder.add("jsonrpc", "2.0");
-		builder.add("result", result);
-		setResponseId(parser, builder);
-		builder.endObject();
-
-		return builder.generate();
+		return jsonResponse(result);
 	}
 
 	if (divided) {
@@ -2570,13 +2559,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 	// TODO: make failure clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,
