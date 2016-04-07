@@ -1680,6 +1680,45 @@ void test_procedureHandlerPutHostParents(void)
 	cppcut_assert_equal(expected, actual);
 }
 
+void test_procedureHandlerPutHostParentsWithDivideInfo(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHostParent\","
+		" \"params\":{\"hostParents\":"
+		" [{\"childHostId\":\"12\",\"parentHostId\":\"10\"}],"
+		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"  \"requestId\":\"f2dac8bd-8dc1-4bee-9a48-a1aa2a5f3bb0\"}"
+		"},"
+		" \"id\":6234093}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHostParent\","
+		" \"params\":{\"hostParents\":"
+		" [{\"childHostId\":\"11\",\"parentHostId\":\"20\"}],"
+		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"  \"requestId\":\"f2dac8bd-8dc1-4bee-9a48-a1aa2a5f3bb0\"}"
+		"},"
+		" \"id\":6234093}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_HOST_PARENTS,
+					       parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":6234093}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_HOST_PARENTS,
+					       parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":6234093}";
+	cppcut_assert_equal(expected2, actual2);
+}
+
 void test_procedureHandlerPutHostParentsInvalidJSON(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
