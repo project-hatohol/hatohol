@@ -927,6 +927,80 @@ void test_procedureHandlerPutHostGroups(void)
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
+void test_procedureHandlerPutHostGroupsWithDivideInfo(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroups\","
+		" \"params\":{\"hostGroups\":[{\"groupId\":\"1\","
+		" \"groupName\":\"Group2\"}],\"updateType\":\"ALL\","
+		" \"lastInfo\":\"20150409104900\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"   \"requestId\":\"7701d99e-94d3-4a71-9ad8-e8f0584d6b08\"}"
+		"}, \"id\":\"123abc\"}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroups\","
+		" \"params\":{\"hostGroups\":[{\"groupId\":\"2\","
+		" \"groupName\":\"Group3\"}],\"updateType\":\"ALL\","
+		" \"lastInfo\":\"20160407152000\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"   \"requestId\":\"7701d99e-94d3-4a71-9ad8-e8f0584d6b08\"}"
+		"}, \"id\":\"123abc\"}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_HOST_GROUPS,
+					       parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"123abc\"}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_HOST_GROUPS,
+					       parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"123abc\"}";
+	cppcut_assert_equal(expected2, actual2);
+
+	HostgroupVect expectedHostgroupVect =
+	{
+		{
+			1,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // idInServer
+			"Group2",                // name
+		},
+		{
+			1,                       // id
+			monitoringServerInfo.id, // serverId
+			"2",                     // idInServer
+			"Group3",                // name
+		},
+	};
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	HostgroupVect hostgroupVect;
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getHostgroups(hostgroupVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroup : hostgroupVect) {
+			actualOutput += makeHostgroupsOutput(hostgroup, i);
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroup : expectedHostgroupVect) {
+			expectedOutput += makeHostgroupsOutput(hostgroup, i);
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
 void test_procedureHandlerPutHostGroupsInvalidJSON(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
