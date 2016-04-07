@@ -1512,6 +1512,120 @@ void test_procedureHandlerPutEvents(gconstpointer data)
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
+void data_procedureHandlerPutEventsWithDivideInfo(void)
+{
+	gcut_add_datum("WithTriggerId",
+	               "triggerIdContents", G_TYPE_STRING, " \"triggerId\":\"2\",",
+		       "triggerId", G_TYPE_STRING, "2", NULL);
+	gcut_add_datum("WithoutTriggerId",
+	               "triggerIdContents", G_TYPE_STRING, "",
+		       "triggerId", G_TYPE_STRING, DO_NOT_ASSOCIATE_TRIGGER_ID.c_str(), NULL);
+}
+
+void test_procedureHandlerPutEventsWithDivideInfo(gconstpointer data)
+{
+	loadDummyHosts();
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
+			       " \"params\":{\"events\":[{\"eventId\":\"1\","
+			       " \"time\":\"20150323151300\", \"type\":\"GOOD\","
+			       " %s \"status\": \"OK\", \"severity\":\"INFO\","
+			       " \"hostId\":\"3\", \"hostName\":\"exampleHostName\","
+			       " \"brief\":\"example brief\","
+			       " \"extendedInfo\": \"sample extended info\"}],"
+			       " \"lastInfo\":\"20150401175900\","
+			       " \"fetchId\":\"1\","
+			       " \"divideInfo\":"
+			       "  {\"isLast\":false,\"serialId\":1,"
+			       "  \"requestId\":\"979c30ce-2c60-428a-a17a-e8c4fe6960e4\"}"
+			       " },\"id\":2374234}",
+			       gcut_data_get_string(data, "triggerIdContents"));
+	string json2 =
+	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
+			       " \"params\":{\"events\":[{\"eventId\":\"2\","
+			       " \"time\":\"20160407160000\", \"type\":\"GOOD\","
+			       " %s \"status\": \"NG\", \"severity\":\"INFO\","
+			       " \"hostId\":\"3\", \"hostName\":\"exampleHostName\","
+			       " \"brief\":\"example problem brief\","
+			       " \"extendedInfo\": \"sample extended problem info\"}],"
+			       " \"lastInfo\":\"20160407161000\","
+			       " \"fetchId\":\"1\","
+			       " \"divideInfo\":"
+			       "  {\"isLast\":true,\"serialId\":2,"
+			       "  \"requestId\":\"979c30ce-2c60-428a-a17a-e8c4fe6960e4\"}"
+			       " },\"id\":2374234}",
+			       gcut_data_get_string(data, "triggerIdContents"));
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_EVENTS, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":2374234}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_EVENTS, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":2374234}";
+	cppcut_assert_equal(expected2, actual2);
+
+	timespec timeStamp1;
+	string lastValueTime1 = "20150323151300";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime1, timeStamp1);
+	timespec timeStamp2;
+	string lastValueTime2 = "20160407160000";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime2, timeStamp2);
+	EventInfoList expectedEventInfoList =
+	{
+		{
+			1,                                               // unifiedId
+			monitoringServerInfo.id,                         // serverId
+			"1",                                             // id
+			timeStamp1,                                      // time
+			EVENT_TYPE_GOOD,                                 // type
+			gcut_data_get_string(data, "triggerId"),         // triggerId
+			TRIGGER_STATUS_OK,                               // status
+			TRIGGER_SEVERITY_INFO,                           // severity
+			13,                                              // globalHostId
+			"3",                                             // hostIdInServer
+			"exampleHostName",                               // hostName
+			"example brief",                                 // brief
+			"sample extended info",                         // extendedInfo
+		},
+		{
+			2,                                               // unifiedId
+			monitoringServerInfo.id,                         // serverId
+			"2",                                             // id
+			timeStamp2,                                      // time
+			EVENT_TYPE_GOOD,                                 // type
+			gcut_data_get_string(data, "triggerId"),         // triggerId
+			TRIGGER_STATUS_PROBLEM,                          // status
+			TRIGGER_SEVERITY_INFO,                           // severity
+			13,                                              // globalHostId
+			"3",                                             // hostIdInServer
+			"exampleHostName",                               // hostName
+			"example problem brief",                         // brief
+			"sample extended problem info",                  // extendedInfo
+		},
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfoList eventInfoList;
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getEventInfoList(eventInfoList, option);
+	string actualOutput;
+	for (auto eventInfo : eventInfoList) {
+		actualOutput += makeEventOutput(eventInfo);
+	}
+	string expectedOutput;
+	for (auto eventInfo : expectedEventInfoList) {
+		expectedOutput += makeEventOutput(eventInfo);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
 void test_procedureHandlerPutEventsInvalidJSON(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
