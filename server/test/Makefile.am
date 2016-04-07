@@ -84,15 +84,11 @@ testHatohol_la_SOURCES = \
 	testArmStatus.cc testStatisticsCounter.cc \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc \
-	testZabbixAPI.cc
-
-if HAVE_LIBRABBITMQ
-testHatohol_la_SOURCES += \
+	testZabbixAPI.cc \
 	testAMQPConnectionInfo.cc \
 	testAMQPConnection.cc \
 	testGateJSONEventMessage.cc \
 	testHatoholArmPluginGateHAPI2.cc
-endif
 
 testHatohol_la_LDFLAGS = \
 	$(AM_LDFLAGS) $(LIBS)
