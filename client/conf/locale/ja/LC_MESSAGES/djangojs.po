@@ -170,6 +170,10 @@ msgstr "トリガー数 [障害あり]"
 msgid "New values per second"
 msgstr "１秒あたりの監視項目数"
 
+#: static/js/dashboard_view.js:157
+msgid "Group"
+msgstr "グループ"
+
 #: static/js/events_view.js:66 static/js/events_view.js.c:71
 #: static/js/hatohol_add_action_dialog.js:717 static/js/servers_view.js:419
 #: static/js/triggers_view.js:207 static/js/utils.js:59
@@ -244,7 +248,7 @@ msgstr "重度の障害"
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: static/js/events_view.js:90
+#: static/js/dashboard_view.js:154 static/js/events_view.js:90
 msgid "Monitoring Server"
 msgstr "監視サーバー"
 

@@ -27,8 +27,8 @@ msgstr "アクション追加"
 msgid "DELETE ACTIONS"
 msgstr "アクション削除"
 
-#: viewer/actions_ajax.html:55 viewer/dashboard_ajax.html:76
-#: viewer/dashboard_ajax.html.py:98 viewer/history_ajax.html:54
+#: viewer/actions_ajax.html:55
+#: viewer/dashboard_ajax.html.py:99 viewer/history_ajax.html:54
 #: viewer/incident_settings_ajax.html:59 viewer/latest_ajax.html:64
 #: viewer/triggers_ajax.html:135
 msgid "Monitoring Server"
@@ -160,32 +160,32 @@ msgstr "値"
 msgid "System status"
 msgstr "システムステータス"
 
-#: viewer/dashboard_ajax.html:77 viewer/dashboard_ajax.html.py:99
+#: viewer/dashboard_ajax.html.py:100
 #: viewer/history_ajax.html:55
 msgid "Group"
 msgstr "グループ"
 
-#: viewer/dashboard_ajax.html:78 viewer/events_ajax.html:117
+#: viewer/events_ajax.html:117
 msgid "Disaster"
 msgstr "致命的な障害"
 
-#: viewer/dashboard_ajax.html:79 viewer/events_ajax.html:116
+#: viewer/events_ajax.html:116
 msgid "High"
 msgstr "重度の障害"
 
-#: viewer/dashboard_ajax.html:80 viewer/events_ajax.html:115
+#: viewer/events_ajax.html:115
 msgid "Average"
 msgstr "軽度の障害"
 
-#: viewer/dashboard_ajax.html:81 viewer/events_ajax.html:114
+#: viewer/events_ajax.html:114
 msgid "Warning"
 msgstr "警告"
 
-#: viewer/dashboard_ajax.html:82 viewer/events_ajax.html:113
+#: viewer/events_ajax.html:113
 msgid "Information"
 msgstr "情報"
 
-#: viewer/dashboard_ajax.html:83 viewer/events_ajax.html:112
+#: viewer/events_ajax.html:112
 msgid "Not classified"
 msgstr "未分類"
 
