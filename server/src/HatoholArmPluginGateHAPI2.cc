@@ -1426,6 +1426,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		return builder.generate();
 	};
 
+	auto sweepInvalidItemInfoListSequentialIdPair = [&](){
+		auto range =
+		  m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap
+		    .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
 	parseItemParams(parser, itemList, serverInfo, hostInfoCache, errObj);
@@ -1457,13 +1466,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 					sequenceId,
 					divideInfo.serialId);
 
-			// Sweep invalid multimap pairs
-			auto range =
-			  m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap
-			    .equal_range(divideInfo.requestId);
-			for (auto it = range.first; it != range.second; ++it) {
-				m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
-			}
+			sweepInvalidItemInfoListSequentialIdPair();
 			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 			  &errObj.getErrors(), &parser);
@@ -1492,13 +1495,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 			collectedItemList.splice(collectedItemList.end(), elemMultiMap.second.second);
 		}
-
-		auto range =
-			m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap
-			  .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		sweepInvalidItemInfoListSequentialIdPair();
 	}
 
 	if (divided) {
