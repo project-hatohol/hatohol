@@ -623,6 +623,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 				for (auto it = range.first; it != range.second; ++it) {
 					m_impl.m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
 				}
+			} else if (m_methodName == HAPI2_PUT_HOSTS) {
+				auto range =
+				  m_impl.m_HostInfoVectSequentialIdMapRequestIdMultiMap
+				    .equal_range(m_requestId);
+				for (auto it = range.first; it != range.second; ++it) {
+					m_impl.m_HostInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
+				}
 			}
 		}
 
@@ -1731,6 +1738,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		return builder.generate();
 	};
 
+	auto sweepInvalidHostInfoVectSequentialIdPair = [&](){
+		auto range =
+		  m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap
+		    .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseHostsParams(parser, hostInfoVect, serverInfo, errObj);
 
@@ -1749,13 +1765,23 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, hostInfoVectSequentialIdPair);
 
-		uint64_t expectedSequenceId =
+		uint64_t sequenceId =
 		  m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+		if (sequenceId == 0) {
+			ProcedureCallback *callback =
+				new Impl::DividedProcedureCallback(*m_impl,
+								   divideInfo.requestId,
+								   HAPI2_PUT_HOSTS);
+			ProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+		}
+		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
-					expectedSequenceId,
+					sequenceId,
 					divideInfo.serialId);
+
+			sweepInvalidHostInfoVectSequentialIdPair();
 			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 			  &errObj.getErrors(), &parser);
@@ -1786,12 +1812,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 						     elemMultiMap.second.second.end());
 		}
 
-		auto range =
-			m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap
-			  .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		sweepInvalidHostInfoVectSequentialIdPair();
 	}
 
 	auto updateHostsInfo = [&](ServerHostDefVect &hostInfoVect){
