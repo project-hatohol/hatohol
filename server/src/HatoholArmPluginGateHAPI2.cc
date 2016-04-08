@@ -1425,12 +1425,19 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, itemInfoListSequentialIdPair);
 
-		uint64_t expectedSequenceId =
+		uint64_t sequenceId =
 		  m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+		if (sequenceId == 0) {
+			ProcedureCallback *callback =
+				new Impl::DividedProcedureCallback(*m_impl,
+								   divideInfo.requestId);
+			ProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+		}
+		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
-					expectedSequenceId,
+					sequenceId,
 					divideInfo.serialId);
 			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
