@@ -120,6 +120,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	set<string> m_supportedProcedureNameSet;
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
+	map<string, Closure0 *> m_divideInfoClosureMap;
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
 	multimap<RequestId, pair<SerialId, ItemInfoList>> m_ItemInfoListSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, HistoryInfoVect>> m_HistoryInfoVectSequentialIdMapRequestIdMultiMap;
@@ -185,6 +186,12 @@ struct HatoholArmPluginGateHAPI2::Impl
 	~Impl()
 	{
 		for (auto pair: m_fetchClosureMap) {
+			Closure0 *closure = pair.second;
+			if (closure)
+				(*closure)();
+			delete closure;
+		}
+		for (auto pair: m_divideInfoClosureMap) {
 			Closure0 *closure = pair.second;
 			if (closure)
 				(*closure)();
@@ -467,6 +474,28 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 	}
 
+	void queueDivideInfoCallback(const string &responseId, Closure0 *closure)
+	{
+		if (responseId.empty())
+			return;
+		m_divideInfoClosureMap[responseId] = closure;
+	}
+
+	void runDivideInfoCallback(const string &responseId)
+	{
+		if (responseId.empty())
+			return;
+
+		auto it = m_divideInfoClosureMap.find(responseId);
+		if (it != m_divideInfoClosureMap.end()) {
+			Closure0 *closure = it->second;
+			if (closure)
+				(*closure)();
+			m_divideInfoClosureMap.erase(it);
+			delete closure;
+		}
+	}
+
 	void queueFetchHistoryCallback(const string &fetchId,
 				       Closure1<HistoryInfoVect> *closure)
 	{
@@ -549,6 +578,52 @@ struct HatoholArmPluginGateHAPI2::Impl
 			flush();
 			MLPL_WARN("%s has been timed out.\n", m_methodName.c_str());
 			updateSelfMonitor(m_impl.monitorHAP2Conn, true);
+		}
+	};
+
+	struct DividedProcedureCallback : public ProcedureCallback {
+		Impl &m_impl;
+		const string m_responseId;
+		DividedProcedureCallback(Impl &impl,
+					 const string &responseId)
+		: m_impl(impl), m_responseId(responseId)
+		{
+		}
+
+		bool isSucceeded(JSONParser &parser)
+		{
+			if (parser.isMember("error"))
+				return false;
+
+			string result;
+			parser.read("result", result);
+			return result == "SUCCESS";
+		}
+
+		void flush(void)
+		{
+			m_impl.runDivideInfoCallback(m_responseId);
+		}
+
+		virtual void onGotResponse(JSONParser &parser) override
+		{
+			if (isSucceeded(parser)) {
+				// The callback function will be executed on
+				// put* or update* procedures.
+				return;
+			}
+
+			// The fetch* procedure has not been accepted by the
+			// plugin. The closure for it should be expired
+			// immediately.
+			flush();
+			MLPL_WARN("Failed to call.\n");
+		}
+
+		virtual void onTimeout(void) override
+		{
+			flush();
+			MLPL_WARN("Divided put precedure has been timed out.\n");
 		}
 	};
 
