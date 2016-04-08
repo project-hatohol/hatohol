@@ -651,6 +651,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 				for (auto it = range.first; it != range.second; ++it) {
 					m_impl.m_TriggerInfoListSequentialIdMapRequestIdMultiMap.erase(it);
 				}
+			} else if (m_methodName == HAPI2_PUT_EVENTS) {
+				auto range =
+				  m_impl.m_EventInfoListSequentialIdMapRequestIdMultiMap
+				    .equal_range(m_requestId);
+				for (auto it = range.first; it != range.second; ++it) {
+					m_impl.m_EventInfoListSequentialIdMapRequestIdMultiMap.erase(it);
+				}
 			}
 		}
 
@@ -2551,6 +2558,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		return builder.generate();
 	};
 
+	auto sweepInvalidEventInfoListSequentialIdPair = [&](){
+		auto range =
+		  m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap
+		    .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseEventsParams(parser, eventInfoList, serverInfo,
 	                  m_impl->hostInfoCache, errObj);
@@ -2576,13 +2592,23 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, eventInfoListSequentialIdPair);
 
-		uint64_t expectedSequenceId =
+		uint64_t sequenceId =
 		  m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+		if (sequenceId == 0) {
+			ProcedureCallback *callback =
+				new Impl::DividedProcedureCallback(*m_impl,
+								   divideInfo.requestId,
+								   HAPI2_PUT_EVENTS);
+			ProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+		}
+		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
-					expectedSequenceId,
+					sequenceId,
 					divideInfo.serialId);
+
+			sweepInvalidEventInfoListSequentialIdPair();
 			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 			  &errObj.getErrors(), &parser);
@@ -2612,12 +2638,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 							elemMultiMap.second.second);
 		}
 
-		auto range =
-			m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap
-			  .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		sweepInvalidEventInfoListSequentialIdPair();
 	}
 
 	if (divided) {
