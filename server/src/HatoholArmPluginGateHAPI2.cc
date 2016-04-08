@@ -607,6 +607,18 @@ struct HatoholArmPluginGateHAPI2::Impl
 			m_impl.runDivideInfoCallback(m_requestId);
 		}
 
+		void sweepInvalidRequestIdMultimapPair(void)
+		{
+			if (m_methodName == HAPI2_PUT_ITEMS) {
+				auto range =
+				  m_impl.m_ItemInfoListSequentialIdMapRequestIdMultiMap
+				    .equal_range(m_requestId);
+				for (auto it = range.first; it != range.second; ++it) {
+					m_impl.m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
+				}
+			}
+		}
+
 		virtual void onGotResponse(JSONParser &parser) override
 		{
 			if (isSucceeded(parser)) {
@@ -627,6 +639,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 			flush();
 			MLPL_WARN("Divided %s precedure has been timed out.\n",
 				  m_methodName.c_str());
+			sweepInvalidRequestIdMultimapPair();
 		}
 	};
 
@@ -1443,6 +1456,14 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 					" actual: %" PRId64 "\n",
 					sequenceId,
 					divideInfo.serialId);
+
+			// Sweep invalid multimap pairs
+			auto range =
+			  m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap
+			    .equal_range(divideInfo.requestId);
+			for (auto it = range.first; it != range.second; ++it) {
+				m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
+			}
 			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 			  &errObj.getErrors(), &parser);
