@@ -613,58 +613,50 @@ struct HatoholArmPluginGateHAPI2::Impl
 				auto range =
 				  m_impl.m_ItemInfoListSequentialIdMapRequestIdMultiMap
 				    .equal_range(m_requestId);
-				for (auto it = range.first; it != range.second; ++it) {
-					m_impl.m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
-				}
+				m_impl.m_ItemInfoListSequentialIdMapRequestIdMultiMap
+				  .erase(range.first, range.second);
 			} else if (m_methodName == HAPI2_PUT_HISTORY) {
 				auto range =
 				  m_impl.m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
 				    .equal_range(m_requestId);
-				for (auto it = range.first; it != range.second; ++it) {
-					m_impl.m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
-				}
+				m_impl.m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
+				  .erase(range.first, range.second);
 			} else if (m_methodName == HAPI2_PUT_HOSTS) {
 				auto range =
 				  m_impl.m_HostInfoVectSequentialIdMapRequestIdMultiMap
 				    .equal_range(m_requestId);
-				for (auto it = range.first; it != range.second; ++it) {
-					m_impl.m_HostInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
-				}
+				m_impl.m_HostInfoVectSequentialIdMapRequestIdMultiMap
+				  .erase(range.first, range.second);
 			} else if (m_methodName == HAPI2_PUT_HOST_GROUPS) {
 				auto range =
 				  m_impl.m_HostgroupVectSequentialIdMapRequestIdMultiMap
 				    .equal_range(m_requestId);
-				for (auto it = range.first; it != range.second; ++it) {
-					m_impl.m_HostgroupVectSequentialIdMapRequestIdMultiMap.erase(it);
-				}
+				m_impl.m_HostgroupVectSequentialIdMapRequestIdMultiMap
+				  .erase(range.first, range.second);
 			} else if (m_methodName == HAPI2_PUT_HOST_GROUP_MEMEBRSHIP) {
 				auto range =
 				  m_impl.m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
 				    .equal_range(m_requestId);
-				for (auto it = range.first; it != range.second; ++it) {
-					m_impl.m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.erase(it);
-				}
+				m_impl.m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
+				  .erase(range.first, range.second);
 			} else if (m_methodName == HAPI2_PUT_TRIGGERS) {
 				auto range =
 				  m_impl.m_TriggerInfoListSequentialIdMapRequestIdMultiMap
 				    .equal_range(m_requestId);
-				for (auto it = range.first; it != range.second; ++it) {
-					m_impl.m_TriggerInfoListSequentialIdMapRequestIdMultiMap.erase(it);
-				}
+				m_impl.m_TriggerInfoListSequentialIdMapRequestIdMultiMap
+				  .erase(range.first, range.second);
 			} else if (m_methodName == HAPI2_PUT_EVENTS) {
 				auto range =
 				  m_impl.m_EventInfoListSequentialIdMapRequestIdMultiMap
 				    .equal_range(m_requestId);
-				for (auto it = range.first; it != range.second; ++it) {
-					m_impl.m_EventInfoListSequentialIdMapRequestIdMultiMap.erase(it);
-				}
+				m_impl.m_EventInfoListSequentialIdMapRequestIdMultiMap
+				  .erase(range.first, range.second);
 			} else if (m_methodName == HAPI2_PUT_HOST_PARENTS) {
 				auto range =
 				  m_impl.m_VMInfoVectSequentialIdMapRequestIdMultiMap
 				    .equal_range(m_requestId);
-				for (auto it = range.first; it != range.second; ++it) {
-					m_impl.m_VMInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
-				}
+				m_impl.m_VMInfoVectSequentialIdMapRequestIdMultiMap
+				  .erase(range.first, range.second);
 			}
 		}
 
@@ -1479,9 +1471,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		auto range =
 		  m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap
 		    .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap
+		  .erase(range.first, range.second);
 	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
@@ -1535,6 +1526,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		// TODO: add error clause
 		string result = "SUCCESS";
 		return jsonResponse(result);
+	} else if (divided && divideInfo.isLast) {
+		m_impl->runDivideInfoCallback(divideInfo.requestId);
 	}
 
 	if (divided) {
@@ -1621,9 +1614,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		auto range =
 		  m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
 		    .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
+		  .erase(range.first, range.second);
 	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
@@ -1777,9 +1769,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		auto range =
 		  m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap
 		    .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap
+		  .erase(range.first, range.second);
 	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
@@ -1932,9 +1923,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		auto range =
 		  m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap
 		    .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap
+		  .erase(range.first, range.second);
 	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
@@ -2106,9 +2096,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		auto range =
 		  m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
 		    .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
+		  .erase(range.first, range.second);
 	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
@@ -2355,9 +2344,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		auto range =
 		  m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap
 		    .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap
+		  .erase(range.first, range.second);
 	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
@@ -2569,9 +2557,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		auto range =
 		  m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap
 		    .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap
+		  .erase(range.first, range.second);
 	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
@@ -2728,9 +2715,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 		auto range =
 		  m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap
 		    .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap
+		  .erase(range.first, range.second);
 	};
 
 	string updateType;
