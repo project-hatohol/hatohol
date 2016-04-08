@@ -584,9 +584,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 	struct DividedProcedureCallback : public ProcedureCallback {
 		Impl &m_impl;
 		const string m_responseId;
+		const string m_methodName;
 		DividedProcedureCallback(Impl &impl,
-					 const string &responseId)
-		: m_impl(impl), m_responseId(responseId)
+					 const string &responseId,
+					 const string &methodName)
+		: m_impl(impl), m_responseId(responseId), m_methodName(methodName)
 		{
 		}
 
@@ -617,13 +619,14 @@ struct HatoholArmPluginGateHAPI2::Impl
 			// plugin. The closure for it should be expired
 			// immediately.
 			flush();
-			MLPL_WARN("Failed to call.\n");
+			MLPL_WARN("Failed to call: %s\n", m_methodName.c_str());
 		}
 
 		virtual void onTimeout(void) override
 		{
 			flush();
-			MLPL_WARN("Divided put precedure has been timed out.\n");
+			MLPL_WARN("Divided %s precedure has been timed out.\n",
+				  m_methodName.c_str());
 		}
 	};
 
@@ -1430,7 +1433,8 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		if (sequenceId == 0) {
 			ProcedureCallback *callback =
 				new Impl::DividedProcedureCallback(*m_impl,
-								   divideInfo.requestId);
+								   divideInfo.requestId,
+								   HAPI2_PUT_ITEMS);
 			ProcedureCallbackPtr callbackPtr(callback, false);
 			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
 		}
