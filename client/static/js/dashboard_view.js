@@ -316,11 +316,22 @@ var DashboardView = function(userProfile) {
   }
 
   function load() {
+    self.startConnection('severity-rank', loadSeverityLabel);
     self.startConnection('overview', updateCore);
     self.startConnection('log-search-systems/', updateLogSearch, null,
                          {
                            pathPrefix: "",
                          });
+  }
+
+  function loadSeverityLabel(reply) {
+    var severityRanks = reply["SeverityRanks"];
+    if (severityRanks) {
+      for (var i = 0; i < severityRanks.length; i++) {
+        if (severityRanks[i].label)
+          severityLabels[severityRanks[i].status] = severityRanks[i].label;
+      }
+    }
   }
 };
 
