@@ -474,19 +474,19 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 	}
 
-	void queueDivideInfoCallback(const string &responseId, Closure0 *closure)
+	void queueDivideInfoCallback(const string &requestId, Closure0 *closure)
 	{
-		if (responseId.empty())
+		if (requestId.empty())
 			return;
-		m_divideInfoClosureMap[responseId] = closure;
+		m_divideInfoClosureMap[requestId] = closure;
 	}
 
-	void runDivideInfoCallback(const string &responseId)
+	void runDivideInfoCallback(const string &requestId)
 	{
-		if (responseId.empty())
+		if (requestId.empty())
 			return;
 
-		auto it = m_divideInfoClosureMap.find(responseId);
+		auto it = m_divideInfoClosureMap.find(requestId);
 		if (it != m_divideInfoClosureMap.end()) {
 			Closure0 *closure = it->second;
 			if (closure)
