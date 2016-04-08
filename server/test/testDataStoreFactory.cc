@@ -23,9 +23,7 @@
 #include "DBTablesConfig.h"
 #include "DataStoreFactory.h"
 #include "DataStoreFake.h"
-#ifdef HAVE_LIBRABBITMQ
 #include "HatoholArmPluginGateHAPI2.h"
-#endif
 #include "Helpers.h"
 #include "Reaper.h"
 #include "DBTablesTest.h"
@@ -74,12 +72,10 @@ void data_create(void)
 	               "type", G_TYPE_INT, MONITORING_SYSTEM_FAKE,
 	               "type-name", G_TYPE_STRING, typeid(DataStoreFake).name(),
 	               NULL);
-#ifdef HAVE_LIBRABBITMQ
 	gcut_add_datum("MONITORING_SYSTEM_HAPI2",
 	               "type", G_TYPE_INT, MONITORING_SYSTEM_HAPI2,
 	               "type-name", G_TYPE_STRING,
 	                 typeid(HatoholArmPluginGateHAPI2).name(), NULL);
-#endif
 }
 
 void test_create(gconstpointer data)

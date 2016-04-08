@@ -283,11 +283,7 @@ void test_addServerHapiJSON(void)
 		params["tlsEnableVerify"] = "true";
 	params["uuid"] = armPluginInfo.uuid;
 
-#ifdef HAVE_LIBRABBITMQ
 	assertAddServerWithSetup(params, HTERR_OK);
-#else // HAVE_LIBRABBITMQ
-	assertAddServerWithSetup(params, HTERR_FAILED_TO_CREATE_DATA_STORE);
-#endif // HAVE_LIBRABBITMQ
 
 	// check the content in the DB
 	ThreadLocalDBCache cache;
