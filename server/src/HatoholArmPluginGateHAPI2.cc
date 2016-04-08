@@ -108,6 +108,15 @@ static void updateSelfMonitor(SelfMonitorPtr monitor, const bool &hasError)
 
 struct HatoholArmPluginGateHAPI2::Impl
 {
+	struct DividableProcedureCallContext
+	{
+		Impl *m_impl;
+		DividableProcedureCallbackPtr m_callback;
+		string m_producerId;
+		guint m_timeoutId;
+	};
+	using DividableProcedureCallContextPtr = unique_ptr<DividableProcedureCallContext>;
+
 	// We have a copy. The access to the object is MT-safe.
 	const MonitoringServerInfo m_serverInfo;
 
@@ -120,7 +129,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	set<string> m_supportedProcedureNameSet;
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
-	map<string, Closure0 *> m_divideInfoClosureMap;
+	map<string, DividableProcedureCallContextPtr> m_dividableProcedureCallContextMap;
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
 	multimap<RequestId, pair<SerialId, ItemInfoList>> m_ItemInfoListSequentialIdMapRequestIdMultiMap;
 	multimap<RequestId, pair<SerialId, HistoryInfoVect>> m_HistoryInfoVectSequentialIdMapRequestIdMultiMap;
@@ -191,12 +200,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 				(*closure)();
 			delete closure;
 		}
-		for (auto pair: m_divideInfoClosureMap) {
-			Closure0 *closure = pair.second;
-			if (closure)
-				(*closure)();
-			delete closure;
+		for (auto &pair: m_dividableProcedureCallContextMap) {
+			DividableProcedureCallContextPtr &context = pair.second;
+			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
 		}
+		m_dividableProcedureCallContextMap.clear();
 		for (auto pair: m_fetchHistoryClosureMap) {
 			Closure1<HistoryInfoVect> *closure = pair.second;
 			HistoryInfoVect historyInfoVect;
@@ -474,11 +482,24 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 	}
 
-	void queueDivideInfoCallback(const string &requestId, Closure0 *closure)
+	void queueDivideInfoCallback(const string &requestId,
+	                             DividableProcedureCallbackPtr callback)
 	{
 		if (requestId.empty())
 			return;
-		m_divideInfoClosureMap[requestId] = closure;
+
+		constexpr int PROCEDURE_TIMEOUT_MSEC = 90 * 1000;
+
+		DividableProcedureCallContext *context = new DividableProcedureCallContext();
+		context->m_impl = this;
+		context->m_callback = callback;
+		context->m_producerId = requestId;
+		context->m_timeoutId =
+		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
+				      onDividableProcedureCallContext,
+				      context);
+		m_dividableProcedureCallContextMap[requestId] =
+		  DividableProcedureCallContextPtr(context);
 	}
 
 	void runDivideInfoCallback(const string &requestId)
@@ -486,14 +507,32 @@ struct HatoholArmPluginGateHAPI2::Impl
 		if (requestId.empty())
 			return;
 
-		auto it = m_divideInfoClosureMap.find(requestId);
-		if (it != m_divideInfoClosureMap.end()) {
-			Closure0 *closure = it->second;
-			if (closure)
-				(*closure)();
-			m_divideInfoClosureMap.erase(it);
-			delete closure;
+		auto it = m_dividableProcedureCallContextMap.find(requestId);
+		if (it != m_dividableProcedureCallContextMap.end()) {
+			DividableProcedureCallContextPtr &context = it->second;
+			if (context->m_callback.hasData())
+				context->m_callback->onGotResponse();
+			g_source_remove(context->m_timeoutId);
+			m_dividableProcedureCallContextMap.erase(it);
 		}
+	}
+
+	static gboolean onDividableProcedureCallContext(gpointer data)
+	{
+		DividableProcedureCallContext *context =
+		  static_cast<DividableProcedureCallContext *>(data);
+
+		if (context->m_callback.hasData())
+			context->m_callback->onTimeout();
+
+		map<string, DividableProcedureCallContextPtr> &contextMap
+		  = context->m_impl->m_dividableProcedureCallContextMap;
+
+		auto it = contextMap.find(context->m_producerId);
+		if (it != contextMap.end())
+			contextMap.erase(it);
+
+		return FALSE;
 	}
 
 	void queueFetchHistoryCallback(const string &fetchId,
@@ -581,7 +620,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 	};
 
-	struct DividedProcedureCallback : public ProcedureCallback {
+	struct DividedProcedureCallback : public DividableProcedureCallback {
 		Impl &m_impl;
 		const string m_requestId;
 		const string m_methodName;
@@ -660,19 +699,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 			}
 		}
 
-		virtual void onGotResponse(JSONParser &parser) override
+		virtual void onGotResponse() override
 		{
-			if (isSucceeded(parser)) {
-				// The callback function will be executed on
-				// put* or update* procedures.
-				return;
-			}
-
-			// The fetch* procedure has not been accepted by the
-			// plugin. The closure for it should be expired
-			// immediately.
-			flush();
-			MLPL_WARN("Failed to call: %s\n", m_methodName.c_str());
+			// TODO
+			return;
 		}
 
 		virtual void onTimeout(void) override
@@ -1493,12 +1523,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		uint64_t sequenceId =
 		  m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
 		if (sequenceId == 0) {
-			ProcedureCallback *callback =
+			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
 							     HAPI2_PUT_ITEMS);
-			ProcedureCallbackPtr callbackPtr(callback, false);
-			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+			DividableProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 		}
 		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
@@ -1637,12 +1667,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		uint64_t sequenceId =
 		  m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
 		if (sequenceId == 0) {
-			ProcedureCallback *callback =
+			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
 							     HAPI2_PUT_HISTORY);
-			ProcedureCallbackPtr callbackPtr(callback, false);
-			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+			DividableProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 		}
 		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
@@ -1794,12 +1824,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		uint64_t sequenceId =
 		  m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
 		if (sequenceId == 0) {
-			ProcedureCallback *callback =
+			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
 							     HAPI2_PUT_HOSTS);
-			ProcedureCallbackPtr callbackPtr(callback, false);
-			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+			DividableProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 		}
 		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
@@ -1947,12 +1977,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		uint64_t sequenceId =
 		  m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
 		if (sequenceId == 0) {
-			ProcedureCallback *callback =
+			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
 							     HAPI2_PUT_HOST_GROUPS);
-			ProcedureCallbackPtr callbackPtr(callback, false);
-			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+			DividableProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 		}
 		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
@@ -2125,12 +2155,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		uint64_t sequenceId =
 		  m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
 		if (sequenceId == 0) {
-			ProcedureCallback *callback =
+			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
 							     HAPI2_PUT_HOST_GROUP_MEMEBRSHIP);
-			ProcedureCallbackPtr callbackPtr(callback, false);
-			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+			DividableProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 		}
 		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
@@ -2374,12 +2404,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		uint64_t sequenceId =
 		  m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
 		if (sequenceId == 0) {
-			ProcedureCallback *callback =
+			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
 							     HAPI2_PUT_TRIGGERS);
-			ProcedureCallbackPtr callbackPtr(callback, false);
-			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+			DividableProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 		}
 		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
@@ -2589,12 +2619,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		uint64_t sequenceId =
 		  m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
 		if (sequenceId == 0) {
-			ProcedureCallback *callback =
+			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
 							     HAPI2_PUT_EVENTS);
-			ProcedureCallbackPtr callbackPtr(callback, false);
-			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+			DividableProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 		}
 		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
@@ -2739,12 +2769,12 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 		uint64_t sequenceId =
 		  m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
 		if (sequenceId == 0) {
-			ProcedureCallback *callback =
+			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
 							     HAPI2_PUT_HOST_PARENTS);
-			ProcedureCallbackPtr callbackPtr(callback, false);
-			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+			DividableProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 		}
 		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
