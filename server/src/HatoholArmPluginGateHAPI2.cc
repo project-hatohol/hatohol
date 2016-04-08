@@ -631,16 +631,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 		{
 		}
 
-		bool isSucceeded(JSONParser &parser)
-		{
-			if (parser.isMember("error"))
-				return false;
-
-			string result;
-			parser.read("result", result);
-			return result == "SUCCESS";
-		}
-
 		void flush(void)
 		{
 			m_impl.runDivideInfoCallback(m_requestId);
