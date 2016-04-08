@@ -616,6 +616,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 				for (auto it = range.first; it != range.second; ++it) {
 					m_impl.m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
 				}
+			} else if (m_methodName == HAPI2_PUT_HISTORY) {
+				auto range =
+				  m_impl.m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
+				    .equal_range(m_requestId);
+				for (auto it = range.first; it != range.second; ++it) {
+					m_impl.m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
+				}
 			}
 		}
 
@@ -1568,6 +1575,15 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		return builder.generate();
 	};
 
+	auto sweepInvalidHistoryInfoVectSequentialIdPair = [&](){
+		auto range =
+		  m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
+		    .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	};
+
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseHistoryParams(parser, historyInfoVect,
 			   serverInfo, errObj);
@@ -1584,13 +1600,22 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, historyInfoVectSequentialIdPair);
 
-		uint64_t expectedSequenceId =
+		uint64_t sequenceId =
 		  m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) !=expectedSequenceId) {
+		if (sequenceId == 0) {
+			ProcedureCallback *callback =
+				new Impl::DividedProcedureCallback(*m_impl,
+								   divideInfo.requestId,
+								   HAPI2_PUT_HISTORY);
+			ProcedureCallbackPtr callbackPtr(callback, false);
+			m_impl->queueDivideInfoCallback(divideInfo.requestId, nullptr);
+		}
+		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
-					expectedSequenceId,
+					sequenceId,
 					divideInfo.serialId);
+			sweepInvalidHistoryInfoVectSequentialIdPair();
 			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
 			  &errObj.getErrors(), &parser);
@@ -1621,12 +1646,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 							elemMultiMap.second.second.end());
 		}
 
-		auto range =
-			m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
-			  .equal_range(divideInfo.requestId);
-		for (auto it = range.first; it != range.second; ++it) {
-			m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
-		}
+		sweepInvalidHistoryInfoVectSequentialIdPair();
 	}
 
 	if (!fetchId.empty()) {
