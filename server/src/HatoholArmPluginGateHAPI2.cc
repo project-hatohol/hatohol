@@ -583,12 +583,12 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 	struct DividedProcedureCallback : public ProcedureCallback {
 		Impl &m_impl;
-		const string m_responseId;
+		const string m_requestId;
 		const string m_methodName;
 		DividedProcedureCallback(Impl &impl,
-					 const string &responseId,
+					 const string &requestId,
 					 const string &methodName)
-		: m_impl(impl), m_responseId(responseId), m_methodName(methodName)
+		: m_impl(impl), m_requestId(requestId), m_methodName(methodName)
 		{
 		}
 
@@ -604,7 +604,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		void flush(void)
 		{
-			m_impl.runDivideInfoCallback(m_responseId);
+			m_impl.runDivideInfoCallback(m_requestId);
 		}
 
 		virtual void onGotResponse(JSONParser &parser) override
