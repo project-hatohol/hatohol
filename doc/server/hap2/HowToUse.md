@@ -36,7 +36,7 @@ And you need to disable SELinux by the following command:
 Finally, you can enable and start rabbitmq-server by the following commands:
 
     # systemctl enable rabbitmq-server
-    # systemctl rabbitmq-server start
+    # systemctl start rabbitmq-server
 
 ## Install RabbitMQ server on Ubuntu 14.04
 
