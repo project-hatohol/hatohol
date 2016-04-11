@@ -118,7 +118,6 @@ CommandLineOptions::CommandLineOptions(void)
   dbPassword(NULL),
   foreground(FALSE),
   testMode(FALSE),
-  loadOldEvents(FALSE),
   faceRestPort(-1),
   faceRestNumWorkers(0)
 {
@@ -141,7 +140,6 @@ struct ConfigManager::Impl {
 	AtomicValue<int>      faceRestPort;
 	string                user;
 	string                pidFilePath;
-	bool                  loadOldEvents;
 	int                   faceRestNumWorkers;
 
 	// methods
@@ -152,7 +150,6 @@ struct ConfigManager::Impl {
 	  testMode(false),
 	  faceRestPort(0),
 	  pidFilePath(DEFAULT_PID_FILE_PATH),
-	  loadOldEvents(false),
 	  faceRestNumWorkers(0)
 	{
 	}
@@ -234,8 +231,6 @@ struct ConfigManager::Impl {
 			pidFilePath = cmdLineOpts.pidFilePath;
 		if (cmdLineOpts.user)
 			user = cmdLineOpts.user;
-		if (cmdLineOpts.loadOldEvents)
-			loadOldEvents = cmdLineOpts.loadOldEvents;
 		if (cmdLineOpts.faceRestNumWorkers > 0)
 			faceRestNumWorkers = cmdLineOpts.faceRestNumWorkers;
 	}
@@ -333,10 +328,6 @@ bool ConfigManager::parseCommandLine(gint *argc, gchar ***argv,
 		{"log-level",
 		 'l', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseLogLevel,
 		 "Log level: DBG, INFO, WARN, ERR, CRIT, or BUG. ", NULL},
-		{"load-old-events",
-		 0, 0, G_OPTION_ARG_NONE,
-		 &cmdLineOpts->loadOldEvents,
-		 "Load old events when adding new monitoring server.", NULL},
 		{"face-rest-workers",
 		 'T', 0, G_OPTION_ARG_CALLBACK, (gpointer)parseFaceRestNumWorkers,
 		 "Number of FaceRest worker threads", NULL},
@@ -495,11 +486,6 @@ string ConfigManager::getPidFilePath(void) const
 string ConfigManager::getUser(void) const
 {
 	return m_impl->user;
-}
-
-bool ConfigManager::getLoadOldEvents(void) const
-{
-	return m_impl->loadOldEvents;
 }
 
 int ConfigManager::getFaceRestNumWorkers(void) const
