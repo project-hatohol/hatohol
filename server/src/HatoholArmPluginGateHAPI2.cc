@@ -121,6 +121,14 @@ struct HatoholArmPluginGateHAPI2::Impl
 	HostInfoCache hostInfoCache;
 	map<string, Closure0 *> m_fetchClosureMap;
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
+	multimap<RequestId, pair<SerialId, ItemInfoList>> m_ItemInfoListSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, HistoryInfoVect>> m_HistoryInfoVectSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, ServerHostDefVect>> m_HostInfoVectSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, HostgroupVect>> m_HostgroupVectSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, HostgroupMemberVect>> m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, TriggerInfoList>> m_TriggerInfoListSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, EventInfoList>> m_EventInfoListSequentialIdMapRequestIdMultiMap;
+	multimap<RequestId, pair<SerialId, VMInfoVect>> m_VMInfoVectSequentialIdMapRequestIdMultiMap;
 	SelfMonitorPtr monitorPluginInternal;
 	SelfMonitorPtr monitorParseError;
 	SelfMonitorPtr monitorGateInternal;
@@ -1220,6 +1228,16 @@ string HatoholArmPluginGateHAPI2::procedureHandlerLastInfo(JSONParser &parser)
 	return builder.generate();
 }
 
+static bool parseDivideInfo(JSONParser &parser, DivideInfo &divideInfo,
+                            JSONRPCError &errObj)
+{
+	PARSE_AS_MANDATORY("isLast", divideInfo.isLast, errObj);
+	PARSE_AS_MANDATORY("serialId", divideInfo.serialId, errObj);
+	PARSE_AS_MANDATORY("requestId", divideInfo.requestId, errObj);
+
+	return true;
+}
+
 static bool parseItemParams(JSONParser &parser, ItemInfoList &itemInfoList,
 			    const MonitoringServerInfo &serverInfo,
 			    const HostInfoCache &hostInfoCache,
@@ -1297,16 +1315,52 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ItemInfoList itemList;
+	ItemInfoList collectedItemList;
 	JSONRPCError errObj;
 	string fetchId;
+	DivideInfo divideInfo;
+	bool divided = false;
+	pair<SerialId, ItemInfoList> itemInfoListSequentialIdPair;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
+
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
 	parseItemParams(parser, itemList, serverInfo, hostInfoCache, errObj);
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
+	}
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
+
+		itemInfoListSequentialIdPair = make_pair(divideInfo.serialId, itemList);
+		m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.emplace(
+		  divideInfo.requestId, itemInfoListSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					" actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 
 	parser.endObject(); // params
@@ -1318,7 +1372,33 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		  &errObj.getErrors(), &parser);
 	}
 
-	dataStore->addItemList(itemList);
+	if (divided && !divideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		return jsonResponse(result);
+	}
+
+	if (divided) {
+		for (auto &elemMultiMap : m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap) {
+			if (divideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedItemList.splice(collectedItemList.end(), elemMultiMap.second.second);
+		}
+
+		auto range =
+			m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap
+			  .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	if (divided) {
+		dataStore->addItemList(collectedItemList);
+	} else {
+		dataStore->addItemList(itemList);
+	}
 
 	if (!fetchId.empty()) {
 		m_impl->runFetchCallback(fetchId);
@@ -1326,14 +1406,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 	// TODO: add error clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseHistoryParams(JSONParser &parser, HistoryInfoVect &historyInfoVect,
@@ -1371,16 +1444,53 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
   JSONParser &parser)
 {
 	HistoryInfoVect historyInfoVect;
+	HistoryInfoVect collectedHistoryInfoVect;
 	JSONRPCError errObj;
 	string fetchId;
+	bool divided = false;
+	DivideInfo divideInfo;
+	pair<SerialId, HistoryInfoVect> historyInfoVectSequentialIdPair;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
+
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseHistoryParams(parser, historyInfoVect,
 			   serverInfo, errObj);
 	if (parser.isMember("fetchId")) {
 		parser.read("fetchId", fetchId);
+	}
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
+
+		historyInfoVectSequentialIdPair = make_pair(divideInfo.serialId,
+		                                            historyInfoVect);
+		m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.emplace(
+		  divideInfo.requestId, historyInfoVectSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) !=expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					" actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
@@ -1391,19 +1501,41 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		  &errObj.getErrors(), &parser);
 	}
 
+	if (divided && !divideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		return jsonResponse(result);
+	}
+
+	if (divided) {
+		for (auto &elemMultiMap : m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap) {
+			if (divideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedHistoryInfoVect.insert(collectedHistoryInfoVect.end(),
+							elemMultiMap.second.second.begin(),
+							elemMultiMap.second.second.end());
+		}
+
+		auto range =
+			m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
+			  .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
 	if (!fetchId.empty()) {
-		m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
+		if (divided) {
+			m_impl->runFetchHistoryCallback(fetchId, collectedHistoryInfoVect);
+		} else {
+			m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
+		}
 	}
 
 	// TODO: add error clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseHostsParams(JSONParser &parser, ServerHostDefVect &hostInfoVect,
@@ -1455,10 +1587,25 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	ServerHostDefVect hostInfoVect;
+	ServerHostDefVect collectedHostInfoVect;
 	JSONRPCError errObj;
+	DivideInfo divideInfo;
+	bool divided = false;
+	pair<SerialId, ServerHostDefVect> hostInfoVectSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_HOST);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
+
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseHostsParams(parser, hostInfoVect, serverInfo, errObj);
@@ -1467,6 +1614,28 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 	bool checkInvalidHosts = parseUpdateType(parser, updateType, errObj);
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
+	}
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
+
+		hostInfoVectSequentialIdPair = make_pair(divideInfo.serialId,
+		                                         hostInfoVect);
+		m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.emplace(
+		  divideInfo.requestId, hostInfoVectSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					" actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
@@ -1477,26 +1646,52 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		  &errObj.getErrors(), &parser);
 	}
 
-	// TODO: reflect error in response
-	if (checkInvalidHosts) {
-		dataStore->syncHosts(hostInfoVect, serverInfo.id,
-	                             m_impl->hostInfoCache, lastInfoUpserter);
+	if (divided && !divideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		return jsonResponse(result);
+	}
+
+	if (divided) {
+		for (auto &elemMultiMap : m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap) {
+			if (divideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedHostInfoVect.insert(collectedHostInfoVect.end(),
+						     elemMultiMap.second.second.begin(),
+						     elemMultiMap.second.second.end());
+		}
+
+		auto range =
+			m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap
+			  .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	auto updateHostsInfo = [&](ServerHostDefVect &hostInfoVect){
+		// TODO: reflect error in response
+		if (checkInvalidHosts) {
+			dataStore->syncHosts(hostInfoVect, serverInfo.id,
+					     m_impl->hostInfoCache, lastInfoUpserter);
+		} else {
+			HostHostIdMap hostsMap;
+			dataStore->upsertHosts(hostInfoVect, &hostsMap,
+					       lastInfoUpserter);
+			m_impl->hostInfoCache.update(hostInfoVect, &hostsMap);
+		}
+	};
+
+	if (divided) {
+		updateHostsInfo(collectedHostInfoVect);
 	} else {
-		HostHostIdMap hostsMap;
-		dataStore->upsertHosts(hostInfoVect, &hostsMap,
-		                       lastInfoUpserter);
-		m_impl->hostInfoCache.update(hostInfoVect, &hostsMap);
+		updateHostsInfo(hostInfoVect);
 	}
 
 	// TODO: add error clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseHostGroupsParams(JSONParser &parser,
@@ -1533,10 +1728,25 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupVect hostgroupVect;
+	HostgroupVect collectedHostgroupVect;
 	JSONRPCError errObj;
+	bool divided = false;
+	DivideInfo divideInfo;
+	pair<SerialId, HostgroupVect> hostgroupVectSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_HOST_GROUP);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
+
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseHostGroupsParams(parser, hostgroupVect, serverInfo, errObj);
@@ -1544,6 +1754,28 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 	bool checkInvalidHostGroups = parseUpdateType(parser, updateType, errObj);
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
+	}
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
+
+		hostgroupVectSequentialIdPair = make_pair(divideInfo.serialId,
+		                                          hostgroupVect);
+		m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.emplace(
+		  divideInfo.requestId, hostgroupVectSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					" actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
@@ -1554,23 +1786,49 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		  &errObj.getErrors(), &parser);
 	}
 
-	// TODO: reflect error in response
-	if (checkInvalidHostGroups) {
-		dataStore->syncHostgroups(hostgroupVect, serverInfo.id,
-		                          lastInfoUpserter);
+	if (divided && !divideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		return jsonResponse(result);
+	}
+
+	if (divided) {
+		for (auto &elemMultiMap : m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap) {
+			if (divideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedHostgroupVect.insert(collectedHostgroupVect.end(),
+						      elemMultiMap.second.second.begin(),
+						      elemMultiMap.second.second.end());
+		}
+
+		auto range =
+			m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap
+			  .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	auto updateHostGroupsInfo = [&](HostgroupVect &hostgroupVect){
+		// TODO: reflect error in response
+		if (checkInvalidHostGroups) {
+			dataStore->syncHostgroups(hostgroupVect, serverInfo.id,
+						  lastInfoUpserter);
+		} else {
+			dataStore->upsertHostgroups(hostgroupVect, lastInfoUpserter);
+		}
+	};
+
+	if (divided) {
+		updateHostGroupsInfo(collectedHostgroupVect);
 	} else {
-		dataStore->upsertHostgroups(hostgroupVect, lastInfoUpserter);
+		updateHostGroupsInfo(hostgroupVect);
 	}
 
 	// TODO: Add failure clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 
@@ -1629,11 +1887,26 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	HostgroupMemberVect hostgroupMembershipVect;
+	HostgroupMemberVect collectedHostgroupMembershipVect;
 	JSONRPCError errObj;
+	bool divided = false;
+	DivideInfo divideInfo;
+	pair<SerialId, HostgroupMemberVect> hostgroupMembershipVectSequentialIdPair;
 	Impl::UpsertLastInfoHook
 	 lastInfoUpserter(*m_impl, LAST_INFO_HOST_GROUP_MEMBERSHIP);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
+
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	const HostInfoCache &hostInfoCache = m_impl->hostInfoCache;
@@ -1647,6 +1920,28 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
+
+		hostgroupMembershipVectSequentialIdPair =
+		  make_pair(divideInfo.serialId, hostgroupMembershipVect);
+		m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.emplace(
+		  divideInfo.requestId, hostgroupMembershipVectSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					" actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -1656,25 +1951,53 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		  &errObj.getErrors(), &parser);
 	}
 
-	// TODO: reflect error in response
-	if (checkInvalidHostGroupMembership) {
-		dataStore->syncHostgroupMembers(hostgroupMembershipVect,
-		                                serverInfo.id,
-		                                lastInfoUpserter);
+	if (divided && !divideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		return jsonResponse(result);
+	}
+
+	if (divided) {
+		for (auto &elemMultiMap : m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap) {
+			if (divideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedHostgroupMembershipVect.insert(
+			  collectedHostgroupMembershipVect.end(),
+			  elemMultiMap.second.second.begin(),
+			  elemMultiMap.second.second.end());
+		}
+
+		auto range =
+			m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
+			  .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	auto updateHostGroupMembershipInfo =
+	  [&](HostgroupMemberVect &hostgroupMembershipVect) {
+		// TODO: reflect error in response
+		if (checkInvalidHostGroupMembership) {
+			dataStore->syncHostgroupMembers(hostgroupMembershipVect,
+							serverInfo.id,
+							lastInfoUpserter);
+		} else {
+			dataStore->upsertHostgroupMembers(hostgroupMembershipVect,
+							  lastInfoUpserter);
+		}
+	};
+
+	if (divided) {
+		updateHostGroupMembershipInfo(collectedHostgroupMembershipVect);
 	} else {
-		dataStore->upsertHostgroupMembers(hostgroupMembershipVect,
-		                                  lastInfoUpserter);
+		updateHostGroupMembershipInfo(hostgroupMembershipVect);
 	}
 
 	// add error clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseTriggerStatus(JSONParser &parser, TriggerStatusType &status,
@@ -1800,10 +2123,25 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	ThreadLocalDBCache cache;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	TriggerInfoList triggerInfoList;
+	TriggerInfoList collectedTriggerInfoList;
 	JSONRPCError errObj;
+	DivideInfo divideInfo;
+	bool divided = false;
+	pair<SerialId, TriggerInfoList> triggerInfoListSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_TRIGGER);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
+
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseTriggersParams(parser, triggerInfoList,
@@ -1818,6 +2156,28 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
+
+		triggerInfoListSequentialIdPair = make_pair(divideInfo.serialId,
+							    triggerInfoList);
+		m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.emplace(
+		  divideInfo.requestId, triggerInfoListSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					" actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -1827,12 +2187,43 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		  &errObj.getErrors(), &parser);
 	}
 
-	// TODO: reflect error in response
-	if (checkInvalidTriggers) {
-		dataStore->syncTriggers(triggerInfoList, serverInfo.id,
-		                        lastInfoUpserter);
+	if (divided && !divideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		return jsonResponse(result);
+	}
+
+	if (divided) {
+		for (auto &elemMultiMap : m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap) {
+			if (divideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedTriggerInfoList.splice(collectedTriggerInfoList.end(),
+							elemMultiMap.second.second);
+		}
+
+		auto range =
+			m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap
+			  .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	auto updateTriggers = [&](TriggerInfoList &triggerInfoList) {
+		// TODO: reflect error in response
+		if (checkInvalidTriggers) {
+			dataStore->syncTriggers(triggerInfoList, serverInfo.id,
+						lastInfoUpserter);
+		} else {
+			dataStore->addTriggers(triggerInfoList, lastInfoUpserter);
+		}
+	};
+
+	if (divided) {
+		updateTriggers(collectedTriggerInfoList);
 	} else {
-		dataStore->addTriggers(triggerInfoList, lastInfoUpserter);
+		updateTriggers(triggerInfoList);
 	}
 
 	if (!fetchId.empty()) {
@@ -1841,13 +2232,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 	// add failure
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseEventType(JSONParser &parser, EventInfo &eventInfo,
@@ -1936,12 +2321,27 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	EventInfoList eventInfoList;
+	EventInfoList collectedEventInfoList;
 	JSONRPCError errObj;
 	string fetchId;
+	DivideInfo divideInfo;
+	bool divided = false;
+	pair<SerialId, EventInfoList> eventInfoListSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl, LAST_INFO_EVENT);
 	bool mayMoreFlag = false;
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
 	parser.startObject("params");
+
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
 
 	const MonitoringServerInfo &serverInfo = m_impl->m_serverInfo;
 	parseEventsParams(parser, eventInfoList, serverInfo,
@@ -1958,6 +2358,28 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
 	}
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
+
+		eventInfoListSequentialIdPair = make_pair(divideInfo.serialId,
+							  eventInfoList);
+		m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.emplace(
+		  divideInfo.requestId, eventInfoListSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					" actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
+	}
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
@@ -1967,20 +2389,41 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		  &errObj.getErrors(), &parser);
 	}
 
-	dataStore->addEventList(eventInfoList, lastInfoUpserter);
+	if (divided && !divideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		return jsonResponse(result);
+	}
+
+	if (divided) {
+		for (auto &elemMultiMap : m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap) {
+			if (divideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedEventInfoList.splice(collectedEventInfoList.end(),
+							elemMultiMap.second.second);
+		}
+
+		auto range =
+			m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap
+			  .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	if (divided) {
+		dataStore->addEventList(collectedEventInfoList, lastInfoUpserter);
+	} else {
+		dataStore->addEventList(eventInfoList, lastInfoUpserter);
+	}
 
 	if (!mayMoreFlag)
 		m_impl->runFetchCallback(fetchId);
 
 	// TODO: add error clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseHostParentsParams(
@@ -2022,7 +2465,11 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 	ThreadLocalDBCache cache;
 	DBTablesHost &dbHost = cache.getHost();
 	VMInfoVect vmInfoVect;
+	VMInfoVect collectedVMInfoVect;
 	JSONRPCError errObj;
+	DivideInfo divideInfo;
+	bool divided = false;
+	pair<SerialId, VMInfoVect> vmInfoVectSequentialIdPair;
 	Impl::UpsertLastInfoHook lastInfoUpserter(*m_impl,
 	                                          LAST_INFO_HOST_PARENT);
 	CHECK_MANDATORY_PARAMS_EXISTENCE("params", errObj);
@@ -2030,12 +2477,45 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 	parseHostParentsParams(parser, vmInfoVect, errObj);
 
+	auto jsonResponse = [&](string &result) {
+		JSONBuilder builder;
+		builder.startObject();
+		builder.add("jsonrpc", "2.0");
+		builder.add("result", result);
+		setResponseId(parser, builder);
+		builder.endObject();
+
+		return builder.generate();
+	};
+
 	string updateType;
 	bool checkInvalidHostParents = parseUpdateType(parser, updateType, errObj);
 	MLPL_BUG("Take into account the result: checkInvalidHostParents: %d.",
 	         checkInvalidHostParents);
 	if (parser.isMember("lastInfo")) {
 		parser.read("lastInfo", lastInfoUpserter.lastInfo);
+	}
+	if (parser.isMember("divideInfo")) {
+		parser.startObject("divideInfo");
+		divided = parseDivideInfo(parser, divideInfo, errObj);
+		parser.endObject(); // divideInfo
+
+		vmInfoVectSequentialIdPair = make_pair(divideInfo.serialId,
+						       vmInfoVect);
+		m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.emplace(
+		  divideInfo.requestId, vmInfoVectSequentialIdPair);
+
+		uint64_t expectedSequenceId =
+		  m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
+		if (static_cast<uint64_t>(divideInfo.serialId) != expectedSequenceId) {
+			errObj.addError("Invalid serialId. expected: %" PRIu64
+					" actual: %" PRId64 "\n",
+					expectedSequenceId,
+					divideInfo.serialId);
+			return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
+			  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
+			  &errObj.getErrors(), &parser);
+		}
 	}
 	parser.endObject(); // params
 
@@ -2046,17 +2526,40 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 		  &errObj.getErrors(), &parser);
 	}
 
-	dbHost.upsertVMInfoVect(vmInfoVect, lastInfoUpserter);
+	if (divided && !divideInfo.isLast) {
+		// TODO: add error clause
+		string result = "SUCCESS";
+		return jsonResponse(result);
+	}
+
+	if (divided) {
+		for (auto &elemMultiMap : m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap) {
+			if (divideInfo.requestId != elemMultiMap.first)
+				continue;
+
+			collectedVMInfoVect.insert(
+			  collectedVMInfoVect.end(),
+			  elemMultiMap.second.second.begin(),
+			  elemMultiMap.second.second.end());
+		}
+
+		auto range =
+			m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap
+			  .equal_range(divideInfo.requestId);
+		for (auto it = range.first; it != range.second; ++it) {
+			m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.erase(it);
+		}
+	}
+
+	if (divided) {
+		dbHost.upsertVMInfoVect(collectedVMInfoVect, lastInfoUpserter);
+	} else {
+		dbHost.upsertVMInfoVect(vmInfoVect, lastInfoUpserter);
+	}
 
 	// TODO: make failure clause
 	string result = "SUCCESS";
-	JSONBuilder builder;
-	builder.startObject();
-	builder.add("jsonrpc", "2.0");
-	builder.add("result", result);
-	setResponseId(parser, builder);
-	builder.endObject();
-	return builder.generate();
+	return jsonResponse(result);
 }
 
 static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,

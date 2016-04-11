@@ -25,6 +25,15 @@
 #include "JSONBuilder.h"
 #include "DBTablesLastInfo.h"
 
+struct DivideInfo {
+	bool isLast;
+	int64_t serialId;
+	std::string  requestId;
+};
+
+using RequestId = std::string;
+using SerialId = int64_t;
+
 class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterfaceHAPI2 {
 public:
 	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo,

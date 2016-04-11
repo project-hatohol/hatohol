@@ -21,6 +21,7 @@
 #include <atomic>
 #include <chrono>
 #include <thread>
+#include <algorithm>
 #include <Hatohol.h>
 #include <HatoholArmPluginGateHAPI2.h>
 #include <AMQPConnection.h>
@@ -481,6 +482,124 @@ void test_procedureHandlerPutItems(void)
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
+void test_procedureHandlerPutItemsWithDivideInfo(void)
+{
+	loadDummyHosts();
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
+		" \"params\":{\"items\":["
+		// 1st item
+		"{\"itemId\":\"1\", \"hostId\":\"1\","
+		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175523\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"},"
+		// 2nd item
+		" {\"itemId\":\"2\", \"hostId\":\"1\","
+		" \"brief\":\"example brief\", \"lastValueTime\":\"20150410175531\","
+		" \"lastValue\":\"example value\","
+		" \"itemGroupName\":[\"example name\"], \"unit\":\"example unit\"}],"
+		// others
+		" \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"  \"requestId\":\"2029dcdd-db29-4ac4-8006-3d975874b5a8\"}"
+		" }, \"id\":83241245}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
+		" \"params\":{\"items\":["
+		// 3rd item
+		" {\"itemId\":\"3\", \"hostId\":\"1\","
+		" \"brief\":\"example wiht empty itemGroupName array\","
+		" \"lastValueTime\":\"20151117095531\","
+		" \"lastValue\":\"Alpha Beta Gamma\","
+		" \"itemGroupName\":[], \"unit\":\"Kelvin\"}],"
+		// others
+		" \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"  \"requestId\":\"2029dcdd-db29-4ac4-8006-3d975874b5a8\"}"
+		" }, \"id\":83241245}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_ITEMS, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":83241245}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_ITEMS, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":83241245}";
+	cppcut_assert_equal(expected2, actual2);
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	ItemInfoList itemInfoList;
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getItemInfoList(itemInfoList, option);
+	ItemInfoList expectedItemInfoList;
+	ItemInfo item1, item2, item3;
+	timespec timeStamp;
+	string lastValueTime;
+
+	lastValueTime = "20150410175523";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item1.serverId       = 302;
+	item1.id             = "1";
+	item1.globalHostId   = 10;
+	item1.hostIdInServer = "1";
+	item1.brief          = "example brief";
+	item1.lastValueTime  = timeStamp;
+	item1.lastValue      = "example value";
+	item1.categoryNames  = {"example name"};
+	item1.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	item1.delay          = 0;
+	item1.unit           = "example unit";
+	expectedItemInfoList.push_back(item1);
+
+	lastValueTime = "20150410175531";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item2.serverId       = 302;
+	item2.id             = "2";
+	item2.globalHostId   = 10;
+	item2.hostIdInServer = "1";
+	item2.brief          = "example brief";
+	item2.lastValueTime  = timeStamp;
+	item2.lastValue      = "example value";
+	item2.categoryNames  = {"example name"};
+	item2.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	item2.delay          = 0;
+	item2.unit           = "example unit";
+	expectedItemInfoList.push_back(item2);
+
+	lastValueTime = "20151117095531";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item3.serverId       = 302;
+	item3.id             = "3";
+	item3.globalHostId   = 10;
+	item3.hostIdInServer = "1";
+	item3.brief          = "example wiht empty itemGroupName array";
+	item3.lastValueTime  = timeStamp;
+	item3.lastValue      = "Alpha Beta Gamma";
+	item3.categoryNames.clear();
+	item3.valueType      = ITEM_INFO_VALUE_TYPE_UNKNOWN;
+	item3.delay          = 0;
+	item3.unit           = "Kelvin";
+	expectedItemInfoList.push_back(item3);
+
+	string actualOutput;
+	for (auto itemInfo : itemInfoList) {
+		actualOutput += makeItemOutput(itemInfo);
+	}
+	string expectedOutput;
+	for (auto itemInfo : expectedItemInfoList) {
+		expectedOutput += makeItemOutput(itemInfo);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
 void test_procedureHandlerPutItemsInvalidJSON(void)
 {
 	loadDummyHosts();
@@ -538,6 +657,45 @@ void test_procedureHandlerPutHistory(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":-83241245}";
 	cppcut_assert_equal(expected, actual);
+}
+
+void test_procedureHandlerPutHistoryWithDivideInfo(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
+		" \"params\":{\"itemId\":\"1\","
+		" \"samples\":[{\"value\":\"exampleValue\","
+		"  \"time\":\"20150323113032.000000000\"},"
+		"  {\"value\":\"exampleValue2\",\"time\":\"20150323113033.000000000\"}],"
+		" \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"   \"requestId\":\"3aa730a1-53dd-4e58-a327-f486c841da6e\"}"
+		"}, \"id\":-83241245}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
+		" \"params\":{\"itemId\":\"1\","
+		" \"samples\":[{\"value\":\"exampleValue\","
+		" \"time\":\"20150323113034.000000000\"},"
+		"{\"value\":\"exampleValue2\",\"time\":\"20150323113035.000000000\"}],"
+		" \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"   \"requestId\":\"3aa730a1-53dd-4e58-a327-f486c841da6e\"}"
+		"}, \"id\":-83241245}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_HISTORY, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":-83241245}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_HISTORY, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":-83241245}";
+	cppcut_assert_equal(expected2, actual2);
 }
 
 void test_procedureHandlerPutHistoryInvalidJSON(void)
@@ -610,6 +768,87 @@ void test_procedureHandlerPutHosts(void)
 		size_t i = 0;
 		for (auto host : expectedHostVect) {
 			expectedOutput += makeHostsOutput(host, i);
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
+void test_procedureHandlerPutHostsWithDivideInfo(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHosts\", \"params\":"
+		"{\"hosts\":[{\"hostId\":\"1\", \"hostName\":\"exampleHostName1\"}],"
+		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201504091052\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"   \"requestId\":\"aee4039b-29fe-4478-a2a2-99c0f4a4dbfd\"}"
+		"}, \"id\":\"deadbeaf\"}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHosts\", \"params\":"
+		"{\"hosts\":[{\"hostId\":\"2\", \"hostName\":\"exampleHostName2\"}],"
+		" \"updateType\":\"UPDATED\",\"lastInfo\":\"201604091500\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"   \"requestId\":\"aee4039b-29fe-4478-a2a2-99c0f4a4dbfd\"}"
+		"}, \"id\":\"deadbeaf\"}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_HOSTS, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_HOSTS, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"deadbeaf\"}";
+	cppcut_assert_equal(expected2, actual2);
+
+	ServerHostDefVect expectedHostVect =
+	{
+		{
+			1,                       // id
+			10,                      // hostId
+			monitoringServerInfo.id, // serverId
+			"1",                     // hostIdInServer
+			"exampleHostName1",      // name
+		},
+		{
+			2,                       // id
+			10,                      // hostId
+			monitoringServerInfo.id, // serverId
+			"2",                     // hostIdInServer
+			"exampleHostName2",      // name
+		},
+
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	ServerHostDefVect hostDefVect;
+	HostsQueryOption option(USER_ID_SYSTEM);
+	option.setStatusSet({HOST_STAT_NORMAL});
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getServerHostDefs(hostDefVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		sort(begin(hostDefVect), end(hostDefVect),
+		     [](ServerHostDef lhs, ServerHostDef rhs) -> int {
+			     return lhs.hostIdInServer < rhs.hostIdInServer;
+		     });
+		for (auto host : hostDefVect) {
+			actualOutput += makeHostsOutput(host, i);
+			++i;
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto host : expectedHostVect) {
+			expectedOutput += makeHostsOutput(host, i);
+			++i;
 		}
 	}
 	cppcut_assert_equal(expectedOutput, actualOutput);
@@ -696,6 +935,80 @@ void test_procedureHandlerPutHostGroups(void)
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
+void test_procedureHandlerPutHostGroupsWithDivideInfo(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroups\","
+		" \"params\":{\"hostGroups\":[{\"groupId\":\"1\","
+		" \"groupName\":\"Group2\"}],\"updateType\":\"ALL\","
+		" \"lastInfo\":\"20150409104900\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"   \"requestId\":\"7701d99e-94d3-4a71-9ad8-e8f0584d6b08\"}"
+		"}, \"id\":\"123abc\"}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroups\","
+		" \"params\":{\"hostGroups\":[{\"groupId\":\"2\","
+		" \"groupName\":\"Group3\"}],\"updateType\":\"ALL\","
+		" \"lastInfo\":\"20160407152000\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"   \"requestId\":\"7701d99e-94d3-4a71-9ad8-e8f0584d6b08\"}"
+		"}, \"id\":\"123abc\"}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_HOST_GROUPS,
+					       parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"123abc\"}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_HOST_GROUPS,
+					       parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":\"123abc\"}";
+	cppcut_assert_equal(expected2, actual2);
+
+	HostgroupVect expectedHostgroupVect =
+	{
+		{
+			1,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // idInServer
+			"Group2",                // name
+		},
+		{
+			1,                       // id
+			monitoringServerInfo.id, // serverId
+			"2",                     // idInServer
+			"Group3",                // name
+		},
+	};
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	HostgroupVect hostgroupVect;
+	HostgroupsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getHostgroups(hostgroupVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroup : hostgroupVect) {
+			actualOutput += makeHostgroupsOutput(hostgroup, i);
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroup : expectedHostgroupVect) {
+			expectedOutput += makeHostgroupsOutput(hostgroup, i);
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
 void test_procedureHandlerPutHostGroupsInvalidJSON(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
@@ -748,6 +1061,110 @@ void test_procedureHandlerPutHostGroupMembership(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":9342}";
 	cppcut_assert_equal(expected, actual);
+
+	HostgroupMemberVect expectedHostgroupMemberVect =
+	{
+		{
+			1,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // hostIdInServer
+			"1",                     // hostGroupIdInServer
+			10,                      // hostId
+		},
+		{
+			2,                       // id
+			monitoringServerInfo.id, // serverId
+			"1",                     // hostIdInServer
+			"2",                     // hostGroupIdInServer
+			10,                      // hostId
+		},
+		{
+			3,                       // id
+			monitoringServerInfo.id, // serverId
+			"2",                     // hostIdInServer
+			"2",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+		{
+			4,                       // id
+			monitoringServerInfo.id, // serverId
+			"2",                     // hostIdInServer
+			"5",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+		{
+			5,                       // id
+			monitoringServerInfo.id, // serverId
+			"4",                     // hostIdInServer
+			"5",                     // hostGroupIdInServer
+			INVALID_HOST_ID,         // hostId
+		},
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesHost &dbHost = cache.getHost();
+	HostgroupMemberVect hostgroupMemberVect;
+	HostgroupMembersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbHost.getHostgroupMembers(hostgroupMemberVect, option);
+	string actualOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroupMember : hostgroupMemberVect) {
+			actualOutput += makeMapHostsHostgroupsOutput(hostgroupMember, i);
+			i++;
+		}
+	}
+	string expectedOutput;
+	{
+		size_t i = 0;
+		for (auto hostgroupMember : expectedHostgroupMemberVect) {
+			expectedOutput += makeMapHostsHostgroupsOutput(hostgroupMember, i);
+			i++;
+		}
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
+void test_procedureHandlerPutHostGroupMembershipWithDivideInfo(void)
+{
+	loadDummyHosts();
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroupMembership\","
+		" \"params\":{\"hostGroupMembership\":[{\"hostId\":\"1\","
+		" \"groupIds\":[\"1\", \"2\"]}],"
+		" \"lastInfo\":\"20150409105600\", \"updateType\":\"ALL\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"   \"requestId\":\"b6f13d37-0adc-4ded-aaec-823f8cf19bff\"}"
+		"},"
+		" \"id\":9342}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroupMembership\","
+		" \"params\":{\"hostGroupMembership\":[{\"hostId\":\"2\","
+		" \"groupIds\":[\"2\", \"5\"]}, {\"hostId\":\"4\","
+		" \"groupIds\":[\"5\"]}],"
+		" \"lastInfo\":\"20160407152500\", \"updateType\":\"ALL\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"   \"requestId\":\"b6f13d37-0adc-4ded-aaec-823f8cf19bff\"}"
+		"},"
+		" \"id\":9342}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(
+	  HAPI2_PUT_HOST_GROUP_MEMEBRSHIP, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":9342}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(
+	  HAPI2_PUT_HOST_GROUP_MEMEBRSHIP, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":9342}";
+	cppcut_assert_equal(expected2, actual2);
 
 	HostgroupMemberVect expectedHostgroupMemberVect =
 	{
@@ -902,6 +1319,98 @@ void test_procedureHandlerPutTriggers(void)
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
+void test_procedureHandlerPutTriggersWithDivideInfo(void)
+{
+	loadDummyHosts();
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putTriggers\","
+		" \"params\":{\"updateType\":\"UPDATED\","
+		" \"lastInfo\":\"201504061606\", \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"   \"requestId\":\"62cf68a6-e6b4-4b88-9e0a-9a494b6b5d19\"},"
+		" \"triggers\":[{\"triggerId\":\"1\", \"status\":\"OK\","
+		" \"severity\":\"INFO\",\"lastChangeTime\":\"20150323175800\","
+		" \"hostId\":\"1\", \"hostName\":\"exampleHostName\","
+		" \"brief\":\"example brief\","
+		" \"extendedInfo\": \"sample extended info\"}]},\"id\":34031}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putTriggers\","
+		" \"params\":{\"updateType\":\"UPDATED\","
+		" \"lastInfo\":\"201604071600\", \"fetchId\":\"1\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"   \"requestId\":\"62cf68a6-e6b4-4b88-9e0a-9a494b6b5d19\"},"
+		" \"triggers\":[{\"triggerId\":\"2\", \"status\":\"NG\","
+		" \"severity\":\"INFO\",\"lastChangeTime\":\"20150323275800\","
+		" \"hostId\":\"1\", \"hostName\":\"exampleHostName\","
+		" \"brief\":\"example problem brief\","
+		" \"extendedInfo\": \"sample extended problem info\"}]},\"id\":34031}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_TRIGGERS, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_TRIGGERS, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":34031}";
+	cppcut_assert_equal(expected2, actual2);
+	timespec timeStamp1;
+	HatoholArmPluginGateHAPI2::parseTimeStamp("20150323175800", timeStamp1);
+	timespec timeStamp2;
+	HatoholArmPluginGateHAPI2::parseTimeStamp("20150323275800", timeStamp2);
+	TriggerInfoList expectedTriggerInfoList =
+	{
+		{
+			monitoringServerInfo.id, // serverId
+			"1",                     // id
+			TRIGGER_STATUS_OK,       // status
+			TRIGGER_SEVERITY_INFO,   // severity
+			timeStamp1,              // lastChangeTime
+			10,                      // globalHostId
+			"1",                     // hostIdInServer
+			"exampleHostName",       // hostName
+			"example brief",         // brief
+			"sample extended info",  // extendedInfo
+			TRIGGER_VALID,           // validity
+		},
+		{
+			monitoringServerInfo.id,       // serverId
+			"2",                           // id
+			TRIGGER_STATUS_PROBLEM,        // status
+			TRIGGER_SEVERITY_INFO,         // severity
+			timeStamp2,                    // lastChangeTime
+			10,                            // globalHostId
+			"1",                           // hostIdInServer
+			"exampleHostName",             // hostName
+			"example problem brief",       // brief
+			"sample extended problem info", // extendedInfo
+			TRIGGER_VALID,                 // validity
+		}
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	TriggerInfoList triggerInfoList;
+	TriggersQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	option.setExcludeFlags(EXCLUDE_SELF_MONITORING);
+	dbMonitoring.getTriggerInfoList(triggerInfoList, option);
+	string actualOutput;
+	for (auto trigger : triggerInfoList) {
+		actualOutput += makeTriggerOutput(trigger);
+	}
+	string expectedOutput;
+	for (auto trigger : expectedTriggerInfoList) {
+		expectedOutput += makeTriggerOutput(trigger);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
 void test_procedureHandlerPutTriggersInvalidJSON(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
@@ -1011,6 +1520,120 @@ void test_procedureHandlerPutEvents(gconstpointer data)
 	cppcut_assert_equal(expectedOutput, actualOutput);
 }
 
+void data_procedureHandlerPutEventsWithDivideInfo(void)
+{
+	gcut_add_datum("WithTriggerId",
+	               "triggerIdContents", G_TYPE_STRING, " \"triggerId\":\"2\",",
+		       "triggerId", G_TYPE_STRING, "2", NULL);
+	gcut_add_datum("WithoutTriggerId",
+	               "triggerIdContents", G_TYPE_STRING, "",
+		       "triggerId", G_TYPE_STRING, DO_NOT_ASSOCIATE_TRIGGER_ID.c_str(), NULL);
+}
+
+void test_procedureHandlerPutEventsWithDivideInfo(gconstpointer data)
+{
+	loadDummyHosts();
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
+			       " \"params\":{\"events\":[{\"eventId\":\"1\","
+			       " \"time\":\"20150323151300\", \"type\":\"GOOD\","
+			       " %s \"status\": \"OK\", \"severity\":\"INFO\","
+			       " \"hostId\":\"3\", \"hostName\":\"exampleHostName\","
+			       " \"brief\":\"example brief\","
+			       " \"extendedInfo\": \"sample extended info\"}],"
+			       " \"lastInfo\":\"20150401175900\","
+			       " \"fetchId\":\"1\","
+			       " \"divideInfo\":"
+			       "  {\"isLast\":false,\"serialId\":1,"
+			       "  \"requestId\":\"979c30ce-2c60-428a-a17a-e8c4fe6960e4\"}"
+			       " },\"id\":2374234}",
+			       gcut_data_get_string(data, "triggerIdContents"));
+	string json2 =
+	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
+			       " \"params\":{\"events\":[{\"eventId\":\"2\","
+			       " \"time\":\"20160407160000\", \"type\":\"GOOD\","
+			       " %s \"status\": \"NG\", \"severity\":\"INFO\","
+			       " \"hostId\":\"3\", \"hostName\":\"exampleHostName\","
+			       " \"brief\":\"example problem brief\","
+			       " \"extendedInfo\": \"sample extended problem info\"}],"
+			       " \"lastInfo\":\"20160407161000\","
+			       " \"fetchId\":\"1\","
+			       " \"divideInfo\":"
+			       "  {\"isLast\":true,\"serialId\":2,"
+			       "  \"requestId\":\"979c30ce-2c60-428a-a17a-e8c4fe6960e4\"}"
+			       " },\"id\":2374234}",
+			       gcut_data_get_string(data, "triggerIdContents"));
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_EVENTS, parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":2374234}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_EVENTS, parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":2374234}";
+	cppcut_assert_equal(expected2, actual2);
+
+	timespec timeStamp1;
+	string lastValueTime1 = "20150323151300";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime1, timeStamp1);
+	timespec timeStamp2;
+	string lastValueTime2 = "20160407160000";
+	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime2, timeStamp2);
+	EventInfoList expectedEventInfoList =
+	{
+		{
+			1,                                               // unifiedId
+			monitoringServerInfo.id,                         // serverId
+			"1",                                             // id
+			timeStamp1,                                      // time
+			EVENT_TYPE_GOOD,                                 // type
+			gcut_data_get_string(data, "triggerId"),         // triggerId
+			TRIGGER_STATUS_OK,                               // status
+			TRIGGER_SEVERITY_INFO,                           // severity
+			13,                                              // globalHostId
+			"3",                                             // hostIdInServer
+			"exampleHostName",                               // hostName
+			"example brief",                                 // brief
+			"sample extended info",                         // extendedInfo
+		},
+		{
+			2,                                               // unifiedId
+			monitoringServerInfo.id,                         // serverId
+			"2",                                             // id
+			timeStamp2,                                      // time
+			EVENT_TYPE_GOOD,                                 // type
+			gcut_data_get_string(data, "triggerId"),         // triggerId
+			TRIGGER_STATUS_PROBLEM,                          // status
+			TRIGGER_SEVERITY_INFO,                           // severity
+			13,                                              // globalHostId
+			"3",                                             // hostIdInServer
+			"exampleHostName",                               // hostName
+			"example problem brief",                         // brief
+			"sample extended problem info",                  // extendedInfo
+		},
+	};
+
+	ThreadLocalDBCache cache;
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+	EventInfoList eventInfoList;
+	EventsQueryOption option(USER_ID_SYSTEM);
+	option.setTargetServerId(monitoringServerInfo.id);
+	dbMonitoring.getEventInfoList(eventInfoList, option);
+	string actualOutput;
+	for (auto eventInfo : eventInfoList) {
+		actualOutput += makeEventOutput(eventInfo);
+	}
+	string expectedOutput;
+	for (auto eventInfo : expectedEventInfoList) {
+		expectedOutput += makeEventOutput(eventInfo);
+	}
+	cppcut_assert_equal(expectedOutput, actualOutput);
+}
+
 void test_procedureHandlerPutEventsInvalidJSON(void)
 {
 	HatoholArmPluginGateHAPI2Ptr gate(
@@ -1063,6 +1686,45 @@ void test_procedureHandlerPutHostParents(void)
 	string expected =
 		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":6234093}";
 	cppcut_assert_equal(expected, actual);
+}
+
+void test_procedureHandlerPutHostParentsWithDivideInfo(void)
+{
+	HatoholArmPluginGateHAPI2Ptr gate(
+	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	string json1 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHostParent\","
+		" \"params\":{\"hostParents\":"
+		" [{\"childHostId\":\"12\",\"parentHostId\":\"10\"}],"
+		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\","
+		" \"divideInfo\":"
+		"  {\"isLast\":false,\"serialId\":1,"
+		"  \"requestId\":\"f2dac8bd-8dc1-4bee-9a48-a1aa2a5f3bb0\"}"
+		"},"
+		" \"id\":6234093}";
+	string json2 =
+		"{\"jsonrpc\":\"2.0\", \"method\":\"putHostParent\","
+		" \"params\":{\"hostParents\":"
+		" [{\"childHostId\":\"11\",\"parentHostId\":\"20\"}],"
+		" \"updateType\":\"ALL\", \"lastInfo\":\"201504152246\","
+		" \"divideInfo\":"
+		"  {\"isLast\":true,\"serialId\":2,"
+		"  \"requestId\":\"f2dac8bd-8dc1-4bee-9a48-a1aa2a5f3bb0\"}"
+		"},"
+		" \"id\":6234093}";
+	JSONParser parser1(json1);
+	gate->setEstablished(true);
+	string actual1 = gate->interpretHandler(HAPI2_PUT_HOST_PARENTS,
+					       parser1);
+	string expected1 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":6234093}";
+	cppcut_assert_equal(expected1, actual1);
+	JSONParser parser2(json2);
+	string actual2 = gate->interpretHandler(HAPI2_PUT_HOST_PARENTS,
+					       parser2);
+	string expected2 =
+		"{\"jsonrpc\":\"2.0\",\"result\":\"SUCCESS\",\"id\":6234093}";
+	cppcut_assert_equal(expected2, actual2);
 }
 
 void test_procedureHandlerPutHostParentsInvalidJSON(void)
