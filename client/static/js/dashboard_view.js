@@ -24,6 +24,16 @@ var DashboardView = function(userProfile) {
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
+  var severityLabels = {
+    // Status: Label
+    0: gettext("Not classified"),
+    1: gettext("Information"),
+    2: gettext("Warning"),
+    3: gettext("Average"),
+    4: gettext("High"),
+    5: gettext("Disaster")
+  };
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
@@ -136,6 +146,25 @@ var DashboardView = function(userProfile) {
     return html;
   }
 
+  function drawTriggerHead() {
+    var html = "";
+
+    html += "<tr>";
+    html += "<th>";
+    html += gettext("Monitoring Server");
+    html += "</th>";
+    html += "<th>";
+    html += gettext("Group");
+    html += "</th>";
+    for (var i = Object.keys(severityLabels).length; i > 0; i--) {
+      html += "<th>";
+      html += severityLabels[i-1];
+      html += "</th>";
+    }
+    html += "</tr>";
+    return html;
+  }
+
   function drawTriggerBody(replyData, parsedData) {
     var html = "";
     var x, y, severity;
@@ -213,6 +242,8 @@ var DashboardView = function(userProfile) {
 
     $("#tblServer tbody").empty();
     $("#tblServer tbody").append(drawServerBody(rawData, parsedData));
+    $("#tblTrigger thead").empty();
+    $("#tblTrigger thead").append(drawTriggerHead());
     $("#tblTrigger tbody").empty();
     $("#tblTrigger tbody").append(drawTriggerBody(rawData, parsedData));
     $("#tblHost tbody").empty();
@@ -285,11 +316,22 @@ var DashboardView = function(userProfile) {
   }
 
   function load() {
+    self.startConnection('severity-rank', loadSeverityLabel);
     self.startConnection('overview', updateCore);
     self.startConnection('log-search-systems/', updateLogSearch, null,
                          {
                            pathPrefix: "",
                          });
+  }
+
+  function loadSeverityLabel(reply) {
+    var severityRanks = reply["SeverityRanks"];
+    if (severityRanks) {
+      for (var i = 0; i < severityRanks.length; i++) {
+        if (severityRanks[i].label)
+          severityLabels[severityRanks[i].status] = severityRanks[i].label;
+      }
+    }
   }
 };
 
