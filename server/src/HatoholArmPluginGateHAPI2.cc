@@ -1519,7 +1519,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 		uint64_t sequenceId =
 		  m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (sequenceId == 0) {
+		if (sequenceId == 1) {
 			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
@@ -1663,7 +1663,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 
 		uint64_t sequenceId =
 		  m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (sequenceId == 0) {
+		if (sequenceId == 1) {
 			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
@@ -1820,7 +1820,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 
 		uint64_t sequenceId =
 		  m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (sequenceId == 0) {
+		if (sequenceId == 1) {
 			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
@@ -1973,7 +1973,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 
 		uint64_t sequenceId =
 		  m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (sequenceId == 0) {
+		if (sequenceId == 1) {
 			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
@@ -2151,7 +2151,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 
 		uint64_t sequenceId =
 		  m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (sequenceId == 0) {
+		if (sequenceId == 1) {
 			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
@@ -2400,7 +2400,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 		uint64_t sequenceId =
 		  m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (sequenceId == 0) {
+		if (sequenceId == 1) {
 			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
@@ -2615,7 +2615,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 
 		uint64_t sequenceId =
 		  m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (sequenceId == 0) {
+		if (sequenceId == 1) {
 			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
@@ -2765,7 +2765,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 		uint64_t sequenceId =
 		  m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (sequenceId == 0) {
+		if (sequenceId == 1) {
 			DividableProcedureCallback *callback =
 			  new Impl::DividedProcedureCallback(*m_impl,
 							     divideInfo.requestId,
