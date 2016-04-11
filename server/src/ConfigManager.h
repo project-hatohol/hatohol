@@ -33,7 +33,6 @@ struct CommandLineOptions {
 	gchar    *dbPassword;
 	gboolean  foreground;
 	gboolean  testMode;
-	gboolean  loadOldEvents;
 	gint      faceRestPort;
 	gint      faceRestNumWorkers;
 
@@ -114,8 +113,6 @@ public:
 	std::string getPidFilePath(void) const;
 
 	std::string getUser(void) const;
-
-	bool getLoadOldEvents(void) const;
 
 	int getFaceRestNumWorkers(void) const;
 
