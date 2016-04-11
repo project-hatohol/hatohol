@@ -158,11 +158,11 @@ var DashboardView = function(userProfile) {
     html += "</th>";
     for (var i = Object.keys(severityLabels).length; i > 0; i--) {
       html += "<th>";
-      html += severityLabels[i-1]
+      html += severityLabels[i-1];
       html += "</th>";
     }
     html += "</tr>";
-    return html
+    return html;
   }
 
   function drawTriggerBody(replyData, parsedData) {
