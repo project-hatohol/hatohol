@@ -97,3 +97,16 @@ class HapCommon(unittest.TestCase):
     def test_get_top_file_name(self):
         expect_result = "runpy.pyc"
         self.assertEquals(hapcommon.get_top_file_name(), expect_result)
+
+    def test_insert_divide_info_to_params(self):
+        expect_params = {"divideInfo": {"isLast": True, "serialId": 110, "requestId": "test_id"}}
+
+        test_params = dict()
+        hapcommon.insert_divide_info_to_params(test_params, 110, True, "test_id")
+
+        self.assertEquals(test_params["divideInfo"]["isLast"],
+                          expect_params["divideInfo"]["isLast"])
+        self.assertEquals(test_params["divideInfo"]["serialId"],
+                          expect_params["divideInfo"]["serialId"])
+        self.assertEquals(test_params["divideInfo"]["requestId"],
+                          expect_params["divideInfo"]["requestId"])

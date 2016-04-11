@@ -317,22 +317,22 @@ class HapiProcessor(unittest.TestCase):
     def test_put_hosts(self):
         hapiproc, connector = self.__create_test_instance(ConnectorForTest)
         hapiproc.get_reply_queue().put(True)
-        hapiproc.put_hosts(["test_host"])
+        hapiproc.put_hosts(["test_host"], dict())
 
     def test_put_host_groups(self):
         hapiproc, connector = self.__create_test_instance(ConnectorForTest)
         hapiproc.get_reply_queue().put(True)
-        hapiproc.put_host_groups(["test_host_group"])
+        hapiproc.put_host_groups(["test_host_group"], dict())
 
     def test_put_host_group_membership(self):
         hapiproc, connector = self.__create_test_instance(ConnectorForTest)
         hapiproc.get_reply_queue().put(True)
-        hapiproc.put_host_group_membership(["test_host_group_membership"])
+        hapiproc.put_host_group_membership(["test_host_group_membership"], dict())
 
     def test_put_triggers(self):
         hapiproc, connector = self.__create_test_instance(ConnectorForTest)
         hapiproc.get_reply_queue().put(True)
-        hapiproc.put_triggers(["test_triggers"], "ALL")
+        hapiproc.put_triggers(["test_triggers"], dict(), "ALL")
 
     def test_get_cached_event_last_info(self):
         hapiproc, connector = self.__create_test_instance(ConnectorForTest)
@@ -342,14 +342,14 @@ class HapiProcessor(unittest.TestCase):
     def test_put_events(self):
         hapiproc, connector = self.__create_test_instance(ConnectorForTest)
         hapiproc.get_reply_queue().put(True)
-        hapiproc.put_events([{"eventId": 123, "test_events":"test"}])
+        hapiproc.put_events([{"eventId": 123, "test_events":"test"}], dict())
 
     def test_put_items(self):
         hapiproc, connector = self.__create_test_instance(ConnectorForTest)
         hapiproc.get_reply_queue().put(True)
         fetch_id = 543
         items = [{"itemId": "123", "host_id": "FOOOOOO"}]
-        hapiproc.put_items(items, fetch_id)
+        hapiproc.put_items(items, dict(), fetch_id)
         # TODO: Check if fetch_id and items shall be passed to the lower layer
 
     def test_put_history(self):
@@ -358,7 +358,7 @@ class HapiProcessor(unittest.TestCase):
         fetch_id = 543
         item_id = 111
         samples = [{"value": "123", "time": "20150321151321"}]
-        hapiproc.put_history(samples, item_id, fetch_id)
+        hapiproc.put_history(samples, dict(), item_id, fetch_id)
         # TODO: Check if fetch_id and items shall be passed to the lower layer
 
     def test_wait_acknowledge(self):

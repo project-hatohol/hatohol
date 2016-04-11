@@ -104,3 +104,9 @@ def get_top_file_name():
         top_file_name = top_file_name[slash_index+1:]
 
     return top_file_name
+
+def insert_divide_info_to_params(params, serial_id, is_last, request_id):
+    params["divideInfo"] = dict()
+    params["divideInfo"]["serialId"] = serial_id
+    params["divideInfo"]["isLast"] = is_last
+    params["divideInfo"]["requestId"] = request_id
