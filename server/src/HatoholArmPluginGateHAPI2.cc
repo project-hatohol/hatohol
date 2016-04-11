@@ -502,10 +502,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 		  DividableProcedureCallContextPtr(context);
 	}
 
-	void runDivideInfoCallback(const string &requestId)
+	bool runDivideInfoCallback(const string &requestId)
 	{
 		if (requestId.empty())
-			return;
+			return false;
 
 		auto it = m_dividableProcedureCallContextMap.find(requestId);
 		if (it != m_dividableProcedureCallContextMap.end()) {
@@ -514,7 +514,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 				context->m_callback->onGotResponse();
 			g_source_remove(context->m_timeoutId);
 			m_dividableProcedureCallContextMap.erase(it);
+			return true;
 		}
+
+		return false;
 	}
 
 	static gboolean onDividableProcedureCallContext(gpointer data)
@@ -633,7 +636,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		void flush(void)
 		{
-			m_impl.runDivideInfoCallback(m_requestId);
+			bool found = m_impl.runDivideInfoCallback(m_requestId);
+			if (!found) {
+				MLPL_WARN("Ran callback with unknown requestId: %s\n",
+					  m_requestId.c_str());
+			}
 		}
 
 		void sweepInvalidRequestIdMultimapPair(void)
