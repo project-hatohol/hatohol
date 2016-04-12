@@ -1529,7 +1529,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 								     HAPI2_PUT_ITEMS);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callback);
+								callbackPtr);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -1678,7 +1678,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 								     HAPI2_PUT_HISTORY);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callback);
+								callbackPtr);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -1842,7 +1842,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 								     HAPI2_PUT_HOSTS);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callback);
+								callbackPtr);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -2002,7 +2002,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 								     HAPI2_PUT_HOST_GROUPS);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callback);
+								callbackPtr);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -2187,7 +2187,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 								     HAPI2_PUT_HOST_GROUP_MEMEBRSHIP);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callback);
+								callbackPtr);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -2443,7 +2443,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 								     HAPI2_PUT_TRIGGERS);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callback);
+								callbackPtr);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -2665,7 +2665,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 								     HAPI2_PUT_EVENTS);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callback);
+								callbackPtr);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -2822,7 +2822,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 								     HAPI2_PUT_HOST_PARENTS);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callback);
+								callbackPtr);
 			}
 		}
 		if (serialId != sequenceId) {
