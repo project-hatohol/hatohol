@@ -200,8 +200,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 				(*closure)();
 			delete closure;
 		}
-		for (auto &pair: m_dividableProcedureCallContextMap) {
-			DividableProcedureCallContextPtr &context = pair.second;
+		for (const auto &pair: m_dividableProcedureCallContextMap) {
+			const DividableProcedureCallContextPtr &context = pair.second;
 			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
 		}
 		m_dividableProcedureCallContextMap.clear();
