@@ -531,9 +531,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		map<string, DividableProcedureCallContextPtr> &contextMap
 		  = context->m_impl->m_dividableProcedureCallContextMap;
 
-		auto it = contextMap.find(context->m_producerId);
-		if (it != contextMap.end())
-			contextMap.erase(it);
+		contextMap.erase(context->m_producerId);
 
 		return FALSE;
 	}
