@@ -114,11 +114,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 		DividableProcedureCallbackPtr m_callback;
 		string m_producerId;
 		guint m_timeoutId;
-		DividableProcedureCallContext()
-		: m_impl(nullptr), m_callback(nullptr),
-		  m_producerId(0), m_timeoutId(0)
-		{
-		}
 	};
 	using DividableProcedureCallContextPtr = unique_ptr<DividableProcedureCallContext>;
 
