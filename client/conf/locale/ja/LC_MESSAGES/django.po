@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-18 03:52-0500\n"
+"POT-Creation-Date: 2016-04-12 08:49-0500\n"
 "PO-Revision-Date: 2015-10-30 17:36+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -27,15 +27,14 @@ msgstr "アクション追加"
 msgid "DELETE ACTIONS"
 msgstr "アクション削除"
 
-#: viewer/actions_ajax.html:55
-#: viewer/dashboard_ajax.html.py:99 viewer/history_ajax.html:54
-#: viewer/incident_settings_ajax.html:59 viewer/latest_ajax.html:64
-#: viewer/triggers_ajax.html:135
+#: viewer/actions_ajax.html:55 viewer/dashboard_ajax.html:99
+#: viewer/history_ajax.html:54 viewer/incident_settings_ajax.html:59
+#: viewer/latest_ajax.html:79 viewer/triggers_ajax.html:139
 msgid "Monitoring Server"
 msgstr "監視サーバー"
 
 #: viewer/actions_ajax.html:56 viewer/history_ajax.html:56
-#: viewer/latest_ajax.html:65 viewer/triggers_ajax.html:139
+#: viewer/latest_ajax.html:80 viewer/triggers_ajax.html:143
 msgid "Host"
 msgstr "ホスト"
 
@@ -48,12 +47,12 @@ msgid "Trigger"
 msgstr "トリガー"
 
 #: viewer/actions_ajax.html:59 viewer/incident_settings_ajax.html:61
-#: viewer/triggers_ajax.html:137
+#: viewer/triggers_ajax.html:141
 msgid "Status"
 msgstr "ステータス"
 
 #: viewer/actions_ajax.html:60 viewer/incident_settings_ajax.html:62
-#: viewer/severity_ranks_ajax.html:34 viewer/triggers_ajax.html:136
+#: viewer/severity_ranks_ajax.html:34 viewer/triggers_ajax.html:140
 msgid "Severity"
 msgstr "深刻度"
 
@@ -98,11 +97,7 @@ msgstr "ログアウト"
 msgid "Change password"
 msgstr "パスワード変更"
 
-#: viewer/base_ajax.html:97
-msgid "Last Update:"
-msgstr "最終更新:"
-
-#: viewer/base_ajax.html:100
+#: viewer/base_ajax.html:99
 msgid "JavaScript is disabled. Please turn on JavaScript."
 msgstr "JavaScriptが無効になっています。JavaScriptを有効にしてください。"
 
@@ -119,8 +114,8 @@ msgstr "コード"
 msgid "Display Label"
 msgstr "表示ラベル"
 
-#: viewer/custom_incident_labels_ajax.html:42 viewer/events_ajax.html:596
-#: viewer/severity_ranks_ajax.html:44
+#: viewer/custom_incident_labels_ajax.html:42 viewer/events_ajax.html:608
+#: viewer/severity_ranks_ajax.html:44 viewer/triggers_ajax.html:200
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -132,76 +127,57 @@ msgstr "保存"
 msgid "Dashboard"
 msgstr "ダッシュボード"
 
-#: viewer/dashboard_ajax.html:35
+#: viewer/dashboard_ajax.html:34 viewer/events_ajax.html:48
+#: viewer/latest_ajax.html:34 viewer/overview_items_ajax.html:34
+#: viewer/overview_triggers_ajax.html:34 viewer/triggers_ajax.html:34
+msgid "Last Update:"
+msgstr "最終更新:"
+
+#: viewer/dashboard_ajax.html:46
 msgid "Log search"
 msgstr "ログ検索"
 
-#: viewer/dashboard_ajax.html:40
+#: viewer/dashboard_ajax.html:51
 msgid "Keyword"
 msgstr "キーワード"
 
-#: viewer/dashboard_ajax.html:41
+#: viewer/dashboard_ajax.html:52
 msgid "Log search system URL"
 msgstr "ログ検索システムのURL"
 
-#: viewer/dashboard_ajax.html:53
+#: viewer/dashboard_ajax.html:64
 msgid "Global status"
 msgstr "グローバルステータス"
 
-#: viewer/dashboard_ajax.html:57
+#: viewer/dashboard_ajax.html:68
 msgid "Parameter"
 msgstr "パラメーター"
 
-#: viewer/dashboard_ajax.html:58
+#: viewer/dashboard_ajax.html:69
 msgid "Value"
 msgstr "値"
 
-#: viewer/dashboard_ajax.html:72
+#: viewer/dashboard_ajax.html:83
 msgid "System status"
 msgstr "システムステータス"
 
-#: viewer/dashboard_ajax.html.py:100
-#: viewer/history_ajax.html:55
-msgid "Group"
-msgstr "グループ"
-
-#: viewer/events_ajax.html:117
-msgid "Disaster"
-msgstr "致命的な障害"
-
-#: viewer/events_ajax.html:116
-msgid "High"
-msgstr "重度の障害"
-
-#: viewer/events_ajax.html:115
-msgid "Average"
-msgstr "軽度の障害"
-
-#: viewer/events_ajax.html:114
-msgid "Warning"
-msgstr "警告"
-
-#: viewer/events_ajax.html:113
-msgid "Information"
-msgstr "情報"
-
-#: viewer/events_ajax.html:112
-msgid "Not classified"
-msgstr "未分類"
-
-#: viewer/dashboard_ajax.html:94
+#: viewer/dashboard_ajax.html:95
 msgid "Host status"
 msgstr "ホストステータス"
 
-#: viewer/dashboard_ajax.html:100
+#: viewer/dashboard_ajax.html:100 viewer/history_ajax.html:55
+msgid "Group"
+msgstr "グループ"
+
+#: viewer/dashboard_ajax.html:101
 msgid "Without problems"
 msgstr "障害なし"
 
-#: viewer/dashboard_ajax.html:101
+#: viewer/dashboard_ajax.html:102
 msgid "With problems"
 msgstr "障害あり"
 
-#: viewer/dashboard_ajax.html:102
+#: viewer/dashboard_ajax.html:103
 msgid "Total"
 msgstr "合計"
 
@@ -209,35 +185,35 @@ msgstr "合計"
 msgid "Event"
 msgstr "イベント"
 
-#: viewer/events_ajax.html:35
+#: viewer/events_ajax.html:34
 msgid "All Events"
 msgstr "すべてのイベント"
 
-#: viewer/events_ajax.html:38
+#: viewer/events_ajax.html:37
 msgid "Unhandled Important Events"
 msgstr "未対処の重要イベント"
 
-#: viewer/events_ajax.html:41
+#: viewer/events_ajax.html:40
 msgid "Important Events"
 msgstr "重要イベント"
 
-#: viewer/events_ajax.html:44
+#: viewer/events_ajax.html:43
 msgid "Hosts with important events"
 msgstr "重要イベント発生ホスト"
 
-#: viewer/events_ajax.html:53
+#: viewer/events_ajax.html:54 viewer/triggers_ajax.html:40
 msgid "Config"
 msgstr "設定"
 
-#: viewer/events_ajax.html:73 viewer/triggers_ajax.html:35
+#: viewer/events_ajax.html:73 viewer/triggers_ajax.html:49
 msgid "Filtering Options"
 msgstr "絞り込みオプション"
 
-#: viewer/events_ajax.html:79 viewer/triggers_ajax.html:42
+#: viewer/events_ajax.html:79 viewer/triggers_ajax.html:56
 msgid "Period:"
 msgstr "期間:"
 
-#: viewer/events_ajax.html:85 viewer/triggers_ajax.html:48
+#: viewer/events_ajax.html:85 viewer/triggers_ajax.html:62
 msgid "Current time"
 msgstr "現在時刻"
 
@@ -245,38 +221,38 @@ msgstr "現在時刻"
 msgid "Handling:"
 msgstr "対処:"
 
-#: viewer/events_ajax.html:93 viewer/events_ajax.html.py:159
+#: viewer/events_ajax.html:93 viewer/events_ajax.html.py:171
 msgid "NONE"
 msgstr "未対処"
 
-#: viewer/events_ajax.html:94 viewer/events_ajax.html.py:160
+#: viewer/events_ajax.html:94 viewer/events_ajax.html.py:172
 msgid "IN PROGRESS"
 msgstr "処理中"
 
-#: viewer/events_ajax.html:95 viewer/events_ajax.html.py:161
+#: viewer/events_ajax.html:95 viewer/events_ajax.html.py:173
 msgid "DONE"
 msgstr "対処済"
 
-#: viewer/events_ajax.html:96 viewer/events_ajax.html.py:162
+#: viewer/events_ajax.html:96 viewer/events_ajax.html.py:174
 msgid "HOLD"
 msgstr "保留"
 
-#: viewer/events_ajax.html:100 viewer/overview_triggers_ajax.html:41
-#: viewer/triggers_ajax.html:72
+#: viewer/events_ajax.html:100 viewer/overview_triggers_ajax.html:52
+#: viewer/triggers_ajax.html:86
 msgid "Status:"
 msgstr "ステータス:"
 
-#: viewer/events_ajax.html:103 viewer/overview_triggers_ajax.html:44
-#: viewer/triggers_ajax.html:75
+#: viewer/events_ajax.html:103 viewer/overview_triggers_ajax.html:55
+#: viewer/triggers_ajax.html:89
 msgid "OK"
 msgstr "正常"
 
-#: viewer/events_ajax.html:104 viewer/overview_triggers_ajax.html:45
-#: viewer/triggers_ajax.html:76
+#: viewer/events_ajax.html:104 viewer/overview_triggers_ajax.html:56
+#: viewer/triggers_ajax.html:90
 msgid "Problem"
 msgstr "障害"
 
-#: viewer/events_ajax.html:105 viewer/triggers_ajax.html:77
+#: viewer/events_ajax.html:105 viewer/triggers_ajax.html:91
 msgid "Unknown"
 msgstr "不明"
 
@@ -284,26 +260,50 @@ msgstr "不明"
 msgid "Notification"
 msgstr "確認"
 
-#: viewer/events_ajax.html:110 viewer/overview_items_ajax.html:33
-#: viewer/overview_triggers_ajax.html:32 viewer/triggers_ajax.html:93
+#: viewer/events_ajax.html:110 viewer/overview_items_ajax.html:44
+#: viewer/overview_triggers_ajax.html:43 viewer/triggers_ajax.html:107
 msgid "Minimum Severity:"
 msgstr "最小の重要度:"
 
-#: viewer/events_ajax.html:121 viewer/latest_ajax.html:32
-#: viewer/overview_items_ajax.html:42 viewer/overview_triggers_ajax.html:47
-#: viewer/triggers_ajax.html:53
+#: viewer/events_ajax.html:112
+msgid "Not classified"
+msgstr "未分類"
+
+#: viewer/events_ajax.html:113
+msgid "Information"
+msgstr "情報"
+
+#: viewer/events_ajax.html:114
+msgid "Warning"
+msgstr "警告"
+
+#: viewer/events_ajax.html:115
+msgid "Average"
+msgstr "軽度の障害"
+
+#: viewer/events_ajax.html:116
+msgid "High"
+msgstr "重度の障害"
+
+#: viewer/events_ajax.html:117
+msgid "Disaster"
+msgstr "致命的な障害"
+
+#: viewer/events_ajax.html:121 viewer/latest_ajax.html:43
+#: viewer/overview_items_ajax.html:53 viewer/overview_triggers_ajax.html:58
+#: viewer/triggers_ajax.html:67
 msgid "Monitoring Server:"
 msgstr "監視サーバー:"
 
-#: viewer/events_ajax.html:127 viewer/latest_ajax.html:37
-#: viewer/overview_items_ajax.html:46 viewer/overview_triggers_ajax.html:51
-#: viewer/triggers_ajax.html:59
+#: viewer/events_ajax.html:127 viewer/latest_ajax.html:48
+#: viewer/overview_items_ajax.html:57 viewer/overview_triggers_ajax.html:62
+#: viewer/triggers_ajax.html:73
 msgid "Group:"
 msgstr "グループ:"
 
-#: viewer/events_ajax.html:133 viewer/latest_ajax.html:42
-#: viewer/overview_items_ajax.html:50 viewer/overview_triggers_ajax.html:55
-#: viewer/triggers_ajax.html:65
+#: viewer/events_ajax.html:133 viewer/latest_ajax.html:53
+#: viewer/overview_items_ajax.html:61 viewer/overview_triggers_ajax.html:66
+#: viewer/triggers_ajax.html:79
 msgid "Host:"
 msgstr "ホスト:"
 
@@ -311,149 +311,158 @@ msgstr "ホスト:"
 msgid "Filter:"
 msgstr "フィルター:"
 
-#: viewer/events_ajax.html:145 viewer/triggers_ajax.html:107
+#: viewer/events_ajax.html:144 viewer/triggers_ajax.html:95
+msgid "Hostgroup Name:"
+msgstr "グループ名:"
+
+#: viewer/events_ajax.html:150 viewer/triggers_ajax.html:101
+msgid "Hostname:"
+msgstr "ホスト名:"
+
+#: viewer/events_ajax.html:157 viewer/triggers_ajax.html:121
 msgid "Reset"
 msgstr "絞り込みを解除"
 
-#: viewer/events_ajax.html:148 viewer/events_ajax.html.py:200
-#: viewer/triggers_ajax.html:110
+#: viewer/events_ajax.html:160 viewer/events_ajax.html.py:212
+#: viewer/triggers_ajax.html:124
 msgid "Filter"
 msgstr "絞り込む"
 
-#: viewer/events_ajax.html:194
+#: viewer/events_ajax.html:206
 msgid "Event Page Setting"
 msgstr "イベントページの設定"
 
-#: viewer/events_ajax.html:199
+#: viewer/events_ajax.html:211 viewer/triggers_ajax.html:170
 msgid "View"
 msgstr "画面表示"
 
-#: viewer/events_ajax.html:201
+#: viewer/events_ajax.html:213
 msgid "Default filter"
 msgstr "デフォルトフィルター"
 
-#: viewer/events_ajax.html:206
+#: viewer/events_ajax.html:218 viewer/triggers_ajax.html:176
 msgid "Auto reload interval (5 - 600 sec)"
 msgstr "自動更新間隔の指定（5～600秒ごと）"
 
-#: viewer/events_ajax.html:211
+#: viewer/events_ajax.html:223 viewer/triggers_ajax.html:181
 msgid "seconds"
 msgstr "秒"
 
-#: viewer/events_ajax.html:218
+#: viewer/events_ajax.html:230 viewer/triggers_ajax.html:188
 msgid "Number of rows per page"
 msgstr "1ページの表示件数"
 
-#: viewer/events_ajax.html:222
+#: viewer/events_ajax.html:234 viewer/triggers_ajax.html:192
 msgid "rows"
 msgstr "件"
 
-#: viewer/events_ajax.html:227
+#: viewer/events_ajax.html:239
 msgid "Display Item"
 msgstr "表示項目"
 
-#: viewer/events_ajax.html:231
+#: viewer/events_ajax.html:243
 msgid "Selectable"
 msgstr "選択候補"
 
-#: viewer/events_ajax.html:238 viewer/events_ajax.html.py:260
+#: viewer/events_ajax.html:250 viewer/events_ajax.html.py:272
 msgid "Select All"
 msgstr "すべて選択"
 
-#: viewer/events_ajax.html:253 viewer/events_ajax.html.py:327
-#: viewer/events_ajax.html:361 viewer/events_ajax.html.py:397
-#: viewer/events_ajax.html:445 viewer/events_ajax.html.py:493
-#: viewer/events_ajax.html:551
+#: viewer/events_ajax.html:265 viewer/events_ajax.html.py:339
+#: viewer/events_ajax.html:373 viewer/events_ajax.html.py:409
+#: viewer/events_ajax.html:457 viewer/events_ajax.html.py:505
+#: viewer/events_ajax.html:563
 msgid "Selected"
 msgstr "選択済み"
 
-#: viewer/events_ajax.html:281
+#: viewer/events_ajax.html:293
 msgid "Filter name"
 msgstr "フィルター名"
 
-#: viewer/events_ajax.html:290
+#: viewer/events_ajax.html:302
 msgid "Delete"
 msgstr "削除"
 
-#: viewer/events_ajax.html:295
+#: viewer/events_ajax.html:307
 msgid "The period to show (recent days)"
 msgstr "表示期間（直近）"
 
-#: viewer/events_ajax.html:297
+#: viewer/events_ajax.html:309
 msgid "days"
 msgstr "日"
 
-#: viewer/events_ajax.html:304
+#: viewer/events_ajax.html:316
 msgid "Include \"Handling\" to the filter condition"
 msgstr "「対処」の選択をフィルターの条件に含める"
 
-#: viewer/events_ajax.html:311 viewer/events_ajax.html.py:345
-#: viewer/events_ajax.html:381 viewer/events_ajax.html.py:429
-#: viewer/events_ajax.html:477 viewer/events_ajax.html.py:535
+#: viewer/events_ajax.html:323 viewer/events_ajax.html.py:357
+#: viewer/events_ajax.html:393 viewer/events_ajax.html.py:441
+#: viewer/events_ajax.html:489 viewer/events_ajax.html.py:547
 msgid "Candidates"
 msgstr "選択候補"
 
-#: viewer/events_ajax.html:339
+#: viewer/events_ajax.html:351
 msgid "Include \"Status\" to the filter condition"
 msgstr "「ステータス」の選択をフィルターの条件に含める"
 
-#: viewer/events_ajax.html:374
+#: viewer/events_ajax.html:386
 msgid "Include \"Severity\" to the filter condition"
 msgstr "「重要度」の選択をフィルターの条件に含める"
 
-#: viewer/events_ajax.html:410
+#: viewer/events_ajax.html:422
 msgid "Include \"Monitoring server\" to the filter condition"
 msgstr "「監視サーバー」の選択をフィルターの条件に含める"
 
-#: viewer/events_ajax.html:419
+#: viewer/events_ajax.html:431
 msgid "Show selected servers"
 msgstr "表示する「監視サーバー」を選択"
 
-#: viewer/events_ajax.html:423
+#: viewer/events_ajax.html:435
 msgid "Exclude selected servers"
 msgstr "表示を除外する「監視サーバー」を選択"
 
-#: viewer/events_ajax.html:458
+#: viewer/events_ajax.html:470
 msgid "Include \"Host Group\" to the filter condition"
 msgstr "「ホストグループ」の選択フィルターの条件に含める"
 
-#: viewer/events_ajax.html:467
+#: viewer/events_ajax.html:479
 msgid "Show selected hostgroups"
 msgstr "表示する「ホストグループ」を選択"
 
-#: viewer/events_ajax.html:471
+#: viewer/events_ajax.html:483
 msgid "Exclude selected hostgroups"
 msgstr "表示を除外する「ホストグループ」を選択"
 
-#: viewer/events_ajax.html:506
+#: viewer/events_ajax.html:518
 msgid "Include \"Host\" to the filter condition"
 msgstr "「ホスト」の選択をフィルターの条件に含める"
 
-#: viewer/events_ajax.html:515
+#: viewer/events_ajax.html:527
 msgid "Show selected hosts"
 msgstr "表示する「ホスト」を選択"
 
-#: viewer/events_ajax.html:519
+#: viewer/events_ajax.html:531
 msgid "Exclude selected hosts"
 msgstr "表示を除外する「ホスト」を選択"
 
-#: viewer/events_ajax.html:526
+#: viewer/events_ajax.html:538
 msgid "Search"
 msgstr "検索"
 
-#: viewer/events_ajax.html:529
+#: viewer/events_ajax.html:541
 msgid "Clear"
 msgstr "クリア"
 
-#: viewer/events_ajax.html:564
+#: viewer/events_ajax.html:576
 msgid "Select a filter to apply as the default filter of the summary view."
 msgstr "サマリ表示で、デフォルトとして適用するフィルターの指定"
 
-#: viewer/events_ajax.html:579
+#: viewer/events_ajax.html:591
 msgid "Select a filter to apply as the default filter of the event list view."
 msgstr "一覧表示で、デフォルトとして適用するフィルターの指定"
 
-#: viewer/events_ajax.html:599 viewer/severity_ranks_ajax.html:45
+#: viewer/events_ajax.html:611 viewer/severity_ranks_ajax.html:45
+#: viewer/triggers_ajax.html:203
 msgid "Save changes"
 msgstr "変更を保存"
 
@@ -461,23 +470,23 @@ msgstr "変更を保存"
 msgid "Graphs"
 msgstr "グラフ"
 
-#: viewer/graphs_ajax.html:37 viewer/history_ajax.html:84
+#: viewer/graphs_ajax.html:39 viewer/history_ajax.html:84
 #: viewer/incident_settings_ajax.html:35
 #: viewer/log_search_systems_ajax.html:37
 msgid "ADD"
 msgstr "追加"
 
-#: viewer/graphs_ajax.html:44 viewer/incident_settings_ajax.html:39
+#: viewer/graphs_ajax.html:47 viewer/incident_settings_ajax.html:39
 #: viewer/log_search_systems_ajax.html:45
 msgid "DELETE"
 msgstr "削除"
 
-#: viewer/graphs_ajax.html:56 viewer/hosts_ajax.html:39
+#: viewer/graphs_ajax.html:59 viewer/hosts_ajax.html:39
 #: viewer/users_ajax.html:59
 msgid "ID"
 msgstr "ID"
 
-#: viewer/graphs_ajax.html:57
+#: viewer/graphs_ajax.html:60
 msgid "Graph name"
 msgstr "グラフ名"
 
@@ -513,20 +522,20 @@ msgstr "ホスト"
 msgid "SHOW GROUP"
 msgstr "グループを表示"
 
-#: viewer/hosts_ajax.html:41 viewer/servers_ajax.html:68
+#: viewer/hosts_ajax.html:41
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: viewer/hosts_ajax.html:42 viewer/servers_ajax.html:69
+#: viewer/hosts_ajax.html:42
 msgid "IP Address"
 msgstr "IPアドレス"
 
-#: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:70
+#: viewer/hosts_ajax.html:43 viewer/servers_ajax.html:68
 msgid "Nickname"
 msgstr "ニックネーム"
 
 #: viewer/hosts_ajax.html:44 viewer/hosts_ajax.html.py:157
-#: viewer/servers_ajax.html:71
+#: viewer/servers_ajax.html:70
 msgid "Maps"
 msgstr "マップ"
 
@@ -546,31 +555,31 @@ msgstr "インシデント管理サーバー"
 msgid "Latest data"
 msgstr "最新データ"
 
-#: viewer/latest_ajax.html:47
+#: viewer/latest_ajax.html:58
 msgid "Application:"
 msgstr "アプリケーション:"
 
-#: viewer/latest_ajax.html:52
+#: viewer/latest_ajax.html:63
 msgid "# of items per page"
 msgstr "ページ毎のアイテム数"
 
-#: viewer/latest_ajax.html:66
+#: viewer/latest_ajax.html:81
 msgid "Application"
 msgstr "アプリケーション"
 
-#: viewer/latest_ajax.html:67 viewer/triggers_ajax.html:140
+#: viewer/latest_ajax.html:82 viewer/triggers_ajax.html:144
 msgid "Name"
 msgstr "名前"
 
-#: viewer/latest_ajax.html:68
+#: viewer/latest_ajax.html:83
 msgid "Last check"
 msgstr "最新の変更"
 
-#: viewer/latest_ajax.html:69
+#: viewer/latest_ajax.html:84
 msgid "Last value"
 msgstr "最新の値"
 
-#: viewer/latest_ajax.html:70
+#: viewer/latest_ajax.html:85
 msgid "Graph"
 msgstr "グラフ"
 
@@ -615,7 +624,11 @@ msgstr "監視サーバートリガー再読込"
 msgid "Connection status"
 msgstr "通信状態"
 
-#: viewer/servers_ajax.html:81
+#: viewer/servers_ajax.html:69
+msgid "URL"
+msgstr ""
+
+#: viewer/servers_ajax.html:80
 msgid ""
 "Please use a browser's reload function when you update monitoring servers "
 "information including 'Connection status'."
@@ -643,29 +656,19 @@ msgstr "重要イベントに含む\t"
 msgid "Triggers"
 msgstr "トリガー"
 
-#: viewer/triggers_ajax.html:81
-msgid "Hostgroup Name:"
-msgstr "グループ名:"
-
-#: viewer/triggers_ajax.html:87
-msgid "Hostname:"
-msgstr "ホスト名:"
-
-#: viewer/triggers_ajax.html:99
+#: viewer/triggers_ajax.html:113
 msgid "Trigger Brief:"
 msgstr "トリガー概要:"
 
-#: viewer/triggers_ajax.html:117
-msgid "# of triggers per page"
-msgstr "ページ毎のトリガー数"
-
-#: viewer/triggers_ajax.html:123
-msgid "Update"
-msgstr "更新"
-
-#: viewer/triggers_ajax.html:138
+#: viewer/triggers_ajax.html:142
 msgid "Last change"
 msgstr "最新の変更"
+
+#: viewer/triggers_ajax.html:164
+#, fuzzy
+#| msgid "Event Page Setting"
+msgid "Triggers Page Setting"
+msgstr "イベントページの設定"
 
 #: viewer/users_ajax.html:24 viewer/users_ajax.html.py:29
 msgid "Users"
@@ -694,6 +697,12 @@ msgstr "ユーザー種別"
 #: viewer/users_ajax.html:62
 msgid "Accessible monitoring servers / hostgroups"
 msgstr "アクセス可能な監視サーバー / ホストグループ"
+
+#~ msgid "# of triggers per page"
+#~ msgstr "ページ毎のトリガー数"
+
+#~ msgid "Update"
+#~ msgstr "更新"
 
 #~ msgid "Summary"
 #~ msgstr "サマリー"

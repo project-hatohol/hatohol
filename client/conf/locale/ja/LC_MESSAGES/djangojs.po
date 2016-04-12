@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-18 03:52-0500\n"
+"POT-Creation-Date: 2016-04-12 08:49-0500\n"
 "PO-Revision-Date: 2016-01-20 11:37+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -70,6 +70,10 @@ msgstr "Web UI URL"
 msgid "Polling interval (sec)"
 msgstr "ポーリング間隔（秒）"
 
+#: misc/external-labels.js:14
+msgid "Retry interval (sec)"
+msgstr "リトライ間隔（秒）"
+
 #: static/js/actions_view.js:48 static/js/hatohol_user_roles_editor.js:80
 #: static/js/incident_settings_view.js:48
 #: static/js/log_search_systems_view.js:45 static/js/servers_view.js:56
@@ -98,13 +102,19 @@ msgstr "常駐"
 msgid "No limit"
 msgstr "制限なし"
 
-#: static/js/actions_view.js:254 static/js/graphs_view.js:92
+#: static/js/actions_view.js:254 static/js/graphs_view.js:93
 #: static/js/hatohol_add_action_dialog.js:778
 #: static/js/hatohol_user_edit_dialog.js:175
 #: static/js/incident_settings_view.js:208
-#: static/js/log_search_systems_view.js:112 static/js/servers_view.js:228
+#: static/js/log_search_systems_view.js:112 static/js/servers_view.js:225
 msgid "EDIT"
 msgstr "編集"
+
+#: static/js/before_close.js:8
+msgid ""
+"Hatohol is running to monitor system(s).\n"
+"You are trying to leave or close this page."
+msgstr ""
 
 #: static/js/custom_incident_labels_view.js:40 static/js/events_view.js:60
 #: test/browser/test_hatohol_events_view_config.js:6
@@ -150,57 +160,104 @@ msgstr "保存に失敗しました。"
 msgid "Input data has reset."
 msgstr "入力データをリセットしました。"
 
-#: static/js/dashboard_view.js:94
+#: static/js/dashboard_view.js:29 static/js/events_view.js:77
+#: static/js/severity_ranks_view.js:39 static/js/triggers_view.js:49
+#: static/js/utils.js:70 test/browser/test_hatohol_events_view_config.js:22
+msgid "Not classified"
+msgstr "未分類"
+
+#: static/js/dashboard_view.js:30 static/js/events_view.js:78
+#: static/js/hatohol_add_action_dialog.js:724
+#: static/js/hatohol_message_box.js:175 static/js/severity_ranks_view.js:40
+#: static/js/triggers_view.js:50 static/js/utils.js:72
+#: test/browser/test_hatohol_events_view_config.js:23
+msgid "Information"
+msgstr "情報"
+
+#: static/js/dashboard_view.js:31 static/js/events_view.js:79
+#: static/js/hatohol_add_action_dialog.js:725
+#: static/js/hatohol_message_box.js:182 static/js/severity_ranks_view.js:41
+#: static/js/triggers_view.js:51 static/js/utils.js:74
+#: test/browser/test_hatohol_events_view_config.js:24
+msgid "Warning"
+msgstr "警告"
+
+#: static/js/dashboard_view.js:32 static/js/events_view.js:80
+#: static/js/hatohol_add_action_dialog.js:726
+#: static/js/severity_ranks_view.js:42 static/js/triggers_view.js:52
+#: static/js/utils.js:76 test/browser/test_hatohol_events_view_config.js:25
+msgid "Average"
+msgstr "軽度の障害"
+
+#: static/js/dashboard_view.js:33 static/js/events_view.js:81
+#: static/js/hatohol_add_action_dialog.js:727
+#: static/js/severity_ranks_view.js:43 static/js/triggers_view.js:53
+#: static/js/utils.js:78 test/browser/test_hatohol_events_view_config.js:26
+msgid "High"
+msgstr "重度の障害"
+
+#: static/js/dashboard_view.js:34 static/js/events_view.js:82
+#: static/js/hatohol_add_action_dialog.js:728
+#: static/js/severity_ranks_view.js:44 static/js/triggers_view.js:54
+#: static/js/utils.js:80 test/browser/test_hatohol_events_view_config.js:27
+msgid "Disaster"
+msgstr "致命的な障害"
+
+#: static/js/dashboard_view.js:108
 msgid "Number of servers [With problem]"
 msgstr "サーバー数 [障害あり]"
 
-#: static/js/dashboard_view.js:104
+#: static/js/dashboard_view.js:118
 msgid "Number of hosts [with problem]"
 msgstr "ホスト数 [障害あり]"
 
-#: static/js/dashboard_view.js:109
+#: static/js/dashboard_view.js:123
 msgid "Number of items"
 msgstr "アイテム数"
 
-#: static/js/dashboard_view.js:114
+#: static/js/dashboard_view.js:128
 msgid "Number of triggers [with problem]"
 msgstr "トリガー数 [障害あり]"
 
-#: static/js/dashboard_view.js:126
+#: static/js/dashboard_view.js:140
 msgid "New values per second"
 msgstr "１秒あたりの監視項目数"
+
+#: static/js/dashboard_view.js:154 static/js/events_view.js:90
+msgid "Monitoring Server"
+msgstr "監視サーバー"
 
 #: static/js/dashboard_view.js:157
 msgid "Group"
 msgstr "グループ"
 
-#: static/js/events_view.js:66 static/js/events_view.js.c:71
-#: static/js/hatohol_add_action_dialog.js:717 static/js/servers_view.js:419
-#: static/js/triggers_view.js:207 static/js/utils.js:59
+#: static/js/events_view.js:66 static/js/events_view.js:71
+#: static/js/hatohol_add_action_dialog.js:717 static/js/servers_view.js:416
+#: static/js/triggers_view.js:190 static/js/utils.js:59
 #: test/browser/test_hatohol_events_view_config.js:12
 #: test/browser/test_hatohol_events_view_config.js:16
 msgid "OK"
 msgstr "正常"
 
-#: static/js/events_view.js:67 static/js/events_view.js.c:72
-#: static/js/hatohol_add_action_dialog.js:718 static/js/triggers_view.js:208
+#: static/js/events_view.js:67 static/js/events_view.js:72
+#: static/js/hatohol_add_action_dialog.js:718 static/js/triggers_view.js:191
 #: static/js/utils.js:61 test/browser/test_hatohol_events_view_config.js:13
 #: test/browser/test_hatohol_events_view_config.js:17
 msgid "Problem"
 msgstr "障害"
 
-#: static/js/events_view.js:68 static/js/events_view.js.c:73
+#: static/js/events_view.js:68 static/js/events_view.js:73
 #: static/js/hatohol_add_action_dialog.js:821
 #: static/js/hatohol_incident_trackers_editor.js:197
 #: static/js/incident_settings_view.js:193
-#: static/js/incident_settings_view.js:200 static/js/triggers_view.js:209
-#: static/js/users_view.js:142 static/js/utils.js:157 static/js/utils.js.c:163
-#: static/js/utils.js.c:178 static/js/utils.js:201
+#: static/js/incident_settings_view.js:200 static/js/triggers_view.js:192
+#: static/js/users_view.js:142 static/js/utils.js:157 static/js/utils.js:163
+#: static/js/utils.js:178 static/js/utils.js:201
 #: test/browser/test_hatohol_events_view_config.js:18
-#: test/browser/test_utils.js:261 test/browser/test_utils.js.c:267
-#: test/browser/test_utils.js:295 test/browser/test_utils.js.c:317
-#: test/browser/test_utils.js:323 test/browser/test_utils.js.c:345
-#: test/browser/test_utils.js:351 test/browser/test_utils.js.c:373
+#: test/browser/test_utils.js:261 test/browser/test_utils.js:267
+#: test/browser/test_utils.js:295 test/browser/test_utils.js:317
+#: test/browser/test_utils.js:323 test/browser/test_utils.js:345
+#: test/browser/test_utils.js:351 test/browser/test_utils.js:373
 #: test/browser/test_utils.js:379
 msgid "Unknown"
 msgstr "不明"
@@ -209,48 +266,6 @@ msgstr "不明"
 #: test/browser/test_hatohol_events_view_config.js:19
 msgid "Notification"
 msgstr "通知"
-
-#: static/js/events_view.js:77 static/js/severity_ranks_view.js:39
-#: static/js/triggers_view.js:48 static/js/utils.js:70
-#: test/browser/test_hatohol_events_view_config.js:22
-msgid "Not classified"
-msgstr "未分類"
-
-#: static/js/events_view.js:78 static/js/hatohol_add_action_dialog.js:724
-#: static/js/hatohol_message_box.js:175 static/js/severity_ranks_view.js:40
-#: static/js/triggers_view.js:49 static/js/utils.js:72
-#: test/browser/test_hatohol_events_view_config.js:23
-msgid "Information"
-msgstr "情報"
-
-#: static/js/events_view.js:79 static/js/hatohol_add_action_dialog.js:725
-#: static/js/hatohol_message_box.js:182 static/js/severity_ranks_view.js:41
-#: static/js/triggers_view.js:50 static/js/utils.js:74
-#: test/browser/test_hatohol_events_view_config.js:24
-msgid "Warning"
-msgstr "警告"
-
-#: static/js/events_view.js:80 static/js/hatohol_add_action_dialog.js:726
-#: static/js/severity_ranks_view.js:42 static/js/triggers_view.js:51
-#: static/js/utils.js:76 test/browser/test_hatohol_events_view_config.js:25
-msgid "Average"
-msgstr "軽度の障害"
-
-#: static/js/events_view.js:81 static/js/hatohol_add_action_dialog.js:727
-#: static/js/severity_ranks_view.js:43 static/js/triggers_view.js:52
-#: static/js/utils.js:78 test/browser/test_hatohol_events_view_config.js:26
-msgid "High"
-msgstr "重度の障害"
-
-#: static/js/events_view.js:82 static/js/hatohol_add_action_dialog.js:728
-#: static/js/severity_ranks_view.js:44 static/js/triggers_view.js:53
-#: static/js/utils.js:80 test/browser/test_hatohol_events_view_config.js:27
-msgid "Disaster"
-msgstr "致命的な障害"
-
-#: static/js/dashboard_view.js:154 static/js/events_view.js:90
-msgid "Monitoring Server"
-msgstr "監視サーバー"
 
 #: static/js/events_view.js:94 static/js/hatohol_add_action_dialog.js:701
 msgid "Host"
@@ -280,47 +295,47 @@ msgstr "日付"
 msgid "Brief"
 msgstr "概要"
 
-#: static/js/events_view.js:122
-msgid "Duration"
-msgstr "継続時間"
-
-#: static/js/events_view.js:126
+#: static/js/events_view.js:128
 msgid "Handling"
 msgstr "対処"
 
-#: static/js/events_view.js:130
+#: static/js/events_view.js:132
 msgid "Priority"
 msgstr "優先度"
 
-#: static/js/events_view.js:134
+#: static/js/events_view.js:136
 msgid "Assignee"
 msgstr "担当者"
 
-#: static/js/events_view.js:138
+#: static/js/events_view.js:140
 msgid "% Done"
 msgstr "進捗率"
 
-#: static/js/events_view.js:167 static/js/triggers_view.js:68
+#: static/js/events_view.js:144
+msgid "Comment"
+msgstr "コメント"
+
+#: static/js/events_view.js:172 static/js/triggers_view.js:69
 msgid "Failed to get the configuration!"
 msgstr "重要度設定の取得に失敗しました。"
 
-#: static/js/events_view.js:323
+#: static/js/events_view.js:328
 msgid "All Events"
 msgstr "すべてのイベント"
 
-#: static/js/events_view.js:327
+#: static/js/events_view.js:332
 msgid "Filtering Results"
 msgstr "絞り込み結果"
 
-#: static/js/events_view.js:737
+#: static/js/events_view.js:778
 msgid "There is no valid incident tracker to post!"
 msgstr "インシデント登録可能なインシデントトラッカーが存在しません。"
 
-#: static/js/events_view.js:758
+#: static/js/events_view.js:799
 msgid "Appling the handling..."
 msgstr "対処を適用中..."
 
-#: static/js/events_view.js:761 static/js/events_view.js.c:867
+#: static/js/events_view.js:802 static/js/events_view.js:908
 #: static/js/hatohol_add_action_dialog.js:370
 #: static/js/hatohol_incident_trackers_editor.js:308
 #: static/js/hatohol_log_search_system_editor.js:88
@@ -330,32 +345,32 @@ msgstr "対処を適用中..."
 msgid "Successfully updated."
 msgstr "正常に更新されました。"
 
-#: static/js/events_view.js:763
+#: static/js/events_view.js:804
 msgid "Failed to update handling"
 msgstr "対処の更新に失敗しました"
 
-#: static/js/events_view.js:808
+#: static/js/events_view.js:849
 msgid "An unknown error occured on creating an incident for the event: "
 msgstr "イベントに対応するインシデント作成時に未知のエラーが発生しました: "
 
-#: static/js/events_view.js:818
+#: static/js/events_view.js:859
 msgid ""
 "Failed to connect to Hatohol server on posting an incident for the event: "
 msgstr ""
 "イベントに対応するインシデント登録時に Hatohol サーバーへの接続に失敗しまし"
 "た: "
 
-#: static/js/events_view.js:842
+#: static/js/events_view.js:883
 msgid "An unknown error occured on changing handling of an event with ID: "
 msgstr "対処の変更中に未知のエラーが発生しました イベントID: "
 
-#: static/js/events_view.js:853
+#: static/js/events_view.js:894
 msgid ""
 "Failed to connect to Hatohol server on changing handling of an event with "
 "ID: "
 msgstr "イベントの対処の変更時に Hatohol サーバーへの接続に失敗しました ID: "
 
-#: static/js/events_view.js:869 static/js/hatohol_add_action_dialog.js:372
+#: static/js/events_view.js:910 static/js/hatohol_add_action_dialog.js:372
 #: static/js/hatohol_incident_trackers_editor.js:310
 #: static/js/hatohol_log_search_system_editor.js:90
 #: static/js/hatohol_server_edit_dialog_parameterized.js:116
@@ -364,9 +379,41 @@ msgstr "イベントの対処の変更時に Hatohol サーバーへの接続に
 msgid "Successfully created."
 msgstr "正常に作成されました。"
 
-#: static/js/events_view.js:1328
+#: static/js/events_view.js:1487
+#, fuzzy
+#| msgid "Comment"
+msgid "Input Comment"
+msgstr "コメント"
+
+#: static/js/events_view.js:1490
+msgid "Cancel"
+msgstr ""
+
+#: static/js/events_view.js:1493
+msgid "Submit"
+msgstr ""
+
+#: static/js/events_view.js:1502
+#, fuzzy
+#| msgid "Comment"
+msgid "Add Comment"
+msgstr "コメント"
+
+#: static/js/events_view.js:1537
 msgid "Show Full Text"
 msgstr "全て表示する"
+
+#: static/js/events_view.js:1616
+#, fuzzy
+#| msgid "An unknown error occured on creating an incident for the event: "
+msgid "An unknown error occured on getting comments for the event: "
+msgstr "イベントに対応するインシデント作成時に未知のエラーが発生しました: "
+
+#: static/js/events_view.js:1640
+#, fuzzy
+#| msgid "An unknown error occured on creating an incident for the event: "
+msgid "An unknown error occured on posting a comment for the event: "
+msgstr "イベントに対応するインシデント作成時に未知のエラーが発生しました: "
 
 #: static/js/graphs_view.js:39
 msgid "Do you delete the selected items ?"
@@ -577,7 +624,7 @@ msgstr "トラッカー: "
 msgid "The template script returned the invalid value."
 msgstr "テンプレートスクリプトが不正な値を返しました。"
 
-#: static/js/hatohol_connector.js:142 static/js/hatohol_connector.js.c:154
+#: static/js/hatohol_connector.js:142 static/js/hatohol_connector.js:154
 msgid "Failed to login. "
 msgstr "ログインに失敗しました。"
 
@@ -609,7 +656,7 @@ msgstr "内部エラーが発生しました。"
 msgid "Invalid user."
 msgstr "不正なユーザーです。"
 
-#: static/js/hatohol_def.js:226 static/js/hatohol_def.js.c:227
+#: static/js/hatohol_def.js:226 static/js/hatohol_def.js:227
 msgid "Invalid URL."
 msgstr "不正なURLです。"
 
@@ -885,7 +932,7 @@ msgstr "ホスト選択"
 
 #: static/js/hatohol_host_selector.js:54
 #: static/js/hatohol_hostgroup_selector.js:48 static/js/servers_view.js:188
-#: static/js/servers_view.js.c:214
+#: static/js/servers_view.js:211
 msgid "Server ID"
 msgstr "サーバーID"
 
@@ -1109,7 +1156,7 @@ msgid "YES"
 msgstr "はい"
 
 #: static/js/hatohol_message_box.js:189
-#: static/js/hatohol_monitoring_view.js:25 static/js/servers_view.js:421
+#: static/js/hatohol_monitoring_view.js:25 static/js/servers_view.js:418
 msgid "Error"
 msgstr "エラー"
 
@@ -1160,33 +1207,33 @@ msgstr "監視中"
 msgid "Pause"
 msgstr "停止中"
 
-#: static/js/hatohol_navi.js:26 test/browser/test_hatohol_navi.js:41
-#: test/browser/test_hatohol_navi.js:83
+#: static/js/hatohol_navi.js:26 test/browser/test_hatohol_navi.js:44
+#: test/browser/test_hatohol_navi.js:80
 msgid "Dashboard"
 msgstr "ダッシュボード"
 
-#: static/js/hatohol_navi.js:30 test/browser/test_hatohol_navi.js:43
-#: test/browser/test_hatohol_navi.js:85
+#: static/js/hatohol_navi.js:30 test/browser/test_hatohol_navi.js:46
+#: test/browser/test_hatohol_navi.js:82
 msgid "Overview : Triggers"
 msgstr "概要:トリガー"
 
-#: static/js/hatohol_navi.js:34 test/browser/test_hatohol_navi.js:45
-#: test/browser/test_hatohol_navi.js:87
+#: static/js/hatohol_navi.js:34 test/browser/test_hatohol_navi.js:48
+#: test/browser/test_hatohol_navi.js:84
 msgid "Overview : Items"
 msgstr "概要:アイテム"
 
-#: static/js/hatohol_navi.js:38 test/browser/test_hatohol_navi.js:47
-#: test/browser/test_hatohol_navi.js:89
+#: static/js/hatohol_navi.js:38 test/browser/test_hatohol_navi.js:49
+#: test/browser/test_hatohol_navi.js:86
 msgid "Latest data"
 msgstr "最新データ"
 
-#: static/js/hatohol_navi.js:42 test/browser/test_hatohol_navi.js:49
-#: test/browser/test_hatohol_navi.js:91
+#: static/js/hatohol_navi.js:42 test/browser/test_hatohol_navi.js:50
+#: test/browser/test_hatohol_navi.js:87
 msgid "Triggers"
 msgstr "トリガー"
 
 #: static/js/hatohol_navi.js:45 test/browser/test_hatohol_navi.js:51
-#: test/browser/test_hatohol_navi.js:93
+#: test/browser/test_hatohol_navi.js:88
 msgid "Events"
 msgstr "イベント"
 
@@ -1200,7 +1247,7 @@ msgstr "設定"
 #: static/js/hatohol_user_roles_editor.js:420
 #: static/js/hatohol_user_roles_editor.js:425
 #: static/js/hatohol_user_roles_editor.js:430
-#: test/browser/test_hatohol_navi.js:57 test/browser/test_hatohol_navi.js:99
+#: test/browser/test_hatohol_navi.js:57 test/browser/test_hatohol_navi.js:94
 msgid "Monitoring Servers"
 msgstr "監視サーバー"
 
@@ -1210,12 +1257,12 @@ msgstr "監視サーバー"
 #: static/js/hatohol_user_roles_editor.js:450
 #: static/js/hatohol_user_roles_editor.js:455
 #: static/js/hatohol_user_roles_editor.js:460
-#: test/browser/test_hatohol_navi.js:59 test/browser/test_hatohol_navi.js:101
+#: test/browser/test_hatohol_navi.js:58 test/browser/test_hatohol_navi.js:95
 msgid "Actions"
 msgstr "アクション"
 
-#: static/js/hatohol_navi.js:60 test/browser/test_hatohol_navi.js:61
-#: test/browser/test_hatohol_navi.js:103
+#: static/js/hatohol_navi.js:60 test/browser/test_hatohol_navi.js:59
+#: test/browser/test_hatohol_navi.js:96
 msgid "Graphs"
 msgstr "グラフ"
 
@@ -1226,8 +1273,8 @@ msgstr "グラフ"
 msgid "Incident tracking"
 msgstr "インシデント管理"
 
-#: static/js/hatohol_navi.js:74 test/browser/test_hatohol_navi.js:63
-#: test/browser/test_hatohol_navi.js:105
+#: static/js/hatohol_navi.js:74 test/browser/test_hatohol_navi.js:61
+#: test/browser/test_hatohol_navi.js:98
 msgid "Log search systems"
 msgstr "ログ検索システム"
 
@@ -1235,7 +1282,7 @@ msgstr "ログ検索システム"
 #: static/js/hatohol_user_roles_editor.js:390
 #: static/js/hatohol_user_roles_editor.js:395
 #: static/js/hatohol_user_roles_editor.js:400
-#: test/browser/test_hatohol_navi.js:27
+#: test/browser/test_hatohol_navi.js:31
 msgid "Users"
 msgstr "ユーザー"
 
@@ -1251,12 +1298,12 @@ msgstr "インシデントラベルの設定"
 msgid "Help"
 msgstr "ヘルプ"
 
-#: static/js/hatohol_navi.js:111 test/browser/test_hatohol_navi.js:70
-#: test/browser/test_hatohol_navi.js:112
+#: static/js/hatohol_navi.js:111 test/browser/test_hatohol_navi.js:68
+#: test/browser/test_hatohol_navi.js:105
 msgid "Online Documents"
 msgstr "オンラインドキュメント"
 
-#: static/js/hatohol_navi.js:115
+#: static/js/hatohol_navi.js:116
 msgid "version: "
 msgstr "バージョン: "
 
@@ -1377,7 +1424,7 @@ msgstr "アップロードに失敗しました。"
 
 #: static/js/hatohol_server_bulkupload_dialog.js:215
 #: static/js/hatohol_server_edit_dialog_parameterized.js:191
-#: static/js/servers_view.js:338
+#: static/js/servers_view.js:335
 msgid "Monitoring server type"
 msgstr "監視サーバータイプ"
 
@@ -1692,9 +1739,20 @@ msgstr "アイテムが選択されていません！"
 msgid "Successfully saved."
 msgstr "正常に保存されました。"
 
-#: static/js/latest_view.js:151
+#: static/js/latest_view.js:154
 msgid "Graph"
 msgstr "グラフ"
+
+#: static/js/push_notify.js:22
+#, javascript-format
+msgid "There is %s unmet important event."
+msgid_plural "There are %s unmet important events."
+msgstr[0] ""
+msgstr[1] ""
+
+#: static/js/push_notify.js:29
+msgid "Failure has occurred."
+msgstr ""
 
 #: static/js/servers_view.js:61
 msgid "Reload the triggers from the selected itmes ?"
@@ -1704,67 +1762,67 @@ msgstr "選択項目からトリガーを再収集しますか？"
 msgid "Checking"
 msgstr "チェック中"
 
-#: static/js/servers_view.js:209
+#: static/js/servers_view.js:205
 msgid "Show Maps"
 msgstr "マップを表示"
 
-#: static/js/servers_view.js:255
+#: static/js/servers_view.js:252
 msgid "Failed to get"
 msgstr "取得失敗"
 
-#: static/js/servers_view.js:349
+#: static/js/servers_view.js:346
 msgid "True"
 msgstr "True"
 
-#: static/js/servers_view.js:351
+#: static/js/servers_view.js:348
 msgid "False"
 msgstr "False"
 
-#: static/js/servers_view.js:413
+#: static/js/servers_view.js:410
 msgid "N/A"
 msgstr "N/A"
 
-#: static/js/servers_view.js:417
+#: static/js/servers_view.js:414
 msgid "Initial State"
 msgstr "初期状態"
 
-#: static/js/servers_view.js:423
+#: static/js/servers_view.js:420
 msgid "Unknown:"
 msgstr "不明"
 
-#: static/js/servers_view.js:436 test/browser/test_server_view.js:276
+#: static/js/servers_view.js:433 test/browser/test_server_view.js:274
 msgid "Running"
 msgstr "稼働"
 
-#: static/js/servers_view.js:439
+#: static/js/servers_view.js:436
 msgid "No"
 msgstr "いいえ"
 
-#: static/js/servers_view.js:442 test/browser/test_server_view.js:276
+#: static/js/servers_view.js:439 test/browser/test_server_view.js:274
 msgid "Yes"
 msgstr "はい"
 
-#: static/js/servers_view.js:452 test/browser/test_server_view.js:277
+#: static/js/servers_view.js:449 test/browser/test_server_view.js:275
 msgid "Status update time"
 msgstr "状態更新時刻"
 
-#: static/js/servers_view.js:457 test/browser/test_server_view.js:278
+#: static/js/servers_view.js:454 test/browser/test_server_view.js:276
 msgid "Last success time"
 msgstr "最終成功時刻"
 
-#: static/js/servers_view.js:462 test/browser/test_server_view.js:279
+#: static/js/servers_view.js:459 test/browser/test_server_view.js:277
 msgid "Last failure time"
 msgstr "最終失敗時刻"
 
-#: static/js/servers_view.js:470 test/browser/test_server_view.js:280
+#: static/js/servers_view.js:467 test/browser/test_server_view.js:278
 msgid "Number of communication"
 msgstr "通信回数"
 
-#: static/js/servers_view.js:478 test/browser/test_server_view.js:281
+#: static/js/servers_view.js:475 test/browser/test_server_view.js:279
 msgid "Number of failure"
 msgstr "失敗回数"
 
-#: static/js/servers_view.js:482 test/browser/test_server_view.js:282
+#: static/js/servers_view.js:479 test/browser/test_server_view.js:280
 msgid "Comment for the failure"
 msgstr "失敗備考"
 
@@ -1776,19 +1834,19 @@ msgstr "日, "
 msgid " days, "
 msgstr "日, "
 
-#: test/browser/test_hatohol_navi.js:72 test/browser/test_hatohol_navi.js:114
+#: test/browser/test_hatohol_navi.js:70 test/browser/test_hatohol_navi.js:107
 msgid "Hatohol version: "
 msgstr "Hatoholバージョン: "
 
-#: test/browser/test_server_view.js:279
+#: test/browser/test_server_view.js:277
 msgid "-"
 msgstr "-"
 
+#~ msgid "Duration"
+#~ msgstr "継続時間"
+
 #~ msgid "DB name"
 #~ msgstr "データベース名"
-
-#~ msgid "Retry interval (sec)"
-#~ msgstr "リトライ間隔（秒）"
 
 #~ msgid "Port"
 #~ msgstr "ポート番号"
@@ -1936,9 +1994,6 @@ msgstr "-"
 
 #~ msgid "User type"
 #~ msgstr "ユーザーの種類"
-
-#~ msgid "Comment"
-#~ msgstr "コメント"
 
 #~ msgid "Action"
 #~ msgstr "アクション"
