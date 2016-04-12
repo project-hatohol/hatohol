@@ -916,6 +916,47 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 	};
 
+	struct DividedPutTriggersProcedureCallback : public DividableProcedureCallback {
+		Impl &m_impl;
+		const string m_requestId;
+		DividedPutTriggersProcedureCallback(Impl &impl,
+						    const string &requestId)
+		: m_impl(impl), m_requestId(requestId)
+		{
+		}
+
+		void flush(void)
+		{
+			bool found = m_impl.runDivideInfoCallback(m_requestId);
+			if (!found) {
+				MLPL_WARN("Ran callback with unknown requestId: %s\n",
+					  m_requestId.c_str());
+			}
+		}
+
+		void sweepInvalidRequestIdMultimapPair(void)
+		{
+			auto range =
+			  m_impl.m_TriggerInfoListSequentialIdMapRequestIdMultiMap
+				.equal_range(m_requestId);
+			m_impl.m_TriggerInfoListSequentialIdMapRequestIdMultiMap
+			  .erase(range.first, range.second);
+		}
+
+		virtual void onGotResponse() override
+		{
+			// TODO
+			return;
+		}
+
+		virtual void onTimeout(void) override
+		{
+			flush();
+			MLPL_WARN("Divided putTriggers precedure has been timed out.\n");
+			sweepInvalidRequestIdMultimapPair();
+		}
+	};
+
 	const string &getPluginControlScriptPath()
 	{
 		if (!m_pluginControlScriptPath.empty())
@@ -2645,9 +2686,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 			if (!divideInfo.isLast) {
 				DividableProcedureCallback *callback =
-				  new Impl::DividedProcedureCallback(*m_impl,
-								     divideInfo.requestId,
-								     HAPI2_PUT_TRIGGERS);
+				  new Impl::DividedPutTriggersProcedureCallback(
+				    *m_impl,
+				    divideInfo.requestId);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
 								callbackPtr);
