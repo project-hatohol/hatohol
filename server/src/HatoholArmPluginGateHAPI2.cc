@@ -1517,9 +1517,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 		m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, itemInfoListSequentialIdPair);
 
-		uint64_t sequenceId =
+		const uint64_t sequenceId =
 		  m_impl->m_ItemInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) == sequenceId) {
+		const uint64_t serialId = static_cast<uint64_t>(divideInfo.serialId) + 1;
+		if (serialId == sequenceId) {
 			if (sequenceId != 1)
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
@@ -1533,7 +1534,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 								callback);
 			}
 		}
-		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
+		if (serialId != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
 					sequenceId,
@@ -1665,9 +1666,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 		m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, historyInfoVectSequentialIdPair);
 
-		uint64_t sequenceId =
+		const uint64_t sequenceId =
 		  m_impl->m_HistoryInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) == sequenceId) {
+		const uint64_t serialId = static_cast<uint64_t>(divideInfo.serialId) + 1;
+		if (serialId == sequenceId) {
 			if (sequenceId != 1)
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
@@ -1681,7 +1683,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 								callback);
 			}
 		}
-		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
+		if (serialId != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
 					sequenceId,
@@ -1828,9 +1830,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 		m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, hostInfoVectSequentialIdPair);
 
-		uint64_t sequenceId =
+		const uint64_t sequenceId =
 		  m_impl->m_HostInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) == sequenceId) {
+		const uint64_t serialId = static_cast<uint64_t>(divideInfo.serialId) + 1;
+		if (serialId == sequenceId) {
 			if (sequenceId != 1)
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
@@ -1844,7 +1847,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 								callback);
 			}
 		}
-		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
+		if (serialId != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
 					sequenceId,
@@ -1987,9 +1990,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 		m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, hostgroupVectSequentialIdPair);
 
-		uint64_t sequenceId =
+		const uint64_t sequenceId =
 		  m_impl->m_HostgroupVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) == sequenceId) {
+		const uint64_t serialId = static_cast<uint64_t>(divideInfo.serialId) + 1;
+		if (serialId == sequenceId) {
 			if (sequenceId != 1)
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
@@ -2003,7 +2007,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 								callback);
 			}
 		}
-		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
+		if (serialId != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
 					sequenceId,
@@ -2171,9 +2175,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 		m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, hostgroupMembershipVectSequentialIdPair);
 
-		uint64_t sequenceId =
+		const uint64_t sequenceId =
 		  m_impl->m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) == sequenceId) {
+		const uint64_t serialId = static_cast<uint64_t>(divideInfo.serialId) + 1;
+		if (serialId == sequenceId) {
 			if (sequenceId != 1)
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
@@ -2187,7 +2192,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 								callback);
 			}
 		}
-		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
+		if (serialId != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
 					sequenceId,
@@ -2426,9 +2431,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 		m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, triggerInfoListSequentialIdPair);
 
-		uint64_t sequenceId =
+		const uint64_t sequenceId =
 		  m_impl->m_TriggerInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) == sequenceId) {
+		const uint64_t serialId = static_cast<uint64_t>(divideInfo.serialId) + 1;
+		if (serialId == sequenceId) {
 			if (sequenceId != 1)
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
@@ -2442,7 +2448,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 								callback);
 			}
 		}
-		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
+		if (serialId != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
 					sequenceId,
@@ -2647,9 +2653,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 		m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, eventInfoListSequentialIdPair);
 
-		uint64_t sequenceId =
+		const uint64_t sequenceId =
 		  m_impl->m_EventInfoListSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) == sequenceId) {
+		const uint64_t serialId = static_cast<uint64_t>(divideInfo.serialId) + 1;
+		if (serialId == sequenceId) {
 			if (sequenceId != 1)
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
@@ -2663,7 +2670,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 								callback);
 			}
 		}
-		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
+		if (serialId != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
 					sequenceId,
@@ -2803,9 +2810,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 		m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.emplace(
 		  divideInfo.requestId, vmInfoVectSequentialIdPair);
 
-		uint64_t sequenceId =
+		const uint64_t sequenceId =
 		  m_impl->m_VMInfoVectSequentialIdMapRequestIdMultiMap.count(divideInfo.requestId);
-		if (static_cast<uint64_t>(divideInfo.serialId) == sequenceId) {
+		const uint64_t serialId = static_cast<uint64_t>(divideInfo.serialId) + 1;
+		if (serialId == sequenceId) {
 			if (sequenceId != 1)
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
@@ -2819,7 +2827,7 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 								callback);
 			}
 		}
-		if (static_cast<uint64_t>(divideInfo.serialId) != sequenceId) {
+		if (serialId != sequenceId) {
 			errObj.addError("Invalid serialId. expected: %" PRIu64
 					" actual: %" PRId64 "\n",
 					sequenceId,
