@@ -28,6 +28,7 @@
 #include <libsoup/soup.h>
 #include <Reaper.h>
 #include "SelfMonitor.h"
+#include <mutex>
 
 using namespace std;
 using namespace mlpl;
@@ -128,6 +129,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	string m_pluginControlScriptPath;
 	set<string> m_supportedProcedureNameSet;
 	HostInfoCache hostInfoCache;
+	mutex m_dividableProcedureMapMutex;
 	map<string, Closure0 *> m_fetchClosureMap;
 	map<string, DividableProcedureCallContextPtr> m_dividableProcedureCallContextMap;
 	map<string, Closure1<HistoryInfoVect> *> m_fetchHistoryClosureMap;
@@ -200,6 +202,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 				(*closure)();
 			delete closure;
 		}
+		lock_guard<mutex> lock(m_dividableProcedureMapMutex);
 		for (const auto &pair: m_dividableProcedureCallContextMap) {
 			const DividableProcedureCallContextPtr &context = pair.second;
 			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
@@ -490,6 +493,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		constexpr int PROCEDURE_TIMEOUT_MSEC = 90 * 1000;
 
+		lock_guard<mutex> lock(m_dividableProcedureMapMutex);
+
 		DividableProcedureCallContext *context = new DividableProcedureCallContext();
 		context->m_impl = this;
 		context->m_callback = callback;
@@ -504,6 +509,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 	bool runDivideInfoCallback(const string &requestId)
 	{
+		lock_guard<mutex> lock(m_dividableProcedureMapMutex);
+
 		if (requestId.empty())
 			return false;
 
@@ -524,6 +531,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 	{
 		DividableProcedureCallContext *context =
 		  static_cast<DividableProcedureCallContext *>(data);
+
+		lock_guard<mutex> lock(context->m_impl->m_dividableProcedureMapMutex);
 
 		if (context->m_callback.hasData())
 			context->m_callback->onTimeout();
