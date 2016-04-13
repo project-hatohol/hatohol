@@ -501,7 +501,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		context->m_producerId = requestId;
 		context->m_timeoutId =
 		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
-				      onDividableProcedureCallContext,
+				      onDividableProcedureTimeout,
 				      context);
 		m_dividableProcedureCallContextMap[requestId] =
 		  DividableProcedureCallContextPtr(context);
@@ -527,7 +527,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		return false;
 	}
 
-	static gboolean onDividableProcedureCallContext(gpointer data)
+	static gboolean onDividableProcedureTimeout(gpointer data)
 	{
 		DividableProcedureCallContext *context =
 		  static_cast<DividableProcedureCallContext *>(data);
