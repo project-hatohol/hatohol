@@ -410,7 +410,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		ProcedureCallback *callback =
 		  new Impl::ExchangeProfileCallback(*this);
 		ProcedureCallbackPtr callbackPtr(callback, false);
-		m_hapi2.send(builder.generate(), id, callback);
+		m_hapi2.send(builder.generate(), id, callbackPtr);
 	}
 
 	void callUpdateMonitoringServerInfoNotification(
