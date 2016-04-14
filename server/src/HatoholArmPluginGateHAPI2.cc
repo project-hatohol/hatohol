@@ -493,8 +493,6 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		constexpr int PROCEDURE_TIMEOUT_MSEC = 90 * 1000;
 
-		lock_guard<mutex> lock(m_dividableProcedureMapMutex);
-
 		DividableProcedureCallContext *context = new DividableProcedureCallContext();
 		context->m_impl = this;
 		context->m_callback = callback;
@@ -503,16 +501,19 @@ struct HatoholArmPluginGateHAPI2::Impl
 		  Utils::setGLibTimer(PROCEDURE_TIMEOUT_MSEC,
 				      onDividableProcedureTimeout,
 				      context);
+
+		lock_guard<mutex> lock(m_dividableProcedureMapMutex);
+
 		m_dividableProcedureCallContextMap[requestId] =
 		  DividableProcedureCallContextPtr(context);
 	}
 
 	bool runDivideInfoCallback(const string &requestId)
 	{
-		lock_guard<mutex> lock(m_dividableProcedureMapMutex);
-
 		if (requestId.empty())
 			return false;
+
+		lock_guard<mutex> lock(m_dividableProcedureMapMutex);
 
 		auto it = m_dividableProcedureCallContextMap.find(requestId);
 		if (it != m_dividableProcedureCallContextMap.end()) {
