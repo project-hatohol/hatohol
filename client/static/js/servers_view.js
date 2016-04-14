@@ -28,7 +28,8 @@ var ServersView = function(userProfile) {
 
   if (userProfile.hasFlag(hatohol.OPPRVLG_CREATE_SERVER)) {
     $("#add-server-button").show();
-    $("#bulkupload-server-button").show();
+//    ToDo: We fix it in 16.12 and later release.
+//    $("#bulkupload-server-button").show();
   }
   if (userProfile.hasFlag(hatohol.OPPRVLG_DELETE_SERVER) ||
       userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_SERVER)) {
