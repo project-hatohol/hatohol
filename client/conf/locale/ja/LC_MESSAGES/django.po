@@ -661,10 +661,8 @@ msgid "Last change"
 msgstr "最新の変更"
 
 #: viewer/triggers_ajax.html:164
-#, fuzzy
-#| msgid "Event Page Setting"
 msgid "Triggers Page Setting"
-msgstr "イベントページの設定"
+msgstr "トリガーページの設定"
 
 #: viewer/users_ajax.html:24 viewer/users_ajax.html.py:29
 msgid "Users"
