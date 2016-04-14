@@ -202,12 +202,14 @@ struct HatoholArmPluginGateHAPI2::Impl
 				(*closure)();
 			delete closure;
 		}
-		lock_guard<mutex> lock(m_dividableProcedureMapMutex);
+		unique_lock<mutex> procedureMapLock(m_dividableProcedureMapMutex, defer_lock);
+		procedureMapLock.lock();
 		for (const auto &pair: m_dividableProcedureCallContextMap) {
 			const DividableProcedureCallContextPtr &context = pair.second;
 			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
 		}
 		m_dividableProcedureCallContextMap.clear();
+		procedureMapLock.unlock();
 		for (auto pair: m_fetchHistoryClosureMap) {
 			Closure1<HistoryInfoVect> *closure = pair.second;
 			HistoryInfoVect historyInfoVect;
