@@ -297,6 +297,8 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     switch(severity) {
     case "ANY":
       return undefined;
+    case "UNKNOWN":
+      return TRIGGER_SEVERITY_UNKNOWN;
     case "INFO":
       return TRIGGER_SEVERITY_INFO;
     case "WARNING":
@@ -440,6 +442,9 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
     case null:
       severitySelector.val("ANY");
       break;
+    case hatohol.TRIGGER_SEVERITY_UNKNOWN:
+      severitySelector.val("UNKNOWN");
+      break;
     case hatohol.TRIGGER_SEVERITY_INFO:
       severitySelector.val("INFO");
       break;
@@ -459,7 +464,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
       hatoholErrorMsgBox(gettext("Unknown severity: ") + severity);
       break;
     }
-    if (severity) {
+    if (!(severity === null)) {
       $("#selectTriggerSeverityCompType").css("visibility","visible");
     }
   }
@@ -498,6 +503,16 @@ HatoholAddActionDialog.prototype.constructor = HatoholAddActionDialog;
 
 HatoholAddActionDialog.prototype.createMainElement = function() {
   var self = this;
+  var severityMap = {
+  // Status: {"label": Label, "value": Value}
+  0: {"label": gettext("Not classified"), "value": "UNKNOWN"},
+  1: {"label": gettext("Information"), "value": "INFO"},
+  2: {"label": gettext("Warning"), "value": "WARNING"},
+  3: {"label": gettext("Average"), "value": "ERROR"},
+  4: {"label": gettext("High"), "value": "CRITICAL"},
+  5: {"label": gettext("Disaster"), "value": "EMERGENCY"}
+  };
+
   if (self.actionDef) {
     getServersAsync();
     getHostGroupsAsync();
@@ -506,6 +521,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
       getTriggersAsync();
     }
   }
+  getSeverityAsync();
 
   var div = $(makeMainDivHTML());
   return div;
@@ -541,6 +557,14 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     new HatoholConnector({
       url: "/trigger",
       replyCallback: replyTriggerCallback,
+      parseErrorCallback: hatoholErrorMsgBoxForParser
+    });
+  }
+
+  function getSeverityAsync() {
+    new HatoholConnector({
+      url: "/severity-rank",
+      replyCallback: replySeverityCallback,
       parseErrorCallback: hatoholErrorMsgBoxForParser
     });
   }
@@ -675,6 +699,40 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     setSelectedIdForUpdate($("#selectTriggerId"), self.actionDef.triggerId);
   }
 
+  function replySeverityCallback(reply, parser) {
+    if (!(reply.SeverityRanks instanceof Array)) {
+      hatoholErrorMsgBox("[Malformed reply] Not found array: SeverityRanks");
+      return;
+    }
+
+    for (var i = 0; i < reply.SeverityRanks.length; i ++) {
+      var severityRank = reply.SeverityRanks[i];
+
+      var severityRankLabel = severityRank.label;
+      if (severityRankLabel === undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: label");
+        return;
+      }
+      var severityRankStatus = severityRank.status;
+      if (severityRankStatus === undefined) {
+        hatoholErrorMsgBox("[Malformed reply] Not found element: status");
+        return;
+      }
+
+      if (severityRankLabel){
+        severityMap[severityRankStatus].label = severityRankLabel;
+      }
+
+      var displayName = severityMap[severityRankStatus].label;
+      var value = severityMap[severityRankStatus].value;
+      $('#selectTriggerSeverity').append($('<option>').html(displayName).val(value));
+    }
+    if (self.actionDef) {
+      setSelectedIdForUpdate($("#selectTriggerSeverity"),
+                             severityMap[self.actionDef.triggerSeverity].value);
+    }
+  }
+
   function setSelectedIdForUpdate(jQObjSelectId, selectedIdIndex) {
     if (selectedIdIndex) {
       var selectElem = jQObjSelectId;
@@ -721,12 +779,8 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
     s += '  <label>' + gettext("Severity") + '</label>';
     s += '  <select id="selectTriggerSeverity">';
     s += '    <option value="ANY">ANY</option>';
-    s += '    <option value="INFO">' + gettext("Information") + '</option>';
-    s += '    <option value="WARNING">' + gettext("Warning") + '</option>';
-    s += '    <option value="ERROR">' + gettext("Average") + '</option>';
-    s += '    <option value="CRITICAL">' + gettext("High") + '</option>';
-    s += '    <option value="EMERGENCY">' + gettext("Disaster") + '</option>';
     s += '  </select>';
+
     s += '  <select id="selectTriggerSeverityCompType" style="visibility:hidden;">';
     s += '    <option value="CMP_EQ">' + gettext("Equal to") + '</option>';
     s += '    <option value="CMP_EQ_GT">' + gettext("Equal to or greater than") + '</option>';
