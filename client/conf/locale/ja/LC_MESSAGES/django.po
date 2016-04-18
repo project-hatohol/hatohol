@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-12 08:49-0500\n"
+"POT-Creation-Date: 2016-04-18 01:56-0500\n"
 "PO-Revision-Date: 2015-10-30 17:36+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -623,6 +623,10 @@ msgstr "監視サーバートリガー再読込"
 #: viewer/servers_ajax.html:66
 msgid "Connection status"
 msgstr "通信状態"
+
+#: viewer/servers_ajax.html:69
+msgid "URL"
+msgstr ""
 
 #: viewer/servers_ajax.html:80
 msgid ""
