@@ -203,11 +203,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 			delete closure;
 		}
 		unique_lock<mutex> procedureMapLock(m_dividableProcedureMapMutex, adopt_lock);
-		for (const auto &pair: m_dividableProcedureCallContextMap) {
-			const DividableProcedureCallContextPtr &context = pair.second;
-			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
-		}
-		m_dividableProcedureCallContextMap.clear();
+		Utils::executeOnGLibEventLoop<Impl>(
+		  deleteDividableProcedureCallContext, this);
 		procedureMapLock.unlock();
 		for (auto pair: m_fetchHistoryClosureMap) {
 			Closure1<HistoryInfoVect> *closure = pair.second;
@@ -217,6 +214,15 @@ struct HatoholArmPluginGateHAPI2::Impl
 			delete closure;
 		}
 		m_armStatus.setRunningStatus(false);
+	}
+
+	static void deleteDividableProcedureCallContext(Impl *impl)
+	{
+		for (const auto &pair: impl->m_dividableProcedureCallContextMap) {
+			const DividableProcedureCallContextPtr &context = pair.second;
+			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
+		}
+		impl->m_dividableProcedureCallContextMap.clear();
 	}
 
 	void logError(SelfMonitorPtr monitor, const char *fmt, va_list ap)
