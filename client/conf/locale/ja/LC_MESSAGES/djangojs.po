@@ -114,7 +114,8 @@ msgstr "編集"
 msgid ""
 "Hatohol is running to monitor system(s).\n"
 "You are trying to leave or close this page."
-msgstr ""
+msgstr "Hatoholはシステム監視のため稼働しています。\n"
+"このページを閉じる，または移動しようとしています。"
 
 #: static/js/custom_incident_labels_view.js:40 static/js/events_view.js:60
 #: test/browser/test_hatohol_events_view_config.js:6
@@ -1747,8 +1748,8 @@ msgstr "グラフ"
 #, javascript-format
 msgid "There is %s unmet important event."
 msgid_plural "There are %s unmet important events."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s件の未対処な重要イベントがあります。"
+msgstr[1] "%s件の未対処な重要イベントがあります。"
 
 #: static/js/push_notify.js:29
 msgid "Failure has occurred."
