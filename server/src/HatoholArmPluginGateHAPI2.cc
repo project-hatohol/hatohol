@@ -202,8 +202,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 				(*closure)();
 			delete closure;
 		}
-		unique_lock<mutex> procedureMapLock(m_dividableProcedureMapMutex, defer_lock);
-		procedureMapLock.lock();
+		unique_lock<mutex> procedureMapLock(m_dividableProcedureMapMutex, adopt_lock);
 		for (const auto &pair: m_dividableProcedureCallContextMap) {
 			const DividableProcedureCallContextPtr &context = pair.second;
 			Utils::removeEventSourceIfNeeded(context->m_timeoutId);
