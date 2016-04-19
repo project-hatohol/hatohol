@@ -485,11 +485,11 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
   if (self.actionDef) {
     setupSeverityValue(self.actionDef.triggerSeverity);
     setupSevertyCompTypeValue(self.actionDef.triggerSeverityComparatorType);
+    setupTriggerStatusValue(self.actionDef.triggerStatus);
     if (self.forIncidentSetting) {
       setupIncidentTracker(self.actionDef.command);
     } else {
       setupCommandType(self.actionDef.type);
-      setupTriggerStatusValue(self.actionDef.triggerStatus);
       setupTimeOutValue(self.actionDef.timeout);
       setupActionCommand(self.actionDef.command);
       setupWorkingDirectory(self.actionDef.workingDirectory);
