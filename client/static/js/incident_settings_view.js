@@ -114,6 +114,8 @@ var IncidentSettingsView = function(userProfile) {
       return "=";
     case hatohol.CMP_EQ_GT:
       return ">=";
+    case hatohol.CMP_INVALID:
+      return "";
     default:
       return "INVALID: " + compType;
     }
@@ -161,19 +163,18 @@ var IncidentSettingsView = function(userProfile) {
 
       var triggerStatus = actionDef.triggerStatus;
       var triggerStatusLabel = "ANY";
-      if (triggerStatus !== undefined)
+      if (triggerStatus !== null)
         triggerStatusLabel = makeTriggerStatusLabel(triggerStatus);
       s += "<td>" + triggerStatusLabel + "</td>";
 
       var triggerSeverity = actionDef.triggerSeverity;
       var severityLabel = "ANY";
-      if (triggerSeverity !== undefined)
+      if (triggerSeverity !== null)
         severityLabel = makeSeverityLabel(triggerSeverity);
 
       var severityCompType = actionDef.triggerSeverityComparatorType;
       var severityCompLabel = "";
-      if (triggerSeverity !== undefined)
-        severityCompLabel = makeSeverityCompTypeLabel(severityCompType);
+      severityCompLabel = makeSeverityCompTypeLabel(severityCompType);
 
       s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
