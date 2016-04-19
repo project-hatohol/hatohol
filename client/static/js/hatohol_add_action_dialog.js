@@ -464,7 +464,7 @@ var HatoholAddActionDialog = function(changedCallback, incidentTrackers, actionD
       hatoholErrorMsgBox(gettext("Unknown severity: ") + severity);
       break;
     }
-    if (!(severity === null)) {
+    if (severity !== null) {
       $("#selectTriggerSeverityCompType").css("visibility","visible");
     }
   }
