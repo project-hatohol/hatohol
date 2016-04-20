@@ -202,10 +202,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 				(*closure)();
 			delete closure;
 		}
-		unique_lock<mutex> procedureMapLock(m_dividableProcedureMapMutex, adopt_lock);
 		Utils::executeOnGLibEventLoop<Impl>(
 		  deleteDividableProcedureCallContext, this);
-		procedureMapLock.unlock();
 		for (auto pair: m_fetchHistoryClosureMap) {
 			Closure1<HistoryInfoVect> *closure = pair.second;
 			HistoryInfoVect historyInfoVect;
