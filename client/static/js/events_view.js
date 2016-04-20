@@ -807,7 +807,7 @@ var EventsView = function(userProfile, options) {
         $("#change-incident").val("");
         $('.incident.selectable').removeClass("selected");
         setupChangeIncidentMenu();
-        load();
+        load({page: self.currentPage});
       });
     }
   }
