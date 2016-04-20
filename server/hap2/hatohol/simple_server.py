@@ -203,7 +203,7 @@ class SimpleServer:
         self.__sender.response(result, call_id)
 
 
-def basic_setup(arg_def_func=None, prog_name="Simple Server for HAPI 2.0"):
+def basic_setup(arg_def_func=None, prog_name="Simple Server for HAPI2"):
     parser = argparse.ArgumentParser()
     transporter_manager = transporter.Manager(DEFAULT_TRANSPORTER)
     transporter_manager.define_arguments(parser)

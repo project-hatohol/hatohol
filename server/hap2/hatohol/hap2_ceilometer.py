@@ -394,7 +394,7 @@ class Common:
     def __parse_alarm_host(self, threshold_rule):
         # TODO [long term]
         # we should handle the case many hosts are involved in the alarm.
-        # HAPI2.0 handles only one host for every trigger.
+        # HAPI2 handles only one host for every trigger.
         # To do solve this problem, we have to extend the HAPI specifiation.
         query_array = threshold_rule.get("query")
         if query_array is None:

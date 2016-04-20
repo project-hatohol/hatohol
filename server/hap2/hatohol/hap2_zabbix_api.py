@@ -188,7 +188,7 @@ class Hap2ZabbixAPIMain(haplib.BaseMainPlugin, ZabbixAPIConductor):
     def hap_fetch_events(self, params, request_id):
         count = params["count"]
         if count > MAX_NUMBER_OF_EVENTS_OF_HAPI2:
-            error_msg = "%d count exceeds the limit of the HAPI2.0 specification." % count
+            error_msg = "%d count exceeds the limit of the HAPI2 specification." % count
             logger.error(error_msg)
             self.hap_return_error(error_msg, request_id)
             return

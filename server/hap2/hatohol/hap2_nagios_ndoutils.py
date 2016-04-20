@@ -165,7 +165,7 @@ class Common:
         if host_ids is not None and not self.__validate_object_ids(host_ids):
             logger.error("Invalid: host_ids: %s" % host_ids)
             # TODO by 15.09 (*1): send error
-            # There's no definition to send error in HAPI 2.0.
+            # There's no definition to send error in HAPI2.
             # We have to extend the specification to enable this.
             return
 
