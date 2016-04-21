@@ -2780,6 +2780,48 @@ void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 				      const ItemsQueryOption &option)
 {
+	vector<GenericIdType> itemGlobalIds;
+	auto getGlobalItemIds = [&] {
+		DBClientJoinBuilder builder(tableProfileItems, &option);
+		builder.add(IDX_ITEMS_GLOBAL_ID);
+		builder.addTable(
+		  tableProfileItemCategories, DBClientJoinBuilder::LEFT_JOIN,
+		  IDX_ITEMS_GLOBAL_ID, IDX_ITEM_CATEGORIES_GLOBAL_ITEM_ID);
+		builder.addTable(
+		  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
+		  tableProfileItems, IDX_ITEMS_SERVER_ID,
+		                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
+		  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
+		                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
+
+		DBAgent::SelectExArg &arg = builder.build();
+		arg.useDistinct = true;
+		arg.useFullName = option.isHostgroupUsed();
+
+		if (DBHatohol::isAlwaysFalseCondition(arg.condition))
+			return;
+
+		// Order By
+		arg.orderBy = option.getOrderBy();
+
+		// Limit and Offset
+		arg.limit = option.getMaximumNumber();
+		arg.offset = option.getOffset();
+		if (!arg.limit && arg.offset)
+			return;
+
+		getDBAgent().runTransaction(arg);
+		const auto &grpList = arg.dataTable->getItemGroupList();
+		itemGlobalIds.reserve(grpList.size());
+		for (const auto &grp: grpList) {
+			const GenericIdType globalId = *(grp->getItemAt(0));
+			itemGlobalIds.push_back(globalId);
+		}
+	};
+	getGlobalItemIds();
+	if (itemGlobalIds.empty())
+		return;
+
 	DBClientJoinBuilder builder(tableProfileItems, &option);
 	builder.add(IDX_ITEMS_GLOBAL_ID);
 	builder.add(IDX_ITEMS_SERVER_ID);
@@ -2797,28 +2839,17 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	  tableProfileItemCategories, DBClientJoinBuilder::LEFT_JOIN,
 	  IDX_ITEMS_GLOBAL_ID, IDX_ITEM_CATEGORIES_GLOBAL_ITEM_ID);
 	builder.add(IDX_ITEM_CATEGORIES_NAME);
-	builder.addTable(
-	  tableProfileServerHostDef, DBClientJoinBuilder::LEFT_JOIN,
-	  tableProfileItems, IDX_ITEMS_SERVER_ID,
-	                     IDX_HOST_SERVER_HOST_DEF_SERVER_ID,
-	  tableProfileItems, IDX_ITEMS_HOST_ID_IN_SERVER,
-	                     IDX_HOST_SERVER_HOST_DEF_HOST_ID_IN_SERVER);
 
 	DBAgent::SelectExArg &arg = builder.build();
-	arg.useDistinct = option.isHostgroupUsed();
-	arg.useFullName = option.isHostgroupUsed();
 
-	if (DBHatohol::isAlwaysFalseCondition(arg.condition))
-		return;
-
-	// Order By
-	arg.orderBy = option.getOrderBy();
-
-	// Limit and Offset
-	arg.limit = option.getMaximumNumber();
-	arg.offset = option.getOffset();
-	if (!arg.limit && arg.offset)
-		return;
+	arg.condition =
+	  tableProfileItems.getFullColumnName(IDX_ITEMS_GLOBAL_ID) + " IN (";
+	SeparatorInjector commaInjector(",");
+	for (const auto &globalId: itemGlobalIds) {
+		commaInjector(arg.condition);
+		arg.condition += StringUtils::sprintf("%" FMT_GEN_ID, globalId);
+	}
+	arg.condition += ")";
 
 	getDBAgent().runTransaction(arg);
 
