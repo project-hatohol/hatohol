@@ -170,6 +170,7 @@ struct ItemInfo {
 typedef std::list<ItemInfo>          ItemInfoList;
 typedef ItemInfoList::iterator       ItemInfoListIterator;
 typedef ItemInfoList::const_iterator ItemInfoListConstIterator;
+typedef std::list<ItemIdType> ItemIdList;
 
 struct ItemCategory {
 	GenericIdType         id;

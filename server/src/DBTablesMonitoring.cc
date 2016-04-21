@@ -2360,7 +2360,7 @@ static string makeTriggerIdListCondition(const TriggerIdList &idList)
 	return condition;
 }
 
-static string makeConditionForDelete(const TriggerIdList &idList,
+static string makeConditionForDeleteTrigger(const TriggerIdList &idList,
 				     const ServerIdType &serverId)
 {
 	string condition = makeTriggerIdListCondition(idList);
@@ -2397,7 +2397,7 @@ HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
 			numAffectedRows = dbAgent.getNumberOfAffectedRows();
 		}
 	} trx;
-	trx.arg.condition = makeConditionForDelete(idList, serverId);
+	trx.arg.condition = makeConditionForDeleteTrigger(idList, serverId);
 	getDBAgent().runTransaction(trx);
 
 	// Check the result
@@ -2775,6 +2775,156 @@ void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 	} trx;
 	trx.init(this, &itemInfoList);
 	getDBAgent().runTransaction(trx);
+}
+
+static string makeItemIdListCondition(const ItemIdList &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_ITEMS[IDX_ITEMS_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	DBTermCodec codec;
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%" FMT_ITEM_ID,
+						  codec.enc(id).c_str());
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForDeleteItem(const ItemIdList &idList,
+				                         const ServerIdType &serverId)
+{
+	string condition = makeItemIdListCondition(idList);
+	condition += " AND ";
+	string columnName =
+		tableProfileItems.columnDefs[IDX_ITEMS_SERVER_ID].columnName;
+	condition += StringUtils::sprintf("%s=%" FMT_SERVER_ID,
+	                                  columnName.c_str(), serverId);
+
+	return condition;
+}
+
+HatoholError DBTablesMonitoring::deleteItemInfo(const ItemIdList &idList,
+                                                const ServerIdType &serverId)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileItems),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDeleteItem(idList, serverId);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+	return HTERR_OK;
+}
+
+static bool isItemDescriptionChanged(
+  const ItemInfo item, map<ItemIdType, const ItemInfo *> currentItemMap)
+{
+	auto itemItr = currentItemMap.find(item.id);
+	if (itemItr != currentItemMap.end()) {
+		if (itemItr->second->brief != item.brief) {
+			return true;
+		}
+		if (itemItr->second->lastValue != item.lastValue) {
+			return true;
+		}
+		if (itemItr->second->categoryNames != item.categoryNames) {
+			return true;
+		}
+		if (itemItr->second->lastValueTime.tv_sec !=
+            item.lastValueTime.tv_sec ||
+		    itemItr->second->lastValueTime.tv_nsec !=
+            item.lastValueTime.tv_nsec) {
+			return true;
+		}
+		if (itemItr->second->valueType != item.valueType) {
+			return true;
+		}
+		if (itemItr->second->unit != item.unit) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static LocalHostIdType getTargetHostId(const ItemInfoList itemInfoList)
+{
+    auto firstItem = *itemInfoList.begin();
+    LocalHostIdType targetHostId = firstItem.hostIdInServer;
+    for (const auto item : itemInfoList) {
+        if (item.hostIdInServer != targetHostId)
+            return ALL_LOCAL_HOSTS;
+    }
+    return targetHostId;
+}
+
+HatoholError DBTablesMonitoring::syncItems(const ItemInfoList &itemInfoList,
+                                           const ServerIdType &serverId)
+{
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	ItemInfoList _currItems;
+
+	LocalHostIdType targetHostId = getTargetHostId(itemInfoList);
+	option.setTargetHostId(targetHostId);
+	getItemInfoList(_currItems, option);
+	const ItemInfoList currItems = move(_currItems);
+
+	map<ItemIdType, const ItemInfo *> currentItemMap;
+	for (const auto& item : currItems) {
+		currentItemMap[item.id] = &item;
+	}
+
+	// Pick up items to be added
+	ItemInfoList addItems;
+	for (const auto item : itemInfoList) {
+		if (!isItemDescriptionChanged(item, currentItemMap) &&
+		    currentItemMap.erase(item.id) >= 1) {
+			// If the hostgroup already exists of unmodified,
+			// we have nothing to do.
+			continue;
+		}
+		addItems.push_back(move(item));
+	}
+
+	ItemIdList invalidItemIdList;
+	map<ItemIdType, const ItemInfo *> invalidItemMap =
+		move(currentItemMap);
+	for (auto invalidItemPair : invalidItemMap) {
+		ItemInfo invalidItem = *invalidItemPair.second;
+		invalidItemIdList.push_back(invalidItem.id);
+	}
+	HatoholError err = HTERR_OK;
+	if (invalidItemIdList.size() > 0)
+		err = deleteItemInfo(invalidItemIdList, serverId);
+	if (addItems.size() > 0)
+		addItemInfoList(addItems);
+	return err;
 }
 
 void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
