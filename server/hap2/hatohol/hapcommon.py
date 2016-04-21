@@ -27,11 +27,11 @@ from datetime import timedelta
 
 def translate_unix_time_to_hatohol_time(unix_time, ns=0):
     """
-    Translate unix_time into a time string of HAPI 2.0.
+    Translate unix_time into a time string of HAPI2.
 
     @param unix_time An unix time (integer or string).
     @param ns A nanosecnd part of the time (integer or string).
-    @return A timestamp string in HAPI2.0
+    @return A timestamp string in HAPI2
     """
     utc_time = time.gmtime(int(unix_time))
     hatohol_time = time.strftime("%Y%m%d%H%M%S", utc_time)
@@ -74,10 +74,10 @@ def get_current_hatohol_time():
 
 def conv_to_hapi_time(date_time, offset=timedelta()):
     """
-    Convert a datetime object to a string formated for HAPI
+    Convert a datetime object to a string formated for HAPI2
     @param date_time A datatime object
     @param offset    An offset to the time
-    @return A string of the date and time in HAPI2.0
+    @return A string of the date and time in HAPI2
     """
     adjust_time = date_time + offset
     return adjust_time.strftime("%Y%m%d%H%M%S.") \

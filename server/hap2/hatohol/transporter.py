@@ -31,7 +31,7 @@ logger = getLogger("hatohol.transporter:%s" % hapcommon.get_top_file_name())
 
 class Transporter:
     """
-    An abstract class for transportation of RPC messages for HAPI-2.0.
+    An abstract class for transportation of RPC messages for HAPI2.
     """
     def __init__(self):
         self.__receiver = None

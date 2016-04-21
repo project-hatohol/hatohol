@@ -114,7 +114,7 @@ class SimpleCaller:
 
 
 if __name__ == '__main__':
-    prog_name = "Simple Caller for HAPI 2.0"
+    prog_name = "Simple Caller for HAPI2"
     args, transporter_args = simple_server.basic_setup(SimpleCaller.arg_def,
                                                        prog_name=prog_name)
     caller = SimpleCaller(transporter_args)
