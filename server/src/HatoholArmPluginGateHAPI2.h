@@ -36,6 +36,14 @@ using SerialId = int64_t;
 
 class HatoholArmPluginGateHAPI2 : public DataStore, public HatoholArmPluginInterfaceHAPI2 {
 public:
+	class DividableProcedureCallback : public UsedCountable {
+	public:
+		virtual void onGotResponse(void) = 0;
+		virtual void onTimeout(void) {};
+	};
+	using DividableProcedureCallbackPtr = UsedCountablePtr<DividableProcedureCallback>;
+
+public:
 	HatoholArmPluginGateHAPI2(const MonitoringServerInfo &serverInfo,
 				  const bool &autoStart = true);
 
