@@ -1828,9 +1828,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 	}
 
 	if (divided) {
-		dataStore->addItemList(collectedItemList);
+		dataStore->syncItemList(collectedItemList, serverInfo.id);
 	} else {
-		dataStore->addItemList(itemList);
+		dataStore->syncItemList(itemList, serverInfo.id);
 	}
 
 	if (!fetchId.empty()) {
