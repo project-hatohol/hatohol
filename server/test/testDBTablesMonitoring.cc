@@ -572,8 +572,8 @@ void test_deleteItemInfo(void)
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	loadTestDBItems();
 
-	ItemIdList itemIdList = { "2", "3" };
-	constexpr ServerIdType targetServerId = 1;
+	ItemIdList itemIdList = { "1", "2" };
+	constexpr ServerIdType targetServerId = 3;
 
 	for (auto itemId : itemIdList) {
 		// check itemInfo existence
@@ -582,7 +582,7 @@ void test_deleteItemInfo(void)
 		  " WHERE id = '%" FMT_ITEM_ID "'"
 		  " AND server_id = %" FMT_SERVER_ID,
 		  itemId.c_str(), targetServerId);
-		uint64_t targetTestDataId = StringUtils::toUint64(itemId) - 1;
+		uint64_t targetTestDataId = StringUtils::toUint64(itemId);
 		string expectedOut;
 		expectedOut +=
 			makeItemOutput(testItemInfo[targetTestDataId]);
