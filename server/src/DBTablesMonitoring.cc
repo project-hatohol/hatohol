@@ -2843,6 +2843,88 @@ HatoholError DBTablesMonitoring::deleteItemInfo(const ItemIdList &idList,
 	return HTERR_OK;
 }
 
+static bool isItemDescriptionChanged(
+  const ItemInfo item, map<ItemIdType, const ItemInfo *> currentItemMap)
+{
+	auto itemItr = currentItemMap.find(item.id);
+	if (itemItr != currentItemMap.end()) {
+		if (itemItr->second->brief != item.brief) {
+			return true;
+		}
+		if (itemItr->second->lastValue != item.lastValue) {
+			return true;
+		}
+		if (itemItr->second->categoryNames != item.categoryNames) {
+			return true;
+		}
+		if (itemItr->second->lastValueTime.tv_sec !=
+		    item.lastValueTime.tv_sec ||
+		    itemItr->second->lastValueTime.tv_nsec !=
+		    item.lastValueTime.tv_nsec) {
+			return true;
+		}
+		if (itemItr->second->valueType != item.valueType) {
+			return true;
+		}
+		if (itemItr->second->unit != item.unit) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static LocalHostIdType getTargetHostId(const ItemInfoList itemInfoList)
+{
+	auto firstItem = *itemInfoList.begin();
+	LocalHostIdType targetHostId = firstItem.hostIdInServer;
+	for (const auto item : itemInfoList) {
+		if (item.hostIdInServer != targetHostId)
+			return ALL_LOCAL_HOSTS;
+	}
+	return targetHostId;
+}
+
+HatoholError DBTablesMonitoring::syncItems(const ItemInfoList &itemInfoList,
+                                           const ServerIdType &serverId)
+{
+	ItemsQueryOption option(USER_ID_SYSTEM);
+	ItemInfoList _currItems;
+
+	LocalHostIdType targetHostId = getTargetHostId(itemInfoList);
+	option.setTargetHostId(targetHostId);
+	getItemInfoList(_currItems, option);
+	const ItemInfoList currItems = move(_currItems);
+
+	map<ItemIdType, const ItemInfo *> currentItemMap;
+	for (const auto& item : currItems) {
+		currentItemMap[item.id] = &item;
+	}
+
+	// Pick up items to be added
+	ItemInfoList addItems;
+	for (const auto item : itemInfoList) {
+		if (!isItemDescriptionChanged(item, currentItemMap) &&
+		    currentItemMap.erase(item.id) >= 1) {
+			continue;
+		}
+		addItems.push_back(move(item));
+	}
+
+	ItemIdList invalidItemIdList;
+	map<ItemIdType, const ItemInfo *> invalidItemMap =
+		move(currentItemMap);
+	for (auto invalidItemPair : invalidItemMap) {
+		ItemInfo invalidItem = *invalidItemPair.second;
+		invalidItemIdList.push_back(invalidItem.id);
+	}
+	HatoholError err = HTERR_OK;
+	if (invalidItemIdList.size() > 0)
+		err = deleteItemInfo(invalidItemIdList, serverId);
+	if (addItems.size() > 0)
+		addItemInfoList(addItems);
+	return err;
+}
+
 void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 				      const ItemsQueryOption &option)
 {
