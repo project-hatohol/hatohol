@@ -636,14 +636,94 @@ struct HatoholArmPluginGateHAPI2::Impl
 		}
 	};
 
-	struct DividedProcedureCallback : public DividableProcedureCallback {
+	struct DividedPutItemsProcedureCallback : public DividableProcedureCallback {
 		Impl &m_impl;
 		const string m_requestId;
-		const string m_methodName;
-		DividedProcedureCallback(Impl &impl,
-					 const string &requestId,
-					 const string &methodName)
-		: m_impl(impl), m_requestId(requestId), m_methodName(methodName)
+		DividedPutItemsProcedureCallback(Impl &impl,
+						 const string &requestId)
+		: m_impl(impl), m_requestId(requestId)
+		{
+		}
+
+		void flush(void)
+		{
+			bool found = m_impl.runDivideInfoCallback(m_requestId);
+			if (!found) {
+				MLPL_WARN("Ran callback with unknown requestId: %s\n",
+					  m_requestId.c_str());
+			}
+		}
+
+		void sweepInvalidRequestIdMultimap(void)
+		{
+			auto range =
+			  m_impl.m_ItemInfoListSequentialIdMapRequestIdMultiMap
+				.equal_range(m_requestId);
+			m_impl.m_ItemInfoListSequentialIdMapRequestIdMultiMap
+			  .erase(range.first, range.second);
+		}
+
+		virtual void onGotResponse() override
+		{
+			// TODO
+			return;
+		}
+
+		virtual void onTimeout(void) override
+		{
+			flush();
+			MLPL_WARN("Divided putItems precedure has been timed out.\n");
+			sweepInvalidRequestIdMultimap();
+		}
+	};
+
+	struct DividedPutHistoryProcedureCallback : public DividableProcedureCallback {
+		Impl &m_impl;
+		const string m_requestId;
+		DividedPutHistoryProcedureCallback(Impl &impl,
+						   const string &requestId)
+		: m_impl(impl), m_requestId(requestId)
+		{
+		}
+
+		void flush(void)
+		{
+			bool found = m_impl.runDivideInfoCallback(m_requestId);
+			if (!found) {
+				MLPL_WARN("Ran callback with unknown requestId: %s\n",
+					  m_requestId.c_str());
+			}
+		}
+
+		void sweepInvalidRequestIdMultimap(void)
+		{
+			auto range =
+			  m_impl.m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
+				.equal_range(m_requestId);
+			m_impl.m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
+			  .erase(range.first, range.second);
+		}
+
+		virtual void onGotResponse() override
+		{
+			// TODO
+			return;
+		}
+
+		virtual void onTimeout(void) override
+		{
+			flush();
+			MLPL_WARN("Divided putHistory precedure has been timed out.\n");
+			sweepInvalidRequestIdMultimap();
+		}
+	};
+
+	struct DividedPutHostsProcedureCallback : public DividableProcedureCallback {
+		Impl &m_impl;
+		const string m_requestId;
+		DividedPutHostsProcedureCallback(Impl &impl,
+						 const string &requestId)
+		: m_impl(impl), m_requestId(requestId)
 		{
 		}
 
@@ -658,55 +738,11 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		void sweepInvalidRequestIdMultimapPair(void)
 		{
-			if (m_methodName == HAPI2_PUT_ITEMS) {
-				auto range =
-				  m_impl.m_ItemInfoListSequentialIdMapRequestIdMultiMap
-				    .equal_range(m_requestId);
-				m_impl.m_ItemInfoListSequentialIdMapRequestIdMultiMap
-				  .erase(range.first, range.second);
-			} else if (m_methodName == HAPI2_PUT_HISTORY) {
-				auto range =
-				  m_impl.m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
-				    .equal_range(m_requestId);
-				m_impl.m_HistoryInfoVectSequentialIdMapRequestIdMultiMap
-				  .erase(range.first, range.second);
-			} else if (m_methodName == HAPI2_PUT_HOSTS) {
-				auto range =
-				  m_impl.m_HostInfoVectSequentialIdMapRequestIdMultiMap
-				    .equal_range(m_requestId);
-				m_impl.m_HostInfoVectSequentialIdMapRequestIdMultiMap
-				  .erase(range.first, range.second);
-			} else if (m_methodName == HAPI2_PUT_HOST_GROUPS) {
-				auto range =
-				  m_impl.m_HostgroupVectSequentialIdMapRequestIdMultiMap
-				    .equal_range(m_requestId);
-				m_impl.m_HostgroupVectSequentialIdMapRequestIdMultiMap
-				  .erase(range.first, range.second);
-			} else if (m_methodName == HAPI2_PUT_HOST_GROUP_MEMEBRSHIP) {
-				auto range =
-				  m_impl.m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
-				    .equal_range(m_requestId);
-				m_impl.m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
-				  .erase(range.first, range.second);
-			} else if (m_methodName == HAPI2_PUT_TRIGGERS) {
-				auto range =
-				  m_impl.m_TriggerInfoListSequentialIdMapRequestIdMultiMap
-				    .equal_range(m_requestId);
-				m_impl.m_TriggerInfoListSequentialIdMapRequestIdMultiMap
-				  .erase(range.first, range.second);
-			} else if (m_methodName == HAPI2_PUT_EVENTS) {
-				auto range =
-				  m_impl.m_EventInfoListSequentialIdMapRequestIdMultiMap
-				    .equal_range(m_requestId);
-				m_impl.m_EventInfoListSequentialIdMapRequestIdMultiMap
-				  .erase(range.first, range.second);
-			} else if (m_methodName == HAPI2_PUT_HOST_PARENTS) {
-				auto range =
-				  m_impl.m_VMInfoVectSequentialIdMapRequestIdMultiMap
-				    .equal_range(m_requestId);
-				m_impl.m_VMInfoVectSequentialIdMapRequestIdMultiMap
-				  .erase(range.first, range.second);
-			}
+			auto range =
+			  m_impl.m_HostInfoVectSequentialIdMapRequestIdMultiMap
+				.equal_range(m_requestId);
+			m_impl.m_HostInfoVectSequentialIdMapRequestIdMultiMap
+			  .erase(range.first, range.second);
 		}
 
 		virtual void onGotResponse() override
@@ -718,8 +754,214 @@ struct HatoholArmPluginGateHAPI2::Impl
 		virtual void onTimeout(void) override
 		{
 			flush();
-			MLPL_WARN("Divided %s precedure has been timed out.\n",
-				  m_methodName.c_str());
+			MLPL_WARN("Divided putHosts precedure has been timed out.\n");
+			sweepInvalidRequestIdMultimapPair();
+		}
+	};
+
+	struct DividedPutHostGroupsProcedureCallback : public DividableProcedureCallback {
+		Impl &m_impl;
+		const string m_requestId;
+		const string m_methodName;
+		DividedPutHostGroupsProcedureCallback(Impl &impl,
+						      const string &requestId)
+		: m_impl(impl), m_requestId(requestId)
+		{
+		}
+
+		void flush(void)
+		{
+			bool found = m_impl.runDivideInfoCallback(m_requestId);
+			if (!found) {
+				MLPL_WARN("Ran callback with unknown requestId: %s\n",
+					  m_requestId.c_str());
+			}
+		}
+
+		void sweepInvalidRequestIdMultimapPair(void)
+		{
+			auto range =
+			  m_impl.m_HostgroupVectSequentialIdMapRequestIdMultiMap
+				.equal_range(m_requestId);
+			m_impl.m_HostgroupVectSequentialIdMapRequestIdMultiMap
+			  .erase(range.first, range.second);
+		}
+
+		virtual void onGotResponse() override
+		{
+			// TODO
+			return;
+		}
+
+		virtual void onTimeout(void) override
+		{
+			flush();
+			MLPL_WARN("Divided putHostGroups precedure has been timed out.\n");
+			sweepInvalidRequestIdMultimapPair();
+		}
+	};
+
+	struct DividedPutHostGroupMembershipProcedureCallback : public DividableProcedureCallback {
+		Impl &m_impl;
+		const string m_requestId;
+		const string m_methodName;
+		DividedPutHostGroupMembershipProcedureCallback(Impl &impl,
+							       const string &requestId)
+		: m_impl(impl), m_requestId(requestId)
+		{
+		}
+
+		void flush(void)
+		{
+			bool found = m_impl.runDivideInfoCallback(m_requestId);
+			if (!found) {
+				MLPL_WARN("Ran callback with unknown requestId: %s\n",
+					  m_requestId.c_str());
+			}
+		}
+
+		void sweepInvalidRequestIdMultimapPair(void)
+		{
+			auto range =
+			  m_impl.m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
+				.equal_range(m_requestId);
+			m_impl.m_HostgroupMembershipVectSequentialIdMapRequestIdMultiMap
+			  .erase(range.first, range.second);
+		}
+
+		virtual void onGotResponse() override
+		{
+			// TODO
+			return;
+		}
+
+		virtual void onTimeout(void) override
+		{
+			flush();
+			MLPL_WARN("Divided putHostGroupMembership precedure has been timed out.\n");
+			sweepInvalidRequestIdMultimapPair();
+		}
+	};
+
+	struct DividedPutTriggersProcedureCallback : public DividableProcedureCallback {
+		Impl &m_impl;
+		const string m_requestId;
+		DividedPutTriggersProcedureCallback(Impl &impl,
+						    const string &requestId)
+		: m_impl(impl), m_requestId(requestId)
+		{
+		}
+
+		void flush(void)
+		{
+			bool found = m_impl.runDivideInfoCallback(m_requestId);
+			if (!found) {
+				MLPL_WARN("Ran callback with unknown requestId: %s\n",
+					  m_requestId.c_str());
+			}
+		}
+
+		void sweepInvalidRequestIdMultimapPair(void)
+		{
+			auto range =
+			  m_impl.m_TriggerInfoListSequentialIdMapRequestIdMultiMap
+				.equal_range(m_requestId);
+			m_impl.m_TriggerInfoListSequentialIdMapRequestIdMultiMap
+			  .erase(range.first, range.second);
+		}
+
+		virtual void onGotResponse() override
+		{
+			// TODO
+			return;
+		}
+
+		virtual void onTimeout(void) override
+		{
+			flush();
+			MLPL_WARN("Divided putTriggers precedure has been timed out.\n");
+			sweepInvalidRequestIdMultimapPair();
+		}
+	};
+
+	struct DividedPutEventsProcedureCallback : public DividableProcedureCallback {
+		Impl &m_impl;
+		const string m_requestId;
+		DividedPutEventsProcedureCallback(Impl &impl,
+						  const string &requestId)
+		: m_impl(impl), m_requestId(requestId)
+		{
+		}
+
+		void flush(void)
+		{
+			bool found = m_impl.runDivideInfoCallback(m_requestId);
+			if (!found) {
+				MLPL_WARN("Ran callback with unknown requestId: %s\n",
+					  m_requestId.c_str());
+			}
+		}
+
+		void sweepInvalidRequestIdMultimapPair(void)
+		{
+			auto range =
+			  m_impl.m_EventInfoListSequentialIdMapRequestIdMultiMap
+				.equal_range(m_requestId);
+			m_impl.m_EventInfoListSequentialIdMapRequestIdMultiMap
+			  .erase(range.first, range.second);
+		}
+
+		virtual void onGotResponse() override
+		{
+			// TODO
+			return;
+		}
+
+		virtual void onTimeout(void) override
+		{
+			flush();
+			MLPL_WARN("Divided putEvents precedure has been timed out.\n");
+			sweepInvalidRequestIdMultimapPair();
+		}
+	};
+
+	struct DividedPutHostParentsProcedureCallback : public DividableProcedureCallback {
+		Impl &m_impl;
+		const string m_requestId;
+		DividedPutHostParentsProcedureCallback(Impl &impl,
+						       const string &requestId)
+		: m_impl(impl), m_requestId(requestId)
+		{
+		}
+
+		void flush(void)
+		{
+			bool found = m_impl.runDivideInfoCallback(m_requestId);
+			if (!found) {
+				MLPL_WARN("Ran callback with unknown requestId: %s\n",
+					  m_requestId.c_str());
+			}
+		}
+
+		void sweepInvalidRequestIdMultimapPair(void)
+		{
+			auto range =
+			  m_impl.m_VMInfoVectSequentialIdMapRequestIdMultiMap
+				.equal_range(m_requestId);
+			m_impl.m_VMInfoVectSequentialIdMapRequestIdMultiMap
+			  .erase(range.first, range.second);
+		}
+
+		virtual void onGotResponse() override
+		{
+			// TODO
+			return;
+		}
+
+		virtual void onTimeout(void) override
+		{
+			flush();
+			MLPL_WARN("Divided putHostParents precedure has been timed out.\n");
 			sweepInvalidRequestIdMultimapPair();
 		}
 	};
@@ -1539,9 +1781,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 
 			if (!divideInfo.isLast) {
 				DividableProcedureCallback *callback =
-				  new Impl::DividedProcedureCallback(*m_impl,
-								     divideInfo.requestId,
-								     HAPI2_PUT_ITEMS);
+				  new Impl::DividedPutItemsProcedureCallback(
+				     *m_impl,
+				     divideInfo.requestId);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
 								callbackPtr);
@@ -1688,9 +1930,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 
 			if (!divideInfo.isLast) {
 				DividableProcedureCallback *callback =
-				  new Impl::DividedProcedureCallback(*m_impl,
-								     divideInfo.requestId,
-								     HAPI2_PUT_HISTORY);
+				  new Impl::DividedPutHistoryProcedureCallback(
+				     *m_impl,
+				     divideInfo.requestId);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
 								callbackPtr);
@@ -1852,9 +2094,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 
 			if (!divideInfo.isLast) {
 				DividableProcedureCallback *callback =
-				  new Impl::DividedProcedureCallback(*m_impl,
-								     divideInfo.requestId,
-								     HAPI2_PUT_HOSTS);
+				  new Impl::DividedPutHostsProcedureCallback(
+				    *m_impl,
+				    divideInfo.requestId);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
 								callbackPtr);
@@ -2012,9 +2254,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 
 			if (!divideInfo.isLast) {
 				DividableProcedureCallback *callback =
-				  new Impl::DividedProcedureCallback(*m_impl,
-								     divideInfo.requestId,
-								     HAPI2_PUT_HOST_GROUPS);
+				  new Impl::DividedPutHostGroupsProcedureCallback(
+				    *m_impl,
+				    divideInfo.requestId);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
 								callbackPtr);
@@ -2197,9 +2439,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 
 			if (!divideInfo.isLast) {
 				DividableProcedureCallback *callback =
-				  new Impl::DividedProcedureCallback(*m_impl,
-								     divideInfo.requestId,
-								     HAPI2_PUT_HOST_GROUP_MEMEBRSHIP);
+				  new Impl::DividedPutHostGroupMembershipProcedureCallback(
+				    *m_impl,
+				    divideInfo.requestId);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
 								callbackPtr);
@@ -2453,9 +2695,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 
 			if (!divideInfo.isLast) {
 				DividableProcedureCallback *callback =
-				  new Impl::DividedProcedureCallback(*m_impl,
-								     divideInfo.requestId,
-								     HAPI2_PUT_TRIGGERS);
+				  new Impl::DividedPutTriggersProcedureCallback(
+				    *m_impl,
+				    divideInfo.requestId);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
 								callbackPtr);
@@ -2675,9 +2917,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 
 			if (!divideInfo.isLast) {
 				DividableProcedureCallback *callback =
-				  new Impl::DividedProcedureCallback(*m_impl,
-								     divideInfo.requestId,
-								     HAPI2_PUT_EVENTS);
+				  new Impl::DividedPutEventsProcedureCallback(
+				    *m_impl,
+				    divideInfo.requestId);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
 								callbackPtr);
@@ -2832,9 +3074,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 
 			if (!divideInfo.isLast) {
 				DividableProcedureCallback *callback =
-				  new Impl::DividedProcedureCallback(*m_impl,
-								     divideInfo.requestId,
-								     HAPI2_PUT_HOST_PARENTS);
+				  new Impl::DividedPutHostParentsProcedureCallback(
+				    *m_impl,
+				    divideInfo.requestId);
 				DividableProcedureCallbackPtr callbackPtr(callback, false);
 				m_impl->queueDivideInfoCallback(divideInfo.requestId,
 								callbackPtr);
