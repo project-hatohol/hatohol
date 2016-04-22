@@ -301,6 +301,7 @@ public:
 
 	void addItemInfo(const ItemInfo *itemInfo);
 	void addItemInfoList(const ItemInfoList &itemInfoList);
+	HatoholError deleteItemInfo(const TriggerIdList &idList, const ServerIdType &serverId);
 	void getItemInfoList(ItemInfoList &itemInfoList,
 			     const ItemsQueryOption &option);
 	void getItemCategoryNames(std::vector<std::string> &itemCategoryNames,

@@ -2360,8 +2360,8 @@ static string makeTriggerIdListCondition(const TriggerIdList &idList)
 	return condition;
 }
 
-static string makeConditionForDelete(const TriggerIdList &idList,
-				     const ServerIdType &serverId)
+static string makeConditionForDeleteTrigger(const TriggerIdList &idList,
+                                            const ServerIdType &serverId)
 {
 	string condition = makeTriggerIdListCondition(idList);
 	condition += " AND ";
@@ -2397,7 +2397,7 @@ HatoholError DBTablesMonitoring::deleteTriggerInfo(const TriggerIdList &idList,
 			numAffectedRows = dbAgent.getNumberOfAffectedRows();
 		}
 	} trx;
-	trx.arg.condition = makeConditionForDelete(idList, serverId);
+	trx.arg.condition = makeConditionForDeleteTrigger(idList, serverId);
 	getDBAgent().runTransaction(trx);
 
 	// Check the result
@@ -2775,6 +2775,72 @@ void DBTablesMonitoring::addItemInfoList(const ItemInfoList &itemInfoList)
 	} trx;
 	trx.init(this, &itemInfoList);
 	getDBAgent().runTransaction(trx);
+}
+
+static string makeItemIdListCondition(const ItemIdList &idList)
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_ITEMS[IDX_ITEMS_ID];
+	SeparatorInjector commaInjector(",");
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	DBTermCodec codec;
+	for (auto id : idList) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%" FMT_ITEM_ID,
+						  codec.enc(id).c_str());
+	}
+
+	condition += ")";
+	return condition;
+}
+
+static string makeConditionForDeleteItem(const ItemIdList &idList,
+                                         const ServerIdType &serverId)
+{
+	string condition = makeItemIdListCondition(idList);
+	condition += " AND ";
+	string columnName =
+		tableProfileItems.columnDefs[IDX_ITEMS_SERVER_ID].columnName;
+	condition += StringUtils::sprintf("%s=%" FMT_SERVER_ID,
+	                                  columnName.c_str(), serverId);
+
+	return condition;
+}
+
+HatoholError DBTablesMonitoring::deleteItemInfo(const ItemIdList &idList,
+                                                const ServerIdType &serverId)
+{
+	if (idList.empty()) {
+		MLPL_WARN("idList is empty.\n");
+		return HTERR_INVALID_PARAMETER;
+	}
+
+	struct TrxProc : public DBAgent::TransactionProc {
+		DBAgent::DeleteArg arg;
+		uint64_t numAffectedRows;
+
+		TrxProc (void)
+		: arg(tableProfileItems),
+		  numAffectedRows(0)
+		{
+		}
+
+		void operator ()(DBAgent &dbAgent) override
+		{
+			dbAgent.deleteRows(arg);
+			numAffectedRows = dbAgent.getNumberOfAffectedRows();
+		}
+	} trx;
+	trx.arg.condition = makeConditionForDeleteItem(idList, serverId);
+	getDBAgent().runTransaction(trx);
+
+	// Check the result
+	if (trx.numAffectedRows != idList.size()) {
+		MLPL_ERR("affectedRows: %" PRIu64 ", idList.size(): %zd\n",
+		         trx.numAffectedRows, idList.size());
+		return HTERR_DELETE_INCOMPLETE;
+	}
+	return HTERR_OK;
 }
 
 void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
