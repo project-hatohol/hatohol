@@ -567,6 +567,213 @@ void test_syncTriggersModifiedTrigger(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_deleteItemInfo(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBItems();
+
+	ItemIdList itemIdList = { "2", "3" };
+	constexpr ServerIdType targetServerId = 1;
+
+	for (auto itemId : itemIdList) {
+		// check itemInfo existence
+		string sql = StringUtils::sprintf("SELECT * FROM items");
+		sql += StringUtils::sprintf(
+		  " WHERE id = '%" FMT_ITEM_ID "'"
+		  " AND server_id = %" FMT_SERVER_ID,
+		  itemId.c_str(), targetServerId);
+		uint64_t targetTestDataId = StringUtils::toUint64(itemId) - 1;
+		string expectedOut;
+		expectedOut +=
+			makeItemOutput(testItemInfo[targetTestDataId]);
+		assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
+	}
+
+	HatoholError err =
+		dbMonitoring.deleteItemInfo(itemIdList, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	for (auto itemId : itemIdList) {
+		string statement = StringUtils::sprintf("SELECT * FROM items");
+		statement += StringUtils::sprintf(
+		  " WHERE id = %" FMT_ITEM_ID " AND server_id = %" FMT_SERVER_ID,
+		  itemId.c_str(), targetServerId);
+		string expected = "";
+		assertDBContent(&dbMonitoring.getDBAgent(), statement, expected);
+	}
+}
+
+//void test_syncItems(void)
+//{
+//	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+//	loadTestDBItems();
+//	constexpr const ServerIdType targetServerId = 1;
+//	const ItemIdType targetItemId = "2";
+//	constexpr const int testItemDataId = 2;
+//	const ItemIdList targetServerItemIds = {"1", "2", "3", "4", "5"};
+//
+//	string sql = StringUtils::sprintf("SELECT * FROM items");
+//	sql += StringUtils::sprintf(
+//	  " WHERE server_id = %" FMT_SERVER_ID " ORDER BY server_id ASC",
+//	  targetServerId);
+//
+//	string expectedOut;
+//	// check itemInfo existence
+//	for (auto itemId : targetServerItemIds) {
+//		int64_t targetId = StringUtils::toUint64(itemId) - 1;
+//		expectedOut += makeItemOutput(testItemInfo[targetId]);
+//	}
+//	assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
+//
+//	map<ItemIdType, const ItemInfo *> itemMap;
+//	for (size_t i = 0; i < NumTestItemInfo; i++) {
+//		const ItemInfo &svItemInfo = testItemInfo[i];
+//		if (svItemInfo.serverId != targetServerId)
+//			continue;
+//		if (svItemInfo.id != targetItemId)
+//			continue;
+//		itemMap[svItemInfo.id] = &svItemInfo;
+//	}
+//
+//	ItemInfoList svItems =
+//	{
+//		{
+//			testItemInfo[testItemDataId - 1]
+//		}
+//	};
+//
+//	// sanity check if we use the proper data
+//	cppcut_assert_equal(false, svItems.empty());
+//	// Prepare for the expected result.
+//	string expect;
+//	for (auto itemPair : itemMap) {
+//		const ItemInfo svItem = *itemPair.second;
+//		expect += StringUtils::sprintf(
+//		  "%" FMT_LOCAL_HOST_ID "|%s\n",
+//		  svItem.hostIdInServer.c_str(), svItem.hostName.c_str());
+//	}
+//	HatoholError err = dbMonitoring.syncItems(svItems, targetServerId);
+//	assertHatoholError(HTERR_OK, err);
+//	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+//	string statement = StringUtils::sprintf(
+//	  "select host_id_in_server,hostname from items"
+//	  " where server_id=%" FMT_SERVER_ID " order by id asc;",
+//	  targetServerId);
+//	assertDBContent(&dbAgent, statement, expect);
+//}
+//
+//void test_syncItemsAddNewItem(void)
+//{
+//	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+//	loadTestDBItems();
+//	constexpr const ServerIdType targetServerId = 1;
+//
+//	ItemInfo newItemInfo = {
+//		1,                        // serverId
+//		"7",                      // id
+//		ITEM_STATUS_OK,        // status
+//		ITEM_SEVERITY_INFO,    // severity
+//		{1362958197,0},           // lastChangeTime
+//		10,                       // globalHostId,
+//		"235013",                 // hostIdInServer,
+//		"hostX2",                 // hostName,
+//		"TEST New Item 1",     // brief,
+//		"",                       // extendedInfo
+//		ITEM_VALID,            // validity
+//	};
+//
+//	for (size_t i = 0; i < NumTestItemInfo; i++) {
+//		const ItemInfo &svItemInfo = testItemInfo[i];
+//		if (svItemInfo.serverId != targetServerId)
+//			continue;
+//		if (svItemInfo.id == newItemInfo.id)
+//			cut_fail("We use the wrong test data");
+//	}
+//
+//	string expect;
+//	ItemInfoList svItems;
+//	{
+//		size_t i = 0;
+//		for (; i < NumTestItemInfo; i++) {
+//			const ItemInfo &svItemInfo = testItemInfo[i];
+//			if (svItemInfo.serverId != targetServerId)
+//				continue;
+//			svItems.push_back(svItemInfo);
+//			expect += makeItemOutput(svItemInfo);
+//		}
+//		// sanity check if we use the proper data
+//		cppcut_assert_equal(false, svItems.empty());
+//
+//		// Add newItemInfo to the expected result
+//		svItems.push_back(newItemInfo);
+//		expect += makeItemOutput(newItemInfo);
+//	}
+//	HatoholError err = dbMonitoring.syncItems(svItems, targetServerId);
+//	assertHatoholError(HTERR_OK, err);
+//	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+//	string statement = StringUtils::sprintf(
+//	  "select * from items"
+//	  " where server_id=%" FMT_SERVER_ID " order by id asc;",
+//	  targetServerId);
+//	assertDBContent(&dbAgent, statement, expect);
+//}
+//
+//void test_syncItemsModifiedItem(void)
+//{
+//	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+//	loadTestDBItems();
+//	constexpr const ServerIdType targetServerId = 1;
+//
+//	ItemInfo modifiedItemInfo = {
+//		1,                        // serverId
+//		"1",                      // id
+//		ITEM_STATUS_OK,        // status
+//		ITEM_SEVERITY_INFO,    // severity
+//		{1362957197,0},           // lastChangeTime
+//		10,                       // globalHostId,
+//		"235012",                 // hostIdInServer,
+//		"hostX1 revised",         // hostName,
+//		"TEST Item 1 Revised", // brief,
+//		"{\"expandedDescription\":\"Test Item on hostX1 revised\"}", // extendedInfo
+//		ITEM_VALID,            // validity
+//	};
+//
+//	// sanity check for test data
+//	for (size_t i = 0; i < NumTestItemInfo; i++) {
+//		const ItemInfo &svItemInfo = testItemInfo[i];
+//		if (svItemInfo.serverId != targetServerId)
+//			continue;
+//		if (svItemInfo.brief == modifiedItemInfo.brief)
+//			cut_fail("We use the wrong test data");
+//	}
+//
+//	string expect;
+//	ItemInfoList svItems;
+//	{
+//		size_t i = 0;
+//		// Add modifiedItemInfo to the expected result
+//		svItems.push_back(modifiedItemInfo);
+//		expect += makeItemOutput(modifiedItemInfo);
+//
+//		for (i = 1; i < NumTestItemInfo; i++) {
+//			const ItemInfo &svItemInfo = testItemInfo[i];
+//			if (svItemInfo.serverId != targetServerId)
+//				continue;
+//			svItems.push_back(svItemInfo);
+//			expect += makeItemOutput(svItemInfo);
+//		}
+//		// sanity check if we use the proper data
+//		cppcut_assert_equal(false, svItems.empty());
+//	}
+//	HatoholError err = dbMonitoring.syncItems(svItems, targetServerId);
+//	assertHatoholError(HTERR_OK, err);
+//	DBAgent &dbAgent = dbMonitoring.getDBAgent();
+//	string statement = StringUtils::sprintf(
+//	  "select * from items"
+//	  " where server_id=%" FMT_SERVER_ID " order by id asc;",
+//	  targetServerId);
+//	assertDBContent(&dbAgent, statement, expect);
+//}
+
 void test_getTriggerInfo(void)
 {
 	loadTestDBTriggers();
