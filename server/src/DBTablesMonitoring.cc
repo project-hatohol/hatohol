@@ -2890,6 +2890,7 @@ HatoholError DBTablesMonitoring::syncItems(const ItemInfoList &itemInfoList,
 	ItemsQueryOption option(USER_ID_SYSTEM);
 	ItemInfoList _currItems;
 
+	option.setTargetServerId(serverId);
 	LocalHostIdType targetHostId = getTargetHostId(itemInfoList);
 	option.setTargetHostId(targetHostId);
 	getItemInfoList(_currItems, option);
