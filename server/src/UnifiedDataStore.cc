@@ -721,8 +721,8 @@ void UnifiedDataStore::addItemList(const ItemInfoList &itemList)
 	dbMonitoring.addItemInfoList(itemList);
 }
 
-void UnifiedDataStore::syncItemList(const ItemInfoList &itemList,
-                                    const ServerIdType &serverId)
+void UnifiedDataStore::syncItems(const ItemInfoList &itemList,
+                                 const ServerIdType &serverId)
 {
 	ThreadLocalDBCache cache;
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();

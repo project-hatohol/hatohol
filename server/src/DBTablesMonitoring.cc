@@ -2843,7 +2843,7 @@ HatoholError DBTablesMonitoring::deleteItemInfo(const ItemIdList &idList,
 	return HTERR_OK;
 }
 
-static bool isItemDescriptionChanged(
+static bool isItemChanged(
   const ItemInfo item, map<ItemIdType, const ItemInfo *> currentItemMap)
 {
 	auto itemItr = currentItemMap.find(item.id);
@@ -2875,7 +2875,7 @@ static bool isItemDescriptionChanged(
 
 static LocalHostIdType getTargetHostId(const ItemInfoList itemInfoList)
 {
-	auto firstItem = *itemInfoList.begin();
+	auto firstItem = *begin(itemInfoList);
 	LocalHostIdType targetHostId = firstItem.hostIdInServer;
 	for (const auto item : itemInfoList) {
 		if (item.hostIdInServer != targetHostId)
@@ -2903,7 +2903,7 @@ HatoholError DBTablesMonitoring::syncItems(const ItemInfoList &itemInfoList,
 	// Pick up items to be added
 	ItemInfoList addItems;
 	for (const auto item : itemInfoList) {
-		if (!isItemDescriptionChanged(item, currentItemMap) &&
+		if (!isItemChanged(item, currentItemMap) &&
 		    currentItemMap.erase(item.id) >= 1) {
 			continue;
 		}
