@@ -1,3 +1,20 @@
+2016-04-28 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.04
+
+	* New Features
+
+	* Bug Fixes
+
+	* Support OS
+	- CentOS 7
+	- Ubuntu 14.04 LTS(x86_64)
+
+	* Contributer
+	- Kazuhiro Yamato
+	- Takuro Ashie
+	- Hiroshi Hatake
+	- Masayuki Nakagawa
+	- mmikan22
+
 2016-01-29 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.01
 
 	* New Features
