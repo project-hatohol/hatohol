@@ -567,6 +567,41 @@ void test_syncTriggersModifiedTrigger(void)
 	assertDBContent(&dbAgent, statement, expect);
 }
 
+void test_deleteItemInfo(void)
+{
+	DECLARE_DBTABLES_MONITORING(dbMonitoring);
+	loadTestDBItems();
+
+	ItemIdList itemIdList = { "1", "2" };
+	constexpr ServerIdType targetServerId = 3;
+
+	for (auto itemId : itemIdList) {
+		// check itemInfo existence
+		string sql = StringUtils::sprintf("SELECT * FROM items");
+		sql += StringUtils::sprintf(
+		  " WHERE id = '%" FMT_ITEM_ID "'"
+		  " AND server_id = %" FMT_SERVER_ID,
+		  itemId.c_str(), targetServerId);
+		uint64_t targetTestDataId = StringUtils::toUint64(itemId);
+		string expectedOut;
+		expectedOut +=
+			makeItemOutput(testItemInfo[targetTestDataId]);
+		assertDBContent(&dbMonitoring.getDBAgent(), sql, expectedOut);
+	}
+
+	HatoholError err =
+		dbMonitoring.deleteItemInfo(itemIdList, targetServerId);
+	assertHatoholError(HTERR_OK, err);
+	for (auto itemId : itemIdList) {
+		string statement = StringUtils::sprintf("SELECT * FROM items");
+		statement += StringUtils::sprintf(
+		  " WHERE id = %" FMT_ITEM_ID " AND server_id = %" FMT_SERVER_ID,
+		  itemId.c_str(), targetServerId);
+		string expected = "";
+		assertDBContent(&dbMonitoring.getDBAgent(), statement, expected);
+	}
+}
+
 void test_getTriggerInfo(void)
 {
 	loadTestDBTriggers();
