@@ -2782,7 +2782,7 @@ static string makeItemIdListCondition(const ItemIdList &idList)
 	string condition;
 	const ColumnDef &colId = COLUMN_DEF_ITEMS[IDX_ITEMS_ID];
 	SeparatorInjector commaInjector(",");
-	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	condition = StringUtils::sprintf("%s IN (", colId.columnName);
 	DBTermCodec codec;
 	for (auto id : idList) {
 		commaInjector(condition);
