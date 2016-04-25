@@ -428,6 +428,7 @@ void test_procedureHandlerPutItems(void)
 
 	lastValueTime = "20150410175523";
 	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item1.globalId       = 1;
 	item1.serverId       = 302;
 	item1.id             = "1";
 	item1.globalHostId   = 10;
@@ -443,6 +444,7 @@ void test_procedureHandlerPutItems(void)
 
 	lastValueTime = "20150410175531";
 	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item2.globalId       = 2;
 	item2.serverId       = 302;
 	item2.id             = "2";
 	item2.globalHostId   = 10;
@@ -458,6 +460,7 @@ void test_procedureHandlerPutItems(void)
 
 	lastValueTime = "20151117095531";
 	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item3.globalId       = 3;
 	item3.serverId       = 302;
 	item3.id             = "3";
 	item3.globalHostId   = 10;
@@ -546,6 +549,7 @@ void test_procedureHandlerPutItemsWithDivideInfo(void)
 
 	lastValueTime = "20150410175523";
 	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item1.globalId       = 1;
 	item1.serverId       = 302;
 	item1.id             = "1";
 	item1.globalHostId   = 10;
@@ -561,6 +565,7 @@ void test_procedureHandlerPutItemsWithDivideInfo(void)
 
 	lastValueTime = "20150410175531";
 	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item2.globalId       = 2;
 	item2.serverId       = 302;
 	item2.id             = "2";
 	item2.globalHostId   = 10;
@@ -576,6 +581,7 @@ void test_procedureHandlerPutItemsWithDivideInfo(void)
 
 	lastValueTime = "20151117095531";
 	HatoholArmPluginGateHAPI2::parseTimeStamp(lastValueTime, timeStamp);
+	item3.globalId       = 3;
 	item3.serverId       = 302;
 	item3.id             = "3";
 	item3.globalHostId   = 10;

@@ -67,6 +67,8 @@ public:
 	                  DBAgent::TransactionHooks *hooks = NULL);
 
 	void addItemList(const ItemInfoList &itemList);
+	void syncItems(const ItemInfoList &itemList,
+	               const ServerIdType &serverId);
 
 	void addMonitoringServerStatus(
 	  const MonitoringServerStatus &serverStatus);
