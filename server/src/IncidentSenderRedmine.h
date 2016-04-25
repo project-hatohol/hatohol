@@ -25,7 +25,8 @@
 class IncidentSenderRedmine : public IncidentSender
 {
 public:
-	IncidentSenderRedmine(const IncidentTrackerInfo &tracker);
+	IncidentSenderRedmine(const IncidentTrackerInfo &tracker,
+			      bool shouldRecordIncidentHistory = false);
 	virtual ~IncidentSenderRedmine();
 
 	virtual HatoholError send(const EventInfo &event,

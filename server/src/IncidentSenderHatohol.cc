@@ -104,8 +104,9 @@ struct IncidentSenderHatohol::Impl
 	IncidentSenderHatohol &m_sender;
 };
 
-IncidentSenderHatohol::IncidentSenderHatohol(const IncidentTrackerInfo &tracker)
-: IncidentSender(tracker),
+IncidentSenderHatohol::IncidentSenderHatohol(
+  const IncidentTrackerInfo &tracker, bool shouldRecordIncidentHistory)
+: IncidentSender(tracker, shouldRecordIncidentHistory),
   m_impl(new Impl(*this))
 {
 }
