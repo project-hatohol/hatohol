@@ -646,7 +646,7 @@ void test_syncItems(void)
 	for (auto itemPair : itemMap) {
 		const ItemInfo svItem = *itemPair.second;
 		expect += StringUtils::sprintf(
-		  "%" FMT_LOCAL_HOST_ID "%s\n",
+		  "%" FMT_LOCAL_HOST_ID "\n",
 		  svItem.hostIdInServer.c_str());
 	}
 	HatoholError err = dbMonitoring.syncItems(svItems, targetServerId);
