@@ -1,6 +1,13 @@
 2016-04-28 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.04
 
 	* New Features
+	- [HAP2] Configuration file for HAP2 plugins. (#1985)
+	- Accept and store multiple items groups (applications). (#2197)
+	- [WebUI] Configuration file for WebUI. (#2152)
+	- Backup configuration files on the update of the RPM package. (#2171)
+	- [hap2_fluentd] Log unexpected lines from fluentd. (#2010)
+	- Remove regacy built-in Arms; ArmZabbixAPI and ArmNagiosNDO Utils. (#1983)
+	  Now Hatohol only uses HAPI2-based Arms.
 
 	* Bug Fixes
 
