@@ -116,7 +116,8 @@ struct IncidentSender::Impl
 	Impl(IncidentSender &_sender)
 	: sender(_sender), runningJob(NULL), jobSemaphore(0),
 	  retryLimit(DEFAULT_RETRY_LIMIT),
-	  retryIntervalMSec(DEFAULT_RETRY_INTERVAL_MSEC)
+	  retryIntervalMSec(DEFAULT_RETRY_INTERVAL_MSEC),
+	  shouldRecordIncidentHistory(false)
 	{
 	}
 
