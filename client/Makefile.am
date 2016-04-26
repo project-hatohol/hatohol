@@ -60,6 +60,9 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/multiselect.min.js \
 	static/js.external/bootstrap.min.js \
 	static/js.external/spectrum.js \
+	static/js.external/bootstrap-select.js \
+	static/js.external/desktop-notify-min.js \
+	static/js.external/jstz.min.js \
 	static/js.plugins/hapi-json.js \
 	static/js.plugins/hap2-ceilometer.js \
 	static/js.plugins/hap2-fluentd.js \
