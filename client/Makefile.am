@@ -121,6 +121,9 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_item_update.js \
 	static/js/hatohol_events_view_config.js \
 	static/js/hatohol_triggers_view_config.js \
+	static/js/before_close.js \
+	static/js/push_notify.js \
+	static/js/hatohol_tracer.js \
 	viewer/urls.py \
 	viewer/__init__.py \
 	viewer/models.py \
