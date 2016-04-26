@@ -14,6 +14,7 @@ nobase_dist_hatohol_client_DATA = \
 	hatohol/wsgi.py \
 	hatohol/urls.py \
 	hatohol/__init__.py \
+	hatohol/autotools_vars.py \
 	hatohol/base_settings.py \
 	hatohol/branding_settings.py \
 	hatohol/settings_devel.py hatohol/settings_product.py \
@@ -39,6 +40,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/css.external/jquery-ui-slider-pips.min.css \
 	static/css.external/jquery.datetimepicker.css \
 	static/css.external/spectrum.css \
+	static/css.external/bootstrap-select.css \
 	static/fonts/glyphicons-halflings-regular.eot \
 	static/fonts/glyphicons-halflings-regular.svg \
 	static/fonts/glyphicons-halflings-regular.ttf \
@@ -46,6 +48,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/fonts/glyphicons-halflings-regular.woff2 \
 	static/images/favicon.ico \
 	static/images/logo_hatohol.png \
+	static/images/icon_push_hatohol.png \
 	static/js.external/jquery.min.js \
 	static/js.external/jquery-ui.min.js \
 	static/js.external/jquery-ui-slider-pips.min.js \
@@ -59,6 +62,9 @@ nobase_dist_hatohol_client_DATA = \
 	static/js.external/multiselect.min.js \
 	static/js.external/bootstrap.min.js \
 	static/js.external/spectrum.js \
+	static/js.external/bootstrap-select.js \
+	static/js.external/desktop-notify-min.js \
+	static/js.external/jstz.min.js \
 	static/js.plugins/hapi-json.js \
 	static/js.plugins/hap2-ceilometer.js \
 	static/js.plugins/hap2-fluentd.js \
@@ -120,6 +126,9 @@ nobase_dist_hatohol_client_DATA = \
 	static/js/hatohol_item_update.js \
 	static/js/hatohol_events_view_config.js \
 	static/js/hatohol_triggers_view_config.js \
+	static/js/before_close.js \
+	static/js/push_notify.js \
+	static/js/hatohol_tracer.js \
 	viewer/urls.py \
 	viewer/__init__.py \
 	viewer/models.py \
