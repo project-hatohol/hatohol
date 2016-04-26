@@ -40,6 +40,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/css.external/jquery-ui-slider-pips.min.css \
 	static/css.external/jquery.datetimepicker.css \
 	static/css.external/spectrum.css \
+	static/css.external/bootstrap-select.css \
 	static/fonts/glyphicons-halflings-regular.eot \
 	static/fonts/glyphicons-halflings-regular.svg \
 	static/fonts/glyphicons-halflings-regular.ttf \
