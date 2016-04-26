@@ -111,11 +111,13 @@ struct IncidentSender::Impl
 	AtomicValue<bool> trackerChanged;
 	std::mutex   trackerLock;
 	HatoholError lastResult;
+	bool shouldRecordIncidentHistory;
 
 	Impl(IncidentSender &_sender)
 	: sender(_sender), runningJob(NULL), jobSemaphore(0),
 	  retryLimit(DEFAULT_RETRY_LIMIT),
-	  retryIntervalMSec(DEFAULT_RETRY_INTERVAL_MSEC)
+	  retryIntervalMSec(DEFAULT_RETRY_INTERVAL_MSEC),
+	  shouldRecordIncidentHistory(false)
 	{
 	}
 
@@ -203,7 +205,8 @@ struct IncidentSender::Impl
 			job.notifyStatus(sender, JOB_RETRYING);
 		}
 		if (result == HTERR_OK) {
-			saveIncidentHistory(job);
+			if (shouldRecordIncidentHistory)
+				saveIncidentHistory(job);
 			job.notifyStatus(sender, JOB_SUCCEEDED);
 		} else {
 			job.notifyStatus(sender, JOB_FAILED);
@@ -212,10 +215,12 @@ struct IncidentSender::Impl
 	}
 };
 
-IncidentSender::IncidentSender(const IncidentTrackerInfo &tracker)
+IncidentSender::IncidentSender(
+  const IncidentTrackerInfo &tracker, bool shouldRecordIncidentHistory)
 : m_impl(new Impl(*this))
 {
 	m_impl->incidentTrackerInfo = tracker;
+	m_impl->shouldRecordIncidentHistory = shouldRecordIncidentHistory;
 }
 
 IncidentSender::~IncidentSender()

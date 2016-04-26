@@ -30,7 +30,8 @@ public:
 	static const std::string STATUS_IN_PROGRESS;
 	static const std::string STATUS_DONE;
 
-	IncidentSenderHatohol(const IncidentTrackerInfo &tracker);
+	IncidentSenderHatohol(const IncidentTrackerInfo &tracker,
+			      bool shouldRecordIncidentHistory = true);
 	virtual ~IncidentSenderHatohol();
 
 	virtual HatoholError send(const EventInfo &event,

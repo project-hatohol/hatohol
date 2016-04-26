@@ -98,14 +98,6 @@ void test_sendRedmineIncident(void)
 	const string &json = g_redmineEmulator.getLastResponseBody();
 	cppcut_assert_equal(true, succeeded);
 	cppcut_assert_equal(false, json.empty());
-
-	// check history
-	DBHatohol dbHatohol;
-	DBTablesMonitoring &dbMonitoring = dbHatohol.getDBTablesMonitoring();
-	string actual = execSQL(&dbMonitoring.getDBAgent(),
-				"select * from incident_histories");
-	string expected = "^1\\|293\\|0\\|New\\|\\|\\d+\\|\\d+$";
-	cut_assert_match(expected.c_str(), actual.c_str());
 }
 
 void test_sendHatholIncident(void)
