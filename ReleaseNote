@@ -1,8 +1,21 @@
 2016-04-28 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.04
 
 	* New Features
-
+	* [Server][WebUI] Add time range filter for triggers (#2004)
+	- Support beyond server filters
+	  * [Server][WebUI] Add various beyond server filter for triggers
+		+ hostname (#2033, #2114)
+		+ hostgroupName (#2145, #2149)
+		+ trigger briefs (#2154, #2169, #2173)
+	  * [Server][WebUI] Add various beyond server filter for triggers
+		+ hostname and hostgroupName (#2215)
+	- [WebUI] Improve triggers and page UI design
+		(#2013, #2058, #2177, #2179, #2180, #2183)
+	- Implement HAPI2.1 specification
+	  * [Server] Support divideInfo (#2245, #2247, #2261)
 	* Bug Fixes
+	- [Server] Fix incorrect error log level for invalid triggerId (#2123)
+	- [Server][WebUI] Conceal disabled hosts and triggers (#2195)
 
 	* Support OS
 	- CentOS 7
