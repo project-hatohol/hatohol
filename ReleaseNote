@@ -1,8 +1,19 @@
 2016-04-28 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.04
 
 	* New Features
+	- [Server][WebUI] Add comment feature for events (#2119)
+	- [WebUI] Add the settings dialog for the triggers view
+	- [WebUI] Implent links in summary bar on events view (#2184)
 
 	* Bug Fixes
+        - [WebUI] The broken clear button in the time range filter (#2001)
+        - [Server] Failed to execute *.sql files in hadohol-db-initiator (#2105)
+        - [WebUI] The status of a registered incident setting on "ADD INCIDENT
+	  TRACKING SETTING" dialog become always "Problem" (#2007)
+	- [WebUI] Incident check boxes are shown while the drop down menu for
+	  changing incident statuses is hidden (#2191)
+	- [Server] Remove the configure option "--disable-copy-on-demand"
+	  (#2142)
 
 	* Support OS
 	- CentOS 7
