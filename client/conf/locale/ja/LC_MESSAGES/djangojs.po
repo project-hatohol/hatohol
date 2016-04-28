@@ -381,18 +381,16 @@ msgid "Successfully created."
 msgstr "正常に作成されました。"
 
 #: static/js/events_view.js:1487
-#, fuzzy
-#| msgid "Comment"
 msgid "Input Comment"
-msgstr "コメント"
+msgstr "コメントを入力してください"
 
 #: static/js/events_view.js:1490
-msgid "Cancel"
-msgstr ""
+msgid "Clear"
+msgstr "クリア"
 
 #: static/js/events_view.js:1493
 msgid "Submit"
-msgstr ""
+msgstr "送信"
 
 #: static/js/events_view.js:1502
 #, fuzzy
