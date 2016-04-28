@@ -1487,7 +1487,7 @@ var EventsView = function(userProfile, options) {
     html += gettext("Input Comment") + "'>";
     html += "</textarea>";
     html += "<button type='button' class='cancelUserCommentButton'>";
-    html += gettext("Cancel");
+    html += gettext("Clear");
     html += "</button>";
     html += "<button type='button' class='submitUserCommentButton'>";
     html += gettext("Submit");
