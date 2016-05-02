@@ -1,0 +1,23 @@
+#!/bin/sh
+
+exec_prefix=@exec_prefix@
+prefix=@prefix@
+sysconfdir=@expanded_sysconfdir@
+
+cat << EOF
+[Unit]
+Description=${DESC}
+Wants=network-online.target
+After=syslog.target network-online.target
+
+[Service]
+Type=simple
+KillMode=process
+Environment=LOG_CONF=${sysconfdir}/hatohol/hap2-logging.conf
+Environment=HAPI_AMQP_BROKER=rabbitmq
+EnvironmentFile=${sysconfdir}/sysconfig/hap2-${CONF_NAME_SUFFIX}
+ExecStart=${prefix}/libexec/hatohol/hap2/hatohol/hap2_${HAP2_PLUGIN}.py --log-conf=\${LOG_CONF} --amqp-broker=\${HAPI_AMQP_BROKER} --amqp-vhost=\${HAPI_AMQP_VHOST} --amqp-queue=\${HAPI_AMQP_QUEUE} --amqp-user=\${HAPI_AMQP_USER}
+
+[Install]
+WantedBy=multi-user.target
+EOF
