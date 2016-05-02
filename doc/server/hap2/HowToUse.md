@@ -98,8 +98,15 @@ via pip with the following command:
 
 ### HAP2 Zabbix
 
+You need to install hatohol-hap2-zabbix with following command on CentOS 7:
+
+    # yum install -y hatohol-hap2-zabbix
+
 You should input `http://<servername or ip>/zabbix/api_jsonrpc.php` into
 "Zabbix API URL" instead of `<servername or ip>` simply.
+
+Also you have to input `amqp://<user>:<password>@hostname/<vhost>` into BrokerURL.
+These parameter should be replaced string that you input command for `$ sudo rabbitmqctl add_(user|vhost)`. If you execute commands same as in this document, you should input `qmqp://hatohol:hatohol@localhost/hatohol`.
 
 ### HAP2 Nagios Livestatus
 
