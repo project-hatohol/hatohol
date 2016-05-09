@@ -318,7 +318,7 @@ rm -rf %{buildroot}
 
 %files hap2-zabbix
 %{_datadir}/hatohol/sql/90-server-type-hap2-zabbix.sql
-%{_datadir}/hatohol/hap2-zabbix_api.service
+%{_datadir}/hatohol/hap2-zabbix-api.service
 %{python_sitelib}/hatohol/zabbixapi.py
 %{python_sitelib}/hatohol/zabbixapi.pyc
 %{python_sitelib}/hatohol/zabbixapi.pyo
