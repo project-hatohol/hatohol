@@ -22,4 +22,5 @@ log = INFO
 log_conf = @expanded_sysconfdir@/hatohol/hap2-logging.conf
 transporter = RabbitMQHapiConnector
 status_log_interval = 600
-polling_target = hosts host_groups host_group_membership trigers events
+# You separate polling targets by space.
+polling_targets = hosts host_groups host_group_membership triggers events
