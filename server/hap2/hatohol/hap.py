@@ -174,6 +174,8 @@ class ConfigFileParser():
             default_value = kwargs["type"](default_value)
         if kwargs.get("action")=="store_true" and default_value=="":
             default_value = True
+        if kwargs.has_key("nargs") and default_value:
+            default_value = default_value.split()
         if not default_value:
             default_value = None
         self.group.add_argument(default=default_value, *args, **kwargs)
