@@ -23,11 +23,11 @@
 		(#2013, #2058, #2177, #2179, #2180, #2183)
 	- Implement HAPI2.1 specification.
 	  * [Server] Support divideInfo. (#2245, #2247, #2261)
-    - [WebUI] Push no monitoring alert. (#2232)
-    - [WebUI] Close defender with hatohol-tracer. (#2230)
-    - [Server] Sync items,hosts,triggers. (#2195, #2264)
-    - [Server] Remove load-old-event option. (#2248)
-    - [HAP2] Expand HAP2 logger. (#2002)
+	- [WebUI] Push no monitoring alert. (#2232)
+	- [WebUI] Close defender with hatohol-tracer. (#2230)
+	- [Server] Sync items,hosts,triggers. (#2195, #2264)
+	- [Server] Remove load-old-event option. (#2248)
+	- [HAP2] Expand HAP2 logger. (#2002)
 
 	* Bug Fixes
 	- [WebUI] The broken clear button in the time range filter. (#2001)
@@ -40,7 +40,7 @@
 	  (#2142)
 	- [Server] Fix incorrect error log level for invalid triggerId. (#2123)
 	- [Server][WebUI] Conceal disabled hosts and triggers. (#2195)
-    - [server] Prevent to use duplicate or reserved queue name. (#2032)
+	- [Server] Prevent to use duplicate or reserved queue name. (#2032)
 
 	* Support OS
 	- CentOS 7
