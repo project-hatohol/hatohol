@@ -191,8 +191,9 @@ class StandardHap:
                 "status_log_interval": args.status_log_interval,
                 "polling_targets": args.polling_targets,
             }
+            poller_sender = haplib.Sender(transporter_args)
             self.__poller = self.__create_poller(
-                                self.__main_plugin.get_sender(),
+                                poller_sender,
                                 self.__main_plugin.get_dispatcher(),
                                 **kwargs)
 
