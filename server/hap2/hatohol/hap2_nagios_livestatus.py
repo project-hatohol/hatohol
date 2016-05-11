@@ -84,7 +84,7 @@ class Common:
             path = url
             return path, None
         else:
-            port = url[colon_idx+1:]
+            port = int(url[colon_idx+1:])
             server = url[0:colon_idx]
             return server, port
 
