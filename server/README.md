@@ -78,7 +78,7 @@ You can install sqlite3, MySQL, libsoup, json-glib and others by the following c
 
 ### Example to install required libraries on ubuntu 14.04
 
-You should install these package to build Hatohol and required libraries.
+You should install these packages to build Hatohol and required libraries.
 
 - automake
 - g++
@@ -91,7 +91,7 @@ You should install these package to build Hatohol and required libraries.
 - uuid-dev
 - librabbitmq-dev
 
-installing by following commands:
+installing by the following command:
 
     $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev librabbitmq-dev
 
@@ -283,4 +283,4 @@ with a web browser.
 Tips:
 
 * You have to install SPHINX package for making the html files.
-When you use Ubuntu 13.04, 'python3-sphinx' package is available.
+When you use Ubuntu 13.04 or later, 'python3-sphinx' package is available.
