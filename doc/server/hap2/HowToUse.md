@@ -76,7 +76,7 @@ $ sudo rabbitmqctl set_permissions -p hatohol hatohol ".*" ".*" ".*"
 
 You need to install hap2 dependent packages via pip:
 
-    # pip install pika daemon
+    # pip install pika
 
 If you want to use hap2-nagios-livestatus, you need to install `python-mk-livestatus`
 via pip with the following command:
@@ -87,7 +87,7 @@ via pip with the following command:
 
 You need to install hap2 dependent packages via apt-get with the following command:
 
-    $ sudo apt-get install python-pika python-daemon
+    $ sudo apt-get install python-pika
 
 If you want to use hap2-nagios-livestatus, you need to install `python-mk-livestatus`
 via pip with the following command:
