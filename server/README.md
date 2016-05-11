@@ -74,12 +74,7 @@ You can add a new repository the following command.
 
 You can install sqlite3, MySQL, libsoup, json-glib and others by the following command:
 
-    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel
-
-In addition, you need to install librabbitmq development package if you want to enable HAPI
-(Hatohol Arm Plugin Interface) 2.0 in Hatohol server by the following command:
-
-    # yum install librabbitmq-devel
+    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel librabbitmq-devel
 
 ### Example to install required libraries on ubuntu 14.04
 
@@ -94,19 +89,11 @@ You should install these package to build Hatohol and required libraries.
 - libmysqlclient-dev
 - mysql-server
 - uuid-dev
+- librabbitmq-dev
 
 installing by following commands:
 
-    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev
-
-In addition, you need to install the following package if you want to enable HAPI
-(Hatohol Arm Plugin Interface) 2.0 in Hatohol server.
-
-- librabbitmq-dev
-
-You can install it by the following command:
-
-    $ sudo apt-get install librabbitmq-dev
+    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev librabbitmq-dev
 
 ## How to build Hatohol
 First, you need to install required libraries.
