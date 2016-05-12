@@ -259,6 +259,7 @@ var OverviewTriggers = function(userProfile) {
     loadSeverityLabel(reply);
     var html = "";
     var severityLabelSize = Object.keys(severityLabels).length;
+    html = '<option value="-1">---------</option>';
     for (var i = severityLabelSize; i > 0; i--){
       html += '<option value="';
       html += severityLabelSize - i;
