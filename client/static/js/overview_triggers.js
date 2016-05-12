@@ -252,8 +252,6 @@ var OverviewTriggers = function(userProfile) {
 
     $("#select-" + type).empty();
 
-    $("#select-" + type).empty();
-
     option = $("<option/>", {
       text: "---------",
       value: "-1",
