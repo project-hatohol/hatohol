@@ -1,3 +1,58 @@
+2016-04-28 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.04
+
+	* New Features
+	- [HAP2] Configuration file for HAP2 plugins. (#1985)
+	- Accept and store multiple items groups (applications). (#2197)
+	- [WebUI] Configuration file for WebUI. (#2152)
+	- Backup configuration files on the update of the RPM package. (#2171)
+	- [hap2_fluentd] Log unexpected lines from fluentd. (#2010)
+	- Remove regacy built-in Arms; ArmZabbixAPI and ArmNagiosNDO Utils. (#1983)
+	  Now Hatohol only uses HAPI2-based Arms.
+	- [Server][WebUI] Add comment feature for events. (#2119)
+	- [WebUI] Add the settings dialog for the triggers view.
+	- [WebUI] Implent links in summary bar on events view. (#2184)
+	- [Server][WebUI] Add time range filter for triggers. (#2004)
+	- Support beyond server filters
+	  * [Server][WebUI] Add various beyond server filter for triggers.
+		+ hostname (#2033, #2114)
+		+ hostgroupName (#2145, #2149)
+		+ trigger briefs (#2154, #2169, #2173)
+	  * [Server][WebUI] Add various beyond server filter for triggers.
+		+ hostname and hostgroupName (#2215)
+	- [WebUI] Improve triggers and page UI design.
+		(#2013, #2058, #2177, #2179, #2180, #2183)
+	- Implement HAPI2.1 specification.
+	  * [Server] Support divideInfo. (#2245, #2247, #2261)
+	- [WebUI] Push no monitoring alert. (#2232)
+	- [WebUI] Close defender with hatohol-tracer. (#2230)
+	- [Server] Sync items,hosts,triggers. (#2195, #2264)
+	- [Server] Remove load-old-event option. (#2248)
+	- [HAP2] Expand HAP2 logger. (#2002)
+
+	* Bug Fixes
+	- [WebUI] The broken clear button in the time range filter. (#2001)
+	- [Server] Failed to execute *.sql files in hadohol-db-initiator. (#2105)
+	- [WebUI] The status of a registered incident setting on "ADD INCIDENT
+	  TRACKING SETTING" dialog become always "Problem". (#2007)
+	- [WebUI] Incident check boxes are shown while the drop down menu for
+	  changing incident statuses is hidden. (#2191)
+	- [Server] Remove the configure option "--disable-copy-on-demand".
+	  (#2142)
+	- [Server] Fix incorrect error log level for invalid triggerId. (#2123)
+	- [Server][WebUI] Conceal disabled hosts and triggers. (#2195)
+	- [Server] Prevent to use duplicate or reserved queue name. (#2032)
+
+	* Support OS
+	- CentOS 7
+	- Ubuntu 14.04 LTS(x86_64)
+
+	* Contributer
+	- Kazuhiro Yamato
+	- Takuro Ashie
+	- Hiroshi Hatake
+	- Masayuki Nakagawa
+	- mmikan22
+
 2016-01-29 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.01
 
 	* New Features
