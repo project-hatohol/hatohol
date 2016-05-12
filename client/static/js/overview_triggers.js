@@ -28,7 +28,6 @@ var OverviewTriggers = function(userProfile) {
   };
   $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
-  self.rawSeverityRankData = {};
   self.severityRanksMap = {};
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
