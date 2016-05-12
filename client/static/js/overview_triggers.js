@@ -21,6 +21,17 @@ var OverviewTriggers = function(userProfile) {
   var self = this;
   var rawData, parsedData;
 
+  var severityLabels = {
+    // Status: Label
+    0: gettext("Not classified"),
+    1: gettext("Information"),
+    2: gettext("Warning"),
+    3: gettext("Average"),
+    4: gettext("High"),
+    5: gettext("Disaster")
+  };
+  self.startConnection('severity-rank', setSelectSeverity);
+
   self.reloadIntervalSeconds = 60;
   self.baseQuery = {
     limit:  0,
@@ -231,6 +242,33 @@ var OverviewTriggers = function(userProfile) {
       $.extend(query, self.getHostFilterQuery());
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
+  }
+
+  function loadSeverityLabel(reply) {
+    console.log(reply);
+    var severityRanks = reply["SeverityRanks"];
+    if (severityRanks) {
+      for (var i = 0; i < severityRanks.length; i++) {
+        if (severityRanks[i].label)
+          severityLabels[severityRanks[i].status] = severityRanks[i].label;
+      }
+    }
+  }
+
+  function setSelectSeverity(reply) {
+    loadSeverityLabel(reply);
+    var html = "";
+    var severityLabelSize = Object.keys(severityLabels).length;
+    for (var i = severityLabelSize; i > 0; i--){
+      html += '<option value="';
+      html += severityLabelSize - i;
+      html += '">';
+      html += severityLabels[severityLabelSize - i];
+      html += '</option>';
+    }
+    console.log(html);
+    $("#select-severity").empty();
+    $("#select-severity").append(html);
   }
 
   function load() {
