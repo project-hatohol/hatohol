@@ -49,7 +49,7 @@ Then, rabbitmq-server runs automatically.
 ## Prepare RabbitMQ server settings
 
 In this document, it assumes that virtual host is `hatohol`, user and password is `hatohol`.
-If you use CentOS 7, you need to perform following command as root instead of
+If you use CentOS 7, you need to perform the following command as root instead of
 a user who belongs to `sudo` group.
 
 First, create virtual host
@@ -98,7 +98,7 @@ via pip with the following command:
 
 ### HAP2 Zabbix
 
-You need to install hatohol-hap2-zabbix with following command on CentOS 7:
+You need to install hatohol-hap2-zabbix with the following command on CentOS 7:
 
     # yum install -y hatohol-hap2-zabbix
 
