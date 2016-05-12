@@ -28,8 +28,21 @@ var OverviewTriggers = function(userProfile) {
   };
   $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
+  self.rawSeverityRankData = {};
+  self.severityRanksMap = {};
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
+
+  var triggerPropertyChoices = {
+    severity: [
+      { value: "0", label: gettext("Not classified") },
+      { value: "1", label: gettext("Information") },
+      { value: "2", label: gettext("Warning") },
+      { value: "3", label: gettext("Average") },
+      { value: "4", label: gettext("High") },
+      { value: "5", label: gettext("Disaster") },
+    ],
+  };
 
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
@@ -233,10 +246,54 @@ var OverviewTriggers = function(userProfile) {
     return 'trigger?' + $.param(query);
   }
 
+  function resetTriggerPropertyFilter(type) {
+    var candidates = triggerPropertyChoices[type];
+    var option;
+    var currentId = $("#select-" + type).val();
+
+    $("#select-" + type).empty();
+
+    $("#select-" + type).empty();
+
+    option = $("<option/>", {
+      text: "---------",
+      value: "-1",
+    }).appendTo("#select-" + type);
+
+    $.map(candidates, function(candidate) {
+      var option;
+
+      option = $("<option/>", {
+        text: candidate.label,
+        value: candidate.value
+      }).appendTo("#select-" + type);
+    });
+
+    $("#select-" + type).val(currentId);
+  }
+
   function load() {
     self.displayUpdateTime();
+    self.startConnection('severity-rank', loadSeverityLabel);
     self.startConnection(getQuery(), updateCore);
     setLoading(true);
+  }
+
+  function loadSeverityLabel(reply) {
+    var severityRanks = reply["SeverityRanks"];
+    var i, rank;
+    var choices = triggerPropertyChoices.severity;
+    if (severityRanks) {
+      for (i = 0; i < severityRanks.length; i++) {
+        self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
+      }
+      for (i = 0; i < choices.length; i++) {
+        rank = self.severityRanksMap[choices[i].value];
+        if (rank && rank.label)
+          choices[i].label = rank.label;
+      }
+    }
+    resetTriggerPropertyFilter("severity");
   }
 };
 
