@@ -292,7 +292,7 @@ var TriggersView = function(userProfile, options) {
     $('#select-server').change(function() {
       resetHostQuerySelector('#select-host-group');
       resetHostQuerySelector('#select-host');
-      setupFilterValues();
+      setupFilterValues(undefined, {});
 
       function resetHostQuerySelector(selectorId) {
         if (!selectorId)
