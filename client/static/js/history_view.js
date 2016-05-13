@@ -270,7 +270,7 @@ var HistoryView = function(userProfile, options) {
         load();
       },
       null,
-      { pathPrefix: '' });
+      { pathPrefix: '', timeout: 30000 });
   }
 
   function enableAutoReload(onClickButton) {

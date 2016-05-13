@@ -173,6 +173,7 @@ HatoholConnector.prototype.start = function(connectParams) {
       dataType: connectParams.dataType,
       contentType: connectParams.contentType,
       context: connectParams.context,
+      timeout: connectParams.timeout || 10000,
       beforeSend: function(xhr, settings) {
         // For the Django's CSRF protection mechanism
         if (isCsrfTokenNeeded())
