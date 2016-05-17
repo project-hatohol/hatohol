@@ -76,7 +76,7 @@ $ sudo rabbitmqctl set_permissions -p hatohol hatohol ".*" ".*" ".*"
 
 You need to install hap2 dependent packages via pip:
 
-    # pip install pika daemon
+    # yum install python-pika
 
 If you want to use hap2-nagios-livestatus, you need to install `python-mk-livestatus`
 via pip with the following command:
@@ -87,12 +87,31 @@ via pip with the following command:
 
 You need to install hap2 dependent packages via apt-get with the following command:
 
-    $ sudo apt-get install python-pika python-daemon
+    $ sudo apt-get install python-pika
 
 If you want to use hap2-nagios-livestatus, you need to install `python-mk-livestatus`
 via pip with the following command:
 
     $ sudo pip install python-mk-livestatus
+
+
+## How to add HAP2
+
+Each of the HAP2 plugins RPM put SQL file on /usr/share/hatohol/sql .
+
+You can read each of the SQL files and add monitoring server types by hatohol-db-initiator command.
+
+Please execute the following.
+
+```
+$ hatohol-db-initiator --db-user <YOUR_DB_USER> --db-password <YOUR_DB_PASSWORD>
+```
+
+Please confirm whether or not it succeeded by the hatohol-db-initiator command output.
+
+```
+Succeessfully loaded: /usr/bin/../share/hatohol/sql/90-server-type-<PLUGIN_NAME>.sql
+```
 
 ## Starting HAP2 Tips
 
