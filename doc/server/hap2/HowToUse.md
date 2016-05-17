@@ -94,6 +94,25 @@ via pip with the following command:
 
     $ sudo pip install python-mk-livestatus
 
+
+## How to add HAP2
+
+Each HAP2 plugins RPM put SQL file on /usr/share/hatohol/sql .
+
+You can read the SQL file add monitoring server type by hatohol-db-initistor command.
+
+Please execute the following.
+
+```
+$ hatohol-db-initiator --db-user <YOUR_DB_USER> --db-password <YOUR_DB_PASSWORD>
+```
+
+Success By confirming the following output.
+
+```
+Succeessfully loaded: /usr/bin/../share/hatohol/sql/90-server-type-<PLUGIN_NAME>.sql
+```
+
 ## Starting HAP2 Tips
 
 ### HAP2 Zabbix
