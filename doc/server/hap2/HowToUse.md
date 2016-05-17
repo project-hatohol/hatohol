@@ -97,9 +97,9 @@ via pip with the following command:
 
 ## How to add HAP2
 
-Each of HAP2 plugins RPM put SQL file on /usr/share/hatohol/sql .
+Each of the HAP2 plugins RPM put SQL file on /usr/share/hatohol/sql .
 
-You can read the SQL file add monitoring server type by hatohol-db-initiator command.
+You can read each of the SQL files and add monitoring server types by hatohol-db-initiator command.
 
 Please execute the following.
 
