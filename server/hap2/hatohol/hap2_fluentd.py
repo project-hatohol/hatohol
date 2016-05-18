@@ -192,7 +192,7 @@ class Hap2Fluentd(standardhap.StandardHap):
 
         parser = self.get_argument_parser()
         parser.add_argument("--fluentd-launch",
-                            default="td-agent --suppress-config-dump",
+                            default="/usr/sbin/td-agent --suppress-config-dump",
                             help="A command line to launch fluentd.")
         parser.add_argument("--tag", default="^hatohol\..*",
                             help="A regular expression of the target tag.")
