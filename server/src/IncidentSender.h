@@ -46,7 +46,8 @@ public:
 					       const JobStatus &status,
 					       void *userData);
 
-	IncidentSender(const IncidentTrackerInfo &tracker);
+	IncidentSender(const IncidentTrackerInfo &tracker,
+		       bool shouldRecordIncidentHistory);
 	virtual ~IncidentSender();
 
 	virtual void waitExit(void) override;

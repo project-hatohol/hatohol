@@ -113,7 +113,7 @@ class Common:
 
         colon_idx = server.find(":")
         if colon_idx >= 0:
-            port = server[colon_idx+1:]
+            port = int(server[colon_idx+1:])
             server = server[0:colon_idx]
 
         return server, port, database

@@ -68,8 +68,9 @@ struct IncidentSenderRedmine::Impl
 	SoupSession *m_session;
 };
 
-IncidentSenderRedmine::IncidentSenderRedmine(const IncidentTrackerInfo &tracker)
-: IncidentSender(tracker),
+IncidentSenderRedmine::IncidentSenderRedmine(
+  const IncidentTrackerInfo &tracker, bool shouldRecordIncidentHistory)
+: IncidentSender(tracker, shouldRecordIncidentHistory),
   m_impl(new Impl(*this))
 {
 }

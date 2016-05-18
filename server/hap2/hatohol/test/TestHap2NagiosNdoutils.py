@@ -102,12 +102,12 @@ class TestCommon(unittest.TestCase):
 
     def test_parse_url_sv_port_db(self):
         self.__assert_parse_url(
-            "123.45.67.89:1122/mydb", ("123.45.67.89", "1122", "mydb"))
+            "123.45.67.89:1122/mydb", ("123.45.67.89", 1122, "mydb"))
 
     def test_parse_url_sv_port(self):
         self.__assert_parse_url(
             "123.45.67.89:1122",
-            ("123.45.67.89", "1122", Common.DEFAULT_DATABASE))
+            ("123.45.67.89", 1122, Common.DEFAULT_DATABASE))
 
     def test_parse_url_sv(self):
         self.__assert_parse_url(

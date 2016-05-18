@@ -609,6 +609,10 @@ class HapiProcessor:
                 msg = "Got unexpected repsponse. req: " + str(request_id)
                 logger.error(msg)
                 raise Exception(msg)
+            if pm.message_dict["result"] == "FAILURE":
+                msg = "Got 'FAILURE' repsponse. req: " + str(request_id)
+                logger.error(msg)
+                raise Exception(msg)
             return pm.message_dict["result"]
 
         except ValueError as exception:

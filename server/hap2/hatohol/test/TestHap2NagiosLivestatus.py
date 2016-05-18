@@ -111,7 +111,7 @@ class TestCommon(unittest.TestCase):
 
     def test_parse_url_sv_port(self):
         self.__assert_parse_url(
-            "123.45.67.89:1122", ("123.45.67.89", "1122"))
+            "123.45.67.89:1122", ("123.45.67.89", 1122))
 
     def test_parse_url_path(self):
         self.__assert_parse_url(
