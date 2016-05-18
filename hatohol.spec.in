@@ -91,7 +91,12 @@ creates a response page when a user accesses.
 %package hap2-common
 Summary: Library files of HAPI2.1
 Group: Applications/System
+%if %is_el6
 Requires: python-pika
+%endif
+%if %is_el7
+Requires: python2-pika
+%endif
 Requires: hatohol-hap2-rabbitmq-connector = %{version}
 
 %description hap2-common
