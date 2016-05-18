@@ -24,11 +24,13 @@ import sys
 import time
 import signal
 import logging
+import logging.config
+from logging import getLogger
 import argparse
 import subprocess
 
 DEFAULT_ERROR_SLEEP_TIME = 10
-logger = logging.Logger("hatohol." + __name__)
+logger = getLogger("hatohol." + "hap2_starter")
 
 def create_pid_file(pid_dir, server_id, hap_pid):
     if not os.path.isdir(pid_dir): os.makedirs(pid_dir)
@@ -45,6 +47,10 @@ def remove_pid_file(pid_dir,server_id):
     os.remove("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
     logger.info("PID file has been removed.")
 
+def setup_logger(hap_args):
+    if "--log-conf" in hap_args:
+        logging.config.fileConfig(hap_args[hap_args.index("--log-conf")+1])
+
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--plugin-path")
@@ -56,6 +62,7 @@ if __name__=="__main__":
     if pid > 0:
         sys.exit(0)
 
+    setup_logger(hap_args)
     subprocess_args = ["python", self_args.plugin_path]
     subprocess_args.extend(hap_args)
 
