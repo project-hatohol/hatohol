@@ -59,6 +59,7 @@ def check_existance_of_process_group(pgid):
         return True
     return False
 
+
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--plugin-path")
@@ -81,13 +82,21 @@ if __name__=="__main__":
             create_pid_file(self_args.pid_file_dir,
                             self_args.server_id, hap.pid)
 
+
+        def signalHandler(signalnum, frame):
+            os.killpg(hap.pid, signal.SIGKILL)
+            logger.info("hap2_starter catch %d signal" % signalnum)
+            sys.exit(0)
+
+        signal.signal(signal.SIGINT, signalHandler)
+        signal.signal(signal.SIGTERM, signalHandler)
         hap.wait()
         try:
             os.killpg(hap.pid, signal.SIGKILL)
         except OSError:
             logger.info("%s process was finished" % self_args.plugin_path)
 
-        if check_existance_of_process_group(pgid):
+        if check_existance_of_process_group(hap.pid):
             logger.error("Can not killed HAP2 processes. hap2_starter exit.")
             sys.exit(1)
 
