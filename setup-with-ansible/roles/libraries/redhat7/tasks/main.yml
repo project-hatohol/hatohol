@@ -28,8 +28,8 @@
 # - name: install ndoutils-nagios3-mysql
 #   yum: name=ndoutils-nagios3-mysql
 
-- name: register the repository for librabbitmq
-  yum: name=http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-6.noarch.rpm
+- name: register the epel repository
+  yum: name=epel-release
 
 - name: install librabbitmq-devel
   yum: name=librabbitmq-devel
