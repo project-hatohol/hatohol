@@ -28,6 +28,7 @@ import logging.config
 from logging import getLogger
 import argparse
 import subprocess
+import commands
 
 DEFAULT_ERROR_SLEEP_TIME = 10
 logger = getLogger("hatohol." + "hap2_starter")
@@ -50,6 +51,13 @@ def remove_pid_file(pid_dir,server_id):
 def setup_logger(hap_args):
     if "--log-conf" in hap_args:
         logging.config.fileConfig(hap_args[hap_args.index("--log-conf")+1])
+
+def check_existance_of_process_group(pgid):
+    pgid = str(pgid)
+    result = commands.getoutput("ps -eo pgid | grep -w "+ pgid)
+    if pgid in result:
+        return True
+    return False
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
@@ -78,6 +86,10 @@ if __name__=="__main__":
             os.killpg(hap.pid, signal.SIGKILL)
         except OSError:
             logger.info("%s process was finished" % self_args.plugin_path)
+
+        if check_existance_of_process_group(pgid):
+            logger.error("Can not killed HAP2 processes. hap2_starter exit.")
+            sys.exit(1)
 
         if self_args.server_id is not None and \
             check_existence_of_pid_file(self_args.pid_file_dir, self_args.server_id):
