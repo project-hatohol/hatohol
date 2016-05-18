@@ -289,7 +289,7 @@ class Common:
 
             hapi_event_type = self.EVENT_TYPE_MAP.get(state)
             if hapi_event_type is None:
-                log.warning("Unknown status: " + str(status))
+                logger.warning("Unknown state: " + str(state))
                 hapi_event_type = "UNKNOWN"
 
             hapi_status, hapi_severity = \
