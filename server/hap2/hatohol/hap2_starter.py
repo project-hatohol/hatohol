@@ -93,16 +93,18 @@ if __name__=="__main__":
         hap.wait()
         try:
             os.killpg(hap.pid, signal.SIGKILL)
+            logger.info("%s process was finished" % self_args.plugin_path)
         except OSError:
             logger.info("%s process was finished" % self_args.plugin_path)
-
-        if check_existance_of_process_group(hap.pid):
-            logger.error("Can not killed HAP2 processes. hap2_starter exit.")
-            sys.exit(1)
 
         if self_args.server_id is not None and \
             check_existence_of_pid_file(self_args.pid_file_dir, self_args.server_id):
             remove_pid_file(self_args.pid_file_dir, self_args.server_id)
+
+        if check_existance_of_process_group(hap.pid):
+            logger.error("Can not killed HAP2 processes. hap2_starter exit.")
+            logger.error("You should kill the processes by yourself.")
+            sys.exit(1)
 
         logger.info("Rerun after %d sec" % DEFAULT_ERROR_SLEEP_TIME)
         time.sleep(DEFAULT_ERROR_SLEEP_TIME)
