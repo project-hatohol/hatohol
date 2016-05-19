@@ -34,6 +34,12 @@ Makefile.in
 /data/init.d/debian/hatohol.debian
 /data/systemd/generate_service_file.sh
 /data/systemd/hatohol.service
+/data/systemd/generate_hap2_service_file.sh
+/data/systemd/hap2-zabbix-api.service
+/data/systemd/hap2-ceilometer.service
+/data/systemd/hap2-fluentd.service
+/data/systemd/hap2-nagios-ndoutils.service
+/data/systemd/hap2-nagios-livestatus.service
 /depcomp
 /hatohol.spec
 /install-sh
