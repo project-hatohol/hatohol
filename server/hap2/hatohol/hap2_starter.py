@@ -85,7 +85,7 @@ if __name__=="__main__":
 
         def signalHandler(signalnum, frame):
             os.killpg(hap.pid, signal.SIGKILL)
-            logger.info("hap2_starter catch %d signal" % signalnum)
+            logger.info("hap2_starter caught %d signal" % signalnum)
             sys.exit(0)
 
         signal.signal(signal.SIGINT, signalHandler)
@@ -102,7 +102,7 @@ if __name__=="__main__":
             remove_pid_file(self_args.pid_file_dir, self_args.server_id)
 
         if check_existance_of_process_group(hap.pid):
-            logger.error("Can not killed HAP2 processes. hap2_starter exit.")
+            logger.error("Could not killed HAP2 processes. hap2_starter exit.")
             logger.error("You should kill the processes by yourself.")
             sys.exit(1)
 
