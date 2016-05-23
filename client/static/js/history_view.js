@@ -108,7 +108,7 @@ var HistoryView = function(userProfile, options) {
       if ($(this).hasClass("active")) {
         disableAutoReload(true);
       } else {
-        enableAutoReload(true);
+        enableAutoReload(true, load);
       }
     });
 
@@ -267,13 +267,13 @@ var HistoryView = function(userProfile, options) {
         delete self.config.user_id;
         $("#edit-graph-title").val(self.config.title);
         setupGraphItems(self.parseGraphItems());
-        load();
+        // Do not invoke load() function here.
       },
       null,
       { pathPrefix: '', timeout: 30000 });
   }
 
-  function enableAutoReload(onClickButton) {
+  function enableAutoReload(onClickButton, callback) {
     var button = $("#hatohol-graph-auto-reload");
 
     button.removeClass("btn-default");
@@ -282,7 +282,8 @@ var HistoryView = function(userProfile, options) {
       button.addClass("active");
 
     self.autoReloadIsEnabled = true;
-    load();
+    if (callback)
+      callback();
   }
 
   function disableAutoReload(onClickButton) {
