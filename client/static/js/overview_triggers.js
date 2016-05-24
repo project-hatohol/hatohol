@@ -224,6 +224,7 @@ var OverviewTriggers = function(userProfile) {
     parsedData = parseData(rawData, param);
     drawTableContents(parsedData);
     setupFilterValues();
+    setupTableSeverityColor();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
@@ -283,6 +284,19 @@ var OverviewTriggers = function(userProfile) {
     self.displayUpdateTime();
     self.startConnection(getQuery(), updateCore);
     setLoading(true);
+  }
+
+  function setupTableSeverityColor() {
+    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    var severity, color;
+    if (!severityRanks)
+      return;
+    for (var x = 0; x < severityRanks.length; ++x) {
+      severity = severityRanks[x].status;
+      color = severityRanks[x].color;
+      $('td.severity' + severity).css("background-color", color);
+      $('td.commentsForSeverity' + severity).css("border-color", color);
+    }
   }
 
   function loadSeverityRank() {
