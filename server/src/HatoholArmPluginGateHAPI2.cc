@@ -612,13 +612,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 			ArmStatus &status = m_impl.m_armStatus;
 			ArmInfo armInfo = status.getArmInfo();
 
-			if (parser.isMember("error")) {
-				armInfo.stat = ARM_WORK_STAT_FAILURE;
-				armInfo.running = false;
-
-			} else {
+			if (isSucceeded(parser)){
 				armInfo.stat = ARM_WORK_STAT_OK;
 				armInfo.running = true;
+
+			} else {
+				armInfo.stat = ARM_WORK_STAT_FAILURE;
+				armInfo.running = false;
 			}
 			status.setArmInfo(armInfo);
 		}
