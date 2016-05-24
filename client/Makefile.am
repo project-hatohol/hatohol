@@ -36,6 +36,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/css.external/themes/ui-lightness/images/ui-bg_glass_65_ffffff_1x400.png \
 	static/css.external/themes/ui-lightness/images/ui-icons_ef8c08_256x240.png \
 	static/css.external/bootstrap.min.css \
+	static/css.external/bootstrap.min.css.map \
 	static/css.external/bootstrap-theme.min.css \
 	static/css.external/jquery-ui-slider-pips.min.css \
 	static/css.external/jquery.datetimepicker.css \
