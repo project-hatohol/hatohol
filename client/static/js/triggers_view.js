@@ -310,6 +310,7 @@ var TriggersView = function(userProfile, options) {
     $('button.reset-apply-all-filter').click(function() {
       resetTimeRangeFilter();
       resetQuickFilter();
+      refreshSelectPickers();
       load({applyFilter: true});
     });
 
