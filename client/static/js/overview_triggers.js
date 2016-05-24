@@ -295,7 +295,6 @@ var OverviewTriggers = function(userProfile) {
       severity = severityRanks[x].status;
       color = severityRanks[x].color;
       $('td.severity' + severity).css("background-color", color);
-      $('td.commentsForSeverity' + severity).css("border-color", color);
     }
     resetTriggerPropertyFilter("severity");
   }
