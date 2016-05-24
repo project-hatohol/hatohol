@@ -286,7 +286,7 @@ class ZabbixAPI:
                            "time": time,
                            "type": EVENT_TYPE[event["value"]],
                            "triggerId": trigger["triggerid"],
-                           "status": TRIGGER_STATUS[trigger["value"]],
+                           "status": TRIGGER_STATUS[event["value"]],
                            "severity": TRIGGER_SEVERITY[trigger["priority"]],
                            "hostId": trigger["hosts"][0]["hostid"],
                            "hostName": trigger["hosts"][0]["name"],
