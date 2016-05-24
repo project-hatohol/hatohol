@@ -297,6 +297,7 @@ var OverviewTriggers = function(userProfile) {
       $('td.severity' + severity).css("background-color", color);
       $('td.commentsForSeverity' + severity).css("border-color", color);
     }
+    resetTriggerPropertyFilter("severity");
   }
 
   function loadSeverityRank() {
