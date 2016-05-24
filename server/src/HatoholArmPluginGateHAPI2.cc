@@ -600,20 +600,27 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		bool isSucceeded(JSONParser &parser)
 		{
-			ArmStatus &status = m_impl.m_armStatus;
-			ArmInfo armInfo = status.getArmInfo();
 			if (parser.isMember("error"))
-				armInfo.stat = ARM_WORK_STAT_FAILURE;
-				armInfo.running = false;
-				status.setArmInfo(armInfo);
 				return false;
 
-			armInfo.stat = ARM_WORK_STAT_OK;
-			armInfo.running = true;
-			status.setArmInfo(armInfo);
 			string result;
 			parser.read("result", result);
 			return result == "SUCCESS";
+		}
+
+		void updateArmInfoStatus(JSONParser &parser) {
+			ArmStatus &status = m_impl.m_armStatus;
+			ArmInfo armInfo = status.getArmInfo();
+
+			if (parser.isMember("error")) {
+				armInfo.stat = ARM_WORK_STAT_FAILURE;
+				armInfo.running = false;
+
+			} else {
+				armInfo.stat = ARM_WORK_STAT_OK;
+				armInfo.running = true;
+			}
+			status.setArmInfo(armInfo);
 		}
 
 		void flush(void)
@@ -630,6 +637,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		virtual void onGotResponse(JSONParser &parser) override
 		{
 			updateSelfMonitor(m_impl.monitorHAP2Conn, false);
+			updateArmInfoStatus(parser);
 			if (isSucceeded(parser)) {
 				// The callback function will be executed on
 				// put* or update* procedures.
