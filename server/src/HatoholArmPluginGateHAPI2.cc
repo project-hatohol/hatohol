@@ -600,9 +600,17 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		bool isSucceeded(JSONParser &parser)
 		{
+			ArmStatus &status = m_impl.m_armStatus;
+			ArmInfo armInfo = status.getArmInfo();
 			if (parser.isMember("error"))
+				armInfo.stat = ARM_WORK_STAT_FAILURE;
+				armInfo.running = false;
+				status.setArmInfo(armInfo);
 				return false;
 
+			armInfo.stat = ARM_WORK_STAT_OK;
+			armInfo.running = true;
+			status.setArmInfo(armInfo);
 			string result;
 			parser.read("result", result);
 			return result == "SUCCESS";
