@@ -406,8 +406,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		virtual void onTimeout(void) override
 		{
+			ArmStatus &status = m_impl.m_armStatus;
+			ArmInfo armInfo = status.getArmInfo();
 			MLPL_WARN("exchangeProfile has been timed out.\n");
 			updateSelfMonitor(m_impl.monitorHAP2Conn, true);
+			armInfo.stat = ARM_WORK_STAT_FAILURE;
+			armInfo.running = false;
+			status.setArmInfo(armInfo);
 		}
 	};
 
@@ -631,8 +636,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 		virtual void onTimeout(void) override
 		{
 			flush();
+			ArmStatus &status = m_impl.m_armStatus;
+			ArmInfo armInfo = status.getArmInfo();
 			MLPL_WARN("%s has been timed out.\n", m_methodName.c_str());
 			updateSelfMonitor(m_impl.monitorHAP2Conn, true);
+			armInfo.stat = ARM_WORK_STAT_FAILURE;
+			armInfo.running = false;
+			status.setArmInfo(armInfo);
 		}
 	};
 
