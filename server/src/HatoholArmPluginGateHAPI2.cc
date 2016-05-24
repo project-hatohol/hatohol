@@ -367,8 +367,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 			ArmInfo armInfo = status.getArmInfo();
 			if (errObj.hasErrors()) {
 				armInfo.stat = ARM_WORK_STAT_FAILURE;
+				armInfo.running = false;
 			} else {
 				armInfo.stat = ARM_WORK_STAT_OK;
+				armInfo.running = true;
 			}
 			status.setArmInfo(armInfo);
 		}
@@ -3153,8 +3155,10 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,
 		armInfo.stat = ARM_WORK_STAT_INIT;
 	} else if (status == "OK") {
 		armInfo.stat = ARM_WORK_STAT_OK;
+		armInfo.running = true;
 	} else if (status == "NG") {
 		armInfo.stat = ARM_WORK_STAT_FAILURE;
+		armInfo.running = false;
 	} else {
 		MLPL_WARN("Invalid status: %s\n", status.c_str());
 		armInfo.stat = ARM_WORK_STAT_FAILURE;
