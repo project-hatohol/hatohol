@@ -29,6 +29,7 @@ var OverviewTriggers = function(userProfile) {
   $.extend(self.baseQuery, getTriggersQueryInURI());
   self.lastQuery = undefined;
   self.severityRanksMap = {};
+  self.rawSeverityRankData = {};
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
@@ -46,8 +47,17 @@ var OverviewTriggers = function(userProfile) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  setupFilterValues();
-  load();
+  start();
+
+  function start() {
+    $.when(loadSeverityRank()).done(function() {
+      setupFilterValues();
+      load();
+    }).fail(function() {
+      hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
+      load(); // Ensure to work with the default config
+    });
+  }
 
   self.setupHostQuerySelectorCallback(
     load, '#select-server', '#select-host-group', '#select-host');
@@ -214,6 +224,7 @@ var OverviewTriggers = function(userProfile) {
     parsedData = parseData(rawData, param);
     drawTableContents(parsedData);
     setupFilterValues();
+    setupTableSeverityColor();
     setLoading(false);
     self.setAutoReload(load, self.reloadIntervalSeconds);
   }
@@ -271,26 +282,54 @@ var OverviewTriggers = function(userProfile) {
 
   function load() {
     self.displayUpdateTime();
-    self.startConnection('severity-rank', loadSeverityLabel);
     self.startConnection(getQuery(), updateCore);
     setLoading(true);
   }
 
-  function loadSeverityLabel(reply) {
-    var severityRanks = reply["SeverityRanks"];
-    var i, rank;
-    var choices = triggerPropertyChoices.severity;
-    if (severityRanks) {
-      for (i = 0; i < severityRanks.length; i++) {
-        self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
-      }
-      for (i = 0; i < choices.length; i++) {
-        rank = self.severityRanksMap[choices[i].value];
-        if (rank && rank.label)
-          choices[i].label = rank.label;
-      }
+  function setupTableSeverityColor() {
+    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    var severity, color;
+    if (!severityRanks)
+      return;
+    for (var x = 0; x < severityRanks.length; ++x) {
+      severity = severityRanks[x].status;
+      color = severityRanks[x].color;
+      $('td.severity' + severity).css("background-color", color);
     }
     resetTriggerPropertyFilter("severity");
+  }
+
+  function loadSeverityRank() {
+    var deferred = new $.Deferred();
+    new HatoholConnector({
+      url: "/severity-rank",
+      request: "GET",
+      replyCallback: function(reply, parser) {
+        var i, severityRanks, rank;
+        var choices = triggerPropertyChoices;
+        self.rawSeverityRankData = reply;
+        self.severityRanksMap = {};
+        severityRanks = self.rawSeverityRankData["SeverityRanks"];
+        if (severityRanks) {
+          for (i = 0; i < severityRanks.length; i++) {
+            self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
+          }
+          for (i = 0; i < choices.length; i++) {
+            rank = self.severityRanksMap[choices[i].value];
+            if (rank && rank.label)
+              choices[i].label = rank.label;
+          }
+        }
+        deferred.resolve();
+      },
+      parseErrorCallback: function() {
+        deferred.reject();
+      },
+      connectErrorCallback: function() {
+        deferred.reject();
+      },
+    });
+    return deferred.promise();
   }
 };
 
