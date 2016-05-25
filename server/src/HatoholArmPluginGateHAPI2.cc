@@ -367,8 +367,10 @@ struct HatoholArmPluginGateHAPI2::Impl
 			ArmInfo armInfo = status.getArmInfo();
 			if (errObj.hasErrors()) {
 				armInfo.stat = ARM_WORK_STAT_FAILURE;
+				armInfo.running = false;
 			} else {
 				armInfo.stat = ARM_WORK_STAT_OK;
+				armInfo.running = true;
 			}
 			status.setArmInfo(armInfo);
 		}
@@ -406,8 +408,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		virtual void onTimeout(void) override
 		{
+			ArmStatus &status = m_impl.m_armStatus;
+			ArmInfo armInfo = status.getArmInfo();
 			MLPL_WARN("exchangeProfile has been timed out.\n");
 			updateSelfMonitor(m_impl.monitorHAP2Conn, true);
+			armInfo.stat = ARM_WORK_STAT_FAILURE;
+			armInfo.running = false;
+			status.setArmInfo(armInfo);
 		}
 	};
 
@@ -601,6 +608,21 @@ struct HatoholArmPluginGateHAPI2::Impl
 			return result == "SUCCESS";
 		}
 
+		void updateArmInfoStatus(JSONParser &parser) {
+			ArmStatus &status = m_impl.m_armStatus;
+			ArmInfo armInfo = status.getArmInfo();
+
+			if (isSucceeded(parser)){
+				armInfo.stat = ARM_WORK_STAT_OK;
+				armInfo.running = true;
+
+			} else {
+				armInfo.stat = ARM_WORK_STAT_FAILURE;
+				armInfo.running = false;
+			}
+			status.setArmInfo(armInfo);
+		}
+
 		void flush(void)
 		{
 			if (m_methodName == HAPI2_FETCH_HISTORY) {
@@ -615,6 +637,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		virtual void onGotResponse(JSONParser &parser) override
 		{
 			updateSelfMonitor(m_impl.monitorHAP2Conn, false);
+			updateArmInfoStatus(parser);
 			if (isSucceeded(parser)) {
 				// The callback function will be executed on
 				// put* or update* procedures.
@@ -631,8 +654,13 @@ struct HatoholArmPluginGateHAPI2::Impl
 		virtual void onTimeout(void) override
 		{
 			flush();
+			ArmStatus &status = m_impl.m_armStatus;
+			ArmInfo armInfo = status.getArmInfo();
 			MLPL_WARN("%s has been timed out.\n", m_methodName.c_str());
 			updateSelfMonitor(m_impl.monitorHAP2Conn, true);
+			armInfo.stat = ARM_WORK_STAT_FAILURE;
+			armInfo.running = false;
+			status.setArmInfo(armInfo);
 		}
 	};
 
@@ -3143,8 +3171,10 @@ static bool parseArmInfoParams(JSONParser &parser, ArmInfo &armInfo,
 		armInfo.stat = ARM_WORK_STAT_INIT;
 	} else if (status == "OK") {
 		armInfo.stat = ARM_WORK_STAT_OK;
+		armInfo.running = true;
 	} else if (status == "NG") {
 		armInfo.stat = ARM_WORK_STAT_FAILURE;
+		armInfo.running = false;
 	} else {
 		MLPL_WARN("Invalid status: %s\n", status.c_str());
 		armInfo.stat = ARM_WORK_STAT_FAILURE;
