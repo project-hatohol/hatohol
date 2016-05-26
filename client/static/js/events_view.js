@@ -745,6 +745,7 @@ var EventsView = function(userProfile, options) {
     $('button.reset-apply-all-filter').click(function() {
       resetTimeRangeFilter();
       resetQuickFilter();
+      refreshSelectPickers();
       load({ applyFilter: true });
       self.isFilteringOptionsUsed = false;
     });
