@@ -59,6 +59,7 @@ public:
 	ActionManager(void);
 	virtual ~ActionManager();
 	void checkEvents(const EventInfoList &eventList);
+	void reExecuteUnfinishedAction(void);
 
 protected:
 	/**
