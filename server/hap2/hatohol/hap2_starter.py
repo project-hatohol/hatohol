@@ -24,11 +24,14 @@ import sys
 import time
 import signal
 import logging
+import logging.config
+from logging import getLogger
 import argparse
 import subprocess
+import commands
 
 DEFAULT_ERROR_SLEEP_TIME = 10
-logger = logging.Logger("hatohol." + __name__)
+logger = getLogger("hatohol." + "hap2_starter")
 
 def create_pid_file(pid_dir, server_id, hap_pid):
     if not os.path.isdir(pid_dir): os.makedirs(pid_dir)
@@ -45,6 +48,18 @@ def remove_pid_file(pid_dir,server_id):
     os.remove("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
     logger.info("PID file has been removed.")
 
+def setup_logger(hap_args):
+    if "--log-conf" in hap_args:
+        logging.config.fileConfig(hap_args[hap_args.index("--log-conf")+1])
+
+def check_existance_of_process_group(pgid):
+    pgid = str(pgid)
+    result = commands.getoutput("ps -eo pgid | grep -w "+ pgid)
+    if pgid in result:
+        return True
+    return False
+
+
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--plugin-path")
@@ -56,6 +71,7 @@ if __name__=="__main__":
     if pid > 0:
         sys.exit(0)
 
+    setup_logger(hap_args)
     subprocess_args = ["python", self_args.plugin_path]
     subprocess_args.extend(hap_args)
 
@@ -66,15 +82,29 @@ if __name__=="__main__":
             create_pid_file(self_args.pid_file_dir,
                             self_args.server_id, hap.pid)
 
+
+        def signalHandler(signalnum, frame):
+            os.killpg(hap.pid, signal.SIGKILL)
+            logger.info("hap2_starter caught %d signal" % signalnum)
+            sys.exit(0)
+
+        signal.signal(signal.SIGINT, signalHandler)
+        signal.signal(signal.SIGTERM, signalHandler)
         hap.wait()
         try:
             os.killpg(hap.pid, signal.SIGKILL)
+            logger.info("%s process was finished" % self_args.plugin_path)
         except OSError:
             logger.info("%s process was finished" % self_args.plugin_path)
 
         if self_args.server_id is not None and \
             check_existence_of_pid_file(self_args.pid_file_dir, self_args.server_id):
             remove_pid_file(self_args.pid_file_dir, self_args.server_id)
+
+        if check_existance_of_process_group(hap.pid):
+            logger.error("Could not killed HAP2 processes. hap2_starter exit.")
+            logger.error("You should kill the processes by yourself.")
+            sys.exit(1)
 
         logger.info("Rerun after %d sec" % DEFAULT_ERROR_SLEEP_TIME)
         time.sleep(DEFAULT_ERROR_SLEEP_TIME)
