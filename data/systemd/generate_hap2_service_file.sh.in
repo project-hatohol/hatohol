@@ -11,12 +11,13 @@ Wants=network-online.target
 After=syslog.target network-online.target
 
 [Service]
-Type=simple
+Type=forking
 KillMode=process
+User=hatohol
+Group=hatohol
+Environment=CONF=${sysconfdir}/hatohol/hap2.conf
 Environment=LOG_CONF=${sysconfdir}/hatohol/hap2-logging.conf
-Environment=HAPI_AMQP_BROKER=rabbitmq
-EnvironmentFile=${sysconfdir}/sysconfig/hap2-${CONF_NAME_SUFFIX}
-ExecStart=${prefix}/libexec/hatohol/hap2/hatohol/hap2_${HAP2_PLUGIN}.py --log-conf=\${LOG_CONF} --amqp-broker=\${HAPI_AMQP_BROKER} --amqp-vhost=\${HAPI_AMQP_VHOST} --amqp-queue=\${HAPI_AMQP_QUEUE} --amqp-user=\${HAPI_AMQP_USER}
+ExecStart=${prefix}/libexec/hatohol/hap2/hatohol/hap2_starter.py --config \${CONF} --log-conf \${LOG_CONF} --plugin-path ${prefix}/libexec/hatohol/hap2/hatohol/hap2_${HAP2_PLUGIN}.py
 
 [Install]
 WantedBy=multi-user.target
