@@ -46,6 +46,7 @@ using namespace mlpl;
 #include "ConfigManager.h"
 #include "ThreadLocalDBCache.h"
 #include "ChildProcessManager.h"
+#include "ActionManager.h"
 
 static string pidFilePath;
 static int pipefd[2];
@@ -244,6 +245,11 @@ int mainRoutine(int argc, char *argv[])
 
 	// setup configuration database
 	ThreadLocalDBCache cache;
+
+	// Re execute unfinished action
+	ActionManager actionManager;
+	actionManager.reExecuteUnfinishedAction();
+
 	// start REST server
 	// 'rest' is on a stack. The destructor of it will be automatically
 	// called at the end of this function.
