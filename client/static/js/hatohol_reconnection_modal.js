@@ -49,6 +49,11 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
     self.countdown();
   });
 
+  $("#reconn-cancel-button").on("click", function() {
+    HatoholReconnectModalVars.taskList.length = 0;
+    self.close();
+  });
+
   function getBodyHTML() {
     var s = "<p>";
     if (errorMsg) {
@@ -62,8 +67,11 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
   }
 
   function getFooterHTML() {
-    var label = gettext("Retry now");
+    var calcelLabel = gettext("Cancel retrying");
     var s = '<button type="button" class="btn btn-primary"';
+    s += 'id="reconn-cancel-button">' + calcelLabel + '</button>';
+    var label = gettext("Retry now");
+    s += '<button type="button" class="btn btn-primary"';
     s += 'id="reconn-retry-button">' + label + '</button>';
     return s;
   }
