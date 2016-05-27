@@ -190,6 +190,7 @@ HatoholMonitoringView.prototype.setHostnameFilterCandidates =
 {
   var id, server, hosts, hostLabels = [], current;
   var hostnameSelector = $('#select-hostname');
+  var tempStorage = {};
 
   current = hostnameSelector.val();
 
@@ -203,11 +204,15 @@ HatoholMonitoringView.prototype.setHostnameFilterCandidates =
     for (id in server.hosts) {
       if (withoutSelfMonitor && (withoutSelfMonitor === true) && (id == "__SELF_MONITOR"))
         continue;
-      hostLabels.push({
+      var hostChioce = {
         label: getHostName(server, id),
         value: getHostName(server, id)
-      });
+      };
+      tempStorage[getHostName(server, id)] = hostChioce;
     }
+  }
+  for (var key in tempStorage) {
+    hostLabels.push(tempStorage[key]);
   }
   hostLabels.sort(this.compareFilterLabel);
   this.setFilterCandidates(hostnameSelector, hostLabels);
