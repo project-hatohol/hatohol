@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-18 01:56-0500\n"
+"POT-Creation-Date: 2016-05-27 01:42-0500\n"
 "PO-Revision-Date: 2015-10-30 17:36+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -237,17 +237,17 @@ msgstr "対処済"
 msgid "HOLD"
 msgstr "保留"
 
-#: viewer/events_ajax.html:100 viewer/overview_triggers_ajax.html:52
+#: viewer/events_ajax.html:100 viewer/overview_triggers_ajax.html:47
 #: viewer/triggers_ajax.html:86
 msgid "Status:"
 msgstr "ステータス:"
 
-#: viewer/events_ajax.html:103 viewer/overview_triggers_ajax.html:55
+#: viewer/events_ajax.html:103 viewer/overview_triggers_ajax.html:50
 #: viewer/triggers_ajax.html:89
 msgid "OK"
 msgstr "正常"
 
-#: viewer/events_ajax.html:104 viewer/overview_triggers_ajax.html:56
+#: viewer/events_ajax.html:104 viewer/overview_triggers_ajax.html:51
 #: viewer/triggers_ajax.html:90
 msgid "Problem"
 msgstr "障害"
@@ -290,19 +290,19 @@ msgid "Disaster"
 msgstr "致命的な障害"
 
 #: viewer/events_ajax.html:121 viewer/latest_ajax.html:43
-#: viewer/overview_items_ajax.html:53 viewer/overview_triggers_ajax.html:58
+#: viewer/overview_items_ajax.html:53 viewer/overview_triggers_ajax.html:53
 #: viewer/triggers_ajax.html:67
 msgid "Monitoring Server:"
 msgstr "監視サーバー:"
 
 #: viewer/events_ajax.html:127 viewer/latest_ajax.html:48
-#: viewer/overview_items_ajax.html:57 viewer/overview_triggers_ajax.html:62
+#: viewer/overview_items_ajax.html:57 viewer/overview_triggers_ajax.html:57
 #: viewer/triggers_ajax.html:73
 msgid "Group:"
 msgstr "グループ:"
 
 #: viewer/events_ajax.html:133 viewer/latest_ajax.html:53
-#: viewer/overview_items_ajax.html:61 viewer/overview_triggers_ajax.html:66
+#: viewer/overview_items_ajax.html:61 viewer/overview_triggers_ajax.html:61
 #: viewer/triggers_ajax.html:79
 msgid "Host:"
 msgstr "ホスト:"
