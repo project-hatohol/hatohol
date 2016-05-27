@@ -29,6 +29,7 @@ from logging import getLogger
 import argparse
 import subprocess
 import commands
+import ConfigParser
 
 DEFAULT_ERROR_SLEEP_TIME = 10
 logger = getLogger("hatohol." + "hap2_starter")
@@ -49,8 +50,30 @@ def remove_pid_file(pid_dir,server_id):
     logger.info("PID file has been removed.")
 
 def setup_logger(hap_args):
+    log_conf_path = "/default/path"
+
     if "--log-conf" in hap_args:
-        logging.config.fileConfig(hap_args[hap_args.index("--log-conf")+1])
+        try:
+            log_conf_path = hap_args[hap_args.index("--log-conf")+1]
+            logging.config.fileConfig(log_conf_path)
+            return
+        except:
+            raise Exception("Could not read --log-conf file")
+
+    if "--conf" in hap_args:
+        config_parser = ConfigParser.SafeConfigParser(allow_no_value=True)
+        try:
+            config_parser.read([hap_args[hap_args.index("--conf")+1],])
+            log_conf_path = config_parser.get("hap2", "log_conf")
+        except:
+            raise Exception("Could not parse log conf path from --conf file")
+
+        try:
+            logging.config.fileConfig(log_conf_path)
+            return
+        except:
+            raise Exception("Could not read --conf's log conf file")
+
 
 def check_existance_of_process_group(pgid):
     pgid = str(pgid)
@@ -62,7 +85,7 @@ def check_existance_of_process_group(pgid):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--plugin-path")
+    parser.add_argument("--plugin-path", required=True)
     parser.add_argument("--server-id")
     parser.add_argument("--pid-file-dir")
     self_args, hap_args = parser.parse_known_args()
