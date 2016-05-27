@@ -120,7 +120,6 @@ HatoholHistoryLoader.prototype.load = function() {
     var view = self.options.view; // TODO: Remove the view dependency
 
     view.startConnection(getHistoryQuery(), function(reply) {
-      var maxRecordsPerRequest = 1000;
       var history = reply.history;
 
       self.updateHistory(history);
@@ -128,13 +127,7 @@ HatoholHistoryLoader.prototype.load = function() {
       if (self.options.onLoadHistory)
         self.options.onLoadHistory(self, self.history);
 
-      if (history.length >= maxRecordsPerRequest) {
-        $.when(loadHistory()).done(function() {
-          deferred.resolve();
-        });
-      } else {
         deferred.resolve();
-      }
     });
 
     return deferred.promise();
