@@ -1393,7 +1393,7 @@ msgstr " 秒後"
 
 #: static/js/hatohol_reconnection_modal.js:70
 msgid "Cancel retrying"
-msgstr ""
+msgstr "再接続をキャンセル"
 
 #: static/js/hatohol_reconnection_modal.js:73
 msgid "Retry now"
