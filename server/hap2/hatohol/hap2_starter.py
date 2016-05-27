@@ -34,11 +34,11 @@ import ConfigParser
 DEFAULT_ERROR_SLEEP_TIME = 10
 logger = getLogger("hatohol." + "hap2_starter")
 
-def create_pid_file(pid_dir, server_id, hap_pid):
+def create_pid_file(pid_dir, server_id):
     if not os.path.isdir(pid_dir): os.makedirs(pid_dir)
 
     with open("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id), "w") as file:
-        file.writelines([str(os.getpid()), "\n", str(hap_pid)])
+        file.write(str(os.getpid()))
 
     logger.info("PID file has been created.")
 
@@ -74,7 +74,6 @@ def setup_logger(hap_args):
         except:
             raise Exception("Could not read --conf's log conf file")
 
-
 def check_existance_of_process_group(pgid):
     pgid = str(pgid)
     result = commands.getoutput("ps -eo pgid | grep -w "+ pgid)
@@ -95,16 +94,19 @@ if __name__=="__main__":
         sys.exit(0)
 
     setup_logger(hap_args)
+
+    if self_args.server_id is None and self_args.pid_file_dir is not None:
+        logger.error("If you use --pid-file-dir, you must use --server-id.")
+        sys.exit(1)
+
     subprocess_args = ["python", self_args.plugin_path]
     subprocess_args.extend(hap_args)
 
     while True:
         hap = subprocess.Popen(subprocess_args, preexec_fn=os.setsid, close_fds=True)
 
-        if self_args.server_id is not None and not hap.poll():
-            create_pid_file(self_args.pid_file_dir,
-                            self_args.server_id, hap.pid)
-
+        if self_args.pid_file_dir is not None and not hap.poll():
+            create_pid_file(self_args.pid_file_dir, self_args.server_id)
 
         def signalHandler(signalnum, frame):
             os.killpg(hap.pid, signal.SIGKILL)
@@ -120,7 +122,7 @@ if __name__=="__main__":
         except OSError:
             logger.info("%s process was finished" % self_args.plugin_path)
 
-        if self_args.server_id is not None and \
+        if self_args.pid_file_dir is not None and \
             check_existence_of_pid_file(self_args.pid_file_dir, self_args.server_id):
             remove_pid_file(self_args.pid_file_dir, self_args.server_id)
 
