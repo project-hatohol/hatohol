@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-24 01:05-0500\n"
+"POT-Creation-Date: 2016-05-27 01:42-0500\n"
 "PO-Revision-Date: 2016-01-20 11:37+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -14,6 +14,65 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: misc/external-labels.js:1
+msgid "TLS client key path"
+msgstr "TLSクライアントキーのパス"
+
+#: misc/external-labels.js:2
+msgid "TLS CA certificate path"
+msgstr "TLS CA証明書のパス"
+
+#: misc/external-labels.js:3
+msgid "TLS: Enable verify"
+msgstr "TLS: 確認を有効化"
+
+#: misc/external-labels.js:4
+msgid "Static queue address"
+msgstr "静的キューアドレス"
+
+#: misc/external-labels.js:5
+msgid "TLS client certificate path"
+msgstr "TLSクライアント証明書のパス"
+
+#: misc/external-labels.js:6
+msgid "Broker URL"
+msgstr "ブローカーURL"
+
+#: misc/external-labels.js:7 static/js/hatohol_incident_trackers_editor.js:178
+#: static/js/hatohol_incident_trackers_editor.js:381
+#: static/js/hatohol_privilege_edit_dialog.js:202
+#: static/js/hatohol_server_selector.js:48
+msgid "Nickname"
+msgstr "ニックネーム"
+
+#: misc/external-labels.js:8
+msgid "Passive mode"
+msgstr "パッシブモード"
+
+#: misc/external-labels.js:9
+msgid "Tenant name"
+msgstr "テナント名"
+
+#: misc/external-labels.js:10
+msgid "Keystone URL"
+msgstr "Keystone URL"
+
+#: misc/external-labels.js:11
+msgid "IP address"
+msgstr "IPアドレス"
+
+#: misc/external-labels.js:12
+msgid "Web UI URL"
+msgstr "Web UI URL"
+
+#: misc/external-labels.js:13
+msgid "Polling interval (sec)"
+msgstr "ポーリング間隔（秒）"
+
+#: misc/external-labels.js:14
+msgid "Retry interval (sec)"
+msgstr "リトライ間隔（秒）"
 
 #: static/js/actions_view.js:48 static/js/hatohol_user_roles_editor.js:80
 #: static/js/incident_settings_view.js:48
@@ -104,7 +163,7 @@ msgstr "入力データをリセットしました。"
 
 #: static/js/dashboard_view.js:29 static/js/events_view.js:79
 #: static/js/hatohol_add_action_dialog.js:508
-#: static/js/overview_triggers.js:37 static/js/severity_ranks_view.js:39
+#: static/js/overview_triggers.js:38 static/js/severity_ranks_view.js:39
 #: static/js/triggers_view.js:49 static/js/utils.js:70
 #: test/browser/test_hatohol_events_view_config.js:22
 msgid "Not classified"
@@ -112,7 +171,7 @@ msgstr "未分類"
 
 #: static/js/dashboard_view.js:30 static/js/events_view.js:80
 #: static/js/hatohol_add_action_dialog.js:509
-#: static/js/hatohol_message_box.js:175 static/js/overview_triggers.js:38
+#: static/js/hatohol_message_box.js:175 static/js/overview_triggers.js:39
 #: static/js/severity_ranks_view.js:40 static/js/triggers_view.js:50
 #: static/js/utils.js:72 test/browser/test_hatohol_events_view_config.js:23
 msgid "Information"
@@ -120,7 +179,7 @@ msgstr "情報"
 
 #: static/js/dashboard_view.js:31 static/js/events_view.js:81
 #: static/js/hatohol_add_action_dialog.js:510
-#: static/js/hatohol_message_box.js:182 static/js/overview_triggers.js:39
+#: static/js/hatohol_message_box.js:182 static/js/overview_triggers.js:40
 #: static/js/severity_ranks_view.js:41 static/js/triggers_view.js:51
 #: static/js/utils.js:74 test/browser/test_hatohol_events_view_config.js:24
 msgid "Warning"
@@ -128,7 +187,7 @@ msgstr "警告"
 
 #: static/js/dashboard_view.js:32 static/js/events_view.js:82
 #: static/js/hatohol_add_action_dialog.js:511
-#: static/js/overview_triggers.js:40 static/js/severity_ranks_view.js:42
+#: static/js/overview_triggers.js:41 static/js/severity_ranks_view.js:42
 #: static/js/triggers_view.js:52 static/js/utils.js:76
 #: test/browser/test_hatohol_events_view_config.js:25
 msgid "Average"
@@ -136,7 +195,7 @@ msgstr "軽度の障害"
 
 #: static/js/dashboard_view.js:33 static/js/events_view.js:83
 #: static/js/hatohol_add_action_dialog.js:512
-#: static/js/overview_triggers.js:41 static/js/severity_ranks_view.js:43
+#: static/js/overview_triggers.js:42 static/js/severity_ranks_view.js:43
 #: static/js/triggers_view.js:53 static/js/utils.js:78
 #: test/browser/test_hatohol_events_view_config.js:26
 msgid "High"
@@ -144,7 +203,7 @@ msgstr "重度の障害"
 
 #: static/js/dashboard_view.js:34 static/js/events_view.js:84
 #: static/js/hatohol_add_action_dialog.js:513
-#: static/js/overview_triggers.js:42 static/js/severity_ranks_view.js:44
+#: static/js/overview_triggers.js:43 static/js/severity_ranks_view.js:44
 #: static/js/triggers_view.js:54 static/js/utils.js:80
 #: test/browser/test_hatohol_events_view_config.js:27
 msgid "Disaster"
@@ -262,7 +321,8 @@ msgstr "進捗率"
 msgid "Comment"
 msgstr "コメント"
 
-#: static/js/events_view.js:174 static/js/triggers_view.js:69
+#: static/js/events_view.js:174 static/js/overview_triggers.js:57
+#: static/js/triggers_view.js:69
 msgid "Failed to get the configuration!"
 msgstr "重要度設定の取得に失敗しました。"
 
@@ -864,7 +924,7 @@ msgstr "全て（31日間）"
 msgid "Unknown host"
 msgstr "不明なホスト"
 
-#: static/js/hatohol_graph.js:255 static/js/history_view.js:313
+#: static/js/hatohol_graph.js:255 static/js/history_view.js:314
 msgid "History"
 msgstr "履歴"
 
@@ -975,13 +1035,6 @@ msgstr "削除"
 #: static/js/hatohol_incident_trackers_editor.js:176
 msgid "ID"
 msgstr "ID"
-
-#: static/js/hatohol_incident_trackers_editor.js:178
-#: static/js/hatohol_incident_trackers_editor.js:381
-#: static/js/hatohol_privilege_edit_dialog.js:202
-#: static/js/hatohol_server_selector.js:48
-msgid "Nickname"
-msgstr "ニックネーム"
 
 #: static/js/hatohol_incident_trackers_editor.js:179
 #: static/js/hatohol_incident_trackers_editor.js:386
@@ -1329,16 +1382,20 @@ msgstr "表示 / 編集"
 msgid "Connection Error"
 msgstr "接続エラー"
 
-#: static/js/hatohol_reconnection_modal.js:58
+#: static/js/hatohol_reconnection_modal.js:63
 msgid "Try to reconnect after "
 msgstr "再接続します: "
 
-#: static/js/hatohol_reconnection_modal.js:59
+#: static/js/hatohol_reconnection_modal.js:64
 msgctxt "ReconnectionModal"
 msgid " sec."
 msgstr " 秒後"
 
-#: static/js/hatohol_reconnection_modal.js:65
+#: static/js/hatohol_reconnection_modal.js:70
+msgid "Cancel retrying"
+msgstr ""
+
+#: static/js/hatohol_reconnection_modal.js:73
 msgid "Retry now"
 msgstr "すぐに再接続"
 
@@ -1798,45 +1855,6 @@ msgstr "Hatoholバージョン: "
 #: test/browser/test_server_view.js:277
 msgid "-"
 msgstr "-"
-
-#~ msgid "TLS client key path"
-#~ msgstr "TLSクライアントキーのパス"
-
-#~ msgid "TLS CA certificate path"
-#~ msgstr "TLS CA証明書のパス"
-
-#~ msgid "TLS: Enable verify"
-#~ msgstr "TLS: 確認を有効化"
-
-#~ msgid "Static queue address"
-#~ msgstr "静的キューアドレス"
-
-#~ msgid "TLS client certificate path"
-#~ msgstr "TLSクライアント証明書のパス"
-
-#~ msgid "Broker URL"
-#~ msgstr "ブローカーURL"
-
-#~ msgid "Passive mode"
-#~ msgstr "パッシブモード"
-
-#~ msgid "Tenant name"
-#~ msgstr "テナント名"
-
-#~ msgid "Keystone URL"
-#~ msgstr "Keystone URL"
-
-#~ msgid "IP address"
-#~ msgstr "IPアドレス"
-
-#~ msgid "Web UI URL"
-#~ msgstr "Web UI URL"
-
-#~ msgid "Polling interval (sec)"
-#~ msgstr "ポーリング間隔（秒）"
-
-#~ msgid "Retry interval (sec)"
-#~ msgstr "リトライ間隔（秒）"
 
 #~ msgid "Duration"
 #~ msgstr "継続時間"
