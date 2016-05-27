@@ -379,7 +379,8 @@ public:
 	bool getLog(ActionLog &actionLog, const ServerIdType &serverId,
 	            const EventIdType &eventId);
 
-	bool getTargetStatusesLogs(ActionLogList &actionLogList, const std::vector<int> targetStatuses);
+	bool getTargetStatusesLogs(ActionLogList &actionLogList,
+	    const std::vector<ActionLogStatus> targetStatuses);
 
 	/**
 	 * Check whether IncidentSender type action exists or not

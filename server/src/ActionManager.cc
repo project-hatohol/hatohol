@@ -556,9 +556,10 @@ void ActionManager::reExecuteUnfinishedAction(void)
 	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
 
 	ActionLogList actionLogList;
-	vector<int> targetStatuses{ACTLOG_STAT_QUEUING, ACTLOG_STAT_STARTED,
-	                           ACTLOG_STAT_RESIDENT_QUEUING,
-	                           ACTLOG_STAT_LAUNCHING_RESIDENT};
+	vector<ActionLogStatus> targetStatuses{ACTLOG_STAT_QUEUING,
+	                                       ACTLOG_STAT_STARTED,
+	                                       ACTLOG_STAT_RESIDENT_QUEUING,
+	                                       ACTLOG_STAT_LAUNCHING_RESIDENT};
 
 	if (!dbAction.getTargetStatusesLogs(actionLogList, targetStatuses)) {
 		MLPL_INFO("Hatohol does not have unfinished action.\n");
