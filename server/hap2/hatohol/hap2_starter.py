@@ -50,7 +50,7 @@ def remove_pid_file(pid_dir,server_id):
     logger.info("PID file has been removed.")
 
 def setup_logger(hap_args):
-    log_conf_path = "/default/path"
+    log_conf_path = None
 
     if "--log-conf" in hap_args:
         try:
