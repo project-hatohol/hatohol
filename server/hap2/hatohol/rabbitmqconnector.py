@@ -126,10 +126,12 @@ class RabbitMQConnector(Transporter):
         if receiver is None:
             logger.warning("Receiver is not registered.")
             return
+        logger.debug(body)
         receiver(self._channel, body)
 
     def __publish(self, msg):
         try:
+            logger.debug(msg)
             self.__publish_raw(msg)
         except:
             # TODO: consider the way to save the message and try to
