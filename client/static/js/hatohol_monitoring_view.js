@@ -503,7 +503,7 @@ HatoholMonitoringView.prototype.setupHostFilters = function(servers, query, with
     if (query.hostname === "") {
       $("#select-hostname").val("");
     } else {
-      $("#select-hostname").val(query.hostName);
+      $("#select-hostname").val(query.hostname);
     }
   }
 
