@@ -1980,6 +1980,9 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 	parser.endObject(); // params
 
 	if (errObj.hasErrors()) {
+		if (!fetchId.empty()) {
+			m_impl->runFetchHistoryCallback(fetchId, historyInfoVect);
+		}
 		m_impl->parseError(errObj.getConcatenatedMessage().c_str());
 		return HatoholArmPluginInterfaceHAPI2::buildErrorResponse(
 		  JSON_RPC_INVALID_PARAMS, "Invalid method parameter(s).",
