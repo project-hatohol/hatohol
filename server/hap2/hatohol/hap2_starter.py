@@ -29,15 +29,16 @@ from logging import getLogger
 import argparse
 import subprocess
 import commands
+import ConfigParser
 
 DEFAULT_ERROR_SLEEP_TIME = 10
 logger = getLogger("hatohol." + "hap2_starter")
 
-def create_pid_file(pid_dir, server_id, hap_pid):
+def create_pid_file(pid_dir, server_id):
     if not os.path.isdir(pid_dir): os.makedirs(pid_dir)
 
     with open("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id), "w") as file:
-        file.writelines([str(os.getpid()), "\n", str(hap_pid)])
+        file.write(str(os.getpid()))
 
     logger.info("PID file has been created.")
 
@@ -49,8 +50,30 @@ def remove_pid_file(pid_dir,server_id):
     logger.info("PID file has been removed.")
 
 def setup_logger(hap_args):
+    log_conf_path = None
+
     if "--log-conf" in hap_args:
-        logging.config.fileConfig(hap_args[hap_args.index("--log-conf")+1])
+        try:
+            log_conf_path = hap_args[hap_args.index("--log-conf")+1]
+            logging.config.fileConfig(log_conf_path)
+            return
+        except:
+            raise Exception("Could not read log conf: %s" % log_conf_path)
+
+    if "--conf" in hap_args:
+        config_parser = ConfigParser.SafeConfigParser(allow_no_value=True)
+        try:
+            config_parser.read([hap_args[hap_args.index("--conf")+1],])
+            log_conf_path = config_parser.get("hap2", "log_conf")
+        except:
+            raise Exception("Could not parse log_conf from --conf file")
+
+        try:
+            logging.config.fileConfig(log_conf_path)
+            return
+        except:
+            raise Exception("Could not read --conf's log conf file: %s"
+                            % log_conf_path)
 
 def check_existance_of_process_group(pgid):
     pgid = str(pgid)
@@ -62,7 +85,7 @@ def check_existance_of_process_group(pgid):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--plugin-path")
+    parser.add_argument("--plugin-path", required=True)
     parser.add_argument("--server-id")
     parser.add_argument("--pid-file-dir")
     self_args, hap_args = parser.parse_known_args()
@@ -72,16 +95,19 @@ if __name__=="__main__":
         sys.exit(0)
 
     setup_logger(hap_args)
+
+    if self_args.server_id is None and self_args.pid_file_dir is not None:
+        logger.error("If you use --pid-file-dir, you must use --server-id.")
+        sys.exit(1)
+
     subprocess_args = ["python", self_args.plugin_path]
     subprocess_args.extend(hap_args)
 
     while True:
         hap = subprocess.Popen(subprocess_args, preexec_fn=os.setsid, close_fds=True)
 
-        if self_args.server_id is not None and not hap.poll():
-            create_pid_file(self_args.pid_file_dir,
-                            self_args.server_id, hap.pid)
-
+        if self_args.pid_file_dir is not None and not hap.poll():
+            create_pid_file(self_args.pid_file_dir, self_args.server_id)
 
         def signalHandler(signalnum, frame):
             os.killpg(hap.pid, signal.SIGKILL)
@@ -97,7 +123,7 @@ if __name__=="__main__":
         except OSError:
             logger.info("%s process was finished" % self_args.plugin_path)
 
-        if self_args.server_id is not None and \
+        if self_args.pid_file_dir is not None and \
             check_existence_of_pid_file(self_args.pid_file_dir, self_args.server_id):
             remove_pid_file(self_args.pid_file_dir, self_args.server_id)
 

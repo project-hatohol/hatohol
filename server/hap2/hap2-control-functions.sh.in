@@ -76,14 +76,9 @@ stop_plugin() {
 
     if test -f "$PID_FILE"; then
         STARTER_PID=`head -n +1 ${PID_FILE}`
-        HAP_PID=`tail -n +2 ${PID_FILE}`
         echo "STARTER_PID: $STARTER_PID"
-        echo "HAP_PID: $HAP_PID"
         if test -n $STARTER_PID; then
             kill $STARTER_PID
-        fi
-        if test -n $HAP_PID; then
-            kill $HAP_PID
         fi
         rm -f ${PID_FILE}
         echo "Succeeded to stop $PLUGIN_PATH"
