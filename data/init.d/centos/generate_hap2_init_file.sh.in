@@ -1,0 +1,65 @@
+#!/bin/sh
+
+cat << EOF
+#!/bin/sh
+# chkconfig: 2345 91 91
+# description: HAP2 is a plugin for Hatohol unified manager of
+#              monitoring software.
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configurations.
+. /etc/sysconfig/network
+
+# Check network is up.
+if [ \${NETWORKING} = "no" ] && exit 1
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
+NAME=@exec_prefix@/libexec/hatohol/hap2/hatohol/hap2_starter.py
+exec_prefix=@exec_prefix@
+sysconfdir=@expanded_sysconfdir@
+CONF=@expanded_sysconfdir@/hatohol/hap2-${CONF_NAME_SUFFIX}.conf
+LOG_CONF=@expanded_sysconfdir@/hatohol/hap2-logging.conf
+PROG=@sbindir@/\$NAME
+PIDFILEDIR=/var/run/hatohol/
+PIDFILE=\${PIDFILEDIR}/hap2_${HAP2_PLUGIN}.pid
+OPTIONS="--config \${CONF} --plugin-path \${prefix}/libexec/hatohol/hap2/hatohol/hap2_${HAP2_PLUGIN}.py ---pid-file-dir \${PIDFILEDIR} --server-id ${HAP2_PLUGIN}"
+PROGNAME=\`basename \$PROG\`
+
+[ -f \$PROG ]|| exit 0
+
+# functions
+start() {
+	echo -n \$"Starting \$PROGNAME: "
+	daemon \$PROG \$OPTIONS
+	echo
+	;;
+}
+
+stop() {
+	echo -n \$"Stopping \$PROGNAME: "
+	kill -SIGTERM \`cat \${PIDFILE}\`
+	echo
+}
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		stop
+		start
+		;;
+	status)
+		status \$NAME
+		;;
+	*)
+		echo \$"Usage: \$PROGNAME {start|stop|restart|status}" >&2
+		exit 1
+		;;
+esac
+exit 0
+EOF
