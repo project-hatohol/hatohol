@@ -13,7 +13,9 @@ cat << EOF
 . /etc/sysconfig/network
 
 # Check network is up.
-if [ \${NETWORKING} = "no" ] && exit 1
+if [ \${NETWORKING} = "no" ]; then
+	exit 1
+fi
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
 NAME=@exec_prefix@/libexec/hatohol/hap2/hatohol/hap2_starter.py
@@ -21,10 +23,10 @@ exec_prefix=@exec_prefix@
 sysconfdir=@expanded_sysconfdir@
 CONF=@expanded_sysconfdir@/hatohol/hap2-${CONF_NAME_SUFFIX}.conf
 LOG_CONF=@expanded_sysconfdir@/hatohol/hap2-logging.conf
-PROG=@sbindir@/\$NAME
+PROG=\$NAME
 PIDFILEDIR=/var/run/hatohol/
 PIDFILE=\${PIDFILEDIR}/hap2_${HAP2_PLUGIN}.pid
-OPTIONS="--config \${CONF} --plugin-path \${prefix}/libexec/hatohol/hap2/hatohol/hap2_${HAP2_PLUGIN}.py ---pid-file-dir \${PIDFILEDIR} --server-id ${HAP2_PLUGIN}"
+OPTIONS="--config \${CONF} --plugin-path \${exec_prefix}/libexec/hatohol/hap2/hatohol/hap2_${HAP2_PLUGIN}.py ---pid-file-dir \${PIDFILEDIR} --server-id ${HAP2_PLUGIN}"
 PROGNAME=\`basename \$PROG\`
 
 [ -f \$PROG ]|| exit 0
@@ -34,7 +36,6 @@ start() {
 	echo -n \$"Starting \$PROGNAME: "
 	daemon \$PROG \$OPTIONS
 	echo
-	;;
 }
 
 stop() {
@@ -42,7 +43,7 @@ stop() {
 	kill -SIGTERM \`cat \${PIDFILE}\`
 	echo
 }
-case "$1" in
+case "\$1" in
 	start)
 		start
 		;;
