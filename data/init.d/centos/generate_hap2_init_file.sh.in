@@ -12,10 +12,8 @@ cat << EOF
 # Source networking configurations.
 . /etc/sysconfig/network
 
-# Check network is up.
-if [ \${NETWORKING} = "no" ]; then
-	exit 1
-fi
+# Check that networking is up.
+[ "${NETWORKING}" = "no" ] && exit 6
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
 NAME=@exec_prefix@/libexec/hatohol/hap2/hatohol/hap2_starter.py
