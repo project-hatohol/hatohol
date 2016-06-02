@@ -37,16 +37,16 @@ logger = getLogger("hatohol." + "hap2_starter")
 def create_pid_file(pid_dir, server_id):
     if not os.path.isdir(pid_dir): os.makedirs(pid_dir)
 
-    with open("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id), "w") as file:
+    with open("%s/hatohol-arm-plugin-%s.pid" % (pid_dir, server_id), "w") as file:
         file.write(str(os.getpid()))
 
     logger.info("PID file has been created.")
 
 def check_existence_of_pid_file(pid_dir, server_id):
-    return os.path.isfile("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
+    return os.path.isfile("%s/hatohol-arm-plugin-%s.pid" % (pid_dir, server_id))
 
 def remove_pid_file(pid_dir,server_id):
-    os.remove("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
+    os.remove("%s/hatohol-arm-plugin-%s.pid" % (pid_dir, server_id))
     logger.info("PID file has been removed.")
 
 def setup_logger(hap_args):
