@@ -167,6 +167,11 @@ rm -rf %{buildroot}
 %if %is_el6
 install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package6 %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
 install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hatohol.centos %{buildroot}/%{_sysconfdir}/init.d/hatohol
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hap2-zabbix-api %{buildroot}/%{_sysconfdir}/init.d/hap2-zabbix-api
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hap2-nagios-ndoutils %{buildroot}/%{_sysconfdir}/init.d/hap2-nagios-ndoutils
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hap2-nagios-livestatus %{buildroot}/%{_sysconfdir}/init.d/hap2-nagios-livestatus
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hap2-nagios-ceilometer %{buildroot}/%{_sysconfdir}/init.d/hap2-nagios-ceilometer
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hap2-nagios-fluentd %{buildroot}/%{_sysconfdir}/init.d/hap2-nagios-fluentd
 install -d -m 755 %{buildroot}/%{_localstatedir}/run/hatohol
 %endif
 %if %is_el7
