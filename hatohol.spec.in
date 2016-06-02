@@ -311,6 +311,9 @@ rm -rf %{buildroot}
 %{python_sitelib}/hatohol/transporters/rabbitmqhapiconnector.pyo
 
 %files hap2-zabbix
+%if %is_el6
+%{_sysconfdir}/init.d/hap2-zabbix-api
+%endif
 %{_datadir}/hatohol/sql/90-server-type-hap2-zabbix.sql
 %{python_sitelib}/hatohol/zabbixapi.py
 %{python_sitelib}/hatohol/zabbixapi.pyc
@@ -321,6 +324,9 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.pyo
 
 %files hap2-nagios-ndoutils
+%if %is_el6
+%{_sysconfdir}/init.d/hap2-nagios-ndoutils
+%endif
 %{_datadir}/hatohol/sql/90-server-type-hap2-nagios-ndoutils.sql
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-nagios-ndoutils.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.py
@@ -328,6 +334,9 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyo
 
 %files hap2-nagios-livestatus
+%if %is_el6
+%{_sysconfdir}/init.d/hap2-nagios-livestatus
+%endif
 %{_datadir}/hatohol/sql/90-server-type-hap2-nagios-livestatus.sql
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-nagios-livestatus.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.py
@@ -335,6 +344,9 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.pyo
 
 %files hap2-fluentd
+%if %is_el6
+%{_sysconfdir}/init.d/hap2-fluentd
+%endif
 %{_datadir}/hatohol/sql/90-server-type-hap2-fluentd.sql
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-fluentd.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.py
@@ -342,6 +354,9 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.pyo
 
 %files hap2-ceilometer
+%if %is_el6
+%{_sysconfdir}/init.d/hap2-ceilometer
+%endif
 %{_datadir}/hatohol/sql/90-server-type-hap2-ceilometer.sql
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-ceilometer.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.py
