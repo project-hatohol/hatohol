@@ -28,6 +28,7 @@ PIDFILEDIR=/var/run/hatohol/
 PIDFILE=\${PIDFILEDIR}/hap2_${HAP2_PLUGIN}.pid
 OPTIONS="--config \${CONF} --plugin-path \${exec_prefix}/libexec/hatohol/hap2/hatohol/hap2_${HAP2_PLUGIN}.py --pid-file-dir \${PIDFILEDIR} --server-id ${HAP2_PLUGIN}"
 PROGNAME=\`basename \$PROG\`
+LOCKFILE=/var/lock/subsys/hap2-${CONF_NAME_SUFFIX}
 
 [ -f \$PROG ]|| exit 0
 
@@ -35,14 +36,20 @@ PROGNAME=\`basename \$PROG\`
 start() {
 	echo -n \$"Starting \$PROGNAME: "
 	daemon \$PROG \$OPTIONS
+	RETVAL=$?
 	echo
+	[ \$RETVAL -eq 0 ] && touch \$LOCKFILE
 }
 
 stop() {
 	echo -n \$"Stopping \$PROGNAME: "
+	RETVAL=$?
 	kill -SIGTERM \`cat \${PIDFILE}\`
 	echo
+	[ \$RETVAL -eq 0 ] && rm -f \$LOCKFILE
 }
+
+RETVAL=0
 case "\$1" in
 	start)
 		start
@@ -62,5 +69,5 @@ case "\$1" in
 		exit 1
 		;;
 esac
-exit 0
+exit \$RETVAL
 EOF
