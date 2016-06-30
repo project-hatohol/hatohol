@@ -24,6 +24,7 @@
 #include <memory>
 #include <UsedCountable.h>
 #include <Monitoring.h>
+#include <Params.h>
 
 class SelfMonitor;
 typedef std::shared_ptr<SelfMonitor> SelfMonitorPtr;
@@ -31,7 +32,6 @@ typedef std::weak_ptr<SelfMonitor> SelfMonitorWeakPtr;
 
 class SelfMonitor {
 public:
-	static const TriggerIdType STATELESS_MONITOR;
 	static const char *DEFAULT_SELF_MONITOR_HOST_NAME;
 
 	typedef std::function<void (

@@ -1572,7 +1572,8 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 		eventInfo.hostName = triggerInfo.hostName;
 		eventInfo.brief    = triggerInfo.brief;
 	} else {
-		if (DO_NOT_ASSOCIATE_TRIGGER_ID != eventInfo.triggerId) {
+		if (DO_NOT_ASSOCIATE_TRIGGER_ID != eventInfo.triggerId &&
+			STATELESS_MONITOR != eventInfo.triggerId) {
 			MLPL_ERR("Not found: svID: %" FMT_SERVER_ID ", "
 				 "trigID: %" FMT_TRIGGER_ID "\n",
 				 eventInfo.serverId, eventInfo.triggerId.c_str());
