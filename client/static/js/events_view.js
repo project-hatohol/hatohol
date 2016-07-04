@@ -104,10 +104,6 @@ var EventsView = function(userProfile, options) {
       header: gettext("Status"),
       body: renderTableDataEventType,
     },
-    "status": {
-      header: gettext("Current trigger status"),
-      body: renderTableDataTriggerStatus,
-    },
     "severity": {
       header: gettext("Severity"),
       body: renderTableDataEventSeverity,
