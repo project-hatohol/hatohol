@@ -244,7 +244,7 @@ def get_config_lines_from_file():
     config_defs = (
         ('generic', {
             'allowed_hosts': lambda v: 'ALLOWED_HOSTS = %s' % v.split(),
-            'time_zone':     lambda v: 'TIME_ZONE = "%s"' % v.split(),
+            'time_zone':     lambda v: 'TIME_ZONE = "%s"' % v,
         }),
         ('database', {
             'name': lambda v: 'DATABASES["default"]["NAME"] = "%s"' % v,
