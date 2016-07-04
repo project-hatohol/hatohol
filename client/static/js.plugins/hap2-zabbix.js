@@ -21,7 +21,7 @@
     if (!url)
       return undefined;
 
-    url += "history.php?action=showgraph&itemid=" + itemId;
+    url += "history.php?action=showgraph&itemid=" + itemId + "&itemids%5B%5D=" + itemId;
     return url;
   };
 
