@@ -3,22 +3,15 @@ How to Use HAP2
 
 ## Install RabbitMQ server on CentOS 7
 
-First, you need to install erlang package.
 In this document, we use epel to install RabbitMQ server.
 
 First, you need to setup EPEL by following command:
 
-    # wget -O /etc/yum.repos.d/epel-erlang.repo http://repos.fedorapeople.org/repos/peter/erlang/epel-erlang.repo
+    # yum install epel-release
 
-Then, you can install erlang from EPEL repository by following command:
+Then, you can install rabbitmq-server from EPEL repository by following command:
 
-    # yum install erlang
-
-Finally, you can install rabbitmq-server package by following command
-after downloading the server package from [RabbitMQ official site](https://www.rabbitmq.com/install-rpm.html):
-
-    # rpm --import https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
-    # yum install rabbitmq-server-3.6.0-1.noarch.rpm
+    # yum install rabbitmq-server
 
 ### How to start rabbitmq-server on CentOS 7
 
@@ -37,6 +30,8 @@ Finally, you can enable and start rabbitmq-server by the following commands:
 
     # systemctl enable rabbitmq-server
     # systemctl start rabbitmq-server
+
+If you use TLS connection, please see [TLS Setting](#user-content-tls-setting)
 
 ## Install RabbitMQ server on Ubuntu 14.04
 
@@ -70,36 +65,26 @@ Finally, set permissions to created user
 $ sudo rabbitmqctl set_permissions -p hatohol hatohol ".*" ".*" ".*"
 ```
 
-## Install hap2 plugin dependent python modules
+## Installation of HAP2
 
-### On CentOS 7
+You need to install hatohol-hap2-zabbix with the following command on CentOS 7:
 
-You need to install hap2 dependent packages via pip:
+    # yum install -y hatohol-hap2-<plugin name>
 
-    # yum install python-pika
+Example.
+    # yum install -y hatohol-hap2-zabbix
 
-If you want to use hap2-nagios-livestatus, you need to install `python-mk-livestatus`
+If you install hap2-nagios-livestatus, you need to install `python-mk-livestatus` module.
 via pip with the following command:
 
     # pip install python-mk-livestatus
 
-### On Ubuntu 14.04
+## Add each HAP2 to server types of WebUI menu
 
-You need to install hap2 dependent packages via apt-get with the following command:
+Each of the HAP2 plugins RPM install SQL file to /usr/share/hatohol/sql .
 
-    $ sudo apt-get install python-pika
-
-If you want to use hap2-nagios-livestatus, you need to install `python-mk-livestatus`
-via pip with the following command:
-
-    $ sudo pip install python-mk-livestatus
-
-
-## How to add HAP2
-
-Each of the HAP2 plugins RPM put SQL file on /usr/share/hatohol/sql .
-
-You can read each of the SQL files and add monitoring server types by hatohol-db-initiator command.
+After install HAP2 plugins, you should read each of the SQL files and
+add monitoring server types by hatohol-db-initiator command.
 
 Please execute the following.
 
@@ -113,22 +98,13 @@ Please confirm whether or not it succeeded by the hatohol-db-initiator command o
 Succeessfully loaded: /usr/bin/../share/hatohol/sql/90-server-type-<PLUGIN_NAME>.sql
 ```
 
-## Starting HAP2 Tips
+If you can see `<Plugin name> (HAP2)` in `Monitoring Server` screen of WebUI, you can use HAP2!
 
-### HAP2 Zabbix
+## Add HAP2 to monitoring server.
 
-You need to install hatohol-hap2-zabbix with the following command on CentOS 7:
-
-    # yum install -y hatohol-hap2-zabbix
-
-You should input `http://<servername or ip>/zabbix/api_jsonrpc.php` into
-"Zabbix API URL" instead of `<servername or ip>` simply.
+You can add HAP2 to monitoring servers in `Monitoring Server` menu of WebUI.
 
 Also you have to input `amqp://<user>:<password>@hostname/<vhost>` into BrokerURL.
 These parameter should be replaced string that you input command for `$ sudo rabbitmqctl add_(user|vhost)`. If you execute commands same as in this document, you should input `amqp://hatohol:hatohol@localhost/hatohol`.
 
-### HAP2 Nagios Livestatus
 
-HAP2 Nagios Livestatus depends `nagios-mk-livestatus` package.
-You should install this dependent package on Nagios node
-and restart its node's Nagios process before you start to use this HAP2.
