@@ -573,10 +573,12 @@ void ActionManager::reExecuteUnfinishedAction(void)
 		EventsQueryOption eventOption(USER_ID_SYSTEM);
 
 		eventOption.setTargetServerId(actionLog.serverId);
-		string eventId = actionLog.eventId;
+		EventIdType eventId = actionLog.eventId;
 		list<EventIdType> eventIds{eventId};
 		eventOption.setEventIds(eventIds);
 		dbMonitoring.getEventInfoList(eventList, eventOption);
+		if (eventList.size() == 0)
+			continue;
 		EventInfo eventInfo = *eventList.begin();
 
 		ActionDefList actionList;
@@ -585,6 +587,8 @@ void ActionManager::reExecuteUnfinishedAction(void)
 		actionOption.setActionIdList(actionIdList);
 		dbAction.getActionList(actionList, actionOption);
 
+		if (actionList.size() == 0)
+			continue;
 		runAction(*actionList.begin(), eventInfo, dbAction);
 		dbAction.updateLogStatusToAborted(actionLog.id);
 		string message = StringUtils::sprintf("Action log ID(%" FMT_GEN_ID
