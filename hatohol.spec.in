@@ -116,6 +116,7 @@ Zabbix plugin and libraries for hatohol arm plugins version 2.1.
 %package hap2-nagios-ndoutils
 Summary: Nagios ndoutil plugins of HAPI2.1
 Group: Applications/System
+Requires: MySQL-python
 Requires: hatohol-hap2-common = %{version}
 
 %description hap2-nagios-ndoutils
