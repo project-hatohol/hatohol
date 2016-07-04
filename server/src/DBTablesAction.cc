@@ -860,7 +860,7 @@ bool DBTablesAction::getLog(
 }
 
 bool DBTablesAction::getTargetStatusesLogs(
-  ActionLogList &actionLogList, vector<ActionLogStatus> targetStatuses)
+  ActionLogList &actionLogList, const vector<ActionLogStatus> targetStatuses)
 {
 	SeparatorInjector commaInjector(",");
 	string statuses;

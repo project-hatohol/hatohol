@@ -1442,7 +1442,7 @@ string EventsQueryOption::makeEventIdListCondition(
 	SeparatorInjector commaInjector(",");
 	DBTermCStringProvider rhs(*getDBTermCodec());
 	condition = StringUtils::sprintf("%s in (", colId.columnName);
-	for (auto eventId : eventIds) {
+	for (const auto &eventId : eventIds) {
 		commaInjector(condition);
 		condition += StringUtils::sprintf("%s", rhs(eventId.c_str()));
 	}

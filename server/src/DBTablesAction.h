@@ -178,9 +178,7 @@ struct ActionLog {
 	uint32_t nullFlags;
 };
 
-typedef std::list<ActionLog>          ActionLogList;
-typedef ActionLogList::iterator       ActionLogListIterator;
-typedef ActionLogList::const_iterator ActionLogListConstIterator;
+using ActionLogList = std::list<ActionLog>;
 
 struct ChildSigInfo {
 	pid_t pid;
