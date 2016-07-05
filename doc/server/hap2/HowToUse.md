@@ -124,6 +124,5 @@ If you can see `<Plugin name> (HAP2)` in `Monitoring Server` screen of WebUI, yo
 You can add HAP2 to monitoring servers in `Monitoring Server` menu of WebUI.
 
 Also you have to input `amqp://<user>:<password>@hostname/<vhost>` into BrokerURL.
-These parameter should be replaced string that you input command for `$ sudo rabbitmqctl add_(user|vhost)`. If you execute commands same as in this document, you should input `amqp://hatohol:hatohol@localhost/hatohol`.
-
-
+These parameter should be replaced string that you input command for `$ sudo rabbitmqctl add_(user|vhost)`.
+If you execute commands same as in this document, you should input `amqp://hatohol:hatohol@localhost/hatohol`.
