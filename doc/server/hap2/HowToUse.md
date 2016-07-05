@@ -19,8 +19,8 @@ You need to permit 5672/tcp port with firewalld and turn off SELinux.
 
 First, you need to permit 5672/tcp with firewall-cmd by the following commands:
 
-    # firewall-cmd --add-port=5672/tcp --zone=public --permanent
-    # firewall-cmd --add-port=5672/tcp --zone=public
+    # firewall-cmd --add-port=5672/tcp --permanent
+    # firewall-cmd --reload
 
 And you need to disable SELinux by the following command:
 
