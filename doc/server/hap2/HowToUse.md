@@ -7,11 +7,15 @@ In this document, we use epel to install RabbitMQ server.
 
 First, you need to setup EPEL by following command:
 
-    # yum install epel-release
+```bash
+# yum install epel-release
+```
 
 Then, you can install rabbitmq-server from EPEL repository by following command:
 
-    # yum install rabbitmq-server
+```bash
+# yum install rabbitmq-server
+```
 
 ### How to start rabbitmq-server on CentOS 7
 
@@ -19,17 +23,23 @@ You need to permit 5672/tcp port with firewalld and turn off SELinux.
 
 First, you need to permit 5672/tcp with firewall-cmd by the following commands:
 
-    # firewall-cmd --add-port=5672/tcp --permanent
-    # firewall-cmd --reload
+```bash
+# firewall-cmd --add-port=5672/tcp --permanent
+# firewall-cmd --reload
+```
 
 And you need to disable SELinux by the following command:
 
-    # setsebool -P nis_enabled 1
+```bash
+# setsebool -P nis_enabled 1
+```
 
 Finally, you can enable and start rabbitmq-server by the following commands:
 
-    # systemctl enable rabbitmq-server
-    # systemctl start rabbitmq-server
+```bash
+# systemctl enable rabbitmq-server
+# systemctl start rabbitmq-server
+```
 
 If you use TLS connection, please see [TLS Setting](#user-content-tls-setting)
 
@@ -37,7 +47,9 @@ If you use TLS connection, please see [TLS Setting](#user-content-tls-setting)
 
 You can install rabbitmq-server via apt by following command:
 
-    $ sudo apt-get install rabbitmq-server
+```bash
+$ sudo apt-get install rabbitmq-server
+```
 
 Then, rabbitmq-server runs automatically.
 
@@ -69,15 +81,22 @@ $ sudo rabbitmqctl set_permissions -p hatohol hatohol ".*" ".*" ".*"
 
 You need to install hatohol-hap2-zabbix with the following command on CentOS 7:
 
-    # yum install -y hatohol-hap2-<plugin name>
+```bash
+# yum install -y hatohol-hap2-<plugin name>
+```
 
 Example.
-    # yum install -y hatohol-hap2-zabbix
+
+```bash
+# yum install -y hatohol-hap2-zabbix
+```
 
 If you install hap2-nagios-livestatus, you need to install `python-mk-livestatus` module.
 via pip with the following command:
 
-    # pip install python-mk-livestatus
+```bash
+# pip install python-mk-livestatus
+```
 
 ## Add each HAP2 to server types of WebUI menu
 
@@ -88,13 +107,13 @@ add monitoring server types by hatohol-db-initiator command.
 
 Please execute the following.
 
-```
+```bash
 $ hatohol-db-initiator --db-user <YOUR_DB_USER> --db-password <YOUR_DB_PASSWORD>
 ```
 
 Please confirm whether or not it succeeded by the hatohol-db-initiator command output.
 
-```
+```bash
 Succeessfully loaded: /usr/bin/../share/hatohol/sql/90-server-type-<PLUGIN_NAME>.sql
 ```
 
