@@ -127,7 +127,7 @@ HatoholHistoryLoader.prototype.load = function() {
       if (self.options.onLoadHistory)
         self.options.onLoadHistory(self, self.history);
 
-        deferred.resolve();
+      deferred.resolve();
     });
 
     return deferred.promise();
