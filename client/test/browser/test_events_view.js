@@ -484,28 +484,4 @@ describe('EventsView', function() {
     expect($('tr').eq(1).text()).to.be(
       "12332Value1HIGHTom5%");
   });
-
-  it('Current trigger status column (Problem)', function() {
-    var view = new EventsView(getOperator(), testOptions);
-    var configJson =
-      '{"events.columns":"status"}';
-    respond(eventsJson(dummyEventInfo, getDummyServerInfo(0)),
-	    configJson);
-    expect($('tr').eq(0).text()).to.be("Current trigger status");
-    expect($('tr').eq(1).text()).to.be("Problem");
-  });
-
-  it('Current trigger status column (Unknown)', function() {
-    var view = new EventsView(getOperator(), testOptions);
-    var configJson =
-      '{"events.columns":"status"}';
-    var events = [
-      $.extend({}, dummyEventInfo[0], {status: hatohol.TRIGGER_STATUS_UNKNOWN})
-    ];
-    respond(eventsJson(events, getDummyServerInfo(0)),
-	    configJson);
-    events[0].status = hatohol.TRIGGER_STATUS_UNKNOWN;
-    expect($('tr').eq(0).text()).to.be("Current trigger status");
-    expect($('tr').eq(1).text()).to.be("Unknown");
-  });
 });
