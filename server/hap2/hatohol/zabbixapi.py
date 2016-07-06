@@ -93,7 +93,8 @@ class ZabbixAPI:
         def proc(item):
             if item["lastclock"] == "0":
                 return
-            self.expand_item_brief(item)
+            if "$" in item["name"]:
+                self.expand_item_brief(item)
 
             time = \
                 hapcommon.translate_unix_time_to_hatohol_time(item["lastclock"],
@@ -110,14 +111,20 @@ class ZabbixAPI:
         return items
 
     def expand_item_brief(self, item):
-        while "$" in item["name"]:
-            dollar_index = item["name"].find("$")
-            key_index = int(item["name"][dollar_index+1: dollar_index+2])
-            key_list_str = item["key_"][item["key_"].find("[")+1: -1]
-            key_list = key_list_str.split(",")
-            item["name"] = \
-                item["name"].replace(item["name"][dollar_index: dollar_index+2],
-                                     key_list[key_index-1])
+        key_list = item["key_"][item["key_"].find("[")+1: -1].split(",")
+        separated_item_list = item["name"].split("$")
+        item["name"] = separated_item_list[0]
+
+        for separated_item in separated_item_list[1:]:
+            if not separated_item: continue
+
+            key_index = separated_item[0]
+            if key_index.isdigit():
+                item["name"] += key_list[int(key_index)-1]
+                item["name"] += separated_item[1:]
+            else:
+                item["name"] += "$"
+                item["name"] += separated_item
 
     def get_history(self, item_id, begin_time, end_time):
         begin_time = hapcommon.translate_hatohol_time_to_unix_time(begin_time)
