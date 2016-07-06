@@ -121,9 +121,10 @@ class ZabbixAPI:
             key_index = separated_item[0]
             if key_index.isdigit():
                 item["name"] += key_list[int(key_index)-1]
+                item["name"] += separated_item[1:]
             else:
                 item["name"] += "$"
-            item["name"] += separated_item[1:]
+                item["name"] += separated_item
 
     def get_history(self, item_id, begin_time, end_time):
         begin_time = hapcommon.translate_hatohol_time_to_unix_time(begin_time)
