@@ -999,15 +999,14 @@ bool DBTablesAction::getLogs(ActionLogList &actionLogList,
 	getDBAgent().runTransaction(arg);
 
 	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
-	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	size_t numGrpList = grpList.size();
 
 	// Not found
 	if (numGrpList == 0)
 		return false;
 
-	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
-		ItemGroupStream itemGroupStream(*itemGrpItr);
+	for (const auto &itemGrp: grpList) {
+		ItemGroupStream itemGroupStream(itemGrp);
 		actionLogList.push_back(ActionLog());
 		ActionLog &actionLog = actionLogList.back();
 		actionLog.nullFlags = 0;
