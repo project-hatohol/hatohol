@@ -267,7 +267,7 @@ var HistoryView = function(userProfile, options) {
         delete self.config.user_id;
         $("#edit-graph-title").val(self.config.title);
         setupGraphItems(self.parseGraphItems());
-        // Do not invoke load() function here.
+        load()
       },
       null,
       { pathPrefix: '', timeout: 30000 });
