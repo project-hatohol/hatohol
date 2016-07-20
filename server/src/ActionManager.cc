@@ -1574,9 +1574,9 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 	} else {
 		if (DO_NOT_ASSOCIATE_TRIGGER_ID != eventInfo.triggerId &&
 			STATELESS_MONITOR != eventInfo.triggerId) {
-			MLPL_ERR("Not found: svID: %" FMT_SERVER_ID ", "
-				 "trigID: %" FMT_TRIGGER_ID "\n",
-				 eventInfo.serverId, eventInfo.triggerId.c_str());
+			MLPL_WARN("Not found: svID: %" FMT_SERVER_ID ", "
+				      "trigID: %" FMT_TRIGGER_ID "\n",
+				      eventInfo.serverId, eventInfo.triggerId.c_str());
 		}
 		eventInfo.severity = TRIGGER_SEVERITY_UNKNOWN;
 		eventInfo.globalHostId = INVALID_HOST_ID;
