@@ -29,7 +29,7 @@ describe('hap2_zabbix', function() {
 
   it('getItemGraphURL', function() {
     var plugin = getPlugin();
-    var expected = "http://www.example.com/zabbix/history.php?action=showgraph&itemid=911";
+    var expected = "http://www.example.com/zabbix/history.php?action=showgraph&itemid=911&itemids%5B%5D=911";
     expect(plugin.getItemGraphURL(server, 911)).to.be(expected);
   });
 });

@@ -121,7 +121,7 @@ describe('LatestView', function() {
 
   it('Float item', function() {
     var view = new LatestView(getOperator());
-    var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1";
+    var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=1&amp;itemids%5B%5D=1";
     var historyURL= "ajax_history?serverId=1&amp;hostId=10101&amp;itemId=1";
     var expected =
       '<td>Zabbix</td>' +
@@ -141,7 +141,7 @@ describe('LatestView', function() {
 
   it('String item', function() {
     var view = new LatestView(getOperator());
-    var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=2";
+    var zabbixURL = "http://192.168.1.100/zabbix/history.php?action=showgraph&amp;itemid=2&amp;itemids%5B%5D=2";
     var expected =
       '<td>Zabbix</td>' +
       '<td>Host1</td>' +

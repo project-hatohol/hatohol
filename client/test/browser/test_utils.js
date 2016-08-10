@@ -140,7 +140,7 @@ describe('getItemGraphLocation', function() {
     };
     var itemId = 1129;
     var expected =
-      "http://127.0.0.1/zabbix/history.php?action=showgraph&amp;itemid=1129";
+      "http://127.0.0.1/zabbix/history.php?action=showgraph&amp;itemid=1129&amp;itemids%5B%5D=1129";
     expect(getItemGraphLocation(server, itemId)).to.be(expected);
   });
 
