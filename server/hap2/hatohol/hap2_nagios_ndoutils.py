@@ -244,7 +244,7 @@ class Common:
               + "%s.host_object_id, " % t2 \
               + "%s.display_name " % t2 \
               + "FROM %s INNER JOIN %s " % (t0, t1) \
-              + "ON %s.statehistory_id=%s.service_object_id " % (t0, t1) \
+              + "ON %s.object_id=%s.service_object_id " % (t0, t1) \
               + "INNER JOIN %s " % t2 \
               + "ON %s.host_object_id=%s.host_object_id" % (t1, t2)
 
@@ -301,7 +301,7 @@ class Common:
                 "eventId": str(event_id),
                 "time": hapi_time,
                 "type": hapi_event_type,
-                "triggerId": trigger_id,
+                "triggerId": str(trigger_id),
                 "status": hapi_status,
                 "severity": hapi_severity,
                 "hostId": str(host_id),
