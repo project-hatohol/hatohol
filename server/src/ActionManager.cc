@@ -588,8 +588,8 @@ void ActionManager::reExecuteUnfinishedAction(void)
 
 		if (actionList.size() == 0)
 			continue;
-		runAction(*actionList.begin(), eventInfo, dbAction);
 		dbAction.updateLogStatusToAborted(actionLog.id);
+		runAction(*actionList.begin(), eventInfo, dbAction);
 		string message = StringUtils::sprintf("Action log ID(%" FMT_GEN_ID
 		                 "): Update log status to aborted(7).\n", actionLog.id);
 		MLPL_WARN("%s", message.c_str());

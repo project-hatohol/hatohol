@@ -833,7 +833,7 @@ void DBTablesAction::updateLogStatusToAborted(const ActionLogIdType &logId)
 	                                     actionLogIdColumnName, logId);
 	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_ABORTED);
 
-	getDBAgent().runTransaction(arg);
+	getDBAgent().update(arg);
 }
 
 bool DBTablesAction::getLog(ActionLog &actionLog, const ActionLogIdType &logId)
