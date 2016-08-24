@@ -1556,6 +1556,11 @@ void ActionManager::postProcSpawnFailure(
 		*logId = actorInfo->logId;
 }
 
+static bool shouldHaveTriggerInfo(EventInfo &eventInfo) {
+	return DO_NOT_ASSOCIATE_TRIGGER_ID != eventInfo.triggerId &&
+	         STATELESS_MONITOR != eventInfo.triggerId;
+}
+
 void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 {
 	ThreadLocalDBCache cache;
@@ -1572,8 +1577,7 @@ void ActionManager::fillTriggerInfoInEventInfo(EventInfo &eventInfo)
 		eventInfo.hostName = triggerInfo.hostName;
 		eventInfo.brief    = triggerInfo.brief;
 	} else {
-		if (DO_NOT_ASSOCIATE_TRIGGER_ID != eventInfo.triggerId &&
-			STATELESS_MONITOR != eventInfo.triggerId) {
+		if (shouldHaveTriggerInfo(eventInfo)) {
 			MLPL_ERR("Not found: svID: %" FMT_SERVER_ID ", "
 				 "trigID: %" FMT_TRIGGER_ID "\n",
 				 eventInfo.serverId, eventInfo.triggerId.c_str());
