@@ -155,15 +155,15 @@ struct HatoholArmPluginGateHAPI2::Impl
 	  m_armStatus(),
 	  hostInfoCache(&_serverInfo.id),
 	  monitorPluginInternal(new SelfMonitor(
-	    _serverInfo.id, SelfMonitor::STATELESS_MONITOR,
+	    _serverInfo.id, STATELESS_MONITOR,
 	    HatoholError::getMessage(HTERR_HAP_INTERNAL_ERROR),
 	    TRIGGER_SEVERITY_CRITICAL)),
 	  monitorParseError(new SelfMonitor(
-	    _serverInfo.id, SelfMonitor::STATELESS_MONITOR,
+	    _serverInfo.id, STATELESS_MONITOR,
 	    HatoholError::getMessage(HTERR_INVALID_OBJECT_PASSED_BY_HAP2),
 	    TRIGGER_SEVERITY_CRITICAL)),
 	  monitorGateInternal(new SelfMonitor(
-	    _serverInfo.id, SelfMonitor::STATELESS_MONITOR,
+	    _serverInfo.id, STATELESS_MONITOR,
 	    HatoholError::getMessage(HTERR_INTERNAL_ERROR),
 	    TRIGGER_SEVERITY_CRITICAL)),
 	  monitorBrokerConn(new SelfMonitor(

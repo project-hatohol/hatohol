@@ -27,8 +27,6 @@
 using namespace std;
 using namespace mlpl;
 
-const TriggerIdType SelfMonitor::STATELESS_MONITOR =
-  SPECIAL_TRIGGER_ID_PREFIX "STATELESS_SELF_MONITOR";
 const char *SelfMonitor::DEFAULT_SELF_MONITOR_HOST_NAME = "(self-monitor)";
 
 struct SelfMonitor::Impl
