@@ -557,7 +557,12 @@ class HapiProcessor:
         self.__sender.request("putHistory", params, request_id)
         self.__wait_response(request_id)
 
-    def divide_and_put_data(self, put_func, contents, *args, **kwargs):
+    def divide_and_put_data(self, put_func, contents, put_empty_contents=False,
+                            *args, **kwargs):
+        if put_empty_contents and len(contents) == 0:
+            put_func([], dict(), *args, **kwargs)
+            return
+
         chunk_size = DEFAULT_MAX_CHUNK_SIZE
         copy_contents = copy.copy(contents)
 

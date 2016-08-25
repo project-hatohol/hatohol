@@ -89,14 +89,15 @@ class CommonForTest(Common):
     def put_hosts(self, hosts):
         self.store["hosts"] = hosts
 
-    def put_triggers(self, triggers, update_type,
+    def put_triggers(self, triggers, put_empty_contents, update_type,
                      last_info=None, fetch_id=None):
         self.store["triggers"] = triggers
         self.store["update_type"] = update_type
         self.store["last_info"] = last_info
         self.store["fetch_id"] = fetch_id
 
-    def put_events(self, events, fetch_id=None, last_info_generator=None):
+    def put_events(self, events, put_empty_contents,
+                   fetch_id=None, last_info_generator=None):
         self.store["events"] = events
         self.store["fetch_id"] = fetch_id
         self.store["last_info_generator"] = last_info_generator
@@ -206,11 +207,11 @@ class CommonForTest(Common):
     def get_cached_event_last_info(self):
         return "abcdef"
 
-    def put_items(self, items, fetch_id):
+    def put_items(self, items, put_empty_contents, fetch_id):
         self.store["items"] = items
         self.store["fetch_id"] = fetch_id
 
-    def put_history(self, samples, item_id, fetch_id):
+    def put_history(self, samples, put_history, item_id, fetch_id):
         self.store["samples"] = samples
         self.store["item_id"] = item_id
         self.store["fetch_id"] = fetch_id

@@ -60,7 +60,7 @@ class CommonForTest(Common):
     def put_host_group_membership(self, membership):
         self.stores["host_group_membership"] = membership
 
-    def put_triggers(self, triggers, update_type,
+    def put_triggers(self, triggers, put_empty_contents, update_type,
                      last_info=None, fetch_id=None):
         self.stores["triggers"] = triggers
         self.stores["update_type"] = update_type
@@ -70,7 +70,8 @@ class CommonForTest(Common):
     def get_cached_event_last_info(self):
         return None
 
-    def put_events(self, events, fetch_id=None, last_info_generator=None):
+    def put_events(self, events, put_empty_contents,
+                   fetch_id=None, last_info_generator=None):
         self.stores["events"] = events
         self.stores["fetch_id"] = fetch_id
         self.stores["last_info_generator"] = last_info_generator

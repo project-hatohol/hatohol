@@ -185,8 +185,14 @@ class Common:
 
         self.__alarm_cache_has_all = (host_ids is None)
         update_type = "ALL"
+
+        put_empty_contents = True
+        if fetch_id is None:
+            put_empty_contents = False
+
         self.divide_and_put_data(self.put_triggers, triggers,
-                           update_type=update_type, fetch_id=fetch_id)
+                                 put_empty_contents, update_type=update_type,
+                                 fetch_id=fetch_id)
 
     def collect_events_and_put(self, fetch_id=None, last_info=None,
                                count=None, direction="ASC"):
@@ -203,7 +209,8 @@ class Common:
             host_ids = [obj["hostId"] for obj in self.__collect_hosts()]
         for host_id in host_ids:
             items.extend(self.__collect_items_and_put(host_id))
-        self.divide_and_put_data(self.put_items, items, fetch_id)
+
+        self.divide_and_put_data(self.put_items, items, True, fetch_id)
 
     def collect_history_and_put(self, fetch_id, host_id, item_id,
                                 begin_time, end_time):
@@ -227,7 +234,8 @@ class Common:
                 "value": str(history["counter_volume"]),
             })
         sorted_samples = sorted(samples, key=lambda s: s["time"])
-        self.divide_and_put_data(self.put_history, sorted_samples, item_id, fetch_id)
+        self.divide_and_put_data(self.put_history, sorted_samples, True,
+                                 item_id, fetch_id)
 
     def __collect_items_and_put(self, host_id):
         url = "%s/v2/resources/%s" % (self.__ceilometer_ep, host_id)
@@ -327,8 +335,14 @@ class Common:
                 "extendedInfo": ""
             })
         sorted_events = sorted(events, key=lambda evt: evt["time"])
-        self.divide_and_put_data(self.put_events, sorted_events, fetch_id=fetch_id,
-                           last_info_generator=self.__last_info_generator)
+
+        put_empty_contents = True
+        if fetch_id is None:
+            put_empty_contents = False
+
+        self.divide_and_put_data(self.put_events, sorted_events,
+                                 put_empty_contents, fetch_id=fetch_id,
+                                 last_info_generator=self.__last_info_generator)
 
     def __last_info_generator(self, events):
         for evt in events:

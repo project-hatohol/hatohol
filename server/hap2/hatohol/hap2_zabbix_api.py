@@ -65,11 +65,12 @@ class ZabbixAPIConductor(object):
 
     def collect_and_put_items(self, host_ids=None, fetch_id=None):
         self.divide_and_put_data(self.put_items, self.__api.get_items(host_ids),
-                            fetch_id)
+                                 True, fetch_id)
 
     def collect_and_put_history(self, item_id, begin_time, end_time, fetch_id):
         history = self.__api.get_history(item_id, begin_time, end_time)
-        self.divide_and_put_data(self.put_history, history, item_id, fetch_id)
+        self.divide_and_put_data(self.put_history, history, True,
+                                 item_id, fetch_id)
 
     def update_hosts_and_host_group_membership(self):
         hosts, hg_membership = self.__api.get_hosts()
@@ -84,9 +85,11 @@ class ZabbixAPIConductor(object):
         if self.__trigger_last_info is None:
             self.__trigger_last_info = self.get_last_info("trigger")
 
+        put_empty_contents=False
         if fetch_id is not None:
             update_type = "ALL"
             triggers = self.__api.get_triggers(host_ids=host_ids)
+            put_empty_contents=True
         else:
             update_type = "UPDATED"
             triggers = self.__api.get_triggers(self.__trigger_last_info, host_ids)
@@ -99,6 +102,7 @@ class ZabbixAPIConductor(object):
                                                     "lastChangeTime")
 
         self.divide_and_put_data(self.put_triggers, triggers,
+                           put_empty_contents,
                            update_type=update_type,
                            last_info=self.__trigger_last_info,
                            fetch_id=fetch_id)
@@ -143,7 +147,8 @@ class ZabbixAPIConductor(object):
         if len(events) == 0:
             return
 
-        self.divide_and_put_data(self.put_events, events, fetch_id=fetch_id)
+        self.divide_and_put_data(self.put_events, events,
+                                 True, fetch_id=fetch_id)
 
 
 class Hap2ZabbixAPIPoller(haplib.BasePoller, ZabbixAPIConductor):

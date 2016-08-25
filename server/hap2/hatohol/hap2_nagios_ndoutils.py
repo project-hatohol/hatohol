@@ -224,7 +224,12 @@ class Common:
         self.__trigger_last_info = \
             hapcommon.get_biggest_num_of_dict_array(triggers,
                                                     "lastChangeTime")
+        put_empty_contents = True
+        if fetch_id is None:
+            put_empty_contents = False
+
         self.divide_and_put_data(self.put_triggers, triggers,
+                           put_empty_contents,
                            update_type=update_type,
                            last_info=self.__trigger_last_info,
                            fetch_id=fetch_id)
@@ -309,7 +314,13 @@ class Common:
                 "brief": msg,
                 "extendedInfo": ""
             })
-        self.divide_and_put_data(self.put_events, events, fetch_id=fetch_id)
+
+        put_empty_contents = True
+        if fetch_id is None:
+            put_empty_contents = False
+
+        self.divide_and_put_data(self.put_events, events, put_empty_contents,
+                                 fetch_id=fetch_id)
 
 
     def __validate_object_ids(self, host_ids):
