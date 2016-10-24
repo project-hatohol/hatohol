@@ -250,8 +250,8 @@ def get_config_lines_from_file():
             'name': lambda v: 'DATABASES["default"]["NAME"] = "%s"' % v,
             'user': lambda v: 'DATABASES["default"]["USER"] = "%s"' % v,
             'password': lambda v: 'DATABASES["default"]["PASSWORD"] = "%s"' % v,
-            'host': lambda v: 'DATABASES["default"]["HOST""] = "%s"' % v,
-            'port': lambda v: 'DATABASES["default"]["PORT""] = "%s"' % v,
+            'host': lambda v: 'DATABASES["default"]["HOST"] = "%s"' % v,
+            'port': lambda v: 'DATABASES["default"]["PORT"] = "%s"' % v,
         }),
         ('server', {
             'host': lambda v: 'HATOHOL_SERVER_ADDR = "%s"' % v,
