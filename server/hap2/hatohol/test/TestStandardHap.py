@@ -24,6 +24,29 @@ import haplib
 from hatohol import transporter
 import multiprocessing
 import json
+import signal
+import time
+import standardhap
+
+def flush_sigchild(wait_time=3):
+    """
+    This method aims to wait for SIGCHLD, which is sent
+    due to the end of processes that were created in the previous tests.
+    If the signal is received when a test is running, the test would fail.
+    """
+    def _handler(signum, frame):
+        print "SIGCHLD flusher: Got a signal."
+
+    print "SIGCHLD flusher: Start..."
+    signal.signal(signal.SIGCHLD, _handler)
+    t_end = time.time() + wait_time
+    while True:
+       t_sleep = t_end - time.time()
+       if t_sleep < 0:
+            break
+       time.sleep(t_sleep)
+    print "SIGCHLD flusher: Finished."
+
 
 class EzTransporter(transporter.Transporter):
     __queue = multiprocessing.Queue()
@@ -75,6 +98,9 @@ transporter.Manager.register(EzTransporter)
 
 
 class TestStandardHap(unittest.TestCase):
+    def setUp(self):
+        flush_sigchild()
+
     class StandardHapTestee(StandardHap):
         def __init__(self):
             StandardHap.__init__(self)
