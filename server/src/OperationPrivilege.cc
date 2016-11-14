@@ -52,6 +52,12 @@ OperationPrivilege::OperationPrivilege(const OperationPrivilegeFlag &flags)
 	m_impl->flags = flags;
 }
 
+OperationPrivilege::OperationPrivilege(const OperationPrivilegeType &type)
+: m_impl(new Impl())
+{
+	m_impl->flags = makeFlag(type);
+}
+
 OperationPrivilege::OperationPrivilege(const OperationPrivilege &src)
 : m_impl(new Impl())
 {

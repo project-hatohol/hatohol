@@ -51,11 +51,12 @@ var OverviewTriggers = function(userProfile) {
 
   function start() {
     $.when(loadSeverityRank()).done(function() {
-      setupFilterValues();
-      load();
+      self.startConnection(getQuery(true), updateFilter);
+      $("#select-severity").attr("disabled", "disabled");
+      $("#select-status").attr("disabled", "disabled");
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
-      load(); // Ensure to work with the default config
+      self.startConnection(getQuery(true), updateFilter);
     });
   }
 
@@ -226,7 +227,14 @@ var OverviewTriggers = function(userProfile) {
     setupFilterValues();
     setupTableSeverityColor();
     setLoading(false);
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    self.enableAutoRefresh(load, self.reloadIntervalSeconds);
+  }
+
+  function updateFilter(reply) {
+    rawData = reply;
+    getQuery(false);
+    setupFilterValues();
+    setupTableSeverityColor();
   }
 
   function getTriggersQueryInURI() {
@@ -243,7 +251,10 @@ var OverviewTriggers = function(userProfile) {
     return query;
   }
 
-  function getQuery() {
+  function getQuery(isEmpty) {
+    if (isEmpty) {
+      return 'trigger?empty=true';
+    }
     var query = $.extend({}, self.baseQuery, {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
@@ -251,7 +262,7 @@ var OverviewTriggers = function(userProfile) {
       offset:          self.baseQuery.offset,
     });
     if (self.lastQuery)
-      $.extend(query, self.getHostFilterQuery());
+      $.extend(query, self.getHostFilterQuery(true));
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
   }
@@ -283,7 +294,7 @@ var OverviewTriggers = function(userProfile) {
   function load() {
     self.displayUpdateTime();
     self.startConnection(getQuery(), updateCore);
-    setLoading(true);
+    setLoading(false);
   }
 
   function setupTableSeverityColor() {
@@ -306,7 +317,7 @@ var OverviewTriggers = function(userProfile) {
       request: "GET",
       replyCallback: function(reply, parser) {
         var i, severityRanks, rank;
-        var choices = triggerPropertyChoices;
+        var choices = triggerPropertyChoices.severity;
         self.rawSeverityRankData = reply;
         self.severityRanksMap = {};
         severityRanks = self.rawSeverityRankData["SeverityRanks"];

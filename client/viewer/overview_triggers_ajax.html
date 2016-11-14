@@ -40,16 +40,6 @@
   </div>
 
   <form class="form-inline hatohol-filter-toolbar">
-    <label>{% trans "Minimum Severity:" %}</label>
-    <select id="select-severity" class="form-control">
-      <option value="-1">---------</option>
-    </select>
-    <label>{% trans "Status:" %}</label>
-    <select id="select-status" class="form-control">
-      <option value="-1">---------</option>
-      <option value="0">{% trans "OK" %}</option>
-      <option value="1">{% trans "Problem" %}</option>
-    </select>
     <label>{% trans "Monitoring Server:" %}</label>
     <select id="select-server" class="form-control">
       <option value="">---------</option>
@@ -61,6 +51,16 @@
     <label>{% trans "Host:" %}</label>
     <select id="select-host" class="form-control">
       <option value="">---------</option>
+    </select>
+    <label>{% trans "Minimum Severity:" %}</label>
+    <select id="select-severity" class="form-control">
+      <option value="-1">---------</option>
+    </select>
+    <label>{% trans "Status:" %}</label>
+    <select id="select-status" class="form-control">
+      <option value="-1">---------</option>
+      <option value="0">{% trans "OK" %}</option>
+      <option value="1">{% trans "Problem" %}</option>
     </select>
   </form>
 

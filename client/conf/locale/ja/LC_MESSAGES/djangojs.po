@@ -324,7 +324,7 @@ msgstr "コメント"
 #: static/js/events_view.js:174 static/js/overview_triggers.js:57
 #: static/js/triggers_view.js:69
 msgid "Failed to get the configuration!"
-msgstr "重要度設定の取得に失敗しました。"
+msgstr "深刻度設定の取得に失敗しました。"
 
 #: static/js/events_view.js:330
 msgid "All Events"
@@ -542,11 +542,11 @@ msgstr "不明なステータス： "
 #: static/js/hatohol_add_action_dialog.js:313
 #: static/js/hatohol_add_action_dialog.js:464
 msgid "Unknown severity: "
-msgstr "不明な重要度： "
+msgstr "不明な深刻度： "
 
 #: static/js/hatohol_add_action_dialog.js:326
 msgid "Unknown severity compare type: "
-msgstr "不明な重要度の比較演算子： "
+msgstr "不明なの比較演算子： "
 
 #: static/js/hatohol_add_action_dialog.js:382
 msgid "Command is empty!"
@@ -912,13 +912,29 @@ msgstr "入力したキュー名はHatoholサーバーで予約されていま�
 msgid "Add a new filter"
 msgstr "新しいフィルターを追加"
 
-#: static/js/hatohol_events_view_config.js:485
+#: static/js/hatohol_events_view_config.js:63
 msgid "New filter"
 msgstr "新規フィルター"
 
 #: static/js/hatohol_events_view_config.js:640
 msgid "ALL (31 days)"
 msgstr "全て（31日間）"
+
+#: static/js/hatohol_events_view_config.js:71
+msgid "Display Item"
+msgstr "表示項目"
+
+#: static/js/hatohol_events_view_config.js:222
+msgid "Close"
+msgstr "閉じる"
+
+#: static/js/hatohol_events_view_config.js:191
+msgid "The following filter(s) empty."
+msgstr "下記のフィルターが空です。"
+
+#: static/js/hatohol_events_view_config.js:198
+msgid "Fail to saving a filter"
+msgstr "フィルターの保存に失敗しました"
 
 #: static/js/hatohol_graph.js:244
 msgid "Unknown host"
@@ -1713,21 +1729,21 @@ msgstr "全てのインシデント管理設定の取得"
 
 #: static/js/hatohol_user_roles_editor.js:499
 msgid "Create severity rank"
-msgstr "重要度設定の作成"
+msgstr "深刻度設定の作成"
 
 #: static/js/hatohol_user_roles_editor.js:500
 #: static/js/hatohol_user_roles_editor.js:505
 #: static/js/hatohol_user_roles_editor.js:510
 msgid "Severity rank"
-msgstr "重要度設定"
+msgstr "深刻度設定"
 
 #: static/js/hatohol_user_roles_editor.js:504
 msgid "Update severity rank"
-msgstr "重要度設定の更新"
+msgstr "深刻度設定の更新"
 
 #: static/js/hatohol_user_roles_editor.js:509
 msgid "Delete severity rank"
-msgstr "重要度設定の削除"
+msgstr "深刻度設定の削除"
 
 #: static/js/hatohol_user_roles_editor.js:522
 msgid "User role name"
@@ -1848,6 +1864,10 @@ msgstr "日, "
 msgid " days, "
 msgstr "日, "
 
+#: static/js/utils.js:178
+msgid "Non existent host"
+msgstr "存在しないホスト"
+
 #: test/browser/test_hatohol_navi.js:70 test/browser/test_hatohol_navi.js:107
 msgid "Hatohol version: "
 msgstr "Hatoholバージョン: "
@@ -1884,10 +1904,10 @@ msgstr "-"
 #~ msgstr "処理中"
 
 #~ msgid "Severity Ranks"
-#~ msgstr "重要度設定"
+#~ msgstr "深刻度設定"
 
 #~ msgid "Get all severity rank"
-#~ msgstr "全ての重要度設定の取得"
+#~ msgstr "全ての深刻度設定の取得"
 
 #~ msgid "Incident"
 #~ msgstr "インシデント"

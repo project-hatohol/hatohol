@@ -38,6 +38,10 @@ var LatestView = function(userProfile) {
   self.userConfig = new HatoholUserConfig();
   start();
 
+  $('button.latest-button').click(function() {
+    load();
+  });
+
   function start() {
     var numRecordsPerPage;
     self.userConfig.get({
@@ -49,7 +53,8 @@ var LatestView = function(userProfile) {
         updatePager();
         setupFilterValues();
         setupCallbacks();
-        load();
+        $("#select-application").attr("disabled", "disabled");
+        self.startConnection(getQuery(true), updateFilter);
       },
       connectErrorCallback: function(XMLHttpRequest) {
         showXHRError(XMLHttpRequest);
@@ -102,10 +107,6 @@ var LatestView = function(userProfile) {
   function setupCallbacks() {
     self.setupHostQuerySelectorCallback(
       load, '#select-server', '#select-host-group', '#select-host', '#select-application');
-
-    $('button.latest-button').click(function() {
-      load();
-    });
   }
 
   function parseData(replyData) {
@@ -135,8 +136,8 @@ var LatestView = function(userProfile) {
       $("#select-server").removeAttr("disabled");
       if ($("#select-host option").length > 1)
         $("#select-host").removeAttr("disabled");
+      $("#select-application").removeAttr("disabled");
     }
-    $("#select-application").removeAttr("disabled");
   }
 
   function getGraphURL(item) {
@@ -206,7 +207,13 @@ var LatestView = function(userProfile) {
                       self.lastQuery ? self.lastQuery : self.baseQuery,
                       true);
     setLoading(false);
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    self.enableAutoRefresh(load, self.reloadIntervalSeconds);
+  }
+
+  function updateFilter(reply) {
+    rawData = reply;
+    getQuery(false);
+    setupFilterValues();
   }
 
   function getItemsQueryInURI() {
@@ -222,7 +229,10 @@ var LatestView = function(userProfile) {
     return query;
   }
 
-  function getQuery(page) {
+  function getQuery(isEmpty, page) {
+    if (isEmpty) {
+      return 'item?empty=true';
+    }
     if (isNaN(page))
       page = 0;
     var query = $.extend({}, self.baseQuery, {
@@ -230,7 +240,7 @@ var LatestView = function(userProfile) {
       offset: self.baseQuery.limit * page
     });
     if (self.lastQuery) {
-      $.extend(query, self.getHostFilterQuery());
+      $.extend(query, self.getHostFilterQuery(true));
       $.extend(query, query, {itemGroupName: self.getTargetAppName() });
     }
     self.lastQuery = query;
@@ -238,12 +248,15 @@ var LatestView = function(userProfile) {
   }
 
   function load(page) {
+    if ($("#select-server").val() == "") {
+        $("#select-application").empty();
+    }
     self.displayUpdateTime();
-    setLoading(true);
+    setLoading(false);
     if (!isNaN(page)) {
       self.currentPage = page;
     }
-    self.startConnection(getQuery(self.currentPage), updateCore);
+    self.startConnection(getQuery(false, self.currentPage), updateCore);
     self.pager.update({ currentPage: self.currentPage });
     $(document.body).scrollTop(0);
   }

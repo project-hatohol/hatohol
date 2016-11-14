@@ -462,6 +462,10 @@ bool UnifiedDataStore::fetchItemsAsync(Closure0 *closure,
 	if (!m_impl->itemFetchWorker.updateIsNeeded())
 		return false;
 
+	const ServerIdType targetServerId = option.getTargetServerId();
+	if (targetServerId == INVALID_SERVER_ID)
+		return false;
+
 	return m_impl->itemFetchWorker.start(option, closure);
 }
 
@@ -880,6 +884,7 @@ HatoholError UnifiedDataStore::updateTargetServer(
 	err = m_impl->stopDataStore(svInfo.id, &isRunning);
 	if (err != HTERR_OK)
 		return err;
+	isRunning = true;
 	return m_impl->startDataStore(svInfo, isRunning);
 }
 

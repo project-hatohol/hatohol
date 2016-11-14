@@ -102,10 +102,9 @@ static bool setSeverityCondition(
 	return !severitySet.empty();
 }
 
-static bool setAssignedIncidentStatusCondition(
-  EventsQueryOption &option, const EventsQueryOption &userFilter)
+static bool setAssignedIncidentStatusCondition(EventsQueryOption &option)
 {
-	const set<string> &baseStatuses = userFilter.getIncidentStatuses();
+	const set<string> &baseStatuses = option.getIncidentStatuses();
 	set<string> assignedStatusSet;
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
 	map<string, CustomIncidentStatus> customIncidentStatusMap;
@@ -118,7 +117,6 @@ static bool setAssignedIncidentStatusCondition(
 
 	// Remove system-defined statues that shouldn't be treated as "Assigned".
 	customIncidentStatusMap.erase(IncidentSenderHatohol::STATUS_NONE);
-	customIncidentStatusMap.erase(IncidentSenderHatohol::STATUS_HOLD);
 
 	for (auto &pair: customIncidentStatusMap) {
 		const string &status = pair.first;
@@ -137,27 +135,25 @@ static bool setAssignedIncidentStatusCondition(
 }
 
 HatoholError getImportantEventStatistics(ImportantEventStatistics &statistics,
-					 const EventsQueryOption &userFilter)
+					 EventsQueryOption &userFilter)
 {
 	UnifiedDataStore *dataStore = UnifiedDataStore::getInstance();
-	EventsQueryOption importantEventOption(userFilter);
 	statistics.numOfImportantEvents =
-	  dataStore->getNumberOfEvents(importantEventOption);
+	  dataStore->getNumberOfEvents(userFilter);
 	statistics.numOfImportantEventOccurredHosts =
-	  dataStore->getNumberOfHostsWithSpecifiedEvents(importantEventOption);
+	  dataStore->getNumberOfHostsWithSpecifiedEvents(userFilter);
 	HatoholError err =
 	  dataStore->getEventSeverityStatistics(
 	    statistics.severityStatisticsVect,
-	    importantEventOption);
+	    userFilter);
 	if (err != HTERR_OK)
 		return err;
 
-	EventsQueryOption assignedEventOption(userFilter);
 	bool hasIncidentStatusCondition =
-	  setAssignedIncidentStatusCondition(assignedEventOption, userFilter);
+	  setAssignedIncidentStatusCondition(userFilter);
 	if (hasIncidentStatusCondition) {
 		statistics.numOfAssignedEvents =
-		  dataStore->getNumberOfEvents(assignedEventOption);
+		  dataStore->getNumberOfEvents(userFilter);
 	}
 
 	return err;

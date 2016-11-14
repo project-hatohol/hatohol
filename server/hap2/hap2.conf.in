@@ -16,9 +16,9 @@ amqp_password = hatohol
 #amqp_ssl_cert = @expanded_sysconfdir@/hatohol/client-cert.pem
 #amqp_ssl_ca = @expanded_sysconfdir@/hatohol/ca-cert.pem
 
-# If you remove comment out the next line, disable_poller option is enabled.
-#disable_poller
-log = INFO
+# If you set True, disable_poller option is enabled.
+disable_poller=False
+# You can not write relative path. You must write absolute path.
 log_conf = @expanded_sysconfdir@/hatohol/hap2-logging.conf
 transporter = RabbitMQHapiConnector
 status_log_interval = 600

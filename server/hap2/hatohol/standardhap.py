@@ -63,7 +63,7 @@ class StandardHap:
         parser.add_argument("--polling-targets", nargs="*",
                             choices=haplib.BasePoller.ACTIONS,
                             default=haplib.BasePoller.ACTIONS,
-                            help="Names of polloing action. Defaut is all.")
+                            help="Names of polloing action. Default is all.")
 
         help_msg = """
             Minimum status logging interval in seconds.

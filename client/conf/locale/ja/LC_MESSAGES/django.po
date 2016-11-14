@@ -263,7 +263,7 @@ msgstr "確認"
 #: viewer/events_ajax.html:110 viewer/overview_items_ajax.html:44
 #: viewer/overview_triggers_ajax.html:43 viewer/triggers_ajax.html:107
 msgid "Minimum Severity:"
-msgstr "最小の重要度:"
+msgstr "最小の深刻度:"
 
 #: viewer/events_ajax.html:112
 msgid "Not classified"
@@ -349,8 +349,8 @@ msgid "seconds"
 msgstr "秒"
 
 #: viewer/events_ajax.html:230 viewer/triggers_ajax.html:188
-msgid "Number of rows per page"
-msgstr "1ページの表示件数"
+msgid "Number of rows per page (10 - 500 rows)"
+msgstr "1ページの表示件数 （10～500件）"
 
 #: viewer/events_ajax.html:234 viewer/triggers_ajax.html:192
 msgid "rows"
@@ -376,16 +376,16 @@ msgid "Selected"
 msgstr "選択済み"
 
 #: viewer/events_ajax.html:293
-msgid "Filter name"
-msgstr "フィルター名"
+msgid "Filter name(1 - 128 char)"
+msgstr "フィルター名（1 - 128文字）"
 
 #: viewer/events_ajax.html:302
 msgid "Delete"
 msgstr "削除"
 
 #: viewer/events_ajax.html:307
-msgid "The period to show (recent days)"
-msgstr "表示期間（直近）"
+msgid "The period to show (recent days)(1 - 3650 days)"
+msgstr "表示期間（直近）（1 - 3650日）"
 
 #: viewer/events_ajax.html:309
 msgid "days"
@@ -407,7 +407,7 @@ msgstr "「ステータス」の選択をフィルターの条件に含める"
 
 #: viewer/events_ajax.html:386
 msgid "Include \"Severity\" to the filter condition"
-msgstr "「重要度」の選択をフィルターの条件に含める"
+msgstr "「深刻度」の選択をフィルターの条件に含める"
 
 #: viewer/events_ajax.html:422
 msgid "Include \"Monitoring server\" to the filter condition"

@@ -173,8 +173,14 @@ struct ActionLog {
 	int      endTime;
 	int      failureCode;
 	int      exitCode;
+	int      serverId;
+	std::string      eventId;
 	uint32_t nullFlags;
 };
+
+typedef std::list<ActionLog>          ActionLogList;
+typedef ActionLogList::iterator       ActionLogListIterator;
+typedef ActionLogList::const_iterator ActionLogListConstIterator;
 
 struct ChildSigInfo {
 	pid_t pid;
@@ -217,6 +223,7 @@ enum ActionLogStatus {
 	// Resident acitons for an actio ID are executed in series
 	// This status is used for waiting actions.
 	ACTLOG_STAT_RESIDENT_QUEUING,
+	ACTLOG_STAT_ABORTED,
 };
 
 enum ActionLogExecFailureCode {
@@ -343,6 +350,13 @@ public:
 	void updateLogStatusToStart(const ActionLogIdType &logId);
 
 	/**
+	 * Update the status in action log to ACTLOG_STAT_FAILED.
+	 *
+	 * @param logId A logID to be updated.
+	 */
+	void updateLogStatusToAborted(const ActionLogIdType &logId);
+
+	/**
 	 * Get the action log.
 	 * @param actionLog
 	 * The returned values are filled in this instance.
@@ -364,6 +378,8 @@ public:
 	 */
 	bool getLog(ActionLog &actionLog, const ServerIdType &serverId,
 	            const EventIdType &eventId);
+
+	bool getTargetStatusesLogs(ActionLogList &actionLogList, const std::vector<int> targetStatuses);
 
 	/**
 	 * Check whether IncidentSender type action exists or not
@@ -391,6 +407,7 @@ protected:
 	 * @return true if the log is found. Otherwise false.
 	 */
 	bool getLog(ActionLog &actionLog, const std::string &condition);
+	bool getLogs(ActionLogList &actionLogList, const std::string &condition);
 
 	HatoholError checkPrivilegeForAdd(
 	  const OperationPrivilege &privilege, const ActionDef &actionDef);

@@ -164,7 +164,6 @@ void ItemFetchWorker::updatedCallback(Closure0 *closure)
 	if (sem_post(&m_impl->updatedSemaphore) == -1)
 		MLPL_ERR("Failed to call sem_post: %d\n", errno);
 	m_impl->nextAllowedUpdateTime.setCurrTime();
-	m_impl->nextAllowedUpdateTime += m_impl->minUpdateInterval;
 	m_impl->itemFetchedSignal();
 	m_impl->itemFetchedSignal.clear();
 }
