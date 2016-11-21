@@ -307,6 +307,10 @@ var HatoholEventsViewConfig = function(options) {
     }
   });
 
+  $("#filter-name-list").click(function(){
+    self.reset(true);
+  })
+
   self.loadAll();
 };
 
@@ -484,20 +488,24 @@ HatoholEventsViewConfig.prototype.saveValue = function(key, value) {
   });
 };
 
-HatoholEventsViewConfig.prototype.reset = function() {
+HatoholEventsViewConfig.prototype.reset = function(holdSelectdFilter) {
   var self = this;
   var autoReloadInterval = self.getValue('events.auto-reload.interval');
   var key;
 
   self.resetEditingFilterList();
-  self.selectedFilterConfig = null;
   self.removedFilters = {};
 
   resetAutoReloadInterval();
   resetNumRowsPerPage();
   resetColumnSelector();
   self.resetFilterList();
-  self.setCurrentFilterConfig(self.editingFilterList[0]);
+  if(!holdSelectdFilter) {
+    self.setCurrentFilterConfig(self.editingFilterList[0]);
+    self.selectedFilterConfig = null;
+  } else
+    self.setCurrentFilterConfig(self.selectedFilterConfig);
+
 
   function resetAutoReloadInterval() {
     $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
