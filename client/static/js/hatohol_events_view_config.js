@@ -366,7 +366,7 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
            self.getCurrentFilterConfig());
 
   // Save filters at first to determine filter IDs
-  $.when(saveFilters(), removeFilters()).done(function() {
+  $.when(saveFilter(), removeFilters()).done(function() {
     self.filterList = self.editingFilterList;
     self.resetEditingFilterList();
 
@@ -405,37 +405,28 @@ HatoholEventsViewConfig.prototype.saveAll = function() {
     return values.join(',');
   }
 
-  function saveFilters() {
+  function saveFilter() {
+    var path = "/event-filters/";
     var deferred = new $.Deferred();
+    var filter = self.selectedFilterConfig;
 
-    var promises = $.map(self.editingFilterList, function(filter) {
-      var path = "/event-filters/";
-      var deferred = new $.Deferred();
+    if (filter.id)
+      path += filter.id;
 
-      if (filter.id)
-        path += filter.id;
-
-      new HatoholConnector({
-        pathPrefix: "",
-        url: path,
-        request: filter.id ? "PUT" : "POST",
-        data: JSON.stringify(filter),
-        replyCallback: function(reply, parser) {
-          $.extend(filter, reply);
-        },
-        parseErrorCallback: function(reply, parser) {
-          hatoholErrorMsgBoxForParser(reply, parser);
-        },
-        completionCallback: function() {
-          deferred.resolve();
-        },
-      });
-
-      return deferred.promise();
-    });
-
-    $.when.apply($, promises).done(function() {
-      deferred.resolve();
+    new HatoholConnector({
+      pathPrefix: "",
+      url: path,
+      request: filter.id ? "PUT" : "POST",
+      data: JSON.stringify(filter),
+      replyCallback: function(reply, parser) {
+        $.extend(filter, reply);
+      },
+      parseErrorCallback: function(reply, parser) {
+        hatoholErrorMsgBoxForParser(reply, parser);
+      },
+      completionCallback: function() {
+        deferred.resolve();
+      },
     });
 
     return deferred.promise();
