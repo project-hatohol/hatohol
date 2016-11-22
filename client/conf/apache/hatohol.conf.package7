@@ -1,5 +1,8 @@
 WSGIScriptAlias /hatohol /usr/libexec/hatohol/client/conf/apache/django.wsgi
 WSGIPythonPath /usr/libexec/hatohol/client/
+Header always append X-Frame-Options SAMEORIGIN
+Header always append X-Content-Type-Options nosniff
+Header always append X-XSS-Protection "1; mode=block"
 <VirtualHost *:80>
     <Directory /usr/libexec/hatohol/client>
         Require all granted
