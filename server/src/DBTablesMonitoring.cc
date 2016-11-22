@@ -885,7 +885,7 @@ static const ColumnDef COLUMN_DEF_INCIDENT_HISTORIES[] = {
 }, {
 	"comment",                         // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
-	2048,                              // columnLength
+	32767,                             // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
