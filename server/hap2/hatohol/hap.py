@@ -27,6 +27,7 @@ classes used in them have to be in this module.
 
 import logging
 import logging.config
+import logging.handlers
 from logging import getLogger
 import sys
 import errno
@@ -48,7 +49,7 @@ def initialize_logger(parser=None):
     """
     # This level is used until setup_logger() is called.
     # TODO: Shoud be configurable. For example, by environment variable
-    handler = logging.StreamHandler()
+    handler = logging.handlers.SysLogHandler("/dev/log")
     fmt = "%(asctime)s %(levelname)8s [%(process)5d] %(name)s:%(lineno)d:  " \
           "%(message)s"
     formatter = logging.Formatter(fmt)
