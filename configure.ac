@@ -234,9 +234,12 @@ data/init.d/Makefile
 data/init.d/debian/hatohol.debian
 data/init.d/debian/Makefile
 data/init.d/centos/hatohol.centos
+data/init.d/centos/generate_hap2_init_file.sh
 data/init.d/centos/Makefile
 data/systemd/Makefile
+data/systemd/hatohol.conf
 data/systemd/generate_service_file.sh
+data/systemd/generate_hap2_service_file.sh
 data/test/Makefile
 server/Makefile
 server/mlpl/Makefile
