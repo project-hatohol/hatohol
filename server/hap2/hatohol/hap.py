@@ -60,20 +60,26 @@ def initialize_logger(parser=None):
 
     if parser is not None:
         choices = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
-        parser.add_argument("--log", dest="loglevel", choices=choices,
-                            default="INFO")
+        parser.add_argument("--log", dest="loglevel", choices=choices)
         parser.add_argument("--log-conf", dest="log_conf_file",
                             help="The path of the logging configuration file.")
 
 
 def setup_logger(args):
+    hatohol_logger = getLogger("hatohol")
     if args.log_conf_file is not None:
-        logging.config.fileConfig(args.log_conf_file)
+        logger.info("log_conf_file option was used. Remove default SysLogHandler and read the logging conf file.")
+        hatohol_logger.removeHandler(logging.handlers.SysLogHandler())
 
-    numeric_level = getattr(logging, args.loglevel.upper(), None)
+    if args.loglevel:
+        numeric_level = getattr(logging, args.loglevel.upper(), None)
+        logger.debug(numeric_level)
+    else:
+        logger.debug("Unuse loglevel")
+        return
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % loglevel)
-    getLogger("hatohol").setLevel(numeric_level)
+    hatohol_logger.setLevel(numeric_level)
 
 
 def handle_exception(raises=(SystemExit,)):
@@ -151,7 +157,7 @@ class Signal:
 
 class ConfigFileParser():
     def __init__(self, conf_path, remaining_args, parser):
-        config_parser = ConfigParser.SafeConfigParser(allow_no_value=True)
+        config_parser = ConfigParser.SafeConfigParser()
         config_parser.read(conf_path)
         self.item_dict = dict(config_parser.items("hap2"))
         self.parser = argparse.ArgumentParser(parents=[parser])
