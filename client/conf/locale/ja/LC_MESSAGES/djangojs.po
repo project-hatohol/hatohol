@@ -335,12 +335,12 @@ msgid "Filtering Results"
 msgstr "絞り込み結果"
 
 #: static/js/events_view.js:337
-msgid "Important Events"
-msgstr "重要イベント"
-
-#: static/js/events_view.js:339
 msgid "Unhandled Important Events"
 msgstr "未対処の重要イベント"
+
+#: static/js/events_view.js:339
+msgid "Important Events"
+msgstr "重要イベント"
 
 #: static/js/events_view.js:794
 msgid "There is no valid incident tracker to post!"

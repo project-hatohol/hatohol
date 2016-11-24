@@ -330,9 +330,9 @@ var EventsView = function(userProfile, options) {
         title = gettext("Filtering Results");
     }
     if (self.severities) {
-      title = gettext("Important Events");
+      title = gettext("Unhandled Important Events");
       if (self.incidentStatuses) {
-        title = gettext("Unhandled Important Events");
+        title = gettext("Important Events");
       }
     }
     title += " (" + numEvents + ")";
