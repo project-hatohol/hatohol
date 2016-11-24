@@ -42,8 +42,6 @@ var EventsView = function(userProfile, options) {
   self.lastFilterId = null;
   self.lastQuickFilter = {};
   self.isFilteringOptionsUsed = false;
-  self.severities = null;
-  self.incidentStatuses = null;
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
@@ -312,7 +310,7 @@ var EventsView = function(userProfile, options) {
       selectPageCallback: function(page) {
         if (self.pager.numRecordsPerPage != self.baseQuery.limit)
           self.baseQuery.limit = self.pager.numRecordsPerPage;
-        load({ page: page, unrefreshSummeryFilter: true});
+        load({ page: page });
       }
     });
   }
@@ -328,12 +326,6 @@ var EventsView = function(userProfile, options) {
         filteringOpts.show();
         $("#filtering-options-brief-line").text(getBriefOfFilteringOptions());
         title = gettext("Filtering Results");
-    }
-    if (self.severities) {
-      title = gettext("Unhandled Important Events");
-      if (self.incidentStatuses) {
-        title = gettext("Important Events");
-      }
     }
     title += " (" + numEvents + ")";
     $("#controller-container-title").text(title);
@@ -445,8 +437,6 @@ var EventsView = function(userProfile, options) {
       offset:           self.baseQuery.limit * self.currentPage,
       limit:            self.baseQuery.limit,
       limitOfUnifiedId: self.limitOfUnifiedId,
-      incidentStatuses: self.incidentStatuses,
-      severities:       self.severities,
     });
 
     // TODO: Should set it by caller
@@ -468,6 +458,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function load(options) {
+    var query;
     options = options || {};
     self.displayUpdateTime();
     setLoading(true);
@@ -477,10 +468,6 @@ var EventsView = function(userProfile, options) {
     } else {
       options.page = 0;
       self.currentPage = 0;
-    }
-    if (!options.unrefreshSummeryFilter) {
-      self.severities = null;
-      self.incidentStatuses = null;
     }
     self.startConnection(getQuery(options), updateCore);
     self.startConnection(getSummaryQuery(), updateSummary);
@@ -693,30 +680,27 @@ var EventsView = function(userProfile, options) {
 
   function setupCallbacks() {
     $('#summaryAllEvents').click(function() {
-      self.isFilteringOptionsUsed = false;
-      load();
+      domesticLink("ajax_events");
     });
 
     $('#summaryUnhandledImportantEvents').click(function() {
-      self.incidentStatuses = ["NONE", "HOLD", ""].join(",");
+      var query = { incidentStatuses: ["NONE", "HOLD", ""].join(",") };
       var importantSeverities = getImportantSeverities();
 
       if (importantSeverities.length > 0)
-        self.severities = importantSeverities.join(",");
+        query.severities = importantSeverities.join(",");
 
-      self.isFilteringOptionsUsed = false;
-      load({unrefreshSummeryFilter: true});
+      domesticLink("ajax_events?" + $.param(query));
     });
 
     $('#summaryImportantEvents').click(function() {
+      var query = {};
       var importantSeverities = getImportantSeverities();
 
       if (importantSeverities.length > 0)
-        self.severities = importantSeverities.join(",");
+        query.severities = importantSeverities.join(",");
 
-      self.incidentStatuses = null;
-      self.isFilteringOptionsUsed = false;
-      load({unrefreshSummeryFilter: true});
+      domesticLink("ajax_events?" + $.param(query));
     });
 
     $('#select-summary-filter').change(function() {
