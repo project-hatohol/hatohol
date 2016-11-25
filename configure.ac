@@ -245,6 +245,7 @@ server/mlpl/test/Makefile
 server/mlpl/mlpl.pc
 server/common/Makefile
 server/src/Makefile
+server/log/Makefile
 server/hap2/Makefile
 server/hap2/hap2.conf
 server/hap2/hap2-control-functions.sh
