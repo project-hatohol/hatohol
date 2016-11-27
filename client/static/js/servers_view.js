@@ -169,7 +169,7 @@ var ServersView = function(userProfile) {
     var x;
     var s;
     var o;
-    var ip, serverURL, mapsURL;
+    var ip, serverURL;
 
     s = "";
     for (x = 0; x < rd["servers"].length; ++x) {
@@ -180,7 +180,6 @@ var ServersView = function(userProfile) {
       serverIds.push(serverId);
       var idConnStat = getIdConnStat(serverId);
       serverURL = getServerLocation(o);
-      mapsURL = getMapsLocation(o);
       s += "<tr>";
       s += "<td class='delete-selector' style='display:none;'>";
       s += "<input type='checkbox' class='selectcheckbox' serverId='" + escapeHTML(o["id"]) + "'>";
@@ -201,12 +200,6 @@ var ServersView = function(userProfile) {
       }
       s += "<td>" + escapeHTML(o["baseURL"])  + "</td>";
 
-      if (mapsURL) {
-        s += "<td><a href='" + mapsURL + "' target='_blank'>" +
-          gettext('Show Maps') + "</a></td>";
-      } else {
-        s += "<td></td>";
-      }
 
       s += "<td id='server-info-" + escapeHTML(serverId) + "'" +
            "  data-title='" + gettext("Server ID") + ": " + escapeHTML(serverId) + "'" +
