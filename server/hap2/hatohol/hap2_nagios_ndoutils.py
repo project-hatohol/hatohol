@@ -244,6 +244,9 @@ class Common:
                            last_info=self.__trigger_last_info,
                            fetch_id=fetch_id)
 
+    def set_event_last_info(self, last_info):
+        assert True, "This method should be implemented."
+
     def collect_events_and_put(self, fetch_id=None, last_info=None,
                                count=None, direction="ASC"):
         t0 = "nagios_statehistory"
