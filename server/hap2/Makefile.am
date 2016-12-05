@@ -47,6 +47,7 @@ nobase_hatohol_hap2_SCRIPTS = \
 	hatohol/hap2_ceilometer.py \
 	hatohol/hap2_nagios_ndoutils.py \
 	hatohol/hap2_nagios_livestatus.py \
+	hatohol/hap2_starter_alive.py \
 	hatohol/hap2_starter.py
 
 EXTRA_DIST = \

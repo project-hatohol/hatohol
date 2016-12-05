@@ -300,6 +300,9 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.pyo
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_starter_alive.py
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_starter_alive.pyc
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_starter_alive.pyo
 %config %{_sysconfdir}/hatohol/hap2.conf
 %config %{_sysconfdir}/hatohol/hap2-logging.conf
 
