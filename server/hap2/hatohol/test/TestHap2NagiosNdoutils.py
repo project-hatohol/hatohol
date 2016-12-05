@@ -27,7 +27,7 @@ from hap2_nagios_ndoutils import Common
 import hap2_nagios_ndoutils
 import transporter
 
-class CommonForTest(Common):
+class CommonForTest(Common, haplib):
     def __init__(self, options={}):
         Common.__init__(self)
         self.__options = options
