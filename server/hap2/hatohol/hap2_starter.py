@@ -60,19 +60,19 @@ def setup_logger(hap_args):
         except:
             raise Exception("Could not read log conf: %s" % log_conf_path)
 
-    if "--conf" in hap_args:
-        config_parser = ConfigParser.SafeConfigParser(allow_no_value=True)
+    if "--config" in hap_args:
+        config_parser = ConfigParser.SafeConfigParser()
         try:
-            config_parser.read([hap_args[hap_args.index("--conf")+1],])
+            config_parser.read([hap_args[hap_args.index("--config")+1],])
             log_conf_path = config_parser.get("hap2", "log_conf")
         except:
-            raise Exception("Could not parse log_conf from --conf file")
+            raise Exception("Could not parse log_conf from --config file")
 
         try:
             logging.config.fileConfig(log_conf_path)
             return
         except:
-            raise Exception("Could not read --conf's log conf file: %s"
+            raise Exception("Could not read --conf's log config file: %s"
                             % log_conf_path)
 
 def check_existance_of_process_group(pgid):
