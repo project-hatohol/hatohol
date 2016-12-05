@@ -1,0 +1,8 @@
+/var/log/hatohol/hatohol-arm-plugin2.log {
+rotate 5
+missingok
+monthly
+notifempty
+compress
+create 0664 hatohol hatohol
+}
