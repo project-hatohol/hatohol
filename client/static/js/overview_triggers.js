@@ -226,7 +226,7 @@ var OverviewTriggers = function(userProfile) {
     setupFilterValues();
     setupTableSeverityColor();
     setLoading(false);
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 
   function getTriggersQueryInURI() {
