@@ -240,7 +240,7 @@ var DashboardView = function(userProfile) {
     $("#tblHost tbody").append(drawHostBody(rawData, parsedData));
 
     self.displayUpdateTime();
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 
   function drawLogSearchBody(logSearchSystems) {
