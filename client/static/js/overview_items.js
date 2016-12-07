@@ -176,7 +176,7 @@ var OverviewItems = function(userProfile) {
                       self.lastQuery ? self.lastQuery : self.baseQuery,
                       true);
     setLoading(false);
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 
   function getItemsQueryInURI() {
