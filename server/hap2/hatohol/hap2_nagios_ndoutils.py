@@ -277,7 +277,6 @@ class Common:
                     self.set_event_last_info(latest_id)
                 else:
                     self.set_event_last_info("0")
-                return
 
         if raw_last_info is not None \
             and raw_last_info != self.INITIAL_LAST_INFO:

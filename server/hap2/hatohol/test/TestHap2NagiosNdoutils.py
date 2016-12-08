@@ -27,7 +27,7 @@ from hap2_nagios_ndoutils import Common
 import hap2_nagios_ndoutils
 import transporter
 
-class CommonForTest(Common, haplib):
+class CommonForTest(Common):
     def __init__(self, options={}):
         Common.__init__(self)
         self.__options = options
@@ -78,6 +78,9 @@ class CommonForTest(Common, haplib):
 
     def divide_and_put_data(self, put_func, contents, *args, **kwargs):
         put_func(contents, *args, **kwargs)
+
+    def set_event_last_info(self, last_info):
+        pass
 
 
 class TestCommon(unittest.TestCase):
