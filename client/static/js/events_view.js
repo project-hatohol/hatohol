@@ -1615,7 +1615,7 @@ var EventsView = function(userProfile, options) {
         }
         if (parser.optionMessages)
           message += " " + parser.optionMessages;
-        hatoholErrorMsgBox(messge);
+        hatoholErrorMsgBox(message);
       },
     });
   }
@@ -1639,7 +1639,7 @@ var EventsView = function(userProfile, options) {
         }
         if (parser.optionMessages)
           message += " " + parser.optionMessages;
-        hatoholErrorMsgBox(messge);
+        hatoholErrorMsgBox(message);
       },
     });
   }
