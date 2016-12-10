@@ -1186,7 +1186,7 @@ var EventsView = function(userProfile, options) {
     html += "<td class='" + getSeverityClass(event) + "'>";
     if (serverURL && serverURL.indexOf("zabbix") >= 0 &&
         !isSelfMonitoringHost(hostId)) {
-      html += "<a href='" + serverURL + "latest.php?&hostid=" +
+      html += "<a href='" + serverURL + "events.php?&hostid=" +
               hostId + "' target='_blank'>" + escapeHTML(hostName) +
               "</a></td>";
     } else if (serverURL && serverURL.indexOf("nagios") >= 0 &&
