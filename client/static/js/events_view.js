@@ -782,7 +782,7 @@ var EventsView = function(userProfile, options) {
 
     // update existing incidents and post new incidents
     for (i = 0; i < incidents.length; i++) {
-      unifiedId = parseInt(incidents[i].getAttribute("data-unified-id"));
+      unifiedId = parseInt(incidents[i].parentElement.getAttribute("data-unified-id"));
       trackerId = parseInt(incidents[i].getAttribute("data-tracker-id"));
       if (trackerId > 0) {
         promise = applyIncidentStatus(unifiedId, status, errors);
@@ -1266,10 +1266,8 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
-    var unifiedId = event["unifiedId"], trackerId;
 
     html += "<td class='selectable incident nowrap " + getSeverityClass(event) + "'";
-    html += " data-unified-id='" + unifiedId + "'";
     if (incident) {
       trackerId = incident["trackerId"];
       if (trackerId > 0)
@@ -1543,15 +1541,16 @@ var EventsView = function(userProfile, options) {
 
   function drawTableBody() {
     var html = "";
-    var x, y, serverId, server, event, columnName, definition;
+    var x, y, serverId, server, event, columnName, definition, unifiedId;
     var haveIncident = self.rawData["haveIncident"];
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event = self.rawData["events"][x];
       serverId = event["serverId"];
+      unifiedId = event["unifiedId"];
       server = self.rawData["servers"][serverId];
 
-      html += "<tr>";
+      html += "<tr data-unified-id='" + unifiedId + "'>";
       for (y = 0; y < self.columnNames.length; y++) {
         columnName = self.columnNames[y];
         definition = columnDefinitions[columnName];
@@ -1663,7 +1662,7 @@ var EventsView = function(userProfile, options) {
 
     $('.userCommentButton').on('click', function() {
       var $tr = $(this).parents('tr');
-      var unifiedEventId = $tr.children('td').first().attr("data-unified-id");
+      var unifiedEventId = $tr.attr("data-unified-id");
 
       if (!$tr.is('.open')) {
         loadComments($tr, unifiedEventId);
@@ -1682,7 +1681,7 @@ var EventsView = function(userProfile, options) {
       var $userCommentForm = $(this).parents('.userCommentForm');
       var $textarea = $userCommentForm.find('textarea:eq(0)');
       var $tr = $userCommentForm.parents('.userCommentRow').prev("tr");
-      var unifiedEventId = $tr.children('td').first().attr("data-unified-id");
+      var unifiedEventId = $tr.attr("data-unified-id");
       var comment = $textarea.val();
       postComment($tr, unifiedEventId, comment);
     });
