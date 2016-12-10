@@ -352,7 +352,7 @@ describe('EventsView', function() {
   it('new with fake zabbix data', function() {
     var zabbixURL = "http://192.168.1.100/zabbix/";
     var zabbixLatestURL =
-      "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
+      "http://192.168.1.100/zabbix/events.php?&hostid=10105";
     var params =
       {eventURL: "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332"};
     testTableContents(zabbixURL, zabbixLatestURL,
@@ -362,7 +362,7 @@ describe('EventsView', function() {
   it('new with fake zabbix data included expanded description', function() {
     var zabbixURL = "http://192.168.1.100/zabbix/";
     var zabbixLatestURL =
-      "http://192.168.1.100/zabbix/latest.php?&hostid=10106";
+      "http://192.168.1.100/zabbix/events.php?&hostid=10106";
     var params =
       {eventURL: "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=18483"};
     testTableContentsWithExpandedDescription(zabbixURL, zabbixLatestURL,
@@ -389,7 +389,7 @@ describe('EventsView', function() {
     var view = new EventsView(getOperator(), testOptions);
     var serverURL = "http://192.168.1.100/zabbix/";
     var hostURL =
-      "http://192.168.1.100/zabbix/latest.php?&hostid=10105";
+      "http://192.168.1.100/zabbix/events.php?&hostid=10105";
     var eventURL =
       "http://192.168.1.100/zabbix/tr_events.php?&triggerid=13569&eventid=12332";
     var expected =
