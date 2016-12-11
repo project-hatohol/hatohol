@@ -258,13 +258,13 @@ describe('getHostName', function() {
 
   it('with no server', function() {
     var id = 2;
-    var expected = gettext("Unknown") + " (ID: " + id + ")";
+    var expected = gettext("Non existent host") + " (ID: " + id + ")";
     expect(getHostName(undefined, id)).to.be(expected);
   });
 
   it('with no host', function() {
     var id = 2;
-    var expected = gettext("Unknown") + " (ID: " + id + ")";
+    var expected = gettext("Non existent host") + " (ID: " + id + ")";
     var server = { "name": "server" };
     expect(getHostName(server, id)).to.be(expected);
   });
@@ -292,7 +292,7 @@ describe('getHostName', function() {
       "getHostName": function(server, hostId) { return null },
     }
     var id = "512"
-    var expected = gettext("Unknown") + " (ID: " + id + ")";
+    var expected = gettext("Non existent host") + " (ID: " + id + ")";
     expect(getHostName(server, id)).to.be(expected);
   });
 });
