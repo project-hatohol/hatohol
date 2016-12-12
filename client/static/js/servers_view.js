@@ -142,7 +142,7 @@ var ServersView = function(userProfile) {
         self.startConnection("server", updateCore);
       },
     });
-    hatoholInfoMsgBox("Deleting...");
+    hatoholInfoMsgBox("Deleting...", {buttons: []});
   }
 
   function updateTriggerServers() {
@@ -162,7 +162,7 @@ var ServersView = function(userProfile) {
         self.startConnection("server", updateCore);
       },
     });
-    hatoholInfoMsgBox("Reloading...");
+    hatoholInfoMsgBox("Reloading...", {buttons: []});
   }
 
   function drawTableBody(rd) {
