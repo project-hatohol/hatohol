@@ -1606,7 +1606,7 @@ var EventsView = function(userProfile, options) {
         $tr.next().find('td:eq(0)').html(html);
         updateCommentCount($tr, reply.incidentHistory);
       },
-      parseErrorCallback: function() {
+      parseErrorCallback: function(reply, parser) {
         var message = parser.getMessage();
         if (!message) {
           message =
