@@ -175,7 +175,7 @@ function getHostgroupName(server, hostgroupId) {
 
 function getHostName(server, hostId) {
   var getNamelessHostName = function(hostId) {
-    return gettext("Unknown") + " (ID: " + hostId + ")";
+    return gettext("Non existent host") + " (ID: " + hostId + ")";
   };
 
   if (server) {
