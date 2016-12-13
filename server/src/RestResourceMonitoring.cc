@@ -135,14 +135,6 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 		return err;
 	agent.add("numberOfHosts", svHostDefs.size());
 
-	ItemsQueryOption itemsQueryOption(job->m_dataQueryContextPtr);
-	itemsQueryOption.setTargetServerId(svInfo.id);
-	bool fetchItemsSynchronously = true;
-	size_t numberOfItems =
-	  dataStore->getNumberOfItems(itemsQueryOption,
-				      fetchItemsSynchronously);
-	agent.add("numberOfItems", numberOfItems);
-
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption triggersQueryOption(job->m_dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(svInfo.id);
@@ -161,16 +153,6 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	// after the funtion concerned is added
 	agent.add("numberOfUsers", 0);
 	agent.add("numberOfOnlineUsers", 0);
-
-	DataQueryOption dataQueryOption(job->m_dataQueryContextPtr);
-	MonitoringServerStatus serverStatus;
-	serverStatus.serverId = svInfo.id;
-	err = dataStore->getNumberOfMonitoredItemsPerSecond(
-	  dataQueryOption, serverStatus);
-	if (err != HTERR_OK)
-		return err;
-	string nvps = StringUtils::sprintf("%.2f", serverStatus.nvps);
-	agent.add("numberOfMonitoredItemsPerSecond", nvps);
 
 	// Hostgroups
 	// TODO: We temtatively returns 'No group'. We should fix it
