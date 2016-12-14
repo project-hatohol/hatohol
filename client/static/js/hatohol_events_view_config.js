@@ -609,7 +609,7 @@ HatoholEventsViewConfig.prototype.setCurrentFilterConfig = function(filter) {
     $("#enable-" + filterName + "-filter-selector").prop("checked", config.enable);
     $("input:radio" +
       "[name=" + filterName + "-filter-select-options]" +
-      "[value=" + exclude + "]").attr('checked', true);
+      "[value=" + exclude + "]").prop('checked', true);
 
     // set candidate items (left side)
     for (i = 0; i < choices.length; i++) {
