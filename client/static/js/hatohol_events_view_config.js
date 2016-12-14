@@ -38,8 +38,15 @@ var HatoholEventsViewConfig = function(options) {
   //   A callback function that is called on the saved.
   //
   var self = this;
+  var defaultAutoReloadInterval = 60;
   var minAutoReloadInterval = 5;
   var maxAutoReloadInterval = 600;
+  var defaultNumberOfRows = 300;
+  var minNumberOfRows = 10;
+  var maxNumberOfRows = 500;
+  var defaultPeriodDays = 31;
+  var minPeriodDays = 1;
+  var maxPeriodDays = 3650;
   var key;
 
   HatoholUserConfig.apply(this, [options]);
@@ -53,6 +60,16 @@ var HatoholEventsViewConfig = function(options) {
   self.resetEditingFilterList();
   self.selectedFilterConfig = null;
   self.removedFilters = {};
+  self.defaultFilterName = gettext("New filter");
+  self.filterTypeLabelMap = {
+    "incident"  : gettext("Handling"),
+    "type"      : gettext("Status"),
+    "severity"  : gettext("Severity"),
+    "server"    : gettext("Monitoring Server"),
+    "hostgroup" : gettext("Hostgroup"),
+    "host"      : gettext("Host"),
+    "column"    : gettext("Display Item")
+  };
 
   $('#events-view-config').on('show.bs.modal', function (event) {
     self.reset();
@@ -78,8 +95,46 @@ var HatoholEventsViewConfig = function(options) {
       value = maxAutoReloadInterval;
       $("#auto-reload-interval").val(value);
     }
+    if (isNaN(value)) {
+      value = defaultAutoReloadInterval;
+      $("#auto-reload-interval").val(value);
+    }
 
     $("#auto-reload-interval-slider").slider("value", value);
+  });
+
+  $("#num-rows-per-page").change(function() {
+    var value = $("#num-rows-per-page").val();
+
+    if (value < minNumberOfRows) {
+      value = minNumberOfRows;
+      $("#num-rows-per-page").val(value);
+    }
+    if (value > maxNumberOfRows) {
+      value = maxNumberOfRows;
+      $("#num-rows-per-page").val(value);
+    }
+    if (isNaN(value)) {
+      value = defaultNumberOfRows;
+      $("#num-rows-per-page").val(value);
+    }
+  });
+
+  $("#period-filter-setting").change(function() {
+    var value = $("#period-filter-setting").val();
+
+    if (value < minPeriodDays) {
+      value = minPeriodDays;
+      $("#period-filter-setting").val(value);
+    }
+    if (value > maxPeriodDays) {
+      value = maxPeriodDays;
+      $("#period-filter-setting").val(value);
+    }
+    if (isNaN(value)) {
+      value = defaultPeriodDays;
+      $("#period-filter-setting").val(value);
+    }
   });
 
   $.map(self.multiselectFilterTypes, function(selector) {
@@ -128,7 +183,28 @@ var HatoholEventsViewConfig = function(options) {
   });
 
   $("#config-save").click(function() {
-    self.saveAll();
+    var emptyFilterList = getEmptyFilterList();
+    if (emptyFilterList.length === 0) {
+      self.saveAll();
+    } else {
+      var body = gettext("The following filter(s) empty.") + "</br>";
+      for (var x = 0; x < emptyFilterList.length; x++) {
+        body += " - " + self.filterTypeLabelMap[emptyFilterList[x]] + "</br>";
+      }
+      var errorDialog = new HatoholModal({
+        "id": "filter-error-dialog",
+        "title": gettext("Fail to saving a filter"),
+        "body": body,
+        "footer": $(getFooterHTML()),
+      });
+      $("#close-button").on("click", function() {
+        errorDialog.close();
+        $('#filter-error-dialog').on('hidden.bs.modal', function () {
+          $('body').addClass('modal-open');
+        });
+      });
+      errorDialog.show();
+    }
   });
 
   $.map(self.multiselectFilterTypes, function(selector) {
@@ -136,6 +212,27 @@ var HatoholEventsViewConfig = function(options) {
       right: "#" + selector + "-filter-selector-selected",
     });
   });
+
+  function getFooterHTML() {
+    var label = gettext("Close");
+    var s = '<button type="button" class="btn btn-primary"';
+    s += 'id="close-button">' + label + '</button>';
+    return s;
+  }
+
+  function getEmptyFilterList() {
+    var emptyList = [];
+    $.map(self.multiselectFilterTypes, function(selector) {
+      if ($('#' + selector + '-filter-selector-selected')[0].length < 1 &&
+          $('#enable-' + selector + '-filter-selector').prop("checked")) {
+        emptyList.push(selector);
+      }
+    });
+    if ($('#column-selector-selected')[0].length < 1){
+      emptyList.push("column");
+    }
+    return emptyList;
+  }
 
   function quickHostFilter(word) {
     var setVisible = function(option) {
@@ -151,6 +248,28 @@ var HatoholEventsViewConfig = function(options) {
     $.map($("#host-filter-selector-selected option"), setVisible);
   }
 
+  function getFilterNameList(){
+    var filterNameList = [];
+    var anchors = $("#filter-name-list").children("li").find("a");
+    for (var i=0; anchors.length - 1 > i; i++) {
+      filterNameList.push(anchors[i].text);
+    }
+    return filterNameList;
+  }
+
+  function getUniqueFilterName(filterName) {
+    var filterNameList = getFilterNameList(), suffix = 0, uniqueName = filterName;
+    function incrementSuffix() {
+      suffix += 1;
+      return filterName + "("+ String(suffix) +")";
+    }
+
+    while (filterNameList.indexOf(uniqueName) != -1)
+      uniqueName = incrementSuffix();
+
+    return uniqueName;
+  }
+
   $("#quick-host-search-submit").click(function() {
     var word = $("#quick-host-search-entry").val();
     quickHostFilter(word);
@@ -162,6 +281,15 @@ var HatoholEventsViewConfig = function(options) {
   });
 
   $("#filter-name-entry").change(function () {
+    var value = $("#filter-name-entry").val();
+
+    if (value.length === 0) {
+      value = self.defaultFilterName;
+    }
+    value = value.slice(0, 128);
+    value = getUniqueFilterName(value);
+    $("#filter-name-entry").val(value);
+
     $.extend(self.selectedFilterConfig,
              self.getCurrentFilterConfig());
     self.resetFilterList();
@@ -482,7 +610,7 @@ HatoholEventsViewConfig.prototype.resetFilterList = function() {
       href: "#",
       click: function(obj) {
         var newFilter = self.getDefaultFilterConfig();
-        newFilter.name = gettext("New filter");
+        newFilter.name = self.defaultFilterName;
         self.editingFilterList.push(newFilter);
         self.setCurrentFilterConfig(newFilter);
         self.resetFilterList();
