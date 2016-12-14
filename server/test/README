@@ -4,11 +4,7 @@ Basic set up for the test
 
     $ mysql -u root < ../../data/test/setup.sql
 
-(2) Setup Qpid
-
-See also 'How to start' section in ../README.md (server/README.md)
-
-(3) Setup RabbitMQ
+(2) Setup RabbitMQ
 
 See also 'How to start' section in ../README.md (server/README.md)
 
@@ -18,11 +14,11 @@ In addition, you need to add an user and a virtual host of RabbitMQ:
     $ sudo -u rabbitmq -H /usr/sbin/rabbitmqctl add_vhost hatohol
     $ sudo -u rabbitmq -H /usr/sbin/rabbitmqctl set_permissions -p hatohol hatohol '^test\..*' '.*' '.*'
 
-(4) Remove or disable 'apport' if it's installed.
+(3) Remove or disable 'apport' if it's installed.
 
 The details are written in the later part of this document.
 
-(5) Run tests
+(4) Run tests
 
 You can run tests by the following command:
 
