@@ -28,8 +28,12 @@ var HatoholTriggersViewConfig = function(options) {
   //   A callback function that is called on the saved.
   //
   var self = this;
+  var defaultAutoReloadInterval = 60;
   var minAutoReloadInterval = 5;
   var maxAutoReloadInterval = 600;
+  var defaultNumberOfRows = 300;
+  var minNumberOfRows = 10;
+  var maxNumberOfRows = 500;
 
   HatoholUserConfig.apply(this, [options]);
   self.options = options;
@@ -59,8 +63,29 @@ var HatoholTriggersViewConfig = function(options) {
       value = maxAutoReloadInterval;
       $("#auto-reload-interval").val(value);
     }
+    if (isNaN(value)) {
+      value = defaultAutoReloadInterval;
+      $("#auto-reload-interval").val(value);
+    }
 
     $("#auto-reload-interval-slider").slider("value", value);
+  });
+
+  $("#num-rows-per-page").change(function() {
+    var value = $("#num-rows-per-page").val();
+
+    if (value < minNumberOfRows) {
+      value = minNumberOfRows;
+      $("#num-rows-per-page").val(value);
+    }
+    if (value > maxNumberOfRows) {
+      value = maxNumberOfRows;
+      $("#num-rows-per-page").val(value);
+    }
+    if (isNaN(value)) {
+      value = defaultNumberOfRows;
+      $("#num-rows-per-page").val(value);
+    }
   });
 
   $("#config-save").click(function() {
