@@ -683,7 +683,7 @@ var EventsView = function(userProfile, options) {
     });
 
     $('#summaryUnhandledImportantEvents').click(function() {
-      var query = { incidentStatuses: ["NONE", "HOLD", ""].join(",") };
+      var query = { incidentStatuses: ["NONE", ""].join(",") };
       var importantSeverities = getImportantSeverities();
 
       if (importantSeverities.length > 0)
