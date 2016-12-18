@@ -602,6 +602,7 @@ class HapiProcessor:
             if self.__reply_queue.get(True, self.__timeout_sec) == True:
                 pass
             else:
+                logger.error("Request(ID: %d) is not accepted." % request_id)
                 raise
         except Queue.Empty:
             logger.error("Request(ID: %d) is not accepted." % request_id)
