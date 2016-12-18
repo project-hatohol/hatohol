@@ -440,8 +440,8 @@ var EventsView = function(userProfile, options) {
     if (baseFilter.severities && URISeverities) {
       baseFilter.severities = getListProduct(baseFilter.severities.split(","),
                                              URISeverities.split(",")).join(",");
-      if (baseFilter.severities.length == 0) {
-        baseFilter.severities = "-1"
+      if (baseFilter.severities.length === 0) {
+        baseFilter.severities = "-1";
       }
     } else if (URISeverities) {
       baseFilter.severities = URISeverities;
@@ -450,8 +450,8 @@ var EventsView = function(userProfile, options) {
     if (baseFilter.incidentStatuses && URIIncidentStatuses) {
       baseFilter.incidentStatuses = getListProduct(baseFilter.incidentStatuses.split(","),
                                              URIIncidentStatuses.split(",")).join(",");
-      if (baseFilter.incidentStatuses.length == 0) {
-        baseFilter.incidentStatuses = "NOTHING"
+      if (baseFilter.incidentStatuses.length === 0) {
+        baseFilter.incidentStatuses = "NOTHING";
       }
     } else if (URIIncidentStatuses) {
         baseFilter.incidentStatuses =  URIIncidentStatuses;
@@ -482,7 +482,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function getListProduct(listA, listB) {
-    return listA.filter(function(i){return listB[listB.indexOf(i)];})
+    return listA.filter(function(i){return listB[listB.indexOf(i)];});
   }
 
   function load(options) {
