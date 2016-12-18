@@ -880,7 +880,7 @@ HatoholError UnifiedDataStore::updateTargetServer(
 	err = m_impl->stopDataStore(svInfo.id, &isRunning);
 	if (err != HTERR_OK)
 		return err;
-	return m_impl->startDataStore(svInfo, isRunning);
+	return m_impl->startDataStore(svInfo, true);
 }
 
 HatoholError UnifiedDataStore::deleteTargetServer(
