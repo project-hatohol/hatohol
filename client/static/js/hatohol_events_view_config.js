@@ -95,6 +95,10 @@ var HatoholEventsViewConfig = function(options) {
       value = maxAutoReloadInterval;
       $("#auto-reload-interval").val(value);
     }
+    if (isNaN(value)) {
+      value = defaultAutoReloadInterval;
+      $("#auto-reload-interval").val(value);
+    }
 
     $("#auto-reload-interval-slider").slider("value", value);
   });
