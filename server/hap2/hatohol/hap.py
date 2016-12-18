@@ -70,6 +70,7 @@ def setup_logger(args):
     if args.log_conf_file is not None:
         logger.info("log_conf_file option was used. Remove default SysLogHandler and read the logging conf file.")
         hatohol_logger.removeHandler(logging.handlers.SysLogHandler())
+        logging.config.fileConfig(args.log_conf_file)
 
     if args.loglevel:
         numeric_level = getattr(logging, args.loglevel.upper(), None)
@@ -179,8 +180,8 @@ class ConfigFileParser():
 
         if kwargs.has_key("type") and default_value:
             default_value = kwargs["type"](default_value)
-        if kwargs.get("action")=="store_true" and default_value=="":
-            default_value = True
+        if kwargs.get("action") == "store_true":
+            default_value = (default_value == "True")
         if kwargs.has_key("nargs") and default_value:
             default_value = default_value.split()
         if not default_value:
