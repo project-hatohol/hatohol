@@ -458,7 +458,6 @@ var EventsView = function(userProfile, options) {
   }
 
   function load(options) {
-    var query;
     options = options || {};
     self.displayUpdateTime();
     setLoading(true);
