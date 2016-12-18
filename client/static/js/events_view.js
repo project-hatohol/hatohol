@@ -646,11 +646,17 @@ var EventsView = function(userProfile, options) {
     if (shouldEnableHandlingFeature()) {
       $("#select-incident-container").show();
       $("#change-incident-container").show();
+      $("#summaryUnhandledImportantEvents").show();
+      $("#enable-incident-filter-selector").show();
+      $("#enable-incident-filter-selector-label").show();
       $(".incidentCheckbox").show();
       fixupEventsTableHeight();
     } else {
       $("#select-incident-container").hide();
       $("#change-incident-container").hide();
+      $("#summaryUnhandledImportantEvents").hide();
+      $("#enable-incident-filter-selector").hide();
+      $("#enable-incident-filter-selector-label").hide();
       $(".incidentCheckbox").hide();
       fixupEventsTableHeight();
     }
