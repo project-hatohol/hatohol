@@ -38,7 +38,6 @@ var EventsView = function(userProfile, options) {
     sortType:         "time",
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
   };
-  $.extend(self.baseQuery, getEventsQueryInURI());
   self.lastFilterId = null;
   self.lastQuickFilter = {};
   self.isFilteringOptionsUsed = false;
@@ -414,7 +413,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function getQuery(options) {
-    var query = {}, baseFilter;
+    var query = {}, baseFilter, URIQuery, URISeverities, URIIncidentStatuses;
 
     options = options || {};
 
@@ -432,8 +431,33 @@ var EventsView = function(userProfile, options) {
       self.lastQuickFilter = getQuickFilter();
     }
     baseFilter = self.userConfig.getFilter(self.lastFilterId);
+    URIQuery = getEventsQueryInURI();
+    URISeverities = URIQuery.severities;
+    delete URIQuery["severities"];
+    URIIncidentStatuses = URIQuery.incidentStatuses;
+    delete URIQuery["incidentStatuses"];
 
-    $.extend(query, self.baseQuery, baseFilter, self.lastQuickFilter, {
+    if (baseFilter.severities && URISeverities) {
+      baseFilter.severities = getListProduct(baseFilter.severities.split(","),
+                                             URISeverities.split(",")).join(",");
+      if (baseFilter.severities.length === 0) {
+        baseFilter.severities = "-1";
+      }
+    } else if (URISeverities) {
+      baseFilter.severities = URISeverities;
+    }
+
+    if (baseFilter.incidentStatuses && URIIncidentStatuses) {
+      baseFilter.incidentStatuses = getListProduct(baseFilter.incidentStatuses.split(","),
+                                             URIIncidentStatuses.split(",")).join(",");
+      if (baseFilter.incidentStatuses.length === 0) {
+        baseFilter.incidentStatuses = "NOTHING";
+      }
+    } else if (URIIncidentStatuses) {
+        baseFilter.incidentStatuses =  URIIncidentStatuses;
+    }
+
+    $.extend(query, self.baseQuery, baseFilter, URIQuery, self.lastQuickFilter, {
       offset:           self.baseQuery.limit * self.currentPage,
       limit:            self.baseQuery.limit,
       limitOfUnifiedId: self.limitOfUnifiedId,
@@ -455,6 +479,10 @@ var EventsView = function(userProfile, options) {
     $.extend(query, baseFilter);
 
     return 'summary/important-event?' + $.param(query);
+  }
+
+  function getListProduct(listA, listB) {
+    return listA.filter(function(i){return listB[listB.indexOf(i)];});
   }
 
   function load(options) {
