@@ -38,6 +38,7 @@ struct RestResourceMonitoring : public RestResourceMemberHandler
 	void handlerGetHostgroup(void);
 	void handlerGetItem(void);
 	void replyGetItem(void);
+	void replyOnlyServers(void);
 	void handlerGetHistory(void);
 	void handlerGetTriggerBriefs(void);
 	void itemFetchedCallback(Closure0 *closure);
