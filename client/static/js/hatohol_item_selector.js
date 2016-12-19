@@ -230,13 +230,13 @@ HatoholItemSelector.prototype.getIndexByUserData = function(data) {
 HatoholItemSelector.prototype.setupCandidates = function() {
   this.view.setServerFilterCandidates(this.servers);
   this.view.setHostgroupFilterCandidates(this.servers);
-  this.view.setHostFilterCandidates(this.servers);
+  this.view.setHostFilterCandidates(this.servers, undefined, true);
 };
 
 HatoholItemSelector.prototype.setServers = function(servers) {
   if (!this.servers)
     this.servers = servers;
-  this.view.setupHostFilters(servers);
+  this.view.setupHostFilters(servers, undefined, true);
 };
 
 HatoholItemSelector.prototype.getConfig = function() {
