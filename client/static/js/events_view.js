@@ -458,7 +458,6 @@ var EventsView = function(userProfile, options) {
   }
 
   function load(options) {
-    var query;
     options = options || {};
     self.displayUpdateTime();
     setLoading(true);
@@ -647,11 +646,17 @@ var EventsView = function(userProfile, options) {
     if (shouldEnableHandlingFeature()) {
       $("#select-incident-container").show();
       $("#change-incident-container").show();
+      $("#summaryUnhandledImportantEvents").show();
+      $("#enable-incident-filter-selector").show();
+      $("#enable-incident-filter-selector-label").show();
       $(".incidentCheckbox").show();
       fixupEventsTableHeight();
     } else {
       $("#select-incident-container").hide();
       $("#change-incident-container").hide();
+      $("#summaryUnhandledImportantEvents").hide();
+      $("#enable-incident-filter-selector").hide();
+      $("#enable-incident-filter-selector-label").hide();
       $(".incidentCheckbox").hide();
       fixupEventsTableHeight();
     }
@@ -684,7 +689,7 @@ var EventsView = function(userProfile, options) {
     });
 
     $('#summaryUnhandledImportantEvents').click(function() {
-      var query = { incidentStatuses: ["NONE", "HOLD", ""].join(",") };
+      var query = { incidentStatuses: ["NONE", ""].join(",") };
       var importantSeverities = getImportantSeverities();
 
       if (importantSeverities.length > 0)
