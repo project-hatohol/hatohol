@@ -80,9 +80,10 @@ describe('OverviewItems', function() {
     this.xhr.restore();
   }
 
-  function respond(itemsJson) {
+  function respond(items) {
     var header = { "Content-Type": "application/json" };
-    this.requests[0].respond(200, header, itemsJson);
+    this.requests[0].respond(200, header, itemsJson());
+    this.requests[1].respond(200, header, items);
   }
   
   beforeEach(function(done) {
@@ -119,6 +120,7 @@ describe('OverviewItems', function() {
 
   it('new with empty data', function() {
     var view = new OverviewItems(getOperator());
+    $('button.latest-button').click();
     respond(itemsJson());
     var heads = $('div#' + TEST_FIXTURE_ID + ' h2');
     expect(heads).to.have.length(1);
@@ -127,6 +129,7 @@ describe('OverviewItems', function() {
 
   it('With items', function() {
     var view = new OverviewItems(getOperator());
+    $('button.latest-button').click();
     respond(itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);

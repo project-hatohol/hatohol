@@ -34,8 +34,7 @@ var OverviewItems = function(userProfile) {
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
-  setupFilterValues();
-  load();
+  self.startConnection(getQuery(true), updateFilter);
 
   self.setupHostQuerySelectorCallback(
     load, '#select-server', '#select-host-group', '#select-host');
@@ -168,6 +167,14 @@ var OverviewItems = function(userProfile) {
     $("#table tbody").append(drawTableBody(data));
   }
 
+  function updateFilter(reply) {
+    rawData = reply;
+    getQuery(false);
+    setupFilterValues(rawData.servers,
+                      self.lastQuery ? self.lastQuery : self.baseQuery,
+                      true);
+  }
+
   function updateCore(reply) {
     rawData = reply;
     parsedData = parseData(reply);
@@ -192,7 +199,10 @@ var OverviewItems = function(userProfile) {
     return query;
   }
 
-  function getQuery() {
+  function getQuery(isEmpty) {
+    if (isEmpty) {
+      return 'item?empty=true';
+    }
     var query = $.extend({}, self.baseQuery, {
       limit:  self.baseQuery.limit,
       offset: self.baseQuery.offset,
@@ -205,7 +215,7 @@ var OverviewItems = function(userProfile) {
 
   function load() {
     self.displayUpdateTime();
-    self.startConnection(getQuery(), updateCore);
+    self.startConnection(getQuery(false), updateCore);
     setLoading(true);
   }
 };
