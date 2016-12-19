@@ -52,10 +52,12 @@ var OverviewTriggers = function(userProfile) {
   function start() {
     $.when(loadSeverityRank()).done(function() {
       setupFilterValues();
-      load();
+      self.startConnection(getQuery(true), updateFilter);
+      $("#select-severity").attr("disabled", "disabled");
+      $("#select-status").attr("disabled", "disabled");
     }).fail(function() {
       hatoholInfoMsgBox(gettext("Failed to get the configuration!"));
-      load(); // Ensure to work with the default config
+      self.startConnection(getQuery(true), updateFilter);
     });
   }
 
@@ -229,6 +231,13 @@ var OverviewTriggers = function(userProfile) {
     self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 
+  function updateFilter(reply) {
+    rawData = reply;
+    getQuery(false);
+    setupFilterValues();
+    setupTableSeverityColor();
+  }
+
   function getTriggersQueryInURI() {
     var knownKeys = [
       "serverId", "hostgroupId", "hostId",
@@ -243,7 +252,10 @@ var OverviewTriggers = function(userProfile) {
     return query;
   }
 
-  function getQuery() {
+  function getQuery(isEmpty) {
+    if (isEmpty) {
+      return 'trigger?empty=true';
+    }
     var query = $.extend({}, self.baseQuery, {
       minimumSeverity: $("#select-severity").val(),
       status:          $("#select-status").val(),
