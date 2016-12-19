@@ -2887,6 +2887,12 @@ static LocalHostIdType getTargetHostId(const ItemInfoList itemInfoList)
 HatoholError DBTablesMonitoring::syncItems(const ItemInfoList &itemInfoList,
                                            const ServerIdType &serverId)
 {
+	HatoholError err = HTERR_OK;
+	if (itemInfoList.size() == 0) {
+		MLPL_WARN("The number of items: 0\n");
+		return err;
+	}
+
 	ItemsQueryOption option(USER_ID_SYSTEM);
 	ItemInfoList _currItems;
 
@@ -2918,7 +2924,6 @@ HatoholError DBTablesMonitoring::syncItems(const ItemInfoList &itemInfoList,
 		ItemInfo invalidItem = *invalidItemPair.second;
 		invalidItemIdList.push_back(invalidItem.id);
 	}
-	HatoholError err = HTERR_OK;
 	if (invalidItemIdList.size() > 0)
 		err = deleteItemInfo(invalidItemIdList, serverId);
 	if (addItems.size() > 0)
