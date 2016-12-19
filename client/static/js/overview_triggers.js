@@ -306,7 +306,7 @@ var OverviewTriggers = function(userProfile) {
       request: "GET",
       replyCallback: function(reply, parser) {
         var i, severityRanks, rank;
-        var choices = triggerPropertyChoices;
+        var choices = triggerPropertyChoices.severity;
         self.rawSeverityRankData = reply;
         self.severityRanksMap = {};
         severityRanks = self.rawSeverityRankData["SeverityRanks"];
