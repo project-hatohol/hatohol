@@ -60,7 +60,7 @@ var HatoholEventsViewConfig = function(options) {
   self.resetEditingFilterList();
   self.selectedFilterConfig = null;
   self.removedFilters = {};
-  self.defaultFilterName = gettext("New filter")
+  self.defaultFilterName = gettext("New filter");
   self.filterTypeLabelMap = {
     "incident"  : gettext("Handling"),
     "type"      : gettext("Status"),
@@ -69,7 +69,7 @@ var HatoholEventsViewConfig = function(options) {
     "hostgroup" : gettext("Hostgroup"),
     "host"      : gettext("Host"),
     "column"    : gettext("Display Item")
-  }
+  };
 
   $('#events-view-config').on('show.bs.modal', function (event) {
     self.reset();
@@ -93,6 +93,10 @@ var HatoholEventsViewConfig = function(options) {
     }
     if (value > maxAutoReloadInterval) {
       value = maxAutoReloadInterval;
+      $("#auto-reload-interval").val(value);
+    }
+    if (isNaN(value)) {
+      value = defaultAutoReloadInterval;
       $("#auto-reload-interval").val(value);
     }
 
@@ -179,8 +183,8 @@ var HatoholEventsViewConfig = function(options) {
   });
 
   $("#config-save").click(function() {
-    var emptyFilterList = getEmptyFilterList()
-    if (emptyFilterList.length == 0) {
+    var emptyFilterList = getEmptyFilterList();
+    if (emptyFilterList.length === 0) {
       self.saveAll();
     } else {
       var body = gettext("The following filter(s) empty.") + "</br>";
@@ -249,7 +253,7 @@ var HatoholEventsViewConfig = function(options) {
     var anchors = $("#filter-name-list").children("li").find("a");
     for (var i=0; anchors.length - 1 > i; i++) {
       filterNameList.push(anchors[i].text);
-    };
+    }
     return filterNameList;
   }
 
@@ -279,11 +283,11 @@ var HatoholEventsViewConfig = function(options) {
   $("#filter-name-entry").change(function () {
     var value = $("#filter-name-entry").val();
 
-    if (value.length == 0) {
+    if (value.length === 0) {
       value = self.defaultFilterName;
     }
-    value = value.slice(0, 128)
-    value = getUniqueFilterName(value)
+    value = value.slice(0, 128);
+    value = getUniqueFilterName(value);
     $("#filter-name-entry").val(value);
 
     $.extend(self.selectedFilterConfig,
