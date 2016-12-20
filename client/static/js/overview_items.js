@@ -208,7 +208,7 @@ var OverviewItems = function(userProfile) {
       offset: self.baseQuery.offset,
     });
     if (self.lastQuery)
-      $.extend(query, self.getHostFilterQuery());
+      $.extend(query, self.getHostFilterQuery(true));
     self.lastQuery = query;
     return 'item?' + $.param(query);
   }

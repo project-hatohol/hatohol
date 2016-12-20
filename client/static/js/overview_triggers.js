@@ -262,7 +262,7 @@ var OverviewTriggers = function(userProfile) {
       offset:          self.baseQuery.offset,
     });
     if (self.lastQuery)
-      $.extend(query, self.getHostFilterQuery());
+      $.extend(query, self.getHostFilterQuery(true));
     self.lastQuery = query;
     return 'trigger?' + $.param(query);
   }
