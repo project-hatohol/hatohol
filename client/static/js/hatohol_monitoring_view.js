@@ -289,7 +289,7 @@ function(candidates)
   applicationSelector.val(current);
 };
 
-HatoholMonitoringView.prototype.getHostFilterQuery = function(isOverview) {
+HatoholMonitoringView.prototype.getHostFilterQuery = function() {
   var query = {};
   var serverId = this.getTargetServerId();
   var hostgroupId = this.getTargetHostgroupId();
@@ -297,10 +297,7 @@ HatoholMonitoringView.prototype.getHostFilterQuery = function(isOverview) {
   var hostname = this.getTargetHostname();
   var hostgroupName = this.getTargetHostgroupName();
   var triggerBrief = this.getTargetTriggerBrief();
-  if (serverId)
-    query.serverId = serverId;
-  else
-    query.serverId = isOverview ? INVALID_SERVER_ID : ALL_SERVERS;
+  query.serverId = serverId ? serverId : "-1";
   query.hostgroupId = hostgroupId ? hostgroupId : "*";
   query.hostId = hostId ? hostId : "*";
   query.hostname = hostname;
@@ -317,7 +314,6 @@ HatoholMonitoringView.prototype.setupHostQuerySelectorCallback =
     $(serverSelectorId).change(function() {
       resetHostQuerySelector(hostgroupSelectorId);
       resetHostQuerySelector(hostSelectorId);
-      resetHostQuerySelector(applicationId);
       loadFunc();
     });
   }
@@ -475,7 +471,7 @@ HatoholMonitoringView.prototype.setupCheckboxForDelete =
 HatoholMonitoringView.prototype.setupHostFilters = function(servers, query, withoutSelfMonitor) {
   this.setServerFilterCandidates(servers);
   if (query && ("serverId" in query)) {
-    if (query.serverId == INVALID_SERVER_ID) {
+    if (query.serverId == "-1") {
       $("#select-server").val("");
     } else {
       $("#select-server").val(query.serverId);

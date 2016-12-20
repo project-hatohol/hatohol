@@ -328,10 +328,6 @@ static string makeJsDefSource(char *arg[])
 	s += LGPL_V3_HEADER_C_STYLE;
 	APPEND(s, "\n");
 
-	APPEND(s, "var ALL_SERVERS                = %d\n",  ALL_SERVERS);
-	APPEND(s, "var INVALID_SERVER_ID          = %d\n",  INVALID_SERVER_ID);
-	APPEND(s, "var SERVER_ID_INCIDENT_TRACKER = %d\n",  SERVER_ID_INCIDENT_TRACKER);
-
 	APPEND(s, "var TRIGGER_STATUS_OK      = %d\n",  TRIGGER_STATUS_OK);
 	APPEND(s, "var TRIGGER_STATUS_PROBLEM = %d\n",  TRIGGER_STATUS_PROBLEM);
 	APPEND(s, "\n");
