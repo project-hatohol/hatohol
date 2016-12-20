@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-27 01:42-0500\n"
+"POT-Creation-Date: 2016-12-20 00:20-0600\n"
 "PO-Revision-Date: 2015-10-30 17:36+0900\n"
 "Last-Translator: Hiroshi Hatake <hatake@clear-code.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -237,17 +237,17 @@ msgstr "対処済"
 msgid "HOLD"
 msgstr "保留"
 
-#: viewer/events_ajax.html:100 viewer/overview_triggers_ajax.html:47
+#: viewer/events_ajax.html:100 viewer/overview_triggers_ajax.html:59
 #: viewer/triggers_ajax.html:86
 msgid "Status:"
 msgstr "ステータス:"
 
-#: viewer/events_ajax.html:103 viewer/overview_triggers_ajax.html:50
+#: viewer/events_ajax.html:103 viewer/overview_triggers_ajax.html:62
 #: viewer/triggers_ajax.html:89
 msgid "OK"
 msgstr "正常"
 
-#: viewer/events_ajax.html:104 viewer/overview_triggers_ajax.html:51
+#: viewer/events_ajax.html:104 viewer/overview_triggers_ajax.html:63
 #: viewer/triggers_ajax.html:90
 msgid "Problem"
 msgstr "障害"
@@ -261,9 +261,9 @@ msgid "Notification"
 msgstr "確認"
 
 #: viewer/events_ajax.html:110 viewer/overview_items_ajax.html:44
-#: viewer/overview_triggers_ajax.html:43 viewer/triggers_ajax.html:107
+#: viewer/overview_triggers_ajax.html:55 viewer/triggers_ajax.html:107
 msgid "Minimum Severity:"
-msgstr "最小の重要度:"
+msgstr "最小の深刻度:"
 
 #: viewer/events_ajax.html:112
 msgid "Not classified"
@@ -290,19 +290,19 @@ msgid "Disaster"
 msgstr "致命的な障害"
 
 #: viewer/events_ajax.html:121 viewer/latest_ajax.html:43
-#: viewer/overview_items_ajax.html:53 viewer/overview_triggers_ajax.html:53
+#: viewer/overview_items_ajax.html:53 viewer/overview_triggers_ajax.html:43
 #: viewer/triggers_ajax.html:67
 msgid "Monitoring Server:"
 msgstr "監視サーバー:"
 
 #: viewer/events_ajax.html:127 viewer/latest_ajax.html:48
-#: viewer/overview_items_ajax.html:57 viewer/overview_triggers_ajax.html:57
+#: viewer/overview_items_ajax.html:57 viewer/overview_triggers_ajax.html:47
 #: viewer/triggers_ajax.html:73
 msgid "Group:"
 msgstr "グループ:"
 
 #: viewer/events_ajax.html:133 viewer/latest_ajax.html:53
-#: viewer/overview_items_ajax.html:61 viewer/overview_triggers_ajax.html:61
+#: viewer/overview_items_ajax.html:61 viewer/overview_triggers_ajax.html:51
 #: viewer/triggers_ajax.html:79
 msgid "Host:"
 msgstr "ホスト:"
@@ -349,8 +349,8 @@ msgid "seconds"
 msgstr "秒"
 
 #: viewer/events_ajax.html:230 viewer/triggers_ajax.html:188
-msgid "Number of rows per page"
-msgstr "1ページの表示件数"
+msgid "Number of rows per page (10 - 500 rows)"
+msgstr "1ページの表示件数 （10～500件）"
 
 #: viewer/events_ajax.html:234 viewer/triggers_ajax.html:192
 msgid "rows"
@@ -376,16 +376,17 @@ msgid "Selected"
 msgstr "選択済み"
 
 #: viewer/events_ajax.html:293
-msgid "Filter name"
-msgstr "フィルター名"
+msgid "Filter name(1 - 128 char)"
+msgstr "フィルター名（1 - 128文字）"
+
 
 #: viewer/events_ajax.html:302
 msgid "Delete"
 msgstr "削除"
 
 #: viewer/events_ajax.html:307
-msgid "The period to show (recent days)"
-msgstr "表示期間（直近）"
+msgid "The period to show (recent days)(1 - 3650 days)"
+msgstr "表示期間（直近）（1 - 3650日）"
 
 #: viewer/events_ajax.html:309
 msgid "days"
@@ -407,7 +408,7 @@ msgstr "「ステータス」の選択をフィルターの条件に含める"
 
 #: viewer/events_ajax.html:386
 msgid "Include \"Severity\" to the filter condition"
-msgstr "「重要度」の選択をフィルターの条件に含める"
+msgstr "「深刻度」の選択をフィルターの条件に含める"
 
 #: viewer/events_ajax.html:422
 msgid "Include \"Monitoring server\" to the filter condition"
@@ -535,7 +536,6 @@ msgid "Nickname"
 msgstr "ニックネーム"
 
 #: viewer/hosts_ajax.html:44 viewer/hosts_ajax.html.py:157
-#: viewer/servers_ajax.html:70
 msgid "Maps"
 msgstr "マップ"
 
@@ -628,7 +628,7 @@ msgstr "通信状態"
 msgid "URL"
 msgstr ""
 
-#: viewer/servers_ajax.html:80
+#: viewer/servers_ajax.html:79
 msgid ""
 "Please use a browser's reload function when you update monitoring servers "
 "information including 'Connection status'."
