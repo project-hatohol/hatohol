@@ -230,7 +230,7 @@ var LatestView = function(userProfile) {
       offset: self.baseQuery.limit * page
     });
     if (self.lastQuery) {
-      $.extend(query, self.getHostFilterQuery());
+      $.extend(query, self.getHostFilterQuery(true));
       $.extend(query, query, {itemGroupName: self.getTargetAppName() });
     }
     self.lastQuery = query;
