@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-20 00:20-0600\n"
+"POT-Creation-Date: 2016-12-20 23:06-0600\n"
 "PO-Revision-Date: 2015-10-30 17:36+0900\n"
 "Last-Translator: Kazuhiro Yamato <kz0817@gmail.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -378,7 +378,6 @@ msgstr "選択済み"
 #: viewer/events_ajax.html:293
 msgid "Filter name(1 - 128 char)"
 msgstr "フィルター名（1 - 128文字）"
-
 
 #: viewer/events_ajax.html:302
 msgid "Delete"
