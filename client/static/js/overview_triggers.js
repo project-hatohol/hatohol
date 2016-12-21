@@ -51,7 +51,6 @@ var OverviewTriggers = function(userProfile) {
 
   function start() {
     $.when(loadSeverityRank()).done(function() {
-      setupFilterValues();
       self.startConnection(getQuery(true), updateFilter);
       $("#select-severity").attr("disabled", "disabled");
       $("#select-status").attr("disabled", "disabled");
