@@ -1011,6 +1011,7 @@ struct EventsQueryOption::Impl {
 	set<string> incidentStatuses;
 	vector<string> groupByColumns;
 	list<string> hostnameList;
+	list<EventIdType> eventIds;
 
 	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
@@ -1022,7 +1023,8 @@ struct EventsQueryOption::Impl {
 	  triggerId(ALL_TRIGGERS),
 	  beginTime({0, 0}),
 	  endTime({0, 0}),
-	  hostnameList({})
+	  hostnameList({}),
+	  eventIds({})
 	{
 	}
 };
@@ -1135,6 +1137,11 @@ string EventsQueryOption::getCondition(void) const
 	if (!m_impl->hostnameList.empty()) {
 		addCondition(condition,
 			     makeHostnameListCondition(m_impl->hostnameList));
+	}
+
+	if (!m_impl->eventIds.empty()) {
+		addCondition(condition,
+		             makeEventIdListCondition(m_impl->eventIds));
 	}
 
 	string typeCondition;
@@ -1368,6 +1375,11 @@ const std::set<EventType> &EventsQueryOption::getEventTypes(void) const
 	return m_impl->eventTypes;
 }
 
+void EventsQueryOption::setEventIds(const std::list<EventIdType> &eventIds)
+{
+	m_impl->eventIds = eventIds;
+}
+
 void EventsQueryOption::setTriggerSeverities(
   const set<TriggerSeverityType> &severities)
 {
@@ -1413,6 +1425,22 @@ string EventsQueryOption::makeHostnameListCondition(
 		condition += StringUtils::sprintf("%s", rhs(hostname.c_str()));
 	}
 
+	condition += ")";
+	return condition;
+}
+
+string EventsQueryOption::makeEventIdListCondition(
+  const list<EventIdType> &eventIds) const
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_EVENTS[IDX_EVENTS_ID];
+	SeparatorInjector commaInjector(",");
+	DBTermCStringProvider rhs(*getDBTermCodec());
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (const auto &eventId : eventIds) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%s", rhs(eventId.c_str()));
+	}
 	condition += ")";
 	return condition;
 }
