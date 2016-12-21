@@ -203,7 +203,7 @@ var OverviewItems = function(userProfile) {
     if (isEmpty) {
       return 'item?empty=true';
     }
-   var query = $.extend({}, self.baseQuery, {
+    var query = $.extend({}, self.baseQuery, {
       limit:  self.baseQuery.limit,
       offset: self.baseQuery.offset,
     });
