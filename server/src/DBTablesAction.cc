@@ -823,6 +823,19 @@ void DBTablesAction::updateLogStatusToStart(const ActionLogIdType &logId)
 	getDBAgent().runTransaction(arg);
 }
 
+void DBTablesAction::updateLogStatusToAborted(const ActionLogIdType &logId)
+{
+	DBAgent::UpdateArg arg(tableProfileActionLogs);
+
+	const char *actionLogIdColumnName =
+	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
+	arg.condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
+                                             actionLogIdColumnName, logId);
+	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_ABORTED);
+
+	getDBAgent().update(arg);
+}
+
 bool DBTablesAction::getLog(ActionLog &actionLog, const ActionLogIdType &logId)
 {
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
@@ -844,6 +857,25 @@ bool DBTablesAction::getLog(
 	  "%s=%" FMT_SERVER_ID " AND %s=%s",
 	  idColNameSvId, serverId, idColNameEvtId, rhs(eventId));
 	return getLog(actionLog, condition);
+}
+
+bool DBTablesAction::getTargetStatusesLogs(
+  ActionLogList &actionLogList, const vector<int> &targetStatuses)
+{
+	SeparatorInjector commaInjector(",");
+	string statuses;
+	for (const auto &targetStatus: targetStatuses) {
+		commaInjector(statuses);
+		statuses += to_string(targetStatus);
+	}
+	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
+	const char *idColNameStat = def[IDX_ACTION_LOGS_STATUS].columnName;
+	const char *idColNameEvtId = def[IDX_ACTION_LOGS_EVENT_ID].columnName;
+	string condition = StringUtils::sprintf(
+	                     "%s in (%s) AND %s!=''",
+	                     idColNameStat, statuses.c_str(), idColNameEvtId);
+
+	return getLogs(actionLogList, condition);
 }
 
 bool DBTablesAction::isIncidentSenderEnabled(void)
@@ -944,6 +976,82 @@ bool DBTablesAction::getLog(ActionLog &actionLog, const string &condition)
 	if (itemGroupStream.getItem()->isNull())
 		actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
 	itemGroupStream >> actionLog.exitCode;
+
+	return true;
+}
+
+// TODO: Extract commonly used lines in getLog() above and reduce the similar lines. 
+bool DBTablesAction::getLogs(ActionLogList &actionLogList,
+                             const string &condition)
+{
+	DBAgent::SelectExArg arg(tableProfileActionLogs);
+	arg.condition = condition;
+	arg.add(IDX_ACTION_LOGS_ACTION_LOG_ID);
+	arg.add(IDX_ACTION_LOGS_ACTION_ID);
+	arg.add(IDX_ACTION_LOGS_STATUS);
+	arg.add(IDX_ACTION_LOGS_STARTER_ID);
+	arg.add(IDX_ACTION_LOGS_QUEUING_TIME);
+	arg.add(IDX_ACTION_LOGS_START_TIME);
+	arg.add(IDX_ACTION_LOGS_END_TIME);
+	arg.add(IDX_ACTION_LOGS_EXEC_FAILURE_CODE);
+	arg.add(IDX_ACTION_LOGS_EXIT_CODE);
+	arg.add(IDX_ACTION_LOGS_SERVER_ID);
+	arg.add(IDX_ACTION_LOGS_EVENT_ID);
+
+	getDBAgent().runTransaction(arg);
+
+	const ItemGroupList &grpList = arg.dataTable->getItemGroupList();
+	ItemGroupListConstIterator itemGrpItr = grpList.begin();
+	size_t numGrpList = grpList.size();
+
+	// Not found
+	if (numGrpList == 0)
+		return false;
+
+	for (; itemGrpItr != grpList.end(); ++itemGrpItr) {
+		ItemGroupStream itemGroupStream(*itemGrpItr);
+		actionLogList.push_back(ActionLog());
+		ActionLog &actionLog = actionLogList.back();
+		actionLog.nullFlags = 0;
+
+		itemGroupStream >> actionLog.id;
+		itemGroupStream >> actionLog.actionId;
+		itemGroupStream >> actionLog.status;
+		itemGroupStream >> actionLog.starterId;
+
+		// queing time
+		if (itemGroupStream.getItem()->isNull())
+			actionLog.nullFlags |= ACTLOG_FLAG_QUEUING_TIME;
+		itemGroupStream >> actionLog.queuingTime;
+
+		// start time
+		if (itemGroupStream.getItem()->isNull())
+			actionLog.nullFlags |= ACTLOG_FLAG_START_TIME;
+		itemGroupStream >> actionLog.startTime;
+
+		// end time
+		if (itemGroupStream.getItem()->isNull())
+			actionLog.nullFlags |= ACTLOG_FLAG_END_TIME;
+		itemGroupStream >> actionLog.endTime;
+
+		// failure code
+		itemGroupStream >> actionLog.failureCode;
+
+		// exit code
+		if (itemGroupStream.getItem()->isNull())
+			actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
+		itemGroupStream >> actionLog.exitCode;
+
+		// server id
+		if (itemGroupStream.getItem()->isNull())
+			actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
+		itemGroupStream >> actionLog.serverId;
+
+		// event id
+		if (itemGroupStream.getItem()->isNull())
+			actionLog.nullFlags |= ACTLOG_FLAG_EXIT_CODE;
+		itemGroupStream >> actionLog.eventId;
+	}
 
 	return true;
 }
