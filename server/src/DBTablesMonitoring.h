@@ -74,6 +74,7 @@ public:
 
 	void setEventTypes(const std::set<EventType> &types);
 	const std::set<EventType> &getEventTypes(void) const;
+	void setEventIds(const std::list<EventIdType> &eventIds);
 	void setTriggerSeverities(const std::set<TriggerSeverityType> &severities);
 	const std::set<TriggerSeverityType> &getTriggerSeverities(void) const;
 	void setTriggerStatuses(const std::set<TriggerStatusType> &statuses);
@@ -84,6 +85,9 @@ public:
 
 	std::string makeHostnameListCondition(
 	  const std::list<std::string> &hostnameList) const;
+
+	std::string makeEventIdListCondition(
+	  const std::list<EventIdType> &eventIds) const;
 
 private:
 	struct Impl;
