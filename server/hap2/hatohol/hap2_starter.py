@@ -96,16 +96,14 @@ if __name__=="__main__":
     parser.add_argument("--server-id")
     parser.add_argument("--pid-file-dir")
     self_args, hap_args = parser.parse_known_args()
-
-    pid = os.fork()
-    if pid > 0:
-        sys.exit(0)
-
     setup_logger(hap_args)
 
     if self_args.server_id is None and self_args.pid_file_dir is not None:
         logger.error("If you use --pid-file-dir, you must use --server-id.")
         sys.exit(1)
+
+    if os.fork() > 0:
+        sys.exit(0)
 
     subprocess_args = ["python", self_args.plugin_path]
     subprocess_args.extend(hap_args)
