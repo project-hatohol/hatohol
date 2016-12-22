@@ -40,7 +40,11 @@ def create_pid_file(pid_dir, server_id):
     with open("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id), "w") as file:
         file.write(str(os.getpid()))
 
-    logger.info("PID file has been created.")
+    if check_existence_of_pid_file(pid_dir, server_id):
+        logger.info("PID file has been created")
+    else:
+        logger.error("Could not create PID file. Finish HAP2")
+        sys.exit(1)
 
 def check_existence_of_pid_file(pid_dir, server_id):
     return os.path.isfile("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
