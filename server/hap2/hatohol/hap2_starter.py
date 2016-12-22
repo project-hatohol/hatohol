@@ -50,8 +50,11 @@ def check_existence_of_pid_file(pid_dir, server_id):
     return os.path.isfile("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
 
 def remove_pid_file(pid_dir,server_id):
-    os.remove("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
-    logger.info("PID file has been removed.")
+    try:
+        os.remove("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
+        logger.info("PID file has been removed.")
+    except OSError:
+        logger.error("PID file does not exist on %s." % pid_dir)
 
 def setup_logger(hap_args):
     log_conf_path = None
