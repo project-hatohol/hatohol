@@ -30,8 +30,11 @@ import argparse
 import subprocess
 import commands
 import ConfigParser
+from datetime import datetime
 
 DEFAULT_ERROR_SLEEP_TIME = 3
+RETRY_TIME_RANGE = 300
+RETRY_REPEAT_COUNT = 5
 logger = getLogger("hatohol." + "hap2_starter")
 
 def create_pid_file(pid_dir, server_id):
@@ -96,6 +99,11 @@ def kill_hap2_processes(pgid, plugin_path):
     except OSError:
         logger.info("%s process was finished" % plugin_path)
 
+def total_seconds(timedelta):
+    return int((timedelta.microseconds + 0.0 +
+                (timedelta.seconds +
+                    timedelta.days * 24 * 3600) * 10 ** 6) / 10 ** 6)
+
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
@@ -118,6 +126,8 @@ if __name__=="__main__":
     subprocess_args = ["python", self_args.plugin_path]
     subprocess_args.extend(hap_args)
 
+    finish_counter = int()
+    base_time = datetime.now()
     while True:
         hap = subprocess.Popen(subprocess_args, preexec_fn=os.setsid, close_fds=True)
 
@@ -133,11 +143,23 @@ if __name__=="__main__":
         signal.signal(signal.SIGTERM, signalHandler)
         hap.wait()
 
+        if total_seconds(datetime.now()-base_time) < RETRY_TIME_RANGE:
+            finish_counter += 1
+            logger.debug("Increment finish counter.")
+        else:
+            base_time = datetime.now()
+            finish_counter = 1
+            logger.debug("Reset finish counter.")
+
         kill_hap2_processes(hap.pid, self_args.plugin_path)
 
         if check_existance_of_process_group(hap.pid):
             logger.error("Could not killed HAP2 processes. hap2_starter exit.")
             logger.error("You should kill the processes by yourself.")
+            sys.exit(1)
+
+        if finish_counter >= RETRY_REPEAT_COUNT:
+            logger.error("HAP2 abnormal termination: %d times within 60 seconds." % RETRY_REPEAT_COUNT)
             sys.exit(1)
 
         logger.info("Rerun after %d sec" % DEFAULT_ERROR_SLEEP_TIME)
