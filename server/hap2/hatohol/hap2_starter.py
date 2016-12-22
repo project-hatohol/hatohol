@@ -31,7 +31,7 @@ import subprocess
 import commands
 import ConfigParser
 
-DEFAULT_ERROR_SLEEP_TIME = 10
+DEFAULT_ERROR_SLEEP_TIME = 3
 logger = getLogger("hatohol." + "hap2_starter")
 
 def create_pid_file(pid_dir, server_id):
