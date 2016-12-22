@@ -105,14 +105,14 @@ if __name__=="__main__":
     if os.fork() > 0:
         sys.exit(0)
 
+    if self_args.pid_file_dir is not None:
+        create_pid_file(self_args.pid_file_dir, self_args.server_id)
+
     subprocess_args = ["python", self_args.plugin_path]
     subprocess_args.extend(hap_args)
 
     while True:
         hap = subprocess.Popen(subprocess_args, preexec_fn=os.setsid, close_fds=True)
-
-        if self_args.pid_file_dir is not None and not hap.poll():
-            create_pid_file(self_args.pid_file_dir, self_args.server_id)
 
         def signalHandler(signalnum, frame):
             os.killpg(hap.pid, signal.SIGKILL)
@@ -127,10 +127,6 @@ if __name__=="__main__":
             logger.info("%s process was finished" % self_args.plugin_path)
         except OSError:
             logger.info("%s process was finished" % self_args.plugin_path)
-
-        if self_args.pid_file_dir is not None and \
-            check_existence_of_pid_file(self_args.pid_file_dir, self_args.server_id):
-            remove_pid_file(self_args.pid_file_dir, self_args.server_id)
 
         if check_existance_of_process_group(hap.pid):
             logger.error("Could not killed HAP2 processes. hap2_starter exit.")
