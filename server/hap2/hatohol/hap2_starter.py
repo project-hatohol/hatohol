@@ -89,6 +89,13 @@ def check_existance_of_process_group(pgid):
         return True
     return False
 
+def kill_hap2_processes(pgid, plugin_path):
+    try:
+        os.killpg(pgid, signal.SIGKILL)
+        logger.info("%s process was finished" % plugin_path)
+    except OSError:
+        logger.info("%s process was finished" % plugin_path)
+
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
@@ -115,18 +122,19 @@ if __name__=="__main__":
         hap = subprocess.Popen(subprocess_args, preexec_fn=os.setsid, close_fds=True)
 
         def signalHandler(signalnum, frame):
-            os.killpg(hap.pid, signal.SIGKILL)
             logger.info("hap2_starter caught %d signal" % signalnum)
+            kill_hap2_processes(hap.pid, self_args.plugin_path)
+            logger.info("hap2_starter killed all HAP2 processes")
+            if self_args.pid_file_dir is not None and \
+                check_existence_of_pid_file(self_args.pid_file_dir, self_args.server_id):
+                remove_pid_file(self_args.pid_file_dir, self_args.server_id)
             sys.exit(0)
 
         signal.signal(signal.SIGINT, signalHandler)
         signal.signal(signal.SIGTERM, signalHandler)
         hap.wait()
-        try:
-            os.killpg(hap.pid, signal.SIGKILL)
-            logger.info("%s process was finished" % self_args.plugin_path)
-        except OSError:
-            logger.info("%s process was finished" % self_args.plugin_path)
+
+        kill_hap2_processes(hap.pid, self_args.plugin_path)
 
         if check_existance_of_process_group(hap.pid):
             logger.error("Could not killed HAP2 processes. hap2_starter exit.")
