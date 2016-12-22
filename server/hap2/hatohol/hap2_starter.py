@@ -130,7 +130,6 @@ if __name__=="__main__":
                 remove_pid_file(self_args.pid_file_dir, self_args.server_id)
             sys.exit(0)
 
-        signal.signal(signal.SIGINT, signalHandler)
         signal.signal(signal.SIGTERM, signalHandler)
         hap.wait()
 
