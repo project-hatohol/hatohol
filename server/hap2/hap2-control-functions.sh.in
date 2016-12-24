@@ -45,8 +45,7 @@ check_pid_file() {
         ALIVE=`ps $PID | grep $PLUGIN_PATH | grep -v grep | wc -l`
         if test $ALIVE -ne 0; then
             echo "The plugin process already exists!"
-            echo "Failed to start $PLUGIN_PATH"
-            exit 1
+            stop_plugin
         else
             rm -f ${PID_FILE}
         fi
