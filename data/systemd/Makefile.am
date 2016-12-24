@@ -41,4 +41,3 @@ hap2-ceilometer.conf:
 	cp hatohol.conf hap2-ceilometer.conf
 
 initscriptdir = $(pkgdatadir)
-EXTRA_DIST = hatohol.conf
