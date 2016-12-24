@@ -1,0 +1,26 @@
+#!/bin/sh
+
+prefix=@prefix@
+sysconfdir=@expanded_sysconfdir@
+PIDFILEDIR=@localstatedir@/run/hatohol
+PIDFILE=${PIDFILEDIR}/hatohol-arm-plugin-${SUFFIX}
+CONF=${sysconfdir}/hatohol/hap2-${SUFFIX}.conf
+
+cat << EOF
+[Unit]
+Description=${DESC}
+Wants=network-online.target
+After=syslog.target network-online.target
+
+[Service]
+Type=forking
+KillMode=process
+User=hatohol
+Group=hatohol
+PIDFile=${PIDFILE}
+
+ExecStart=${prefix}/libexec/hatohol/hap2/hatohol/hap2_starter.py --config ${CONF} --plugin-path ${prefix}/libexec/hatohol/hap2/hatohol/hap2_${HAP2_PLUGIN}.py --pid-file-dir ${PIDFILEDIR} --server-id ${SUFFIX}
+
+[Install]
+WantedBy=multi-user.target
+EOF
