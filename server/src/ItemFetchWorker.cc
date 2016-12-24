@@ -57,7 +57,14 @@ struct ItemFetchWorker::Impl
 	};
 };
 
-const timespec ItemFetchWorker::Impl::minUpdateInterval = {10, 0};
+// Currently item data cache mechanism is inactive by setting the following
+// variable to zero. This reason is to avoid the problem that cannot get
+// items if it's requested soon after getting items under another server,
+// as written in #2442.
+// However, it has not been discussed well whether the cache mechanism is
+// unnecessary or not. So the following variable and the related code
+// are still remaining.
+const timespec ItemFetchWorker::Impl::minUpdateInterval = {0, 0};
 
 // ---------------------------------------------------------------------------
 // Public methods
