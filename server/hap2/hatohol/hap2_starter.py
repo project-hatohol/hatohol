@@ -30,8 +30,11 @@ import argparse
 import subprocess
 import commands
 import ConfigParser
+from datetime import datetime
 
-DEFAULT_ERROR_SLEEP_TIME = 10
+DEFAULT_ERROR_SLEEP_TIME = 3
+RETRY_TIME_RANGE = 300
+RETRY_REPEAT_COUNT = 5
 logger = getLogger("hatohol." + "hap2_starter")
 
 def create_pid_file(pid_dir, server_id):
@@ -40,14 +43,21 @@ def create_pid_file(pid_dir, server_id):
     with open("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id), "w") as file:
         file.write(str(os.getpid()))
 
-    logger.info("PID file has been created.")
+    if check_existence_of_pid_file(pid_dir, server_id):
+        logger.info("PID file has been created")
+    else:
+        logger.error("Could not create PID file. Finish HAP2")
+        sys.exit(1)
 
 def check_existence_of_pid_file(pid_dir, server_id):
     return os.path.isfile("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
 
 def remove_pid_file(pid_dir,server_id):
-    os.remove("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
-    logger.info("PID file has been removed.")
+    try:
+        os.remove("%s/hatohol-arm-plugin-%s" % (pid_dir, server_id))
+        logger.info("PID file has been removed.")
+    except OSError:
+        logger.error("PID file does not exist on %s." % pid_dir)
 
 def setup_logger(hap_args):
     log_conf_path = None
@@ -82,6 +92,18 @@ def check_existance_of_process_group(pgid):
         return True
     return False
 
+def kill_hap2_processes(pgid, plugin_path):
+    try:
+        os.killpg(pgid, signal.SIGKILL)
+        logger.info("%s process was finished" % plugin_path)
+    except OSError:
+        logger.info("%s process was finished" % plugin_path)
+
+def total_seconds(timedelta):
+    return int((timedelta.microseconds + 0.0 +
+                (timedelta.seconds +
+                    timedelta.days * 24 * 3600) * 10 ** 6) / 10 ** 6)
+
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
@@ -89,47 +111,55 @@ if __name__=="__main__":
     parser.add_argument("--server-id")
     parser.add_argument("--pid-file-dir")
     self_args, hap_args = parser.parse_known_args()
-
-    pid = os.fork()
-    if pid > 0:
-        sys.exit(0)
-
     setup_logger(hap_args)
 
     if self_args.server_id is None and self_args.pid_file_dir is not None:
         logger.error("If you use --pid-file-dir, you must use --server-id.")
         sys.exit(1)
 
+    if os.fork() > 0:
+        sys.exit(0)
+
+    if self_args.pid_file_dir is not None:
+        create_pid_file(self_args.pid_file_dir, self_args.server_id)
+
     subprocess_args = ["python", self_args.plugin_path]
     subprocess_args.extend(hap_args)
 
+    finish_counter = int()
+    base_time = datetime.now()
     while True:
         hap = subprocess.Popen(subprocess_args, preexec_fn=os.setsid, close_fds=True)
 
-        if self_args.pid_file_dir is not None and not hap.poll():
-            create_pid_file(self_args.pid_file_dir, self_args.server_id)
-
         def signalHandler(signalnum, frame):
-            os.killpg(hap.pid, signal.SIGKILL)
             logger.info("hap2_starter caught %d signal" % signalnum)
+            kill_hap2_processes(hap.pid, self_args.plugin_path)
+            logger.info("hap2_starter killed all HAP2 processes")
+            if self_args.pid_file_dir is not None and \
+                check_existence_of_pid_file(self_args.pid_file_dir, self_args.server_id):
+                remove_pid_file(self_args.pid_file_dir, self_args.server_id)
             sys.exit(0)
 
-        signal.signal(signal.SIGINT, signalHandler)
         signal.signal(signal.SIGTERM, signalHandler)
         hap.wait()
-        try:
-            os.killpg(hap.pid, signal.SIGKILL)
-            logger.info("%s process was finished" % self_args.plugin_path)
-        except OSError:
-            logger.info("%s process was finished" % self_args.plugin_path)
 
-        if self_args.pid_file_dir is not None and \
-            check_existence_of_pid_file(self_args.pid_file_dir, self_args.server_id):
-            remove_pid_file(self_args.pid_file_dir, self_args.server_id)
+        if total_seconds(datetime.now()-base_time) < RETRY_TIME_RANGE:
+            finish_counter += 1
+            logger.debug("Increment finish counter.")
+        else:
+            base_time = datetime.now()
+            finish_counter = 1
+            logger.debug("Reset finish counter.")
+
+        kill_hap2_processes(hap.pid, self_args.plugin_path)
 
         if check_existance_of_process_group(hap.pid):
             logger.error("Could not killed HAP2 processes. hap2_starter exit.")
             logger.error("You should kill the processes by yourself.")
+            sys.exit(1)
+
+        if finish_counter >= RETRY_REPEAT_COUNT:
+            logger.error("HAP2 abnormal termination: %d times within 60 seconds." % RETRY_REPEAT_COUNT)
             sys.exit(1)
 
         logger.info("Rerun after %d sec" % DEFAULT_ERROR_SLEEP_TIME)
