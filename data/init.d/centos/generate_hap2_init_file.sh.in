@@ -1,0 +1,86 @@
+#!/bin/sh
+
+cat << EOF
+#!/bin/sh
+# chkconfig: 2345 91 91
+# description: HAP2 is a plugin for Hatohol unified manager of
+#              monitoring software.
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configurations.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ "${NETWORKING}" = "no" ] && exit 6
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
+NAME=@exec_prefix@/libexec/hatohol/hap2/hatohol/hap2_starter.py
+exec_prefix=@exec_prefix@
+sysconfdir=@expanded_sysconfdir@
+CONF=@expanded_sysconfdir@/hatohol/hap2-${CONF_NAME_SUFFIX}.conf
+LOG_CONF=@expanded_sysconfdir@/hatohol/hap2-logging.conf
+PROG=\$NAME
+PIDFILEDIR=@localstatedir@/run/hatohol
+PIDFILE=\${PIDFILEDIR}/hatohol-arm-plugin-${HAP2_PLUGIN}
+OPTIONS="--config \${CONF} --plugin-path \${exec_prefix}/libexec/hatohol/hap2/hatohol/hap2_${HAP2_PLUGIN}.py --pid-file-dir \${PIDFILEDIR} --server-id ${HAP2_PLUGIN} --log-conf \${LOG_CONF}"
+PROGNAME=\`basename \$PROG\`
+LOCKFILE=/var/lock/subsys/hap2-${CONF_NAME_SUFFIX}
+
+[ -f \$PROG ]|| exit 0
+
+# functions
+start() {
+	echo -n \$"Starting \${PROGNAME}: "
+	daemon --user hatohol \$PROG \$OPTIONS
+	RETVAL=$?
+	echo
+	[ \$RETVAL -eq 0 ] && touch \$LOCKFILE
+}
+
+stop() {
+	echo -n \$"Stopping \${PROGNAME}: "
+	RETVAL=0
+	if [ -f \$PIDFILE ]; then
+		kill -s 15 \`cat \${PIDFILE}\`
+		rm -f \$LOCKFILE
+		RETVAL=\$?
+		echo
+	else
+		printf "%s\n" "pidfile not found"
+	fi
+}
+
+RETVAL=0
+case "\$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		stop
+		start
+		;;
+	status)
+		printf "%-50s" "Checking \${NAME}..."
+		if [ -f \$PIDFILE ]; then
+			PID=\`cat \$PIDFILE\`
+			if [ -z "\`ps axf | grep \${PID} | grep -v grep\`" ]; then
+				printf "%s\n" "Process dead but pidfile exists"
+			else
+				echo "Running"
+			fi
+		else
+			printf "%s\n" "Service not running"
+		fi
+		;;
+	*)
+		echo \$"Usage: \$PROGNAME {start|stop|restart|status}" >&2
+		exit 1
+		;;
+esac
+exit \$RETVAL
+EOF
