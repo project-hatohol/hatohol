@@ -62,8 +62,10 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENT_HISTORIES =
 //   * Add unique integer ID to COLUMN_DEF_ITEMS
 //   * remove 'item_group_name' from COLUMN_DEF_ITEMS
 //   * Add COLUMN_DEF_ITEM_GROUPS_NAME
+// -> 2.2
+//   *incident_histories.comment: 2048 -> 32767
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
-  DBTables::Version::getPackedVer(0, 2, 1);
+  DBTables::Version::getPackedVer(0, 2, 2);
 
 static StatisticsCounter *eventsCounters[] = {
   new StatisticsCounter(10),
@@ -885,7 +887,7 @@ static const ColumnDef COLUMN_DEF_INCIDENT_HISTORIES[] = {
 }, {
 	"comment",                         // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
-	2048,                              // columnLength
+	32767,                             // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -4021,7 +4023,12 @@ static bool updateDB(
 		addColumnsArg.columnIndexes.push_back(
 		  IDX_INCIDENTS_COMMENT_COUNT);
 		dbAgent.addColumns(addColumnsArg);
-		return true;
+	}
+	if (oldVer < DBTables::Version::getPackedVer(0, 2, 2)) {
+		dbAgent.changeColumnDef(
+		  tableProfileIncidentHistories,
+		  "comment",
+		  IDX_INCIDENT_HISTORIES_COMMENT);
 	}
 	return true;
 }
