@@ -102,6 +102,12 @@ void _assertItemTable(const ItemTablePtr &expect, const ItemTablePtr &actual)
 }
 
 // TODO: We should prepare '== operator' and cppcut_assert_equal() ?
+void _assertEqual(const std::set<int> &expect, const std::set<int> &actual)
+{
+	assertEqualSet(expect, actual);
+}
+
+// TODO: Use assertEqualSet<string>()
 void _assertEqual(const set<string> &expect, const set<string> &actual)
 {
 	auto errMsg = [&] {
@@ -192,6 +198,22 @@ void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual)
 	cppcut_assert_equal(expect.hostName,     actual.hostName);
 	cppcut_assert_equal(expect.brief,        actual.brief);
 	cppcut_assert_equal(TRIGGER_VALID,       actual.validity);
+}
+
+// This can also be used as
+//     _assertEqual(const ServerHostSetMap &expect,
+//                  const ServerHostSetMap &actual)
+// because the actual (primitive level) definition is the indentical.
+void _assertEqual(const ServerHostGrpSetMap &expect,
+                  const ServerHostGrpSetMap &actual)
+{
+	cppcut_assert_equal(expect.size(), actual.size());
+	for (const auto &elem: expect) {
+		const auto &key = elem.first;
+		assertHas(actual, key);
+		const auto &actual_elem = actual.find(key)->second;
+		assertEqual(elem.second, actual_elem);
+	}
 }
 
 template <typename T>

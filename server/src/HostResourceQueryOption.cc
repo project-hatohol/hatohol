@@ -62,6 +62,10 @@ HostResourceQueryOption::Synapse::Synapse(
 // ---------------------------------------------------------------------------
 struct HostResourceQueryOption::Impl {
 	const Synapse  &synapse;
+
+	// *** NOTICE ***
+	// When a member is added, &operator=() should also be modified if needed.
+	//
 	ServerIdType    targetServerId;
 	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
@@ -94,6 +98,12 @@ struct HostResourceQueryOption::Impl {
 		targetHostId          = rhs.targetHostId;
 		targetHostgroupId     = rhs.targetHostgroupId;
 		excludeDefunctServers = rhs.excludeDefunctServers;
+		selectedServerIdSet   = rhs.selectedServerIdSet;
+		excludedServerIdSet   = rhs.excludedServerIdSet;
+		selectedServerHostgroupSetMap = rhs.selectedServerHostgroupSetMap;
+		excludedServerHostgroupSetMap = rhs.excludedServerHostgroupSetMap;
+		selectedServerHostSetMap      = rhs.selectedServerHostSetMap;
+		excludedServerHostSetMap      = rhs.excludedServerHostSetMap;
 		return *this;
 	}
 };
