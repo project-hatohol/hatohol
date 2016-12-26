@@ -42,7 +42,7 @@ prepare_plugin_options() {
 check_pid_file() {
     if test -f "$PID_FILE"; then
         PID=`tail -n +1 ${PID_FILE}`
-        ALIVE=`ps $PID | grep $PLUGIN_PATH | grep -v grep | wc -l`
+        ALIVE=`ps $PID | grep $PLUGIN_PATH | wc -l`
         if test $ALIVE -ne 0; then
             echo "The plugin process already exists!"
             stop_plugin
