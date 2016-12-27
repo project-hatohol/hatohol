@@ -86,6 +86,46 @@ extern void _assertItemTable(
   const ItemTablePtr &expect, const ItemTablePtr &actual);
 #define assertItemTable(E,A) cut_trace(_assertItemTable(E,A))
 
+template<typename CT, typename KT>
+void _assertHas(const CT &container, const KT &key)
+{
+	std::stringstream ss;
+	const bool found = (container.find(key) != container.end());
+	if (!found)
+		ss << "Not found: " << key;
+	cppcut_assert_equal(
+	  true, found, cut_message("%s", ss.str().c_str()));
+}
+#define assertHas(C,K) cut_trace((_assertHas(C,K)))
+
+template <typename T>
+void assertEqualSet(const std::set<T> &expect, const std::set<T> &actual)
+{
+	auto errMsg = [&] {
+		struct {
+			std::string title;
+			const std::set<T> &members;
+		} args[] = {
+			{"<expect>", expect}, {"<actual>", actual}
+		};
+
+		std::string s;
+		for (const auto &a: args) {
+			s += a.title + "\n";
+			for (const auto &val: a.members)
+				s += val + "\n";
+		}
+		return s;
+	};
+
+	cppcut_assert_equal(expect.size(), actual.size(),
+	                    cut_message("%s\n", errMsg().c_str()));
+	for (const auto &val : expect)
+		assertHas(actual, val);
+}
+
+extern void _assertEqual(const std::set<int> &expect,
+                         const std::set<int> &actual);
 extern void _assertEqual(const std::set<std::string> &expect,
                          const std::set<std::string> &actual);
 extern void _assertEqual(
@@ -93,6 +133,11 @@ extern void _assertEqual(
 extern void _assertEqual(const ArmInfo &expect, const ArmInfo &actual);
 extern void _assertEqual(const ItemInfo &expect, const ItemInfo &actual);
 extern void _assertEqual(const TriggerInfo &expect, const TriggerInfo &actual);
+extern void _assertEqual(const ServerIdSet &expect, const ServerIdSet &actual);
+extern void _assertEqual(const ServerHostGrpSetMap &expect,
+                         const ServerHostGrpSetMap &actual);
+extern void _assertEqual(const ServerHostSetMap &expect,
+                         const ServerHostSetMap &actual);
 #define assertEqual(E,A) cut_trace(_assertEqual(E,A))
 
 extern void _assertEqualJSONString(

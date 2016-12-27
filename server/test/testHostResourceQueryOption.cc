@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Project Hatohol
+ * Copyright (C) 2014,2016 Project Hatohol
  *
  * This file is part of Hatohol.
  *
@@ -653,6 +653,54 @@ void test_copyConstructor(void)
 			            opt0.getDataQueryContext().getUsedCount());
 	}
 	cppcut_assert_equal(1, opt0.getDataQueryContext().getUsedCount());
+}
+
+void test_copyConstructorForImplContent(void)
+{
+	// check the members
+	const ServerIdType    targetServerId = 3;
+	const LocalHostIdType targetHostId = "TestHostId";
+	const HostgroupIdType targetHostgroupId = "TestHostGRP";
+	const bool            excludeDefunctServers = true;
+	const ServerIdSet     selectedServerIdSet({5, 8, 10});
+	const ServerIdSet     excludedServerIdSet({7, 9});
+	const ServerHostGrpSetMap selectedServerHostgroupSetMap({
+	  {4, {"G1", "G2"}}, {6, {"G10"}}
+	});
+	const ServerHostGrpSetMap excludedServerHostgroupSetMap({
+	  {5, {"EG1"}}, {10, {"EG2", "EG3"}}
+	});
+	const ServerHostSetMap selectedServerHostSetMap({
+	  {11, {"Host1", "HostX"}}, {100, {"ABC"}}
+	});
+	const ServerHostSetMap excludedServerHostSetMap({
+	  {20, {"Fish"}},
+	});
+
+	HostResourceQueryOption opt0(TEST_SYNAPSE);
+	opt0.setTargetServerId(targetServerId);
+	opt0.setTargetHostId(targetHostId);
+	opt0.setTargetHostgroupId(targetHostgroupId);
+	opt0.setExcludeDefunctServers(excludeDefunctServers);
+	opt0.setSelectedServerIds(selectedServerIdSet);
+	opt0.setExcludedServerIds(excludedServerIdSet);
+	opt0.setSelectedHostgroupIds(selectedServerHostgroupSetMap);
+	opt0.setExcludedHostgroupIds(excludedServerHostgroupSetMap);
+	opt0.setSelectedHostIds(selectedServerHostSetMap);
+	opt0.setExcludedHostIds(excludedServerHostSetMap);
+
+	HostResourceQueryOption opt1(opt0);
+	cppcut_assert_equal(targetServerId, opt1.getTargetServerId());
+	cppcut_assert_equal(targetHostId, opt1.getTargetHostId());
+	cppcut_assert_equal(targetHostgroupId, opt1.getTargetHostgroupId());
+	assertEqual(selectedServerIdSet, opt1.getSelectedServerIds());
+	assertEqual(excludedServerIdSet, opt1.getExcludedServerIds());
+	assertEqual(selectedServerHostgroupSetMap,
+	            opt1.getSelectedHostgroupIds());
+	assertEqual(excludedServerHostgroupSetMap,
+	            opt1.getExcludedHostgroupIds());
+	assertEqual(selectedServerHostSetMap, opt1.getSelectedHostIds());
+	assertEqual(excludedServerHostSetMap, opt1.getExcludedHostIds());
 }
 
 void test_makeConditionServer(void)
