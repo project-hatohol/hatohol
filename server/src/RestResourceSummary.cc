@@ -118,7 +118,6 @@ static bool setAssignedIncidentStatusCondition(
 
 	// Remove system-defined statues that shouldn't be treated as "Assigned".
 	customIncidentStatusMap.erase(IncidentSenderHatohol::STATUS_NONE);
-	customIncidentStatusMap.erase(IncidentSenderHatohol::STATUS_HOLD);
 
 	for (auto &pair: customIncidentStatusMap) {
 		const string &status = pair.first;
