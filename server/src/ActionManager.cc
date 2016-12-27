@@ -573,8 +573,12 @@ void ActionManager::reExecuteUnfinishedAction(void)
 		eventOption.setTargetServerId(actionLog.serverId);
 		eventOption.setEventIds({actionLog.eventId});
 		dbMonitoring.getEventInfoList(eventList, eventOption);
-		if (eventList.empty())
-		        continue;
+		if (eventList.empty()) {
+			MLPL_WARN("Not found: event: %" FMT_EVENT_ID ", "
+			          "ActionLog ID: %" FMT_GEN_ID "\n",
+			          actionLog.eventId.c_str(), actionLog.id);
+			continue;
+		}
 		auto const &eventInfo = *eventList.cbegin();
 
 		ActionDefList actionList;
@@ -583,8 +587,12 @@ void ActionManager::reExecuteUnfinishedAction(void)
 		actionOption.setActionIdList(actionIdList);
 		dbAction.getActionList(actionList, actionOption);
 
-		if (actionList.empty())
-		        continue;
+		if (actionList.empty()) {
+			MLPL_WARN("Not found: action: %" FMT_ACTION_ID ", "
+			          "ActionLog ID: %" FMT_GEN_ID "\n",
+			          actionLog.actionId, actionLog.id);
+			continue;
+		}
 		dbAction.updateLogStatusToAborted(actionLog.id);
 		runAction(*actionList.cbegin(), eventInfo, dbAction);
 		const string message =
