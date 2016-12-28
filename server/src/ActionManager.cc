@@ -549,6 +549,53 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 	}
 }
 
+void ActionManager::reExecuteUnfinishedAction(void)
+{
+	ThreadLocalDBCache cache;
+	DBTablesAction &dbAction = cache.getAction();
+	DBTablesMonitoring &dbMonitoring = cache.getMonitoring();
+
+	ActionLogList actionLogList;
+	const vector<ActionLogStatus>
+	    targetStatuses{ACTLOG_STAT_QUEUING,
+	                   ACTLOG_STAT_STARTED,
+	                   ACTLOG_STAT_RESIDENT_QUEUING,
+	                   ACTLOG_STAT_LAUNCHING_RESIDENT};
+
+	if (!dbAction.getTargetStatusesLogs(actionLogList, targetStatuses)) {
+		MLPL_INFO("Hatohol does not have unfinished action.\n");
+		return;
+	}
+
+	for (auto &actionLog: actionLogList) {
+		EventInfoList eventList;
+		EventsQueryOption eventOption(USER_ID_SYSTEM);
+
+		eventOption.setTargetServerId(actionLog.serverId);
+		EventIdType eventId = actionLog.eventId;
+		list<EventIdType> eventIds{eventId};
+		eventOption.setEventIds(eventIds);
+		dbMonitoring.getEventInfoList(eventList, eventOption);
+		if (eventList.size() == 0)
+			continue;
+		EventInfo eventInfo = *eventList.begin();
+
+		ActionDefList actionList;
+		ActionsQueryOption actionOption(USER_ID_SYSTEM);
+		ActionIdList actionIdList{actionLog.actionId};
+		actionOption.setActionIdList(actionIdList);
+		dbAction.getActionList(actionList, actionOption);
+
+		if (actionList.size() == 0)
+			continue;
+		dbAction.updateLogStatusToAborted(actionLog.id);
+		runAction(*actionList.begin(), eventInfo, dbAction);
+		string message = StringUtils::sprintf("Action log ID(%" FMT_GEN_ID
+		                 "): Update log status to aborted(7).\n", actionLog.id);
+		MLPL_WARN("%s", message.c_str());
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Protected methods
 // ---------------------------------------------------------------------------
