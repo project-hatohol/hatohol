@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-20 23:06-0600\n"
+"POT-Creation-Date: 2016-12-28 01:50-0600\n"
 "PO-Revision-Date: 2016-01-20 11:37+0900\n"
 "Last-Translator: Kazuhiro Yamato <kz0817@gmail.com>\n"
 "Language-Team: Project Hatohol\n"
@@ -111,12 +111,12 @@ msgid "EDIT"
 msgstr "編集"
 
 #: static/js/before_close.js:8
-msgid ""
-"Hatohol is running to monitor system(s).\n"
-"You are trying to leave or close this page."
-msgstr ""
-"Hatoholはシステム監視のため稼働しています。\n"
-"このページを閉じる，または移動しようとしています。"
+msgid "Hatohol is running to monitor system(s).\n"
+msgstr "Hatoholはシステム監視のため稼働しています。\n"
+
+#: static/js/before_close.js:9
+msgid "You are trying to leave or close this page."
+msgstr "このページを閉じる，または移動しようとしています。"
 
 #: static/js/custom_incident_labels_view.js:40 static/js/events_view.js:59
 #: test/browser/test_hatohol_events_view_config.js:6
