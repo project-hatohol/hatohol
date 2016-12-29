@@ -82,7 +82,19 @@ class RabbitMQConnector(Transporter):
         set_if_not_none(conn_args, "virtual_host", vhost)
         set_if_not_none(conn_args, "credentials", credentials)
         set_if_not_none(conn_args, "frame_max", MAX_FRAME_SIZE)
-        set_if_not_none(conn_args, "heartbeat_interval", DEFAULT_HEARTBEAT_TIME)
+
+        # This check is to avoid the error in TravisCI with message below.
+        #
+        #       param = pika.connection.ConnectionParameters(**conn_args)
+        # TypeError: __init__() got an unexpected keyword argument 'heartbeat_interval'
+        #
+        if hasattr(pika.connection.ConnectionParameters,
+                   "DEFAULT_HEARTBEAT_INTERVAL"):
+            set_if_not_none(conn_args, "heartbeat_interval",
+                            DEFAULT_HEARTBEAT_TIME)
+        else:
+           logger.warning("skip: setting heartbeat_interval.")
+
         self.__setup_ssl(conn_args, transporter_args)
 
         param = pika.connection.ConnectionParameters(**conn_args)
