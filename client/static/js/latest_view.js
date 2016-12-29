@@ -248,7 +248,7 @@ var LatestView = function(userProfile) {
   }
 
   function load(page) {
-    if ($("#select-server").val() == "") {
+    if ($("#select-server").val() === "") {
         $("#select-application").empty();
     }
     self.displayUpdateTime();
