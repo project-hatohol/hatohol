@@ -28,6 +28,7 @@ casper.test.begin('Register/Unregister access info list test', function(test) {
       util.registerMonitoringServer(test, monitoringServer);
     });
   });
+  util.openSettingMenu(test);
   casper.waitForSelector(x("//a[normalize-space(text())='ユーザー']"),
     function success() {
       test.assertExists(x("//a[normalize-space(text())='ユーザー']"));
