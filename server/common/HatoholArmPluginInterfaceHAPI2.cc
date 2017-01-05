@@ -557,7 +557,11 @@ void HatoholArmPluginInterfaceHAPI2::send(const std::string &message)
 	AMQPJSONMessage amqpMessage;
 	amqpMessage.body = message;
 	publisher.setMessage(amqpMessage);
-	publisher.publish();
+	if (publisher.publish()) {
+		MLPL_DBG("sended message: %s\n", message.c_str());
+	} else {
+		MLPL_ERR("Failed to send a message: %s\n", message.c_str());
+	}
 }
 
 void HatoholArmPluginInterfaceHAPI2::send(

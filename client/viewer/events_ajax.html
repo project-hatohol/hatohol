@@ -227,7 +227,7 @@
 	      <hr>
 	      <p>
 		<span>
-		  <label for="num-rows-per-page">{% trans "Number of rows per page" %}</label>
+		  <label for="num-rows-per-page">{% trans "Number of rows per page (10 - 500 rows)" %}</label>
 		</span>
 		<span style="float: right;">
 		  <input id="num-rows-per-page" type="text" class="form-control">
@@ -290,8 +290,8 @@
 
 	      <!-- Filter name -->
 	      <div id="filter-name-config" class="btn-group">
-		<label for="filter-name-entry">{% trans "Filter name" %}</label>
-		<input id="filter-name-entry" class="form-control" type="text">
+		<label for="filter-name-entry">{% trans "Filter name(1 - 128 char)" %}</label>
+		<input id="filter-name-entry" class="form-control" type="text"  style="width: 290px" maxlength="128">
 		<button id="filter-name-list-button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
 		  <span class="caret"></span>
 		</button>
@@ -304,7 +304,7 @@
 
 	      <!-- Period filter config -->
 	      <div id="period-filter-container">
-		<label for="period-filter-setting">{% trans "The period to show (recent days)" %}</label>
+		<label for="period-filter-setting">{% trans "The period to show (recent days)(1 - 3650 days)" %}</label>
 		<input id="period-filter-setting" type="text" class="form-control">
 		<label for="period-filter-setting" class="unit">{% trans "days" %}</label>
 	      </div>
@@ -312,7 +312,7 @@
 	      <!-- Incident filter config -->
 	      <p>
 		<input type="checkbox" id="enable-incident-filter-selector">
-		<label for="enable-incident-filter-selector">
+		<label for="enable-incident-filter-selector" id="enable-incident-filter-selector-label">
 		  {% trans 'Include "Handling" to the filter condition' %}
 		</label>
 	      </p>
@@ -643,4 +643,7 @@
     }());
   </script>
   <script src="{{ STATIC_URL }}js/push_notify.js"></script>
+  <script>
+    var notify_icon_url = "{{ STATIC_URL }}images/icon_push_hatohol.png";
+  </script>
 {% endblock %}

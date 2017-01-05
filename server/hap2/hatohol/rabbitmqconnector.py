@@ -21,6 +21,8 @@
 from logging import getLogger
 import os
 import pika
+from pika import exceptions
+import traceback
 import hap
 from hatohol.transporter import Transporter
 from hatohol import hapcommon
@@ -29,6 +31,7 @@ logger = getLogger("hatohol.rabbitmqconnector:%s" % hapcommon.get_top_file_name(
 
 MAX_BODY_SIZE = 50000
 MAX_FRAME_SIZE = 131072
+DEFAULT_HEARTBEAT_TIME = 60
 
 class RabbitMQConnector(Transporter):
     HAPI_AMQP_PASSWORD_ENV_NAME = "HAPI_AMQP_PASSWORD"
@@ -36,8 +39,9 @@ class RabbitMQConnector(Transporter):
         Transporter.__init__(self)
         self._channel = None
         self.__connection = None
+        self.__transporter_args = None
 
-    def setup(self, transporter_args):
+    def _connect(self, transporter_args=None):
         """
         @param transporter_args
         The following keys shall be included.
@@ -56,6 +60,11 @@ class RabbitMQConnector(Transporter):
             if val is not None:
                 kwargs[key] = val
 
+        if transporter_args:
+            self.__transporter_args = transporter_args
+        else:
+            transporter_args = self.__transporter_args
+
         broker = transporter_args["amqp_broker"]
         port = transporter_args["amqp_port"]
         vhost = transporter_args["amqp_vhost"]
@@ -73,6 +82,7 @@ class RabbitMQConnector(Transporter):
         set_if_not_none(conn_args, "virtual_host", vhost)
         set_if_not_none(conn_args, "credentials", credentials)
         set_if_not_none(conn_args, "frame_max", MAX_FRAME_SIZE)
+        set_if_not_none(conn_args, "heartbeat_interval", DEFAULT_HEARTBEAT_TIME)
         self.__setup_ssl(conn_args, transporter_args)
 
         param = pika.connection.ConnectionParameters(**conn_args)
@@ -80,6 +90,9 @@ class RabbitMQConnector(Transporter):
             pika.adapters.blocking_connection.BlockingConnection(param)
         self._channel = self.__connection.channel()
         self._channel.queue_declare(queue=queue_name)
+
+    def setup(self, transporter_args):
+        self._connect(transporter_args)
 
     def __setup_ssl(self, conn_args, transporter_args):
         ssl_key = transporter_args["amqp_ssl_key"]
@@ -134,15 +147,23 @@ class RabbitMQConnector(Transporter):
             logger.debug(msg)
             self.__publish_raw(msg)
         except:
-            # TODO: consider the way to save the message and try to
-            # send it again.
+            logger.error(traceback.format_exc())
             raise hap.Signal(critical=True)
 
     def __publish_raw(self, msg):
-        self._channel.basic_publish(exchange="", routing_key=self._queue_name,
-                                    body=msg,
-                                    properties=pika.BasicProperties(
-                                        content_type="application/json"))
+        publish_argument = {
+                            "exchange": "",
+                            "routing_key": self._queue_name,
+                            "body": msg,
+                            "properties": pika.BasicProperties(
+                                        content_type="application/json")
+                            }
+        try:
+            self._channel.basic_publish(**publish_argument)
+        except exceptions.ConnectionClosed:
+            self._connect()
+            self._channel.basic_publish(**publish_argument)
+            logger.debug("Reconnect to RabbitMQ broker")
 
     @classmethod
     def define_arguments(cls, parser):

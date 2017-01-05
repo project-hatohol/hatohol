@@ -206,24 +206,24 @@ ENABLED_PAGES = (
     #
     # monitoring views
     #
-    #"ajax_dashboard",
-    #"ajax_overview_triggers",
+    "ajax_dashboard",
+    "ajax_overview_triggers",
     #"ajax_overview_items",
-    #"ajax_latest",
-    #"ajax_triggers",
-    #"ajax_events",
+    "ajax_latest",
+    "ajax_triggers",
+    "ajax_events",
 
     #
     # settings views
     #
-    #"ajax_servers",
-    #"ajax_actions",
-    #"ajax_graphs",
-    #"ajax_incident_settings",
-    #"ajax_log_search_systems",
-    #"ajax_users",
-    #"ajax_severity_ranks"
-    #"ajax_custom_incident_labels"
+    "ajax_servers",
+    "ajax_actions",
+    "ajax_graphs",
+    "ajax_incident_settings",
+    "ajax_log_search_systems",
+    "ajax_users",
+    "ajax_severity_ranks",
+    "ajax_custom_incident_labels",
 
     #
     # Help menu

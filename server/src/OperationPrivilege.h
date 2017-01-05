@@ -87,6 +87,7 @@ public:
 
 	OperationPrivilege(const UserIdType &userId);
 	OperationPrivilege(const OperationPrivilegeFlag &flags = 0);
+	OperationPrivilege(const OperationPrivilegeType &type);
 	OperationPrivilege(const OperationPrivilege &src);
 	virtual ~OperationPrivilege();
 

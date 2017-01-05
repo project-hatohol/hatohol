@@ -445,7 +445,7 @@ var TriggersView = function(userProfile, options) {
     setupFilterValues();
     setupTableColor();
     setLoading(false);
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 
   function getTriggersQueryInURI() {
@@ -536,7 +536,7 @@ var TriggersView = function(userProfile, options) {
   function load(options) {
     options = options || {};
     self.displayUpdateTime();
-    setLoading(true);
+    setLoading(false);
     if (!isNaN(options.page)) {
       self.currentPage = options.page;
     }

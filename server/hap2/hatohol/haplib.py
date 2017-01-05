@@ -602,10 +602,9 @@ class HapiProcessor:
             if self.__reply_queue.get(True, self.__timeout_sec) == True:
                 pass
             else:
-                raise
+                logger.error("Request(ID: %d) is not accepted." % request_id)
         except Queue.Empty:
             logger.error("Request(ID: %d) is not accepted." % request_id)
-            raise
 
     def __wait_response(self, request_id):
         try:
@@ -619,13 +618,12 @@ class HapiProcessor:
                 logger.error(msg)
                 raise Exception(msg)
             return pm.message_dict["result"]
-
-        except ValueError as exception:
+        except ValueError:
             logger.error("Got invalid response.")
-            raise
+            raise Exception
         except Queue.Empty:
             logger.error("Request failed.")
-            raise
+            raise Exception
 
 class ChildProcess:
     def __init__(self):

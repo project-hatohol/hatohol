@@ -58,6 +58,7 @@ Requires: mariadb
 Requires: MySQL-python
 Requires: libuuid >= 2.17
 Requires: librabbitmq >= 0.4.1
+Requires: logrotate
 Requires: hatohol-lib-common = %{version}
 Requires: hatohol-hap2-common = %{version}
 
@@ -92,6 +93,10 @@ creates a response page when a user accesses.
 Summary: Library files of HAPI2.1
 Group: Applications/System
 Requires: python-pika
+Requires: logrotate
+%if %is_el6
+Requires: python-argparse
+%endif
 Requires: hatohol-hap2-rabbitmq-connector = %{version}
 
 %description hap2-common
@@ -168,14 +173,37 @@ rm -rf %{buildroot}
 %if %is_el6
 install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package6 %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
 install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hatohol.centos %{buildroot}/%{_sysconfdir}/init.d/hatohol
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hap2-zabbix-api %{buildroot}/%{_sysconfdir}/init.d/hap2-zabbix-api
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hap2-nagios-ndoutils %{buildroot}/%{_sysconfdir}/init.d/hap2-nagios-ndoutils
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hap2-nagios-livestatus %{buildroot}/%{_sysconfdir}/init.d/hap2-nagios-livestatus
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hap2-ceilometer %{buildroot}/%{_sysconfdir}/init.d/hap2-ceilometer
+install -D -m 755 %{buildroot}/%{_datadir}/hatohol/hap2-fluentd %{buildroot}/%{_sysconfdir}/init.d/hap2-fluentd
 install -d -m 755 %{buildroot}/%{_localstatedir}/run/hatohol
+install -d -m 755 %{buildroot}/%{_localstatedir}/log/hatohol
 %endif
 %if %is_el7
 install -D -m 644 %{buildroot}/%{_libexecdir}/hatohol/client/conf/apache/hatohol.conf.package7 %{buildroot}/%{_sysconfdir}/httpd/conf.d/hatohol.conf
 install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hatohol.service %{buildroot}/%{_unitdir}/hatohol.service
 install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hatohol.conf %{buildroot}/%{_tmpfilesdir}/hatohol.conf
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hap2-zabbix-api.service %{buildroot}/%{_unitdir}/hap2-zabbix-api.service
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hap2-zabbix-api.conf %{buildroot}/%{_tmpfilesdir}/hap2-zabbix-api.conf
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hap2-nagios-ndoutils.service %{buildroot}/%{_unitdir}/hap2-nagios-ndoutils.service
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hap2-nagios-ndoutils.conf %{buildroot}/%{_tmpfilesdir}/hap2-nagios-ndoutils.conf
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hap2-nagios-livestatus.service %{buildroot}/%{_unitdir}/hap2-nagios-livestatus.service
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hap2-nagios-livestatus.conf %{buildroot}/%{_tmpfilesdir}/hap2-nagios-livestatus.conf
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hap2-fluentd.service %{buildroot}/%{_unitdir}/hap2-fluentd.service
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hap2-fluentd.conf %{buildroot}/%{_tmpfilesdir}/hap2-fluentd.conf
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hap2-ceilometer.service %{buildroot}/%{_unitdir}/hap2-ceilometer.service
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hap2-ceilometer.conf %{buildroot}/%{_tmpfilesdir}/hap2-ceilometer.conf
 %endif
 
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hatohol-syslog.conf %{buildroot}/%{_sysconfdir}/rsyslog.d/hatohol.conf
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hatohol-server %{buildroot}/%{_sysconfdir}/logrotate.d/hatohol-server
+install -D -m 644 %{buildroot}/%{_datadir}/hatohol/hatohol-arm-plugin2 %{buildroot}/%{_sysconfdir}/logrotate.d/hatohol-arm-plugin2
+
+rm -f %{buildroot}/%{_datadir}/hatohol/hatohol-syslog.conf
+rm -f %{buildroot}/%{_datadir}/hatohol/hatohol-server
+rm -f %{buildroot}/%{_datadir}/hatohol/hatohol-arm-plugin2
 rm -f %{buildroot}/%{_libdir}/*.la
 rm -f %{buildroot}/%{_libdir}/*.a
 rm -f %{buildroot}%{python_sitelib}/hatohol-0.0.0-py2.*.egg-info
@@ -187,30 +215,142 @@ getent passwd hatohol > /dev/null || \
     useradd -r -g hatohol -d %{_datadir}/hatohol -s /sbin/nologin \
     -c "Hatohol" hatohol
 
-%post server
-/sbin/ldconfig
-%if %is_el6
-/sbin/chkconfig --add hatohol
-%endif
-%if %is_el7
-/usr/bin/systemctl daemon-reload
-/usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/hatohol.conf
-%endif
-mkdir -p %{_sysconfdir}/hatohol
-
-%postun server
-/sbin/ldconfig
+%preun server
 %if %is_el6
 /sbin/service hatohol stop
 /sbin/chkconfig --del hatohol
 %endif
+
+%pre hap2-common
+getent group hatohol > /dev/null || groupadd -r hatohol
+getent passwd hatohol > /dev/null || \
+    useradd -r -g hatohol -d %{_datadir}/hatohol -s /sbin/nologin \
+    -c "Hatohol" hatohol
+
+%post server
+/sbin/ldconfig
+%if %is_el6
+/sbin/chkconfig --add hatohol
+service rsyslog restart
+%endif
+%if %is_el7
+/usr/bin/systemctl daemon-reload
+/usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/hatohol.conf
+systemctl restart rsyslog
+%endif
+
+%postun server
+/sbin/ldconfig
 %if %is_el7
 /usr/bin/systemctl stop hatohol
 /usr/bin/systemctl daemon-reload
 %endif
 
+%preun hap2-zabbix
+%if %is_el6
+/sbin/service hap2-zabbix-api stop
+/sbin/chkconfig --del hap2-zabbix-api
+%endif
+
+%post hap2-zabbix
+%if %is_el6
+chkconfig --add hap2-zabbix-api
+%endif
+%if %is_el7
+/usr/bin/systemctl daemon-reload
+/usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/hap2-zabbix-api.conf
+%endif
+
+%postun hap2-zabbix
+%if %is_el7
+/usr/bin/systemctl stop hap2-zabbix-api
+/usr/bin/systemctl daemon-reload
+%endif
+
+%preun hap2-nagios-ndoutils
+%if %is_el6
+/sbin/service hap2-nagios-ndoutils stop
+/sbin/chkconfig --del hap2-nagios-ndoutils
+%endif
+
+%post hap2-nagios-ndoutils
+%if %is_el6
+chkconfig --add hap2-nagios-ndoutils
+%endif
+%if %is_el7
+/usr/bin/systemctl daemon-reload
+/usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/hap2-nagios-ndoutils.conf
+%endif
+
+%postun hap2-nagios-ndoutils
+%if %is_el7
+/usr/bin/systemctl stop hap2-nagios-ndoutils
+/usr/bin/systemctl daemon-reload
+%endif
+
+%preun hap2-nagios-livestatus
+%if %is_el6
+/sbin/service hap2-nagios-livestatus stop
+/sbin/chkconfig --del hap2-nagios-livestatus
+%endif
+
 %post hap2-nagios-livestatus
+%if %is_el6
+chkconfig --add hap2-nagios-livestatus
+%endif
 pip install python-mk-livestatus
+%if %is_el7
+/usr/bin/systemctl daemon-reload
+/usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/hap2-nagios-livestatus.conf
+%endif
+
+%postun hap2-nagios-livestatus
+%if %is_el7
+/usr/bin/systemctl stop hap2-nagios-livestauts
+/usr/bin/systemctl daemon-reload
+%endif
+
+%preun hap2-fluentd
+%if %is_el6
+/sbin/service hap2-fluentd stop
+/sbin/chkconfig --del hap2-fluentd
+%endif
+
+%post hap2-fluentd
+%if %is_el6
+chkconfig --add hap2-fluentd
+%endif
+%if %is_el7
+/usr/bin/systemctl daemon-reload
+/usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/hap2-fluentd.conf
+%endif
+
+%postun hap2-fluentd
+%if %is_el7
+/usr/bin/systemctl stop hap2-fluentd
+/usr/bin/systemctl daemon-reload
+%endif
+
+%preun hap2-ceilometer
+%if %is_el6
+/sbin/service hap2-cwilometer stop
+/sbin/chkconfig --del hap2-ceilometer
+%endif
+
+%post hap2-ceilometer
+%if %is_el6
+chkconfig --add hap2-ceilometer
+%endif
+%if %is_el7
+/usr/bin/systemctl daemon-reload
+/usr/bin/systemd-tmpfiles --create %{_tmpfilesdir}/hap2-ceilometer.conf
+%endif
+
+%postun hap2-ceilometer
+%if %is_el7
+/usr/bin/systemctl stop hap2-ceilometer
+/usr/bin/systemctl daemon-reload
+%endif
 
 %clean
 rm -rf %{buildroot}
@@ -240,13 +380,15 @@ rm -rf %{buildroot}
 %{_datadir}/hatohol/hatohol.service
 %{_datadir}/hatohol/hatohol.conf
 %config %{_sysconfdir}/hatohol/hatohol.conf
+%config %{_sysconfdir}/rsyslog.d/hatohol.conf
+%config %{_sysconfdir}/logrotate.d/hatohol-server
 %if %is_el6
 %{_sysconfdir}/init.d/hatohol
 %attr(0755,hatohol,hatohol) %dir %{_localstatedir}/run/hatohol
 %endif
 %if %is_el7
 %{_unitdir}/hatohol.service
-%{_tmpfilesdir}/hatohol.conf
+%config %{_tmpfilesdir}/hatohol.conf
 %endif
 %{_datadir}/hatohol/sql/10-init-user.sql
 %{_datadir}/hatohol/sql/30-severity-ranks.sql
@@ -300,8 +442,16 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_starter.pyo
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_starter_alive.py
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_starter_alive.pyc
+%{_libexecdir}/hatohol/hap2/hatohol/hap2_starter_alive.pyo
 %config %{_sysconfdir}/hatohol/hap2.conf
 %config %{_sysconfdir}/hatohol/hap2-logging.conf
+%config %{_sysconfdir}/logrotate.d/hatohol-arm-plugin2
+%if %is_el6
+%attr(0755,hatohol,hatohol) %dir %{_localstatedir}/run/hatohol
+%attr(0755,hatohol,hatohol) %dir %{_localstatedir}/log/hatohol
+%endif
 
 %files hap2-rabbitmq-connector
 %{python_sitelib}/hatohol/rabbitmqconnector.py
@@ -313,6 +463,12 @@ rm -rf %{buildroot}
 
 %files hap2-zabbix
 %{_datadir}/hatohol/sql/90-server-type-hap2-zabbix.sql
+%{_datadir}/hatohol/hap2-zabbix-api.service
+%{_datadir}/hatohol/hap2-zabbix-api.conf
+%if %is_el6
+%{_sysconfdir}/init.d/hap2-zabbix-api
+%endif
+%{_datadir}/hatohol/hap2-zabbix-api
 %{python_sitelib}/hatohol/zabbixapi.py
 %{python_sitelib}/hatohol/zabbixapi.pyc
 %{python_sitelib}/hatohol/zabbixapi.pyo
@@ -320,34 +476,83 @@ rm -rf %{buildroot}
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_zabbix_api.pyo
+%config %{_sysconfdir}/hatohol/hap2-zabbix-api.conf
+%if %is_el7
+%{_unitdir}/hap2-zabbix-api.service
+%config %{_tmpfilesdir}/hap2-zabbix-api.conf
+%endif
 
 %files hap2-nagios-ndoutils
 %{_datadir}/hatohol/sql/90-server-type-hap2-nagios-ndoutils.sql
+%{_datadir}/hatohol/hap2-nagios-ndoutils.service
+%{_datadir}/hatohol/hap2-nagios-ndoutils.conf
+%if %is_el6
+%{_sysconfdir}/init.d/hap2-nagios-ndoutils
+%endif
+%{_datadir}/hatohol/hap2-nagios-ndoutils
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-nagios-ndoutils.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_ndoutils.pyo
+%config %{_sysconfdir}/hatohol/hap2-nagios-ndoutils.conf
+%if %is_el7
+%{_unitdir}/hap2-nagios-ndoutils.service
+%config %{_tmpfilesdir}/hap2-nagios-ndoutils.conf
+%endif
 
 %files hap2-nagios-livestatus
 %{_datadir}/hatohol/sql/90-server-type-hap2-nagios-livestatus.sql
+%{_datadir}/hatohol/hap2-nagios-livestatus.service
+%{_datadir}/hatohol/hap2-nagios-livestatus.conf
+%if %is_el6
+%{_sysconfdir}/init.d/hap2-nagios-livestatus
+%endif
+%{_datadir}/hatohol/hap2-nagios-livestatus
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-nagios-livestatus.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_nagios_livestatus.pyo
+%config %{_sysconfdir}/hatohol/hap2-nagios-livestatus.conf
+%if %is_el7
+%{_unitdir}/hap2-nagios-livestatus.service
+%config %{_tmpfilesdir}/hap2-nagios-livestatus.conf
+%endif
 
 %files hap2-fluentd
 %{_datadir}/hatohol/sql/90-server-type-hap2-fluentd.sql
+%{_datadir}/hatohol/hap2-fluentd.service
+%{_datadir}/hatohol/hap2-fluentd.conf
+%if %is_el6
+%{_sysconfdir}/init.d/hap2-fluentd
+%endif
+%{_datadir}/hatohol/hap2-fluentd
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-fluentd.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_fluentd.pyo
+%config %{_sysconfdir}/hatohol/hap2-fluentd.conf
+%if %is_el7
+%{_unitdir}/hap2-fluentd.service
+%config %{_tmpfilesdir}/hap2-fluentd.conf
+%endif
 
 %files hap2-ceilometer
+%{_datadir}/hatohol/hap2-ceilometer.service
+%{_datadir}/hatohol/hap2-ceilometer.conf
 %{_datadir}/hatohol/sql/90-server-type-hap2-ceilometer.sql
+%if %is_el6
+%{_sysconfdir}/init.d/hap2-ceilometer
+%endif
+%{_datadir}/hatohol/hap2-ceilometer
 %{_libexecdir}/hatohol/hap2/start-stop-hap2-ceilometer.sh
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.py
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.pyc
 %{_libexecdir}/hatohol/hap2/hatohol/hap2_ceilometer.pyo
+%config %{_sysconfdir}/hatohol/hap2-ceilometer.conf
+%if %is_el7
+%{_unitdir}/hap2-ceilometer.service
+%config %{_tmpfilesdir}/hap2-ceilometer.conf
+%endif
 
 %changelog
 * Fri Dec 26 2014 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 14.12-1
