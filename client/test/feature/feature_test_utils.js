@@ -26,8 +26,17 @@ function logout(test) {
 };
 exports.logout = logout;
 
+function openSettingMenu(test) {
+  casper.waitForSelector(x("//a[normalize-space(text())='設定']"),
+    function success() {
+      this.click(x("//a[normalize-space(text())='設定']"));
+    });
+}
+exports.openSettingMenu = openSettingMenu;
+
 function moveToServersPage(test) {
   // move to servers page
+  openSettingMenu(test);
   casper.waitForSelector(x("//a[normalize-space(text())='監視サーバー']"),
     function success() {
       test.assertExists(x("//a[normalize-space(text())='監視サーバー']",
@@ -159,6 +168,7 @@ exports.unregisterMonitoringServer = unregisterMonitoringServer;
 
 function moveToIncidentSettingsPage(test) {
   // move to incident setting page
+  openSettingMenu(test);
   casper.waitForSelector(x("//a[normalize-space(text())='インシデント管理']"),
     function success() {
       test.assertExists(x("//a[normalize-space(text())='インシデント管理']",
@@ -351,6 +361,7 @@ function moveToDashboardPage(test) {
 exports.moveToDashboardPage = moveToDashboardPage;
 
 function moveToLogSearchSystemPage(test) {
+  openSettingMenu(test);
   casper.waitForSelector(x("//a[normalize-space(text())='ログ検索システム']"),
     function success() {
       test.assertExists(x("//a[normalize-space(text())='ログ検索システム']"));

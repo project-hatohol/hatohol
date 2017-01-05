@@ -33,6 +33,7 @@ casper.test.begin('Register/Unregister action test', function(test) {
     });
   });
   // move to actions page
+  util.openSettingMenu(test);
   casper.waitForSelector(x("//a[normalize-space(text())='アクション']"),
     function success() {
       test.assertExists(x("//a[normalize-space(text())='アクション']",

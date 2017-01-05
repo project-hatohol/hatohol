@@ -14,6 +14,7 @@ casper.test.begin('Register/Unregister user role test', function(test) {
   var editedRoleName = "modifiedWatcher";
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
+  util.openSettingMenu(test);
   casper.waitForSelector(x("//a[normalize-space(text())='ユーザー']"),
     function success() {
       test.assertExists(x("//a[normalize-space(text())='ユーザー']"));

@@ -21,6 +21,7 @@ casper.test.begin('Register/Unregister incident tracker(Redmine) test', function
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   // move to incident setting page
+  util.openSettingMenu(test);
   casper.waitForSelector(x("//a[normalize-space(text())='インシデント管理']"),
     function success() {
       test.assertExists(x("//a[normalize-space(text())='インシデント管理']",

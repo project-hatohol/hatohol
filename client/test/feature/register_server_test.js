@@ -35,6 +35,7 @@ casper.test.begin('Register/Unregister server test', function(test) {
   casper.start('http://0.0.0.0:8000/ajax_dashboard');
   casper.then(function() {util.login(test);});
   // move to servers page
+  util.openSettingMenu(test);
   casper.waitForSelector(x("//a[normalize-space(text())='監視サーバー']"),
     function success() {
       test.assertExists(x("//a[normalize-space(text())='監視サーバー']",
