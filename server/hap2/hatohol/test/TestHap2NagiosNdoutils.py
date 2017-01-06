@@ -156,7 +156,7 @@ class TestCommon(unittest.TestCase):
         comm.collect_triggers_and_put(fetch_id)
         self.assertEquals(type(comm.stores["triggers"]), type([]))
         self.assertEquals(comm.stores["update_type"], "ALL")
-        self.assertEquals(comm.stores["last_info"], None)
+        self.assertNotEquals(comm.stores["last_info"], None)
         self.assertEquals(comm.stores["fetch_id"], fetch_id)
 
     def test_collect_events_and_put(self):
