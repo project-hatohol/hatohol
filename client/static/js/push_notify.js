@@ -29,7 +29,7 @@
         gettext('Failure has occurred.'),
         {
           body: alertBodyText,
-          icon: 'static/images/icon_push_hatohol.png'
+          icon: notify_icon_url
         }
       );
     }

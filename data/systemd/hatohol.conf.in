@@ -1,0 +1,2 @@
+d /run/hatohol 755 hatohol hatohol
+d @expanded_localstatedir@/log/hatohol 755 hatohol hatohol

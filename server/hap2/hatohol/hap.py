@@ -27,6 +27,7 @@ classes used in them have to be in this module.
 
 import logging
 import logging.config
+import logging.handlers
 from logging import getLogger
 import sys
 import errno
@@ -48,7 +49,7 @@ def initialize_logger(parser=None):
     """
     # This level is used until setup_logger() is called.
     # TODO: Shoud be configurable. For example, by environment variable
-    handler = logging.StreamHandler()
+    handler = logging.handlers.SysLogHandler("/dev/log")
     fmt = "%(asctime)s %(levelname)8s [%(process)5d] %(name)s:%(lineno)d:  " \
           "%(message)s"
     formatter = logging.Formatter(fmt)
@@ -59,20 +60,27 @@ def initialize_logger(parser=None):
 
     if parser is not None:
         choices = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
-        parser.add_argument("--log", dest="loglevel", choices=choices,
-                            default="INFO")
+        parser.add_argument("--log", dest="loglevel", choices=choices)
         parser.add_argument("--log-conf", dest="log_conf_file",
                             help="The path of the logging configuration file.")
 
 
 def setup_logger(args):
+    hatohol_logger = getLogger("hatohol")
     if args.log_conf_file is not None:
+        logger.info("log_conf_file option was used. Remove default SysLogHandler and read the logging conf file.")
+        hatohol_logger.removeHandler(logging.handlers.SysLogHandler())
         logging.config.fileConfig(args.log_conf_file)
 
-    numeric_level = getattr(logging, args.loglevel.upper(), None)
+    if args.loglevel:
+        numeric_level = getattr(logging, args.loglevel.upper(), None)
+        logger.debug(numeric_level)
+    else:
+        logger.debug("Unuse loglevel")
+        return
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % loglevel)
-    getLogger("hatohol").setLevel(numeric_level)
+    hatohol_logger.setLevel(numeric_level)
 
 
 def handle_exception(raises=(SystemExit,)):
@@ -150,7 +158,7 @@ class Signal:
 
 class ConfigFileParser():
     def __init__(self, conf_path, remaining_args, parser):
-        config_parser = ConfigParser.SafeConfigParser(allow_no_value=True)
+        config_parser = ConfigParser.SafeConfigParser()
         config_parser.read(conf_path)
         self.item_dict = dict(config_parser.items("hap2"))
         self.parser = argparse.ArgumentParser(parents=[parser])
@@ -172,8 +180,8 @@ class ConfigFileParser():
 
         if kwargs.has_key("type") and default_value:
             default_value = kwargs["type"](default_value)
-        if kwargs.get("action")=="store_true" and default_value=="":
-            default_value = True
+        if kwargs.get("action") == "store_true":
+            default_value = (default_value == "True")
         if kwargs.has_key("nargs") and default_value:
             default_value = default_value.split()
         if not default_value:

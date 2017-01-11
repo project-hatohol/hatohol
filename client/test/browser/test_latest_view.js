@@ -133,6 +133,7 @@ describe('LatestView', function() {
       '</td>' +
       '<td>54.28 %</td>' +
       '<td>' + anchorTagForDomesticLink(historyURL, 'Graph') + '</td>';
+    $('button.latest-button').click();
     respond('{}', itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);
@@ -152,6 +153,7 @@ describe('LatestView', function() {
       '</td>' +
       '<td>host1</td>' +
       '<td></td>';
+    $('button.latest-button').click();
     respond('{}', itemsJson(defaultItems, defaultServers));
     expect($('#table')).to.have.length(1);
     expect($('tr')).to.have.length(defaultItems.length + 1);

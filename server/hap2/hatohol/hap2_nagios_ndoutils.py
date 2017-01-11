@@ -123,6 +123,16 @@ class Common:
         nag_datetime = datetime.datetime.strptime(over_second, '%Y%m%d%H%M%S')
         return nag_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
+    def __get_latest_statehistory_id(self):
+        sql = "SELECT statehistory_id FROM nagios_statehistory " \
+              "ORDER BY statehistory_id DESC LIMIT 1;"
+
+        statehistory_id = None
+        if self.__cursor.execute(sql):
+            statehistory_id = str(self.__cursor.fetchall()[0][0])
+
+        return statehistory_id
+
     def collect_hosts_and_put(self):
         sql = "SELECT host_object_id,display_name FROM nagios_hosts"
         self.__cursor.execute(sql)
@@ -234,6 +244,9 @@ class Common:
                            last_info=self.__trigger_last_info,
                            fetch_id=fetch_id)
 
+    def set_event_last_info(self, last_info):
+        assert True, "This method should be given in a child class."
+
     def collect_events_and_put(self, fetch_id=None, last_info=None,
                                count=None, direction="ASC"):
         t0 = "nagios_statehistory"
@@ -258,6 +271,12 @@ class Common:
             raw_last_info = last_info
         else:
             raw_last_info = self.get_cached_event_last_info()
+            if not raw_last_info:
+                latest_id = self.__get_latest_statehistory_id()
+                if latest_id:
+                    self.set_event_last_info(latest_id)
+                else:
+                    self.set_event_last_info("0")
 
         if raw_last_info is not None \
             and raw_last_info != self.INITIAL_LAST_INFO:
@@ -342,7 +361,7 @@ class Common:
             event_id = int(last_info)
         except:
             pass
-        if event_id <= 0:
+        if event_id < 0:
             event_id = None
         return event_id
 

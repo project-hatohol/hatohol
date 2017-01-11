@@ -445,7 +445,7 @@ var TriggersView = function(userProfile, options) {
     setupFilterValues();
     setupTableColor();
     setLoading(false);
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 
   function getTriggersQueryInURI() {

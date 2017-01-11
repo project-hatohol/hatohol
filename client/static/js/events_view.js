@@ -38,12 +38,9 @@ var EventsView = function(userProfile, options) {
     sortType:         "time",
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
   };
-  $.extend(self.baseQuery, getEventsQueryInURI());
   self.lastFilterId = null;
   self.lastQuickFilter = {};
   self.isFilteringOptionsUsed = false;
-  self.severities = null;
-  self.incidentStatuses = null;
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
@@ -312,7 +309,7 @@ var EventsView = function(userProfile, options) {
       selectPageCallback: function(page) {
         if (self.pager.numRecordsPerPage != self.baseQuery.limit)
           self.baseQuery.limit = self.pager.numRecordsPerPage;
-        load({ page: page, unrefreshSummeryFilter: true});
+        load({ page: page });
       }
     });
   }
@@ -328,12 +325,6 @@ var EventsView = function(userProfile, options) {
         filteringOpts.show();
         $("#filtering-options-brief-line").text(getBriefOfFilteringOptions());
         title = gettext("Filtering Results");
-    }
-    if (self.severities) {
-      title = gettext("Important Events");
-      if (self.incidentStatuses) {
-        title = gettext("Unhandled Important Events");
-      }
     }
     title += " (" + numEvents + ")";
     $("#controller-container-title").text(title);
@@ -422,7 +413,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function getQuery(options) {
-    var query = {}, baseFilter;
+    var query = {}, baseFilter, URIQuery, URISeverities, URIIncidentStatuses;
 
     options = options || {};
 
@@ -440,13 +431,36 @@ var EventsView = function(userProfile, options) {
       self.lastQuickFilter = getQuickFilter();
     }
     baseFilter = self.userConfig.getFilter(self.lastFilterId);
+    URIQuery = getEventsQueryInURI();
+    URISeverities = URIQuery.severities;
+    delete URIQuery["severities"];
+    URIIncidentStatuses = URIQuery.incidentStatuses;
+    delete URIQuery["incidentStatuses"];
 
-    $.extend(query, self.baseQuery, baseFilter, self.lastQuickFilter, {
+    if (baseFilter.severities && URISeverities) {
+      baseFilter.severities = getListProduct(baseFilter.severities.split(","),
+                                             URISeverities.split(",")).join(",");
+      if (baseFilter.severities.length === 0) {
+        baseFilter.severities = "-1";
+      }
+    } else if (URISeverities) {
+      baseFilter.severities = URISeverities;
+    }
+
+    if (baseFilter.incidentStatuses && URIIncidentStatuses) {
+      baseFilter.incidentStatuses = getListProduct(baseFilter.incidentStatuses.split(","),
+                                             URIIncidentStatuses.split(",")).join(",");
+      if (baseFilter.incidentStatuses.length === 0) {
+        baseFilter.incidentStatuses = "NOTHING";
+      }
+    } else if (URIIncidentStatuses) {
+        baseFilter.incidentStatuses =  URIIncidentStatuses;
+    }
+
+    $.extend(query, self.baseQuery, baseFilter, URIQuery, self.lastQuickFilter, {
       offset:           self.baseQuery.limit * self.currentPage,
       limit:            self.baseQuery.limit,
       limitOfUnifiedId: self.limitOfUnifiedId,
-      incidentStatuses: self.incidentStatuses,
-      severities:       self.severities,
     });
 
     // TODO: Should set it by caller
@@ -467,6 +481,10 @@ var EventsView = function(userProfile, options) {
     return 'summary/important-event?' + $.param(query);
   }
 
+  function getListProduct(listA, listB) {
+    return listA.filter(function(i){return listB[listB.indexOf(i)];});
+  }
+
   function load(options) {
     options = options || {};
     self.displayUpdateTime();
@@ -477,10 +495,6 @@ var EventsView = function(userProfile, options) {
     } else {
       options.page = 0;
       self.currentPage = 0;
-    }
-    if (!options.unrefreshSummeryFilter) {
-      self.severities = null;
-      self.incidentStatuses = null;
     }
     self.startConnection(getQuery(options), updateCore);
     self.startConnection(getSummaryQuery(), updateSummary);
@@ -660,11 +674,17 @@ var EventsView = function(userProfile, options) {
     if (shouldEnableHandlingFeature()) {
       $("#select-incident-container").show();
       $("#change-incident-container").show();
+      $("#summaryUnhandledImportantEvents").show();
+      $("#enable-incident-filter-selector").show();
+      $("#enable-incident-filter-selector-label").show();
       $(".incidentCheckbox").show();
       fixupEventsTableHeight();
     } else {
       $("#select-incident-container").hide();
       $("#change-incident-container").hide();
+      $("#summaryUnhandledImportantEvents").hide();
+      $("#enable-incident-filter-selector").hide();
+      $("#enable-incident-filter-selector-label").hide();
       $(".incidentCheckbox").hide();
       fixupEventsTableHeight();
     }
@@ -693,30 +713,27 @@ var EventsView = function(userProfile, options) {
 
   function setupCallbacks() {
     $('#summaryAllEvents').click(function() {
-      self.isFilteringOptionsUsed = false;
-      load();
+      domesticLink("ajax_events");
     });
 
     $('#summaryUnhandledImportantEvents').click(function() {
-      self.incidentStatuses = ["NONE", "HOLD", ""].join(",");
+      var query = { incidentStatuses: ["NONE", ""].join(",") };
       var importantSeverities = getImportantSeverities();
 
       if (importantSeverities.length > 0)
-        self.severities = importantSeverities.join(",");
+        query.severities = importantSeverities.join(",");
 
-      self.isFilteringOptionsUsed = false;
-      load({unrefreshSummeryFilter: true});
+      domesticLink("ajax_events?" + $.param(query));
     });
 
     $('#summaryImportantEvents').click(function() {
+      var query = {};
       var importantSeverities = getImportantSeverities();
 
       if (importantSeverities.length > 0)
-        self.severities = importantSeverities.join(",");
+        query.severities = importantSeverities.join(",");
 
-      self.incidentStatuses = null;
-      self.isFilteringOptionsUsed = false;
-      load({unrefreshSummeryFilter: true});
+      domesticLink("ajax_events?" + $.param(query));
     });
 
     $('#select-summary-filter').change(function() {
@@ -798,7 +815,7 @@ var EventsView = function(userProfile, options) {
 
     // update existing incidents and post new incidents
     for (i = 0; i < incidents.length; i++) {
-      unifiedId = parseInt(incidents[i].getAttribute("data-unified-id"));
+      unifiedId = parseInt(incidents[i].parentElement.getAttribute("data-unified-id"));
       trackerId = parseInt(incidents[i].getAttribute("data-tracker-id"));
       if (trackerId > 0) {
         promise = applyIncidentStatus(unifiedId, status, errors);
@@ -1202,7 +1219,7 @@ var EventsView = function(userProfile, options) {
     html += "<td class='" + getSeverityClass(event) + "'>";
     if (serverURL && serverURL.indexOf("zabbix") >= 0 &&
         !isSelfMonitoringHost(hostId)) {
-      html += "<a href='" + serverURL + "latest.php?&hostid=" +
+      html += "<a href='" + serverURL + "events.php?&hostid=" +
               hostId + "' target='_blank'>" + escapeHTML(hostName) +
               "</a></td>";
     } else if (serverURL && serverURL.indexOf("nagios") >= 0 &&
@@ -1282,10 +1299,8 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataIncidentStatus(event, server) {
     var html = "", incident = getIncident(event);
-    var unifiedId = event["unifiedId"], trackerId;
 
     html += "<td class='selectable incident nowrap " + getSeverityClass(event) + "'";
-    html += " data-unified-id='" + unifiedId + "'";
     if (incident) {
       trackerId = incident["trackerId"];
       if (trackerId > 0)
@@ -1559,15 +1574,16 @@ var EventsView = function(userProfile, options) {
 
   function drawTableBody() {
     var html = "";
-    var x, y, serverId, server, event, columnName, definition;
+    var x, y, serverId, server, event, columnName, definition, unifiedId;
     var haveIncident = self.rawData["haveIncident"];
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event = self.rawData["events"][x];
       serverId = event["serverId"];
+      unifiedId = event["unifiedId"];
       server = self.rawData["servers"][serverId];
 
-      html += "<tr>";
+      html += "<tr data-unified-id='" + unifiedId + "'>";
       for (y = 0; y < self.columnNames.length; y++) {
         columnName = self.columnNames[y];
         definition = columnDefinitions[columnName];
@@ -1622,7 +1638,7 @@ var EventsView = function(userProfile, options) {
         $tr.next().find('td:eq(0)').html(html);
         updateCommentCount($tr, reply.incidentHistory);
       },
-      parseErrorCallback: function() {
+      parseErrorCallback: function(reply, parser) {
         var message = parser.getMessage();
         if (!message) {
           message =
@@ -1631,7 +1647,7 @@ var EventsView = function(userProfile, options) {
         }
         if (parser.optionMessages)
           message += " " + parser.optionMessages;
-        hatoholErrorMsgBox(messge);
+        hatoholErrorMsgBox(message);
       },
     });
   }
@@ -1655,7 +1671,7 @@ var EventsView = function(userProfile, options) {
         }
         if (parser.optionMessages)
           message += " " + parser.optionMessages;
-        hatoholErrorMsgBox(messge);
+        hatoholErrorMsgBox(message);
       },
     });
   }
@@ -1679,7 +1695,7 @@ var EventsView = function(userProfile, options) {
 
     $('.userCommentButton').on('click', function() {
       var $tr = $(this).parents('tr');
-      var unifiedEventId = $tr.children('td').first().attr("data-unified-id");
+      var unifiedEventId = $tr.attr("data-unified-id");
 
       if (!$tr.is('.open')) {
         loadComments($tr, unifiedEventId);
@@ -1698,7 +1714,7 @@ var EventsView = function(userProfile, options) {
       var $userCommentForm = $(this).parents('.userCommentForm');
       var $textarea = $userCommentForm.find('textarea:eq(0)');
       var $tr = $userCommentForm.parents('.userCommentRow').prev("tr");
-      var unifiedEventId = $tr.children('td').first().attr("data-unified-id");
+      var unifiedEventId = $tr.attr("data-unified-id");
       var comment = $textarea.val();
       postComment($tr, unifiedEventId, comment);
     });

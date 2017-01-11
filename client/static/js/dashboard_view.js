@@ -114,15 +114,10 @@ var DashboardView = function(userProfile) {
       serverStatus = serverStatuses[x];
       serverId = serverStatus["serverId"];
       html += "<tr>";
-      html += "<td rowspan='4'>" + escapeHTML(serverStatus["serverNickname"]) + "</td>";
+      html += "<td rowspan='2'>" + escapeHTML(serverStatus["serverNickname"]) + "</td>";
       html += "<td>" + gettext("Number of hosts [with problem]") + "</td>";
       html += buildRatioColumns(serverStatus["numberOfBadHosts"],
                                 serverStatus["numberOfHosts"]);
-      html += "</tr>";
-      html += "<tr>";
-      html += "<td>" + gettext("Number of items") + "</td>";
-      html += "<td>" + escapeHTML(serverStatus["numberOfItems"]) + "</td>";
-      html += "<td></td>";
       html += "</tr>";
       html += "<tr>";
       html += "<td>" + gettext("Number of triggers [with problem]") + "</td>";
@@ -136,11 +131,6 @@ var DashboardView = function(userProfile) {
                                 serverStatus["numberOfUsers"]);
       html += "</tr>";
       */
-      html += "<tr>";
-      html += "<td>" + gettext("New values per second") + "</td>";
-      html += "<td>" + escapeHTML(serverStatus["numberOfMonitoredItemsPerSecond"]) + "</td>";
-      html += "<td></td>";
-      html += "</tr>";
     }
 
     return html;
@@ -250,7 +240,7 @@ var DashboardView = function(userProfile) {
     $("#tblHost tbody").append(drawHostBody(rawData, parsedData));
 
     self.displayUpdateTime();
-    self.setAutoReload(load, self.reloadIntervalSeconds);
+    self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
 
   function drawLogSearchBody(logSearchSystems) {

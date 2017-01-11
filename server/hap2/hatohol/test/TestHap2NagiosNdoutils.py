@@ -79,6 +79,9 @@ class CommonForTest(Common):
     def divide_and_put_data(self, put_func, contents, *args, **kwargs):
         put_func(contents, *args, **kwargs)
 
+    def set_event_last_info(self, last_info):
+        pass
+
 
 class TestCommon(unittest.TestCase):
     def test_constructor(self):

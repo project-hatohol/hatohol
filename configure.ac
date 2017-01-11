@@ -29,6 +29,7 @@ if test x"$localstatedir" = x"NONE"; then
 fi
 expanded_localstatedir="`eval echo $localstatedir`"
 AC_DEFINE_UNQUOTED(LOCALSTATEDIR, "$expanded_localstatedir", "Local state directory.")
+AC_SUBST(expanded_localstatedir)
 
 expanded_pkglocaldatadir="$expanded_localstatedir/lib/$PACKAGE"
 AC_SUBST(expanded_pkglocaldatadir)
@@ -234,9 +235,12 @@ data/init.d/Makefile
 data/init.d/debian/hatohol.debian
 data/init.d/debian/Makefile
 data/init.d/centos/hatohol.centos
+data/init.d/centos/generate_hap2_init_file.sh
 data/init.d/centos/Makefile
 data/systemd/Makefile
+data/systemd/hatohol.conf
 data/systemd/generate_service_file.sh
+data/systemd/generate_hap2_service_file.sh
 data/test/Makefile
 server/Makefile
 server/mlpl/Makefile
@@ -245,6 +249,7 @@ server/mlpl/test/Makefile
 server/mlpl/mlpl.pc
 server/common/Makefile
 server/src/Makefile
+server/log/Makefile
 server/hap2/Makefile
 server/hap2/hap2.conf
 server/hap2/hap2-control-functions.sh

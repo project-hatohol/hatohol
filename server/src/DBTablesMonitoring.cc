@@ -62,8 +62,10 @@ const char *DBTablesMonitoring::TABLE_NAME_INCIDENT_HISTORIES =
 //   * Add unique integer ID to COLUMN_DEF_ITEMS
 //   * remove 'item_group_name' from COLUMN_DEF_ITEMS
 //   * Add COLUMN_DEF_ITEM_GROUPS_NAME
+// -> 2.2
+//   *incident_histories.comment: 2048 -> 32767
 const int DBTablesMonitoring::MONITORING_DB_VERSION =
-  DBTables::Version::getPackedVer(0, 2, 1);
+  DBTables::Version::getPackedVer(0, 2, 2);
 
 static StatisticsCounter *eventsCounters[] = {
   new StatisticsCounter(10),
@@ -885,7 +887,7 @@ static const ColumnDef COLUMN_DEF_INCIDENT_HISTORIES[] = {
 }, {
 	"comment",                         // columnName
 	SQL_COLUMN_TYPE_VARCHAR,           // type
-	2048,                              // columnLength
+	32767,                             // columnLength
 	0,                                 // decFracLength
 	false,                             // canBeNull
 	SQL_KEY_NONE,                      // keyType
@@ -1011,6 +1013,7 @@ struct EventsQueryOption::Impl {
 	set<string> incidentStatuses;
 	vector<string> groupByColumns;
 	list<string> hostnameList;
+	list<EventIdType> eventIds;
 
 	Impl()
 	: limitOfUnifiedId(NO_LIMIT),
@@ -1022,7 +1025,8 @@ struct EventsQueryOption::Impl {
 	  triggerId(ALL_TRIGGERS),
 	  beginTime({0, 0}),
 	  endTime({0, 0}),
-	  hostnameList({})
+	  hostnameList({}),
+	  eventIds({})
 	{
 	}
 };
@@ -1135,6 +1139,11 @@ string EventsQueryOption::getCondition(void) const
 	if (!m_impl->hostnameList.empty()) {
 		addCondition(condition,
 			     makeHostnameListCondition(m_impl->hostnameList));
+	}
+
+	if (!m_impl->eventIds.empty()) {
+		addCondition(condition,
+		             makeEventIdListCondition(m_impl->eventIds));
 	}
 
 	string typeCondition;
@@ -1368,6 +1377,11 @@ const std::set<EventType> &EventsQueryOption::getEventTypes(void) const
 	return m_impl->eventTypes;
 }
 
+void EventsQueryOption::setEventIds(const list<EventIdType> &eventIds)
+{
+	m_impl->eventIds = eventIds;
+}
+
 void EventsQueryOption::setTriggerSeverities(
   const set<TriggerSeverityType> &severities)
 {
@@ -1413,6 +1427,22 @@ string EventsQueryOption::makeHostnameListCondition(
 		condition += StringUtils::sprintf("%s", rhs(hostname.c_str()));
 	}
 
+	condition += ")";
+	return condition;
+}
+
+string EventsQueryOption::makeEventIdListCondition(
+  const list<EventIdType> &eventIds) const
+{
+	string condition;
+	const ColumnDef &colId = COLUMN_DEF_EVENTS[IDX_EVENTS_ID];
+	SeparatorInjector commaInjector(",");
+	DBTermCStringProvider rhs(*getDBTermCodec());
+	condition = StringUtils::sprintf("%s in (", colId.columnName);
+	for (const auto &eventId : eventIds) {
+		commaInjector(condition);
+		condition += StringUtils::sprintf("%s", rhs(eventId.c_str()));
+	}
 	condition += ")";
 	return condition;
 }
@@ -2887,6 +2917,12 @@ static LocalHostIdType getTargetHostId(const ItemInfoList itemInfoList)
 HatoholError DBTablesMonitoring::syncItems(const ItemInfoList &itemInfoList,
                                            const ServerIdType &serverId)
 {
+	HatoholError err = HTERR_OK;
+	if (itemInfoList.size() == 0) {
+		MLPL_WARN("The number of items: 0\n");
+		return err;
+	}
+
 	ItemsQueryOption option(USER_ID_SYSTEM);
 	ItemInfoList _currItems;
 
@@ -2918,7 +2954,6 @@ HatoholError DBTablesMonitoring::syncItems(const ItemInfoList &itemInfoList,
 		ItemInfo invalidItem = *invalidItemPair.second;
 		invalidItemIdList.push_back(invalidItem.id);
 	}
-	HatoholError err = HTERR_OK;
 	if (invalidItemIdList.size() > 0)
 		err = deleteItemInfo(invalidItemIdList, serverId);
 	if (addItems.size() > 0)
@@ -4016,7 +4051,12 @@ static bool updateDB(
 		addColumnsArg.columnIndexes.push_back(
 		  IDX_INCIDENTS_COMMENT_COUNT);
 		dbAgent.addColumns(addColumnsArg);
-		return true;
+	}
+	if (oldVer < DBTables::Version::getPackedVer(0, 2, 2)) {
+		dbAgent.changeColumnDef(
+		  tableProfileIncidentHistories,
+		  "comment",
+		  IDX_INCIDENT_HISTORIES_COMMENT);
 	}
 	return true;
 }

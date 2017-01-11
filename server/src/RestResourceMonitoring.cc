@@ -135,14 +135,6 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 		return err;
 	agent.add("numberOfHosts", svHostDefs.size());
 
-	ItemsQueryOption itemsQueryOption(job->m_dataQueryContextPtr);
-	itemsQueryOption.setTargetServerId(svInfo.id);
-	bool fetchItemsSynchronously = true;
-	size_t numberOfItems =
-	  dataStore->getNumberOfItems(itemsQueryOption,
-				      fetchItemsSynchronously);
-	agent.add("numberOfItems", numberOfItems);
-
 	TriggerInfoList triggerInfoList;
 	TriggersQueryOption triggersQueryOption(job->m_dataQueryContextPtr);
 	triggersQueryOption.setTargetServerId(svInfo.id);
@@ -161,16 +153,6 @@ static HatoholError addOverviewEachServer(FaceRest::ResourceHandler *job,
 	// after the funtion concerned is added
 	agent.add("numberOfUsers", 0);
 	agent.add("numberOfOnlineUsers", 0);
-
-	DataQueryOption dataQueryOption(job->m_dataQueryContextPtr);
-	MonitoringServerStatus serverStatus;
-	serverStatus.serverId = svInfo.id;
-	err = dataStore->getNumberOfMonitoredItemsPerSecond(
-	  dataQueryOption, serverStatus);
-	if (err != HTERR_OK)
-		return err;
-	string nvps = StringUtils::sprintf("%.2f", serverStatus.nvps);
-	agent.add("numberOfMonitoredItemsPerSecond", nvps);
 
 	// Hostgroups
 	// TODO: We temtatively returns 'No group'. We should fix it
@@ -263,6 +245,21 @@ static HatoholError addOverview(FaceRest::ResourceHandler *job, JSONBuilder &age
 	return HTERR_OK;
 }
 
+static bool checkEmptyFlag(GHashTable *query)
+{
+	const gchar *value = static_cast<const gchar*>(
+	                       g_hash_table_lookup(query, "empty"));
+	if (value && *value) {
+		if (strcmp(value, "true") == 0) {
+			return true ;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
+}
+
 void RestResourceMonitoring::handlerGetOverview(void)
 {
 	JSONBuilder agent;
@@ -331,6 +328,11 @@ void RestResourceMonitoring::handlerGetHost(void)
 
 void RestResourceMonitoring::handlerGetTrigger(void)
 {
+	if (checkEmptyFlag(m_query)) {
+		replyOnlyServers();
+		return;
+	}
+
 	TriggersQueryOption option(m_dataQueryContextPtr);
 	HatoholError err = RestResourceUtils::parseTriggerParameter(option, m_query);
 	if (err != HTERR_OK) {
@@ -564,6 +566,16 @@ void RestResourceMonitoring::replyGetItem(void)
 	replyJSONData(agent);
 }
 
+void RestResourceMonitoring::replyOnlyServers(void)
+{
+	JSONBuilder agent;
+	agent.startObject();
+	addHatoholError(agent, HatoholError(HTERR_OK));
+	addServersMap(agent, NULL, false);
+	agent.endObject();
+	replyJSONData(agent);
+}
+
 void RestResourceMonitoring::itemFetchedCallback(Closure0 *closure)
 {
 	replyGetItem();
@@ -572,6 +584,11 @@ void RestResourceMonitoring::itemFetchedCallback(Closure0 *closure)
 
 void RestResourceMonitoring::handlerGetItem(void)
 {
+	if (checkEmptyFlag(m_query)) {
+		replyOnlyServers();
+		return;
+	}
+
 	ItemsQueryOption option(m_dataQueryContextPtr);
 	HatoholError err = parseItemParameter(option, m_query);
 	if (err != HTERR_OK) {

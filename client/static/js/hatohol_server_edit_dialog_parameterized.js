@@ -49,9 +49,9 @@ var HatoholServerEditDialogParameterized = function(params) {
   //
   function addButtonClickedCb() {
     if (self.server)
-      hatoholInfoMsgBox(gettext("Now updating the server ..."));
+      hatoholInfoMsgBox(gettext("Now updating the server ..."), {buttons: []});
     else
-      hatoholInfoMsgBox(gettext("Now adding a server..."));
+      hatoholInfoMsgBox(gettext("Now adding a server..."), {buttons: []});
     postAddServer();
   }
 

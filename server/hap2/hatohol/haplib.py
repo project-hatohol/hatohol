@@ -602,6 +602,7 @@ class HapiProcessor:
             if self.__reply_queue.get(True, self.__timeout_sec) == True:
                 pass
             else:
+                logger.error("Request(ID: %d) is not accepted." % request_id)
                 raise
         except Queue.Empty:
             logger.error("Request(ID: %d) is not accepted." % request_id)
@@ -1111,7 +1112,7 @@ class BasePoller(HapiProcessor, ChildProcess):
         HapiProcessor.set_ms_info(self, ms_info)
         self.__pollingInterval = ms_info.polling_interval_sec
         self.__retryInterval = ms_info.retry_interval_sec
-        logger.info("Polling inverval: %d/%d",
+        logger.info("Polling inverval: %s/%s",
                      self.__pollingInterval, self.__retryInterval)
         raise hap.Signal(restart=True)
 

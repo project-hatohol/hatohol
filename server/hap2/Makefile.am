@@ -13,7 +13,24 @@ hatohol_hap2_DATA = \
 
 pkgsysconf_DATA = \
 	hap2.conf \
+	hap2-zabbix-api.conf \
+	hap2-nagios-ndoutils.conf \
+	hap2-nagios-livestatus.conf \
+	hap2-ceilometer.conf \
+	hap2-fluentd.conf \
 	hap2-logging.conf
+
+hap2-zabbix-api.conf:
+	cp hap2.conf hap2-zabbix-api.conf
+hap2-nagios-ndoutils.conf:
+	cp hap2.conf hap2-nagios-ndoutils.conf
+hap2-nagios-livestatus.conf :
+	cp hap2.conf hap2-nagios-livestatus.conf
+hap2-ceilometer.conf :
+	cp hap2.conf hap2-ceilometer.conf
+hap2-fluentd.conf:
+	cp hap2.conf hap2-fluentd.conf
+
 pkgsysconfdir = $(sysconfdir)/$(PACKAGE)
 
 noinst_SCRIPTS = \
@@ -47,6 +64,7 @@ nobase_hatohol_hap2_SCRIPTS = \
 	hatohol/hap2_ceilometer.py \
 	hatohol/hap2_nagios_ndoutils.py \
 	hatohol/hap2_nagios_livestatus.py \
+	hatohol/hap2_starter_alive.py \
 	hatohol/hap2_starter.py
 
 EXTRA_DIST = \

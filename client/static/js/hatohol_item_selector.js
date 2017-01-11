@@ -36,8 +36,7 @@ var HatoholItemSelector = function(options) {
     self.view.setupHostQuerySelectorCallback(
       function() {
         var query = self.view.getHostFilterQuery();
-        query.limit = 1; // we need only "servers" object
-        self.view.startConnection("items?" + $.param(query), function(reply) {
+        self.view.startConnection("item?empty=true&" + $.param(query), function(reply) {
           self.servers = reply.servers;
           self.setupCandidates();
         });
@@ -45,8 +44,8 @@ var HatoholItemSelector = function(options) {
       '#select-server', '#select-host-group', '#select-host');
     $("#select-item").attr("disabled", "disabled");
     $("#add-item-button").attr("disabled", "disabled");
-    $("#select-server").change(loadItemCandidates);
-    $("#select-host-group").change(loadItemCandidates);
+    $("#select-server").change(resetItemField);
+    $("#select-host-group").change(resetItemField);
     $("#select-host").change(loadItemCandidates);
     $("#select-item").change(function() {
       if ($(this).val() == "---------")
@@ -128,12 +127,16 @@ var HatoholItemSelector = function(options) {
       $(selector).popover("hide");
     });
   }
+
+  function resetItemField() {
+    self.view.setFilterCandidates($("#select-item"));
+  }
 };
 
 HatoholItemSelector.prototype.show = function() {
   var self = this;
   if (!self.servers) {
-    self.view.startConnection("item?limit=1", function(reply) {
+    self.view.startConnection("item?empty=true", function(reply) {
       self.servers = reply.servers;
       self.setupCandidates();
     });
@@ -230,13 +233,13 @@ HatoholItemSelector.prototype.getIndexByUserData = function(data) {
 HatoholItemSelector.prototype.setupCandidates = function() {
   this.view.setServerFilterCandidates(this.servers);
   this.view.setHostgroupFilterCandidates(this.servers);
-  this.view.setHostFilterCandidates(this.servers);
+  this.view.setHostFilterCandidates(this.servers, undefined, true);
 };
 
 HatoholItemSelector.prototype.setServers = function(servers) {
   if (!this.servers)
     this.servers = servers;
-  this.view.setupHostFilters(servers);
+  this.view.setupHostFilters(servers, undefined, true);
 };
 
 HatoholItemSelector.prototype.getConfig = function() {
