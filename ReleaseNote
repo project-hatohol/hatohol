@@ -1,3 +1,33 @@
+2016-01-11 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.12
+
+	* New Features
+	- [WebUI] Set security header to apache config.
+	- [WebUI] Load items after the server is decided in [Items].
+	- [WebUI] Load triggers after the server is decided in [Overview: Triggers].
+	- [WebUI] Remove [Overview: Item] from navi var.
+	- [WebUI] Remove [Current trigger status] from Event page column.
+	- [WebUI] Remove [Number of items] and [Num value per second] from [Dashboard].
+	- [WebUI] Remove [Maps] column from [Monitoring Server].
+	- [Server] Increase length of incident_histories.comment by 32767.
+	- [Server] Re-execute unfinished action when start up Hatohol server.
+	- [Server][HAP2] Rotate logfile.
+	- [HAP2] Deply each plugins configuration file.
+
+	* Bug Fixes
+	- [Server] Add missing host query option parameter.
+	- [Server] Exclude HOLD status from Summary bar's [Unhandled Important Events].
+
+	* Support OS
+	- CentOS 7
+	- Ubuntu 14.04 LTS(x86_64)
+
+	* Contributer
+	- Kazuhiro Yamato
+	- Hiroshi Hatake
+	- Masayuki Nakagawa
+	- Takuro Ashie
+	- Atsushi Yamaguchi
+
 2016-04-28 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.04
 
 	* New Features
