@@ -9,9 +9,9 @@
 	- [WebUI] Remove [Number of items] and [Num value per second] from [Dashboard].
 	- [WebUI] Remove [Maps] column from [Monitoring Server].
 	- [Server] Increase length of incident_histories.comment by 32767.
-	- [Server] Re-execute unfinished action when start up Hatohol server.
+	- [Server] Re-execute unfinished action when starting up Hatohol server.
 	- [Server][HAP2] Rotate logfile.
-	- [HAP2] Deply each plugins configuration file.
+	- [HAP2] Deply each plugin configuration file.
 
 	* Bug Fixes
 	- [Server] Add missing host query option parameter.
