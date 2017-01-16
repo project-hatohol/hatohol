@@ -117,7 +117,7 @@ var HatoholEventsViewConfig = function(options) {
   });
 
   $("#period-filter-setting").change(function() {
-    var value = $("#period-filter-setting").val();
+    var value = parseInt($("#period-filter-setting").val());
 
     if (value < minPeriodDays) {
       value = minPeriodDays;
@@ -131,6 +131,7 @@ var HatoholEventsViewConfig = function(options) {
       value = defaultPeriodDays;
       $("#period-filter-setting").val(value);
     }
+    $("#period-filter-setting").val(value);
   });
 
   $.map(self.multiselectFilterTypes, function(selector) {
