@@ -20,6 +20,7 @@
 #ifndef UnifiedDataStore_h
 #define UnifiedDataStore_h
 
+#include <memory>
 #include "ArmBase.h"
 #include "DBTablesMonitoring.h"
 #include "DBTablesAction.h"
@@ -322,7 +323,7 @@ public:
 	 * A CoutablePtr of the DataStore instance. If not found, hasData()
 	 * returns false.
 	 */
-	DataStorePtr getDataStore(const ServerIdType &serverId);
+	std::shared_ptr<DataStore> getDataStore(const ServerIdType &serverId);
 	bool getIncidentTrackerInfo(const IncidentTrackerIdType &trackerId,
                                     IncidentTrackerInfo &trackerInfo);
 

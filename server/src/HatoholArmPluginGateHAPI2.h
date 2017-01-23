@@ -73,9 +73,9 @@ public:
 	  Closure0 *closure = NULL) override;
 	static bool convertLastInfoStrToType(const std::string &type,
 	                                     LastInfoType &lastInfoType);
+	virtual ~HatoholArmPluginGateHAPI2();
 
 protected:
-	virtual ~HatoholArmPluginGateHAPI2();
 	void upsertLastInfo(std::string lastInfoValue, LastInfoType type);
 	void updateSelfMonitoringTrigger(bool hasError,
 	                                 const HAPI2PluginCollectType &type,
@@ -113,7 +113,5 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
-
-typedef UsedCountablePtr<HatoholArmPluginGateHAPI2> HatoholArmPluginGateHAPI2Ptr;
 
 #endif // HatoholArmPluginGateHAPI2_h

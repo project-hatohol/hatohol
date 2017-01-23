@@ -20,11 +20,12 @@
 #ifndef DataStoreFactory_h
 #define DataStoreFactory_h
 
+#include <memory>
 #include "DataStore.h"
 
 class DataStoreFactory {
 public:
-	static DataStore *create(const MonitoringServerInfo &svInfo,
+	static std::shared_ptr<DataStore> create(const MonitoringServerInfo &svInfo,
 	                         const bool &autoStart = false);
 };
 

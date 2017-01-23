@@ -229,15 +229,15 @@ void cut_teardown(void)
 
 void test_new(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
-	cut_assert_not_null(gate);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+		make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
+	cut_assert_not_null(gate.get());
 }
 
 void test_procedureHandlerExchangeProfile(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+		make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"exchangeProfile\","
 		" \"params\":{\"procedures\":[\"getMonitoringServerInfo\","
@@ -259,8 +259,8 @@ void test_procedureHandlerExchangeProfile(void)
 
 void test_procedureHandlerMonitoringServerInfo(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"getMonitoringServerInfo\","
 		" \"params\":\"\", \"id\":456}";
@@ -316,8 +316,8 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 	MonitoringServerInfo serverInfo = monitoringServerInfo;
 	serverInfo.id = gcut_data_get_int(data, "serverId");
 	loadTestDBLastInfo();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(serverInfo, false);
 	string json =
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"getLastInfo\","
 			       " \"params\":\"%s\", \"id\":789}",
@@ -355,8 +355,8 @@ void test_procedureHandlerLastInfo(gconstpointer data)
 void test_procedureHandlerLastInfoInvalidJSON(void)
 {
 	MonitoringServerInfo serverInfo = monitoringServerInfo;
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(serverInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(serverInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"getLastInfo\","
 		"\"id\":789}";
@@ -385,8 +385,8 @@ void test_procedureHandlerLastInfoInvalidJSON(void)
 void test_procedureHandlerPutItems(void)
 {
 	loadDummyHosts();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
 		" \"params\":{\"items\":["
@@ -488,8 +488,8 @@ void test_procedureHandlerPutItems(void)
 void test_procedureHandlerPutItemsWithDivideInfo(void)
 {
 	loadDummyHosts();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json1 =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
 		" \"params\":{\"items\":["
@@ -609,8 +609,8 @@ void test_procedureHandlerPutItemsWithDivideInfo(void)
 void test_procedureHandlerPutItemsInvalidJSON(void)
 {
 	loadDummyHosts();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putItems\","
 		" \"params\":{\"items\":[{\"itemId\":\"1\", "
@@ -648,8 +648,8 @@ void test_procedureHandlerPutItemsInvalidJSON(void)
 
 void test_procedureHandlerPutHistory(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
 		" \"params\":{\"itemId\":\"1\","
@@ -667,8 +667,8 @@ void test_procedureHandlerPutHistory(void)
 
 void test_procedureHandlerPutHistoryWithDivideInfo(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json1 =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
 		" \"params\":{\"itemId\":\"1\","
@@ -706,8 +706,8 @@ void test_procedureHandlerPutHistoryWithDivideInfo(void)
 
 void test_procedureHandlerPutHistoryInvalidJSON(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHistory\","
 		" \"params\":{\"itemId\":\"1\","
@@ -730,8 +730,8 @@ void test_procedureHandlerPutHistoryInvalidJSON(void)
 
 void test_procedureHandlerPutHosts(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putHosts\", \"params\":"
 		"{\"hosts\":[{\"hostId\":\"1\", \"hostName\":\"exampleHostName1\"}],"
@@ -781,8 +781,8 @@ void test_procedureHandlerPutHosts(void)
 
 void test_procedureHandlerPutHostsWithDivideInfo(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json1 =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putHosts\", \"params\":"
 		"{\"hosts\":[{\"hostId\":\"1\", \"hostName\":\"exampleHostName1\"}],"
@@ -862,8 +862,8 @@ void test_procedureHandlerPutHostsWithDivideInfo(void)
 
 void test_procedureHandlerPutHostsInvalidJSON(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"updateHosts\","
 		" \"params\":{\"hosts\":[{\"hostId\":\"1\"}],"
@@ -894,8 +894,8 @@ void test_procedureHandlerPutHostsInvalidJSON(void)
 
 void test_procedureHandlerPutHostGroups(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroups\","
 		" \"params\":{\"hostGroups\":[{\"groupId\":\"1\","
@@ -943,8 +943,8 @@ void test_procedureHandlerPutHostGroups(void)
 
 void test_procedureHandlerPutHostGroupsWithDivideInfo(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json1 =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroups\","
 		" \"params\":{\"hostGroups\":[{\"groupId\":\"1\","
@@ -1017,8 +1017,8 @@ void test_procedureHandlerPutHostGroupsWithDivideInfo(void)
 
 void test_procedureHandlerPutHostGroupsInvalidJSON(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroups\","
 		" \"params\":{\"hostGroups\":[{\"groupId\":\"1\"}],"
@@ -1050,8 +1050,8 @@ void test_procedureHandlerPutHostGroupsInvalidJSON(void)
 void test_procedureHandlerPutHostGroupMembership(void)
 {
 	loadDummyHosts();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroupMembership\","
 		" \"params\":{\"hostGroupMembership\":[{\"hostId\":\"1\","
@@ -1135,8 +1135,8 @@ void test_procedureHandlerPutHostGroupMembership(void)
 void test_procedureHandlerPutHostGroupMembershipWithDivideInfo(void)
 {
 	loadDummyHosts();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json1 =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroupMembership\","
 		" \"params\":{\"hostGroupMembership\":[{\"hostId\":\"1\","
@@ -1239,8 +1239,8 @@ void test_procedureHandlerPutHostGroupMembershipWithDivideInfo(void)
 void test_procedureHandlerPutHostGroupMembershipInvalidJSON(void)
 {
 	loadDummyHosts();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\",\"method\":\"putHostGroupMembership\","
 		" \"params\":{\"hostGroupMembership\":[{\"hostId\":\"1\"}],"
@@ -1271,8 +1271,8 @@ void test_procedureHandlerPutHostGroupMembershipInvalidJSON(void)
 void test_procedureHandlerPutTriggers(void)
 {
 	loadDummyHosts();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putTriggers\","
 		" \"params\":{\"updateType\":\"UPDATED\","
@@ -1328,8 +1328,8 @@ void test_procedureHandlerPutTriggers(void)
 void test_procedureHandlerPutTriggersWithDivideInfo(void)
 {
 	loadDummyHosts();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json1 =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putTriggers\","
 		" \"params\":{\"updateType\":\"UPDATED\","
@@ -1419,8 +1419,8 @@ void test_procedureHandlerPutTriggersWithDivideInfo(void)
 
 void test_procedureHandlerPutTriggersInvalidJSON(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putTriggers\","
 		" \"params\":{\"updateType\":\"UPDATED\","
@@ -1467,8 +1467,8 @@ void data_procedureHandlerPutEvents(void)
 void test_procedureHandlerPutEvents(gconstpointer data)
 {
 	loadDummyHosts();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
 			       " \"params\":{\"events\":[{\"eventId\":\"1\","
@@ -1539,8 +1539,8 @@ void data_procedureHandlerPutEventsWithDivideInfo(void)
 void test_procedureHandlerPutEventsWithDivideInfo(gconstpointer data)
 {
 	loadDummyHosts();
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json1 =
 	  StringUtils::sprintf("{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
 			       " \"params\":{\"events\":[{\"eventId\":\"1\","
@@ -1642,8 +1642,8 @@ void test_procedureHandlerPutEventsWithDivideInfo(gconstpointer data)
 
 void test_procedureHandlerPutEventsInvalidJSON(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putEvents\","
 		" \"params\":{\"events\":[{\"eventId\":\"1\","
@@ -1676,8 +1676,8 @@ void test_procedureHandlerPutEventsInvalidJSON(void)
 
 void test_procedureHandlerPutHostParents(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHostParent\","
 		" \"params\":{\"hostParents\":"
@@ -1696,8 +1696,8 @@ void test_procedureHandlerPutHostParents(void)
 
 void test_procedureHandlerPutHostParentsWithDivideInfo(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json1 =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHostParent\","
 		" \"params\":{\"hostParents\":"
@@ -1735,8 +1735,8 @@ void test_procedureHandlerPutHostParentsWithDivideInfo(void)
 
 void test_procedureHandlerPutHostParentsInvalidJSON(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putHostParent\","
 		" \"params\":{\"hostParents\":"
@@ -1763,8 +1763,8 @@ void test_procedureHandlerPutHostParentsInvalidJSON(void)
 
 void test_procedureHandlerPutArmInfo(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putArmInfo\","
 		" \"params\":{\"lastStatus\":\"INIT\","
@@ -1810,8 +1810,8 @@ void test_procedureHandlerPutArmInfo(void)
 
 void test_procedureHandlerPutArmInfoInvalidJSON(void)
 {
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo, false), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo, false);
 	string json =
 		"{\"jsonrpc\":\"2.0\", \"method\":\"putArmInfo\","
 		" \"params\":{\"lastStatus\":\"INIT\","
@@ -1939,7 +1939,7 @@ void receiveFetchRequest(const string &expectedMethod,
 	cppcut_assert_equal(true, !fetchId.empty() && id);
 }
 
-void waitConnection(HatoholArmPluginGateHAPI2Ptr &gate) {
+void waitConnection(shared_ptr<HatoholArmPluginGateHAPI2> gate) {
 	constexpr const size_t maxSleepCount = 10;
 	for (size_t sleepCount = 0; ;sleepCount++) {
 		if (gate->isEstablished()) {
@@ -1952,7 +1952,7 @@ void waitConnection(HatoholArmPluginGateHAPI2Ptr &gate) {
 	}
 }
 
-void acceptProcedure(HatoholArmPluginGateHAPI2Ptr &gate,
+void acceptProcedure(shared_ptr<HatoholArmPluginGateHAPI2> gate,
 		     const string procedureName)
 {
 	string exchangeProfileMethod = popServerMessage();
@@ -2004,8 +2004,8 @@ void test_callExchangeProfile(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	string expected =
 		"^\\{"
 		"\"jsonrpc\":\"2\\.0\","
@@ -2036,8 +2036,8 @@ void test_exchangeProfile(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "exchangeProfile");
 
 	sendMessage(
@@ -2073,8 +2073,8 @@ void test_brokenJSON(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "exchangeProfile");
 
 	sendMessage("Broken JSON");
@@ -2094,8 +2094,8 @@ void test_unknownProcedure(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "exchangeProfile");
 
 	sendMessage(
@@ -2121,8 +2121,8 @@ void test_noMethod(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "exchangeProfile");
 
 	sendMessage(
@@ -2149,8 +2149,8 @@ void test_invalidTypeForMethodName(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "exchangeProfile");
 
 	sendMessage(
@@ -2174,8 +2174,8 @@ void test_callMethodWithoutExchangeProfile(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	popServerMessage(); // eat exchangeProfile
 
 	sendMessage(
@@ -2218,8 +2218,8 @@ void test_fetchItems(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchItems");
 	cppcut_assert_equal(true, gate->startOnDemandFetchItems({}, NULL));
 
@@ -2238,8 +2238,8 @@ void test_fetchItemsWithHostIds(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchItems");
 	cppcut_assert_equal(true,
 			    gate->startOnDemandFetchItems({"3", "5", "8"}, NULL));
@@ -2260,8 +2260,8 @@ void test_notSupportfetchItems(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "exchangeProfile");
 	cppcut_assert_equal(false, gate->startOnDemandFetchItems({}, NULL));
 }
@@ -2290,8 +2290,8 @@ void test_fetchItemsCallback(void)
 	};
 	Closure0 *closure = new FetchClosure(&context, &TestContext::onFetchItems);
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchItems");
 	cppcut_assert_equal(true, gate->startOnDemandFetchItems({}, closure));
 
@@ -2350,8 +2350,8 @@ void test_fetchItemsCallbackOnError(void)
 	};
 	Closure0 *closure = new FetchClosure(&context, &TestContext::onFetchItems);
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchItems");
 	cppcut_assert_equal(true, gate->startOnDemandFetchItems({}, closure));
 
@@ -2374,8 +2374,8 @@ void test_fetchHistory(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchHistory");
 	ItemInfo itemInfo = testItemInfo[0];
 	gate->startOnDemandFetchHistory(itemInfo, 1433748751, 1433752340, NULL);
@@ -2423,8 +2423,8 @@ void test_fetchHistoryCallback(void)
 	FetchClosure *closure =
 	  new FetchClosure(&context, &TestContext::onFetchHistory);
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchHistory");
 	ItemInfo itemInfo = testItemInfo[0];
 	gate->startOnDemandFetchHistory(itemInfo, 1433748751, 1433752340,
@@ -2471,8 +2471,8 @@ void test_fetchTriggers(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchTriggers");
 	cppcut_assert_equal(true, gate->startOnDemandFetchTriggers({}, NULL));
 
@@ -2491,8 +2491,8 @@ void test_fetchTriggersWithHostIds(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchTriggers");
 	cppcut_assert_equal(true,
 			    gate->startOnDemandFetchTriggers({"2", "3", "5"}, NULL));
@@ -2534,8 +2534,8 @@ void test_fetchTriggersCallback(void)
 	Closure0 *closure =
 	  new FetchClosure(&context, &TestContext::onFetchTriggers);
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchTriggers");
 	cppcut_assert_equal(true, gate->startOnDemandFetchTriggers({}, closure));
 
@@ -2564,8 +2564,8 @@ void test_notSupportFetchTriggers(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "exchangeProfile");
 	cppcut_assert_equal(false, gate->startOnDemandFetchTriggers({}, NULL));
 }
@@ -2574,8 +2574,8 @@ void test_fetchEvents(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchEvents");
 
 	string lastInfo = "2015061218152100";
@@ -2624,8 +2624,8 @@ void test_fetchEventsCallback(void)
 		}
 	};
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "fetchEvents");
 
 	Closure0 *closure =
@@ -2685,8 +2685,8 @@ void test_notSupportFetchEvents(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2Ptr gate(
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo), false);
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
 	acceptProcedure(gate, "exchangeProfile");
 
 	string lastInfo = "2015061218152100";
@@ -2701,10 +2701,9 @@ void test_updateMonitoringServerInfo(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2 *gate =
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo);
-	HatoholArmPluginGateHAPI2Ptr gatePtr(gate, false);
-	acceptProcedure(gatePtr, "exchangeProfile");
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
+	acceptProcedure(gate, "exchangeProfile");
 
 	// Update MonitoringServerInfo
 	ThreadLocalDBCache cache;
@@ -2717,7 +2716,7 @@ void test_updateMonitoringServerInfo(void)
 	dbConfig.updateTargetServer(serverInfo, pluginInfo, privilege);
 
 	// delete the gate to emit updateMonitoringServerInfo notification
-	gatePtr = nullptr;
+	gate = nullptr;
 
 	string expected(
 		"{\"jsonrpc\":\"2.0\","
@@ -2737,12 +2736,11 @@ void test_noUpdateMonitoringServerInfo(void)
 {
 	omitIfNoURL();
 
-	HatoholArmPluginGateHAPI2 *gate =
-	  new HatoholArmPluginGateHAPI2(monitoringServerInfo);
-	HatoholArmPluginGateHAPI2Ptr gatePtr(gate, false);
-	acceptProcedure(gatePtr, "exchangeProfile");
+	shared_ptr<HatoholArmPluginGateHAPI2> gate =
+	  make_shared<HatoholArmPluginGateHAPI2>(monitoringServerInfo);
+	acceptProcedure(gate, "exchangeProfile");
 
-	gatePtr = nullptr;
+	gate = nullptr;
 
 	string expected("");
 	string actual(popServerMessage());
