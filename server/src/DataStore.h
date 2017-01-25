@@ -25,12 +25,10 @@
 #include <Monitoring.h>
 #include <MonitoringServerInfo.h>
 #include <ArmStatus.h>
-#include "UsedCountable.h"
-#include "UsedCountablePtr.h"
 #include "Closure.h"
 #include "Params.h"
 
-class DataStore : public UsedCountable {
+class DataStore {
 public:
 	DataStore(void);
 
@@ -58,10 +56,8 @@ protected:
 	virtual ~DataStore();
 };
 
-typedef std::vector<DataStore *>        DataStoreVector;
-typedef DataStoreVector::iterator       DataStoreVectorIterator;
-typedef DataStoreVector::const_iterator DataStoreVectorConstIterator;
-
-typedef UsedCountablePtr<DataStore>     DataStorePtr;
+typedef std::vector<std::shared_ptr<DataStore>> DataStoreVector;
+typedef DataStoreVector::iterator               DataStoreVectorIterator;
+typedef DataStoreVector::const_iterator         DataStoreVectorConstIterator;
 
 #endif // DataStore_h

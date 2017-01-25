@@ -236,7 +236,7 @@ void test_serverIdDataStoreMap(void)
 	svInfo.id   = 100;
 
 	// Before a DataStore is created.
-	cppcut_assert_equal(false, uds->getDataStore(svInfo.id).hasData());
+	cppcut_assert_equal(false, uds->getDataStore(svInfo.id) != nullptr);
 
 	// Create a DataStore instance.
 	ArmPluginInfo *armPluginInfo = NULL;
@@ -244,13 +244,12 @@ void test_serverIdDataStoreMap(void)
 	  HTERR_OK, uds->addTargetServer(svInfo, *armPluginInfo,
 	                                 USER_ID_SYSTEM, false));
 
-	DataStorePtr dataStore0 = uds->getDataStore(svInfo.id);
-	cppcut_assert_equal(true, dataStore0.hasData());
+	shared_ptr<DataStore> dataStore0 = uds->getDataStore(svInfo.id);
+	cppcut_assert_equal(true, dataStore0.get() != nullptr);
 
 	// The obtained DataStore instance should be the same as the previous.
-	DataStorePtr dataStore1 = uds->getDataStore(svInfo.id);
-	cppcut_assert_equal((DataStore *)dataStore0,
-	                    (DataStore *)dataStore1);
+	shared_ptr<DataStore> dataStore1 = uds->getDataStore(svInfo.id);
+	cppcut_assert_equal(dataStore0.get(), dataStore1.get());
 }
 
 void test_getServerConnStatusVector(void)

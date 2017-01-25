@@ -24,8 +24,8 @@
 using namespace std;
 using namespace mlpl;
 
-typedef map<uint32_t, DataStore*> DataStoreMap;
-typedef DataStoreMap::iterator    DataStoreMapIterator;
+typedef map<uint32_t, shared_ptr<DataStore>> DataStoreMap;
+typedef DataStoreMap::iterator               DataStoreMapIterator;
 
 // ---------------------------------------------------------------------------
 // DataStoreEventProc
@@ -38,11 +38,11 @@ DataStoreEventProc::~DataStoreEventProc()
 {
 }
 
-void DataStoreEventProc::onAdded(DataStore *dataStore)
+void DataStoreEventProc::onAdded(shared_ptr<DataStore> dataStore)
 {
 }
 
-void DataStoreEventProc::onRemoved(DataStore *dataStore)
+void DataStoreEventProc::onRemoved(shared_ptr<DataStore> dataStore)
 {
 }
 
@@ -87,17 +87,16 @@ bool DataStoreManager::hasDataStore(uint32_t storeId)
 	return found;
 }
 
-bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
+bool DataStoreManager::add(uint32_t storeId, shared_ptr<DataStore> dataStore)
 {
 	lock_guard<mutex> lock(m_impl->mutex);
 	pair<DataStoreMapIterator, bool> result =
 	  m_impl->dataStoreMap.insert
-	    (pair<uint32_t, DataStore *>(storeId, dataStore));
+	    (pair<uint32_t, shared_ptr<DataStore>>(storeId, dataStore));
 
 	const bool successed = result.second;
 	if (!successed)
 		return false;
-	dataStore->ref();
 
 	callAddedHandlers(dataStore);
 
@@ -106,7 +105,7 @@ bool DataStoreManager::add(uint32_t storeId, DataStore *dataStore)
 
 void DataStoreManager::remove(uint32_t storeId)
 {
-	DataStore *dataStore = NULL;
+	shared_ptr<DataStore> dataStore;
 
 	m_impl->mutex.lock();
 	DataStoreMapIterator it = m_impl->dataStoreMap.find(storeId);
@@ -122,7 +121,6 @@ void DataStoreManager::remove(uint32_t storeId)
 	}
 
 	callRemovedHandlers(dataStore);
-	dataStore->unref();
 }
 
 
@@ -130,11 +128,8 @@ DataStoreVector DataStoreManager::getDataStoreVector(void)
 {
 	m_impl->mutex.lock();
 	DataStoreVector dataStoreVector;
-	DataStoreMapIterator it = m_impl->dataStoreMap.begin();
-	for (; it != m_impl->dataStoreMap.end(); ++it) {
-		DataStore *dataStore = it->second;
-		dataStore->ref();
-		dataStoreVector.push_back(dataStore);
+	for (auto && e : m_impl->dataStoreMap) {
+		dataStoreVector.push_back(e.second);
 	}
 	m_impl->mutex.unlock();
 
@@ -155,17 +150,14 @@ size_t DataStoreManager::getNumberOfDataStores(void) const
 void DataStoreManager::closeAllStores(void)
 {
 	m_impl->mutex.lock();
-	DataStoreMapIterator it = m_impl->dataStoreMap.begin();
-	for (; it != m_impl->dataStoreMap.end(); ++it) {
-		DataStore *dataStore = it->second;
-		callRemovedHandlers(dataStore);
-		dataStore->unref();
+	for (auto && e : m_impl->dataStoreMap) {
+		callRemovedHandlers(e.second);
 	}
 	m_impl->dataStoreMap.clear();
 	m_impl->mutex.unlock();
 }
 
-void DataStoreManager::callAddedHandlers(DataStore *dataStore)
+void DataStoreManager::callAddedHandlers(shared_ptr<DataStore> dataStore)
 {
 	m_impl->eventProcListLock.readLock();
 	Reaper<ReadWriteLock> unlocker(&m_impl->eventProcListLock,
@@ -175,7 +167,7 @@ void DataStoreManager::callAddedHandlers(DataStore *dataStore)
 		(*evtProc)->onAdded(dataStore);
 }
 
-void DataStoreManager::callRemovedHandlers(DataStore *dataStore)
+void DataStoreManager::callRemovedHandlers(shared_ptr<DataStore> dataStore)
 {
 	m_impl->eventProcListLock.readLock();
 	Reaper<ReadWriteLock> unlocker(&m_impl->eventProcListLock,

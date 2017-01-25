@@ -30,7 +30,7 @@ using namespace mlpl;
 
 struct FetcherJob {
 	LocalHostIdType hostId;
-	DataStore *dataStore;
+	shared_ptr<DataStore> dataStore;
 };
 
 struct ItemFetchWorker::Impl
@@ -99,7 +99,7 @@ bool ItemFetchWorker::start(
 		m_impl->itemFetchedSignal.connect(closure);
 	m_impl->remainingFetchersCount = allDataStores.size();
 	for (size_t i = 0; i < allDataStores.size(); i++) {
-		DataStore *dataStore = allDataStores[i];
+		shared_ptr<DataStore> dataStore = allDataStores[i];
 
 		bool shouldWake = true;
 		if (targetServerId != ALL_SERVERS &&
@@ -110,7 +110,6 @@ bool ItemFetchWorker::start(
 
 		if (!shouldWake) {
 			m_impl->remainingFetchersCount--;
-			dataStore->unref();
 			continue;
 		}
 
@@ -177,22 +176,17 @@ void ItemFetchWorker::updatedCallback(Closure0 *closure)
 }
 
 bool ItemFetchWorker::runFetcher(const LocalHostIdVector targetHostIds,
-				 DataStore *dataStore)
+				 shared_ptr<DataStore> dataStore)
 {
 	struct ClosureWithDataStore : public ClosureTemplate0<ItemFetchWorker>
 	{
-		DataStore *dataStore;
+		shared_ptr<DataStore> dataStore;
 
-		ClosureWithDataStore(ItemFetchWorker *impl, DataStore *ds)
+		ClosureWithDataStore(ItemFetchWorker *impl, shared_ptr<DataStore> ds)
 		: ClosureTemplate0<ItemFetchWorker>(
 		    impl, &ItemFetchWorker::updatedCallback),
 		  dataStore(ds)
 		{
-		}
-
-		~ClosureWithDataStore()
-		{
-			dataStore->unref();
 		}
 	};
 

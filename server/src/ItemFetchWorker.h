@@ -21,6 +21,7 @@
 #define ItemFetchWorker_h
 
 #include <deque>
+#include <memory>
 #include "Params.h"
 #include "Closure.h"
 #include "DataStore.h"
@@ -40,7 +41,7 @@ public:
 protected:
 	void updatedCallback(Closure0 *closure);
 	bool runFetcher(const LocalHostIdVector hostIds,
-	                DataStore *dataStore);
+	                std::shared_ptr<DataStore> dataStore);
 
 private:
 	struct Impl;

@@ -36,13 +36,13 @@
 using namespace std;
 using namespace mlpl;
 
-typedef map<ServerIdType, DataStore *> ServerIdDataStoreMap;
+typedef map<ServerIdType, shared_ptr<DataStore>> ServerIdDataStoreMap;
 typedef ServerIdDataStoreMap::iterator ServerIdDataStoreMapIterator;
 
 typedef map<IncidentTrackerIdType, ArmIncidentTracker *> ArmIncidentTrackerMap;
 typedef ArmIncidentTrackerMap::iterator ArmIncidentTrackerMapIterator;
 
-static ArmInfo getArmInfo(DataStore *dataStore)
+static ArmInfo getArmInfo(shared_ptr<DataStore> dataStore)
 {
 	return dataStore->getArmStatus().getArmInfo();
 }
@@ -66,12 +66,12 @@ struct UnifiedDataStore::Impl
 		{
 		}
 
-		virtual void onAdded(DataStore *dataStore) override
+		virtual void onAdded(shared_ptr<DataStore> dataStore) override
 		{
 			impl->addToDataStoreMap(dataStore);
 		}
 
-		virtual void onRemoved(DataStore *dataStore) override
+		virtual void onRemoved(shared_ptr<DataStore> dataStore) override
 		{
 			impl->removeFromDataStoreMap(dataStore);
 		}
@@ -92,22 +92,22 @@ struct UnifiedDataStore::Impl
 		dataStoreManager.registEventProc(evtProc);
 	};
 
-	void addToDataStoreMap(DataStore *dataStore)
+	void addToDataStoreMap(shared_ptr<DataStore> dataStore)
 	{
 		const ServerIdType serverId =
 		  dataStore->getMonitoringServerInfo().id;
 		pair<ServerIdDataStoreMapIterator, bool> result;
 		serverIdDataStoreMapLock.writeLock();
 		result = serverIdDataStoreMap.insert(
-		  pair<ServerIdType, DataStore *>(serverId, dataStore));
+		  pair<ServerIdType, shared_ptr<DataStore>>(serverId, dataStore));
 		serverIdDataStoreMapLock.unlock();
 		HATOHOL_ASSERT(
 		  result.second,
 		  "Failed to insert: ServerID: %" FMT_SERVER_ID ", "
-		  "DataStore: %p", serverId, dataStore);
+		  "DataStore: %p", serverId, dataStore.get());
 	}
 
-	void removeFromDataStoreMap(DataStore *dataStore)
+	void removeFromDataStoreMap(shared_ptr<DataStore> dataStore)
 	{
 		const ServerIdType serverId =
 		  dataStore->getMonitoringServerInfo().id;
@@ -121,12 +121,12 @@ struct UnifiedDataStore::Impl
 		HATOHOL_ASSERT(
 		  found,
 		  "Failed to found: ServerID: %" FMT_SERVER_ID ", "
-		  "DataStore: %p", serverId, dataStore);
+		  "DataStore: %p", serverId, dataStore.get());
 	}
 
-	DataStorePtr getDataStore(const ServerIdType &serverId)
+	shared_ptr<DataStore> getDataStore(const ServerIdType &serverId)
 	{
-		DataStore *dataStore = NULL;
+		shared_ptr<DataStore> dataStore;
 		serverIdDataStoreMapLock.readLock();
 		Reaper<ReadWriteLock> unlocker(&serverIdDataStoreMapLock,
 		                               ReadWriteLock::unlock);
@@ -135,19 +135,17 @@ struct UnifiedDataStore::Impl
 		const bool found = (it != serverIdDataStoreMap.end());
 		if (found)
 			dataStore = it->second;
-		return dataStore; // ref() is called in DataStorePtr's C'tor
+		return dataStore;
 	}
 
 	HatoholError startDataStore(const MonitoringServerInfo &svInfo,
 	                            const bool &autoRun)
 	{
-		DataStore *dataStore =
+		shared_ptr<DataStore> dataStore =
 		  DataStoreFactory::create(svInfo, autoRun);
 		if (!dataStore)
 			return HTERR_FAILED_TO_CREATE_DATA_STORE;
 		bool successed = dataStoreManager.add(svInfo.id, dataStore);
-		 // incremented in the above add() if successed
-		dataStore->unref();
 		if (!successed)
 			return HTERR_FAILED_TO_REGISTER_DATA_STORE;
 		return HTERR_OK;
@@ -906,12 +904,12 @@ void UnifiedDataStore::getServerConnStatusVector(
 
 	ServerIdSetIterator serverIdItr = serverIdSet.begin();
 	for (; serverIdItr != serverIdSet.end(); ++serverIdItr) {
-		DataStorePtr dataStorePtr = getDataStore(*serverIdItr);
-		if (!dataStorePtr.hasData())
+		shared_ptr<DataStore> dataStore = getDataStore(*serverIdItr);
+		if (!dataStore)
 			continue;
 		ServerConnStatus svConnStat;
 		svConnStat.serverId = *serverIdItr;
-		svConnStat.armInfo = getArmInfo(dataStorePtr);
+		svConnStat.armInfo = getArmInfo(dataStore);
 		svConnStatVec.push_back(svConnStat);
 	}
 }
@@ -1028,7 +1026,7 @@ DataStoreVector UnifiedDataStore::getDataStoreVector(void)
 	return m_impl->getDataStoreVector();
 }
 
-DataStorePtr UnifiedDataStore::getDataStore(const ServerIdType &serverId)
+shared_ptr<DataStore> UnifiedDataStore::getDataStore(const ServerIdType &serverId)
 {
 	return m_impl->getDataStore(serverId);
 }

@@ -20,6 +20,7 @@
 #include "RestResourceMonitoring.h"
 #include "RestResourceUtils.h"
 #include "UnifiedDataStore.h"
+#include <memory>
 #include <string.h>
 
 using namespace std;
@@ -610,12 +611,12 @@ void RestResourceMonitoring::handlerGetItem(void)
 
 struct GetHistoryClosure : ClosureTemplate1<RestResourceMonitoring, HistoryInfoVect>
 {
-	DataStorePtr m_dataStorePtr;
+	shared_ptr<DataStore> m_dataStore;
 
 	GetHistoryClosure(RestResourceMonitoring *receiver,
-			  callback func, DataStorePtr dataStorePtr)
+			  callback func, shared_ptr<DataStore> dataStore)
 	: ClosureTemplate1<RestResourceMonitoring, HistoryInfoVect>(receiver, func),
-	  m_dataStorePtr(dataStorePtr)
+	  m_dataStore(dataStore)
 	{
 		m_receiver->ref();
 	}
@@ -711,8 +712,8 @@ void RestResourceMonitoring::handlerGetHistory(void)
 	  new GetHistoryClosure(
 	    this, &RestResourceMonitoring::historyFetchedCallback,
 	    unifiedDataStore->getDataStore(serverId));
-	if (closure->m_dataStorePtr.hasData()) {
-		closure->m_dataStorePtr->startOnDemandFetchHistory(
+	if (closure->m_dataStore) {
+		closure->m_dataStore->startOnDemandFetchHistory(
 		  itemInfo, beginTime, endTime, closure);
 	} else {
 		HistoryInfoVect historyInfoVect;

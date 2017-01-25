@@ -26,24 +26,26 @@
 #include "HatoholArmPluginGateJSON.h"
 #include "HatoholArmPluginGateHAPI2.h"
 
-DataStore *DataStoreFactory::create(const MonitoringServerInfo &svInfo,
+using namespace std;
+
+shared_ptr<DataStore> DataStoreFactory::create(const MonitoringServerInfo &svInfo,
                                     const bool &autoStart)
 {
 	switch (svInfo.type) {
 	case MONITORING_SYSTEM_FAKE:
-		return new DataStoreFake(svInfo, autoStart);
+		return make_shared<DataStoreFake>(svInfo, autoStart);
 	case MONITORING_SYSTEM_HAPI_JSON:
 	{
-		return new HatoholArmPluginGateJSON(svInfo, autoStart);
+		return make_shared<HatoholArmPluginGateJSON>(svInfo, autoStart);
 	}
 	case MONITORING_SYSTEM_HAPI2:
 	{
-		return new HatoholArmPluginGateHAPI2(svInfo, autoStart);
+		return make_shared<HatoholArmPluginGateHAPI2>(svInfo, autoStart);
 	}
 	default:
 		MLPL_BUG("Invalid monitoring system: %d\n", svInfo.type);
 	}
-	return NULL;
+	return nullptr;
 }
 
 

@@ -19,6 +19,7 @@
 
 #include <cppcutter.h>
 #include <gcutter.h>
+#include <memory>
 #include "Hatohol.h"
 #include "DBTablesConfig.h"
 #include "DataStoreFactory.h"
@@ -60,10 +61,9 @@ void test_createWithInvalidTypes(gconstpointer data)
 	initServerInfo(svInfo);
 	svInfo.type =
 	  static_cast<MonitoringSystemType>(gcut_data_get_int(data, "type"));
-	DataStore *dataStore = DataStoreFactory::create(svInfo);
+	shared_ptr<DataStore> dataStore = DataStoreFactory::create(svInfo);
 	// to free the instance automatically
-	Reaper<UsedCountable> reaper(dataStore, UsedCountable::unref);
-	cppcut_assert_null(dataStore);
+	cppcut_assert_null(dataStore.get());
 }
 
 void data_create(void)
@@ -85,10 +85,9 @@ void test_create(gconstpointer data)
 	svInfo.type =
 	  static_cast<MonitoringSystemType>(gcut_data_get_int(data, "type"));
 	string typeName = gcut_data_get_string(data, "type-name");
-	DataStore *dataStore = DataStoreFactory::create(svInfo);
+	shared_ptr<DataStore> dataStore = DataStoreFactory::create(svInfo);
 	// to free the instance automatically
-	Reaper<UsedCountable> reaper(dataStore, UsedCountable::unref);
-	cppcut_assert_not_null(dataStore);
+	cppcut_assert_not_null(dataStore.get());
 	cppcut_assert_equal(typeName, string(typeid(*dataStore).name()));
 }
 

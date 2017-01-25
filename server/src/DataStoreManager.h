@@ -21,6 +21,7 @@
 #define DataStoreManager_h
 
 #include <list>
+#include <memory>
 #include "DataStore.h"
 #include "Utils.h"
 
@@ -28,8 +29,8 @@ struct DataStoreEventProc {
 public:
 	DataStoreEventProc(void);
 	virtual ~DataStoreEventProc();
-	virtual void onAdded(DataStore *dataStore);
-	virtual void onRemoved(DataStore *dataStore);
+	virtual void onAdded(std::shared_ptr<DataStore> dataStore);
+	virtual void onRemoved(std::shared_ptr<DataStore> dataStore);
 };
 
 typedef std::list<DataStoreEventProc *>  DataStoreEventProcList;
@@ -67,7 +68,7 @@ public:
 	 * true if the dataStore is successfully added. Otherwise false is
 	 * returned.
 	 */
-	bool add(uint32_t storeId, DataStore *dataStore);
+	bool add(uint32_t storeId, std::shared_ptr<DataStore> dataStore);
 
 	/**
 	 * remove a DataStore instance.
@@ -98,8 +99,8 @@ public:
 
 protected:
 	void closeAllStores(void);
-	void callAddedHandlers(DataStore *dataStore);
-	void callRemovedHandlers(DataStore *dataStore);
+	void callAddedHandlers(std::shared_ptr<DataStore> dataStore);
+	void callRemovedHandlers(std::shared_ptr<DataStore> dataStore);
 
 private:
 	struct Impl;
