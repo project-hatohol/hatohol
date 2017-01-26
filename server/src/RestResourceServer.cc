@@ -714,7 +714,7 @@ void RestResourceServer::handlerServerConnStat(void)
 	for (size_t idx = 0; idx < serverConnStatVec.size(); idx++) {
 		const ServerConnStatus &svConnStat = serverConnStatVec[idx];
 		const ArmInfo &armInfo = svConnStat.armInfo;
-		agent.startObject(StringUtils::toString(svConnStat.serverId));
+		agent.startObject(to_string(svConnStat.serverId));
 		agent.add("running",         armInfo.running);
 		agent.add("status",          armInfo.stat);
 		agent.add("statUpdateTime",  armInfo.statUpdateTime);

@@ -516,7 +516,7 @@ static void assertUserRolesMapInParser(JSONParser *parser)
 
 	for (size_t i = 0; i < NumTestUserRoleInfo; i++) {
 		const UserRoleInfo &userRoleInfo = testUserRoleInfo[i];
-		flagsStr = StringUtils::toString(userRoleInfo.flags);
+		flagsStr = to_string(userRoleInfo.flags);
 		assertStartObject(parser, flagsStr);
 		assertValueInParser(parser, "name", userRoleInfo.name);
 		parser->endObject();
@@ -585,7 +585,7 @@ static void _assertAllowedServers(const string &path, const UserIdType &userId,
 		if (serverId == ALL_SERVERS)
 			idStr = "-1";
 		else
-			idStr = StringUtils::toString(serverId);
+			idStr = to_string(serverId);
 		assertStartObject(parser, idStr);
 		HostGrpAccessInfoMap *hostGrpAccessInfoMap = it->second;
 		assertServerAccessInfo(parser, *hostGrpAccessInfoMap);

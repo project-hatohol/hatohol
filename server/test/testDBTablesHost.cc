@@ -1296,7 +1296,7 @@ void test_syncHostgroups(void)
 		const Hostgroup &svHostgroup = testHostgroup[i];
 		if (svHostgroup.serverId != targetServerId)
 			continue;
-		if (svHostgroup.idInServer != StringUtils::toString(targetHostgroupId))
+		if (svHostgroup.idInServer != to_string(targetHostgroupId))
 			continue;
 		hostgroupMap[svHostgroup.idInServer] = &svHostgroup;
 	}

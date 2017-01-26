@@ -1738,7 +1738,7 @@ EventIdType findLastEventId(const ServerIdType &serverId)
 	}
 	if (!found)
 		return EVENT_NOT_FOUND;
-	return StringUtils::toString(maxId);
+	return to_string(maxId);
 }
 
 SmartTime findTimeOfLastEvent(

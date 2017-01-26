@@ -90,17 +90,17 @@ static const char *LGPL_V3_HEADER_PLAIN =
 
 static string toString(const int value)
 {
-	return StringUtils::sprintf("%d", value);
+	return to_string(value);
 }
 
 static string toString(const uint64_t value)
 {
-	return StringUtils::sprintf("%" PRIu64, value);
+	return to_string(value);
 }
 
 static string toString(const string &value)
 {
-	return StringUtils::sprintf("'%s'", value.c_str());
+	return "'" + value + "'";
 }
 
 static string makeLine(LanguageType langType,

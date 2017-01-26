@@ -144,7 +144,7 @@ static void _assertServerConnStat(JSONParser *parser)
 	assertStartObject(parser, "serverConnStat");
 	while (!expectIdSet.empty()) {
 		serverIdItr = expectIdSet.begin();
-		const string serverIdStr = StringUtils::toString(*serverIdItr);
+		const string serverIdStr = to_string(*serverIdItr);
 		assertStartObject(parser, serverIdStr);
 		assertValueInParser(parser, "running", false);
 		assertValueInParser(parser, "status", ARM_WORK_STAT_INIT);
@@ -189,18 +189,18 @@ static void serverInfo2StringMap(
   const MonitoringServerInfo &svInfo, const ArmPluginInfo &armInfo,
   StringMap &dest)
 {
-	dest["type"] = StringUtils::toString(svInfo.type);
+	dest["type"] = to_string(svInfo.type);
 	dest["hostName"] = svInfo.hostName;
 	dest["ipAddress"] = svInfo.ipAddress;
 	dest["nickname"] = svInfo.nickname;
-	dest["port"] = StringUtils::toString(svInfo.port);
+	dest["port"] = to_string(svInfo.port);
 	dest["userName"] = svInfo.userName;
 	dest["password"] = svInfo.password;
 	dest["dbName"] = svInfo.dbName;
 	dest["pollingInterval"]
-	  = StringUtils::toString(svInfo.pollingIntervalSec);
+	  = to_string(svInfo.pollingIntervalSec);
 	dest["retryInterval"]
-	  = StringUtils::toString(svInfo.retryIntervalSec);
+	  = to_string(svInfo.retryIntervalSec);
 	dest["baseURL"] = svInfo.baseURL;
 	dest["extendedInfo"] = svInfo.extendedInfo;
 
@@ -273,7 +273,7 @@ void test_addServerHapiJSON(void)
 	armPluginInfo.tlsCACertificatePath = "/etc/hatohol/ca-cert.pem";
 
 	StringMap params;
-	params["type"] = StringUtils::toString(expected.type);
+	params["type"] = to_string(expected.type);
 	params["nickname"] = expected.nickname;
 	params["brokerUrl"] = armPluginInfo.brokerUrl;
 	params["tlsCertificatePath"] = armPluginInfo.tlsCertificatePath;

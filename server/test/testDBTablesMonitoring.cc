@@ -1287,9 +1287,9 @@ void test_addEventInfoUnifiedId(void)
 			expected += "\n";
 		if (!actual.empty())
 			actual += "\n";
-		expected += StringUtils::toString(i);
+		expected += to_string(i);
 		expected += string("|") + makeEventOutput(*it);
-		actual += StringUtils::toString(it->unifiedId);
+		actual += to_string(it->unifiedId);
 		actual += string("|") + makeEventOutput(*it);
 	}
 	cppcut_assert_equal(expected, actual);

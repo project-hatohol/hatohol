@@ -39,7 +39,7 @@ void startFaceRest(void)
 {
 	struct : public FaceRestParam {
 		Mutex mutex;
-		virtual void setupDoneNotifyFunc(void) 
+		virtual void setupDoneNotifyFunc(void)
 		{
 			mutex.unlock();
 		}
@@ -392,7 +392,7 @@ void assertServersIdNameHashInParser(JSONParser *parser)
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < NumTestServerInfo; i++) {
 		const MonitoringServerInfo &svInfo = testServerInfo[i];
-		assertStartObject(parser, StringUtils::toString(svInfo.id));
+		assertStartObject(parser, to_string(svInfo.id));
 		assertValueInParser(parser, "name", svInfo.hostName);
 
 		const ArmPluginInfo *pluginInfo =

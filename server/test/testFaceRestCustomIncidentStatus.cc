@@ -142,7 +142,7 @@ static void createTestCustomIncidentStatus(
 static void createPostData(const CustomIncidentStatus &customIncidentStatus,
 			   StringMap &params)
 {
-	params["id"]     = StringUtils::toString(customIncidentStatus.id);
+	params["id"]     = to_string(customIncidentStatus.id);
 	params["code"]  = customIncidentStatus.code;
 	params["label"]  = customIncidentStatus.label;
 }

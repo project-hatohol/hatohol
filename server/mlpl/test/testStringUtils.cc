@@ -257,12 +257,6 @@ void test_isNumberString(void)
 	cppcut_assert_equal(false, StringUtils::isNumber(str2));
 }
 
-void test_toStringFromInt(void)
-{
-	cppcut_assert_equal(string("57"), StringUtils::toString(57));
-	cppcut_assert_equal(string("-205"), StringUtils::toString(-205));
-}
-
 void test_toLower(void)
 {
 	const char *src      = "AbCdEf#2";
