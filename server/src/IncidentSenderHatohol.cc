@@ -87,7 +87,7 @@ struct IncidentSenderHatohol::Impl
 		incidentInfo.serverId = eventInfo.serverId;
 		incidentInfo.eventId = eventInfo.id;
 		incidentInfo.triggerId = eventInfo.triggerId;
-		incidentInfo.identifier = StringUtils::toString(eventInfo.unifiedId);
+		incidentInfo.identifier = to_string(eventInfo.unifiedId);
 		incidentInfo.location = "";
 		incidentInfo.status = STATUS_NONE;
 		incidentInfo.priority = "";

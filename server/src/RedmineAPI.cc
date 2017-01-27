@@ -90,7 +90,7 @@ bool parseIssue(JSONParser &agent, IncidentInfo &incidentInfo)
 		MLPL_ERR("Failed to parse Incident ID.\n");
 		return false;
 	}
-	incidentInfo.identifier = StringUtils::toString((uint64_t)issueId);
+	incidentInfo.identifier = to_string((uint64_t)issueId);
 
 	agent.startObject("status");
 	agent.read("name", incidentInfo.status);
@@ -142,7 +142,7 @@ bool parseDateTime(JSONParser &agent, const string &objectName,
 		time.tv_sec = 0;
 	time.tv_nsec = 0;
 
-	return true;	
+	return true;
 }
 
 void logErrors(JSONParser &agent)

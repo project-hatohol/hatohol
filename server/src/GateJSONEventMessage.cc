@@ -434,7 +434,7 @@ int64_t GateJSONEventMessage::getID()
 string GateJSONEventMessage::getIDString()
 {
 	const uint64_t id = static_cast<uint64_t>(m_impl->getID());
-	string idString = StringUtils::toString(id);
+	string idString = to_string(id);
 	string fixedIdString;
 	const int digitNum = EVENT_ID_DIGIT_NUM;
 	const int numPads = digitNum - idString.size();

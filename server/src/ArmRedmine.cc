@@ -157,7 +157,7 @@ struct ArmRedmine::Impl
 		}
 		if (m_page > 1) {
 			query += "&page=";
-			query += StringUtils::toString(m_page);
+			query += to_string(m_page);
 		}
 		return query;
 	}

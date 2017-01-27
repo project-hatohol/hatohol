@@ -236,7 +236,7 @@ static void makeExpectedIncidentInfo(IncidentInfo &incident,
 	incident.eventId = event.id;
 	incident.triggerId = event.triggerId;
 	incident.trackerId = tracker.id;
-	incident.identifier = StringUtils::toString((int)postedIssue.id);
+	incident.identifier = to_string((int)postedIssue.id);
 	incident.location = tracker.baseURL + "/issues/" + incident.identifier;
 	incident.status = postedIssue.getStatusName();
 	incident.assignee = "";
@@ -286,7 +286,7 @@ void _assertSend(const HatoholErrorCode &expected,
 		int64_t trackerId = 0;
 		agent.read("id", trackerId);
 		cppcut_assert_equal(tracker.trackerId,
-				    StringUtils::toString((int)trackerId));
+				    to_string((int)trackerId));
 		agent.endObject();
 	}
 

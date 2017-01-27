@@ -106,7 +106,7 @@ static void assertHostsIdNameHashInParser(const TriggerInfo *triggers,
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < numberOfTriggers; i++) {
 		const TriggerInfo &triggerInfo = triggers[i];
-		assertStartObject(parser, StringUtils::toString(triggerInfo.serverId));
+		assertStartObject(parser, to_string(triggerInfo.serverId));
 		assertStartObject(parser, "hosts");
 		assertStartObject(parser, triggerInfo.hostIdInServer);
 		assertValueInParser(parser, "name", triggerInfo.hostName);
@@ -123,7 +123,7 @@ static void assertHostsIdNameHashInParser(
 	assertStartObject(parser, "servers");
 	for (size_t i = 0; i < expectedRecords.size(); i++) {
 		const EventInfo &eventInfo = *expectedRecords[i];
-		assertStartObject(parser, StringUtils::toString(eventInfo.serverId));
+		assertStartObject(parser, to_string(eventInfo.serverId));
 		assertStartObject(parser, "hosts");
 		assertStartObject(parser, eventInfo.hostIdInServer);
 		assertValueInParser(parser, "name", eventInfo.hostName);
@@ -753,7 +753,7 @@ void test_getHistoryWithMinimumParameter(void)
 
 	RequestArg arg("/history");
 	StringMap params;
-	params["serverId"] = StringUtils::toString(testItemInfo[0].serverId);
+	params["serverId"] = to_string(testItemInfo[0].serverId);
 	params["itemId"] = testItemInfo[0].id;
 	arg.parameters = params;
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
@@ -770,7 +770,7 @@ void test_getHistoryWithInvalidItemId(void)
 
 	RequestArg arg("/history");
 	StringMap params;
-	params["serverId"] = StringUtils::toString(testItemInfo[0].serverId);
+	params["serverId"] = to_string(testItemInfo[0].serverId);
 	params["itemId"] = testItemInfo[0].id;
 	arg.parameters = params;
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);

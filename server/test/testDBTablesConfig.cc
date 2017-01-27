@@ -988,7 +988,7 @@ void data_isHatoholArmPlugin(void)
 	gcut_add_datum("MONITORING_SYSTEM_HAPI2",
 	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_HAPI2,
 	               "expect", G_TYPE_BOOLEAN, TRUE, NULL);
-	gcut_add_datum("MONITORING_SYSTEM_FAKE", 
+	gcut_add_datum("MONITORING_SYSTEM_FAKE",
 	               "data", G_TYPE_INT, (int)MONITORING_SYSTEM_FAKE,
 	               "expect", G_TYPE_BOOLEAN, FALSE, NULL);
 }
@@ -1467,7 +1467,7 @@ void test_upsertSeverityRankInfoUpdate(void)
 	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
 	dbConfig.upsertSeverityRankInfo(severityRankInfo, privilege);
 	const string statement = "SELECT * FROM severity_ranks WHERE id = "+
-		StringUtils::toString(static_cast<int>(actualId));
+		to_string(static_cast<int>(actualId));
 	const string expect =
 	  StringUtils::sprintf("%" FMT_SEVERITY_RANK_ID "|%d|%s|%s|%d",
 			       actualId, severityRankInfo.status,
@@ -1752,7 +1752,7 @@ void test_upsertCustomIncidentStatusUpdate(void)
 	dbConfig.upsertCustomIncidentStatus(customIncidentStatus, privilege);
 	const string statement =
 		"SELECT * FROM custom_incident_statuses WHERE id = " +
-		StringUtils::toString(static_cast<int>(actualId));
+		to_string(static_cast<int>(actualId));
 	const string expect =
 	  StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s",
 			       actualId,
@@ -1777,7 +1777,7 @@ void test_updateCustomIncidentStatus(void)
 	dbConfig.updateCustomIncidentStatus(customIncidentStatus, privilege);
 	const string statement =
 		"SELECT * FROM custom_incident_statuses WHERE id = " +
-		StringUtils::toString(static_cast<int>(actualId));
+		to_string(static_cast<int>(actualId));
 	const string expect =
 	  StringUtils::sprintf("%" FMT_CUSTOM_INCIDENT_STATUS_ID "|%s|%s",
 			       actualId,

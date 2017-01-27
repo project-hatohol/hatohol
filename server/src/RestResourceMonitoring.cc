@@ -737,7 +737,7 @@ void RestResourceMonitoring::historyFetchedCallback(
 		// They are obvious because they are provided by the client.
 		/*
 		// use string to treat 64bit value properly on certain browsers
-		string itemId = StringUtils::toString(historyInfo.itemId);
+		string itemId = to_string(historyInfo.itemId);
 		agent.add("serverId",  serverId);
 		agent.add("itemId",    itemId);
 		*/

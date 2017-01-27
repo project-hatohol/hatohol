@@ -57,8 +57,6 @@ namespace StringUtils {
 	std::string vsprintf(const char *fmt, va_list ap);
 	bool isNumber(const char *str, bool *isFloat = NULL);
 	bool isNumber(const std::string &str, bool *isFloat = NULL);
-	std::string toString(int number);
-	std::string toString(uint64_t number);
 	std::string toLower(std::string str);
 	std::string stripBothEndsSpaces(const std::string &str);
 

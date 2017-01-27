@@ -131,8 +131,8 @@ static void createTestIncidentTracker(IncidentTrackerInfo &incidentTracker)
 static void createPostData(const IncidentTrackerInfo &incidentTracker,
 			   StringMap &params)
 {
-	params["id"]        = StringUtils::toString(incidentTracker.id);
-	params["type"]      = StringUtils::toString((int)incidentTracker.type);
+	params["id"]        = to_string(incidentTracker.id);
+	params["type"]      = to_string((int)incidentTracker.type);
 	params["nickname"]  = incidentTracker.nickname;
 	params["baseURL"]   = incidentTracker.baseURL;
 	params["projectId"] = incidentTracker.projectId;

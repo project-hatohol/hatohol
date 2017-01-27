@@ -144,9 +144,9 @@ static void addUserRolesMap(
 	UserRoleInfoList userRoleList;
 	UserRoleQueryOption option(job->m_dataQueryContextPtr);
 	string nonePrivilege
-	  = StringUtils::toString(OperationPrivilege::NONE_PRIVILEGE);
+	  = to_string(OperationPrivilege::NONE_PRIVILEGE);
 	string allPrivileges
-	  = StringUtils::toString(OperationPrivilege::ALL_PRIVILEGES);
+	  = to_string(OperationPrivilege::ALL_PRIVILEGES);
 	dataStore->getUserRoleList(userRoleList, option);
 
 	agent.startObject("userRoles");
@@ -159,7 +159,7 @@ static void addUserRolesMap(
 	agent.endObject();
 	for (; it != userRoleList.end(); ++it) {
 		UserRoleInfo &userRoleInfo = *it;
-		agent.startObject(StringUtils::toString(userRoleInfo.flags));
+		agent.startObject(to_string(userRoleInfo.flags));
 		agent.add("name", userRoleInfo.name);
 		agent.endObject();
 	}
@@ -331,9 +331,9 @@ void RestResourceUser::handlerGetAccessInfo(void)
 		string serverIdString;
 		HostGrpAccessInfoMap *hostgroupsMap = it->second;
 		if (serverId == ALL_SERVERS)
-			serverIdString = StringUtils::toString(-1);
+			serverIdString = to_string(-1);
 		else
-			serverIdString = StringUtils::toString(serverId);
+			serverIdString = to_string(serverId);
 		agent.startObject(serverIdString);
 		agent.startObject("allowedHostgroups");
 		HostGrpAccessInfoMapIterator it2 = hostgroupsMap->begin();

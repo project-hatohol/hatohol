@@ -1061,7 +1061,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		envs.push_back(StringUtils::sprintf(
 		  "HAPI_MONITORING_SERVER_ID=%s",
-		  StringUtils::toString(m_pluginInfo.serverId).c_str()));
+		  to_string(m_pluginInfo.serverId).c_str()));
 
 		envs.push_back(StringUtils::sprintf(
 		  "HAPI_AMQP_URL=%s",
@@ -1091,7 +1091,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		const int port = soup_uri_get_port(uri);
 		envs.push_back(StringUtils::sprintf(
 		  "HAPI_AMQP_PORT=%s",
-		  port ? StringUtils::toString(port).c_str() : ""));
+		  port ? to_string(port).c_str() : ""));
 
 		const char *user = soup_uri_get_user(uri);
 		envs.push_back(StringUtils::sprintf(

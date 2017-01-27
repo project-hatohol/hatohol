@@ -50,11 +50,11 @@ static void incidentInfo2StringMap(
 	dest["status"] = src.status;
 	dest["priority"] = src.priority;
 	dest["assignee"] = src.assignee;
-	dest["doneRatio"] = StringUtils::toString(src.doneRatio);
+	dest["doneRatio"] = to_string(src.doneRatio);
 
 	/* Hatohol doesn't allow changing following properties:
-	dest["trackerId"] = StringUtils::toString(src.trackerId);
-	dest["serverId"] = StringUtils::toString(serc.serverId);
+	dest["trackerId"] = to_string(src.trackerId);
+	dest["serverId"] = to_string(serc.serverId);
 	dest["eventId"] = src.eventId;
 	dest["triggerId"] = src.triggerId;
 	dest["identifier"] = src.identifier;
@@ -406,7 +406,7 @@ void test_getUnknownSubResource(void)
 	getServerResponse(arg);
 	cppcut_assert_equal(404, arg.httpStatusCode);
 }
-	
+
 void test_updateIncidentComment(void)
 {
 	loadTestDBIncidents();

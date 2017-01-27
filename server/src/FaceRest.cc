@@ -1068,7 +1068,7 @@ void FaceRest::ResourceHandler::addServersMap(
 	               monitoringServers.size(), armPluginInfoVect.size());
 	for (; it != monitoringServers.end(); ++it, ++pluginIt) {
 		const MonitoringServerInfo &serverInfo = *it;
-		agent.startObject(StringUtils::toString(serverInfo.id));
+		agent.startObject(to_string(serverInfo.id));
 		agent.add("name", serverInfo.hostName);
 		agent.add("nickname", serverInfo.nickname);
 		agent.add("type", serverInfo.type);
@@ -1088,7 +1088,7 @@ void FaceRest::ResourceHandler::addServersMap(
 		THROW_HATOHOL_EXCEPTION_IF_NOT_OK(
 		  addHostgroupsMap(agent, serverInfo, hostgroups));
 		agent.endObject(); // "gropus"
-		agent.endObject(); // toString(serverInfo.id)
+		agent.endObject(); // to_string(serverInfo.id)
 	}
 	agent.endObject();
 }
@@ -1103,7 +1103,7 @@ void FaceRest::ResourceHandler::addIncidentTrackersMap(JSONBuilder &agent)
 	HatoholError err;
 	agent.startObject("incidentTrackers");
 	for (auto &tracker : trackers) {
-		agent.startObject(StringUtils::toString(tracker.id));
+		agent.startObject(to_string(tracker.id));
 		agent.add("type", tracker.type);
 		agent.add("nickname", tracker.nickname);
 		agent.add("baseURL", tracker.baseURL);

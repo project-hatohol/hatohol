@@ -197,16 +197,6 @@ bool StringUtils::isNumber(const string &str, bool *isFloat)
 	return isNumber(str.c_str(), isFloat);
 }
 
-string StringUtils::toString(int number)
-{
-	return sprintf("%d", number);
-}
-
-string StringUtils::toString(uint64_t number)
-{
-	return sprintf("%" PRIu64, number);
-}
-
 string StringUtils::toLower(string str)
 {
 	transform(str.begin(), str.end(), str.begin(), ::tolower);
