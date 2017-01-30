@@ -790,7 +790,7 @@ void DBTablesAction::logEndExecAction(const LogEndExecActionArg &logArg)
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
 	const char *actionLogIdColumnName =
-	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
+	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
 	                                     actionLogIdColumnName,
 	                                     logArg.logId);
@@ -814,7 +814,7 @@ void DBTablesAction::updateLogStatusToStart(const ActionLogIdType &logId)
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
 	const char *actionLogIdColumnName =
-	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
+	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
 	                                     actionLogIdColumnName, logId);
 	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_STARTED);
@@ -828,7 +828,7 @@ void DBTablesAction::updateLogStatusToAborted(const ActionLogIdType &logId)
 	DBAgent::UpdateArg arg(tableProfileActionLogs);
 
 	const char *actionLogIdColumnName =
-	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
+	  COLUMN_DEF_ACTION_LOGS[IDX_ACTION_LOGS_ID].columnName;
 	arg.condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
                                              actionLogIdColumnName, logId);
 	arg.add(IDX_ACTION_LOGS_STATUS, ACTLOG_STAT_ABORTED);
@@ -839,7 +839,7 @@ void DBTablesAction::updateLogStatusToAborted(const ActionLogIdType &logId)
 bool DBTablesAction::getLog(ActionLog &actionLog, const ActionLogIdType &logId)
 {
 	const ColumnDef *def = COLUMN_DEF_ACTION_LOGS;
-	const char *idColName = def[IDX_ACTION_LOGS_ACTION_LOG_ID].columnName;
+	const char *idColName = def[IDX_ACTION_LOGS_ID].columnName;
 	string condition = StringUtils::sprintf("%s=%" FMT_ACTION_LOG_ID,
 	                                        idColName, logId);
 	return getLog(actionLog, condition);
@@ -927,7 +927,7 @@ bool DBTablesAction::getLog(ActionLog &actionLog, const string &condition)
 {
 	DBAgent::SelectExArg arg(tableProfileActionLogs);
 	arg.condition = condition;
-	arg.add(IDX_ACTION_LOGS_ACTION_LOG_ID);
+	arg.add(IDX_ACTION_LOGS_ID);
 	arg.add(IDX_ACTION_LOGS_ACTION_ID);
 	arg.add(IDX_ACTION_LOGS_STATUS);
 	arg.add(IDX_ACTION_LOGS_STARTER_ID);
@@ -986,7 +986,7 @@ bool DBTablesAction::getLogs(ActionLogList &actionLogList,
 {
 	DBAgent::SelectExArg arg(tableProfileActionLogs);
 	arg.condition = condition;
-	arg.add(IDX_ACTION_LOGS_ACTION_LOG_ID);
+	arg.add(IDX_ACTION_LOGS_ID);
 	arg.add(IDX_ACTION_LOGS_ACTION_ID);
 	arg.add(IDX_ACTION_LOGS_STATUS);
 	arg.add(IDX_ACTION_LOGS_STARTER_ID);
