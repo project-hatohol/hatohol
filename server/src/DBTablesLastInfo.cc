@@ -169,7 +169,7 @@ LastInfoIdType DBTablesLastInfo::upsertLastInfo(
 
 	DBAgent &dbAgent = getDBAgent();
 	if (useTransaction) {
-		dbAgent.runTransaction(arg, &lastInfoId);
+		dbAgent.runTransaction(arg, lastInfoId);
 	} else {
 		dbAgent.insert(arg);
 		lastInfoId = dbAgent.getLastInsertId();

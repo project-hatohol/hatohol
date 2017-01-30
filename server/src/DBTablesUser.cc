@@ -813,7 +813,7 @@ HatoholError DBTablesUser::addAccessInfo(AccessInfo &accessInfo,
 	arg.add(accessInfo.serverId);
 	arg.add(accessInfo.hostgroupId);
 
-	getDBAgent().runTransaction(arg, &accessInfo.id);
+	getDBAgent().runTransaction(arg, accessInfo.id);
 	return HTERR_OK;
 }
 

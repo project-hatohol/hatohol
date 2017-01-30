@@ -3612,7 +3612,7 @@ HatoholError DBTablesMonitoring::addIncidentHistory(
 	arg.add(incidentHistory.createdAt.tv_nsec);
 
 	DBAgent &dbAgent = getDBAgent();
-	dbAgent.runTransaction(arg, &incidentHistoryId);
+	dbAgent.runTransaction(arg, incidentHistoryId);
 
 	updateIncidentCommentCount(incidentHistory.unifiedEventId);
 

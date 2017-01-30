@@ -464,7 +464,7 @@ HatoholError DBTablesAction::addAction(ActionDef &actionDef,
 	arg.add(actionDef.timeout);
 	arg.add(ownerUserId);
 
-	getDBAgent().runTransaction(arg, &actionDef.id);
+	getDBAgent().runTransaction(arg, actionDef.id);
 	return HTERR_OK;
 }
 
@@ -781,7 +781,7 @@ uint64_t DBTablesAction::createActionLog(
 	arg.row->addNewItem(eventInfo.id);
 
 	ActionLogIdType logId;
-	getDBAgent().runTransaction(arg, &logId);
+	getDBAgent().runTransaction(arg, logId);
 	return logId;
 }
 
