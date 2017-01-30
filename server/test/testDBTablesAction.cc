@@ -693,6 +693,30 @@ void test_endExecAction(void)
 	assertDBContent(&dbAction.getDBAgent(), statement, expect);
 }
 
+void test_getLogWithActionLogId(void)
+{
+	DECLARE_DBTABLES_ACTION(dbAction);
+
+	ActionLog actionLog;
+	cppcut_assert_equal(false, dbAction.getLog(actionLog, 114514));
+
+	ActionLogIdType logId = dbAction.createActionLog(testActionDef[0], testEventInfo[0]);
+	cppcut_assert_equal(true, dbAction.getLog(actionLog, logId));
+	cppcut_assert_equal(true, actionLog.id == logId);
+}
+
+void test_getLogWithServerIdAndEventId(void)
+{
+	DECLARE_DBTABLES_ACTION(dbAction);
+
+	ActionLog actionLog;
+	cppcut_assert_equal(false, dbAction.getLog(actionLog, 810, "114514"));
+
+	dbAction.createActionLog(testActionDef[0], testEventInfo[0]);
+	cppcut_assert_equal(true, dbAction.getLog(actionLog, testEventInfo[0].serverId, testEventInfo[0].id));
+	cppcut_assert_equal(actionLog.actionId, testActionDef[0].id);
+}
+
 void test_getTriggerActionList(void)
 {
 	loadTestDBAction();
