@@ -612,7 +612,6 @@ var EventsView = function(userProfile, options) {
     var serverId = $("#select-server").val();
     var filterId = $("#select-filter").val();
     var filterConfig = self.userConfig.getFilterConfig(filterId);
-    filterConfig = filterConfig || self.userConfig.getDefaultFilterConfig();
 
     if (!servers && self.rawData && self.rawData.servers)
       servers = self.rawData.servers;
