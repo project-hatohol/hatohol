@@ -582,7 +582,7 @@ HostIdType DBTablesHost::addHost(const string &name)
 	DBAgent::InsertArg arg(tableProfileHostList);
 	arg.add(AUTO_INCREMENT_VALUE);
 	arg.add(name);
-	getDBAgent().runTransaction(arg, &hostId);
+	getDBAgent().runTransaction(arg, hostId);
 	return hostId;
 }
 
@@ -832,7 +832,7 @@ GenericIdType DBTablesHost::upsertServerHostDef(
 	arg.add(serverHostDef.name);
 	arg.add(serverHostDef.status);
 	arg.upsertOnDuplicate = true;
-	getDBAgent().runTransaction(arg, &id);
+	getDBAgent().runTransaction(arg, id);
 	return id;
 }
 
@@ -845,7 +845,7 @@ GenericIdType DBTablesHost::upsertHostAccess(const HostAccess &hostAccess)
 	arg.add(hostAccess.ipAddrOrFQDN);
 	arg.add(hostAccess.priority);
 	arg.upsertOnDuplicate = true;
-	getDBAgent().runTransaction(arg, &id);
+	getDBAgent().runTransaction(arg, id);
 	return id;
 }
 
@@ -861,7 +861,7 @@ GenericIdType DBTablesHost::upsertVMInfo(const VMInfo &vmInfo,
 
 	DBAgent &dbAgent = getDBAgent();
 	if (useTransaction) {
-		dbAgent.runTransaction(arg, &id);
+		dbAgent.runTransaction(arg, id);
 	} else {
 		dbAgent.insert(arg);
 		id = dbAgent.getLastInsertId();
@@ -895,7 +895,7 @@ GenericIdType DBTablesHost::upsertHostgroup(const Hostgroup &hostgroup,
 
 	DBAgent &dbAgent = getDBAgent();
 	if (useTransaction) {
-		dbAgent.runTransaction(arg, &id);
+		dbAgent.runTransaction(arg, id);
 	} else {
 		dbAgent.insert(arg);
 		id = dbAgent.getLastInsertId();
@@ -1043,7 +1043,7 @@ GenericIdType DBTablesHost::upsertHostgroupMember(
 
 	DBAgent &dbAgent = getDBAgent();
 	if (useTransaction) {
-		dbAgent.runTransaction(arg, &id);
+		dbAgent.runTransaction(arg, id);
 	} else {
 		dbAgent.insert(arg);
 		id = dbAgent.getLastInsertId();

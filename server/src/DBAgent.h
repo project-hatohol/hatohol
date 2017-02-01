@@ -363,6 +363,10 @@ public:
 		} trx(arg);
 		runTransaction(trx);
 	}
+	void runTransaction(const InsertArg &arg)
+	{
+		_runTransaction<const InsertArg, &DBAgent::insert>(arg);
+	}
 
 	void runTransaction(const SelectArg &arg)
 	{
@@ -389,10 +393,10 @@ public:
 	 *
 	 * @param arg An InsertArg instance.
 	 * @param id
-	 * If this is not NULL, the lastly inserted row ID is returned.
+	 * the lastly inserted row ID is returned.
 	 */
-	void runTransaction(const InsertArg &arg, int *id = NULL);
-	void runTransaction(const InsertArg &arg, uint64_t *id = NULL);
+	void runTransaction(const InsertArg &arg, int & id);
+	void runTransaction(const InsertArg &arg, uint64_t & id);
 
 	static bool isAutoIncrementValue(const ItemData *item);
 

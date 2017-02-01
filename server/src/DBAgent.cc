@@ -475,9 +475,9 @@ void DBAgent::runTransaction(TransactionProc &proc, TransactionHooks *hooks)
 template <typename T>
 struct TrxInsert : public DBAgent::TransactionProc {
 	const DBAgent::InsertArg &arg;
-	T *id;
+	T & id;
 
-	TrxInsert(const DBAgent::InsertArg &_arg, T *_id)
+	TrxInsert(const DBAgent::InsertArg &_arg, T & _id)
 	: arg(_arg),
 	  id(_id)
 	{
@@ -486,18 +486,17 @@ struct TrxInsert : public DBAgent::TransactionProc {
 	void operator ()(DBAgent &dbAgent) override
 	{
 		dbAgent.insert(arg);
-		if (id)
-			*id = dbAgent.getLastInsertId();
+		id = dbAgent.getLastInsertId();
 	}
 };
 
-void DBAgent::runTransaction(const InsertArg &arg, int *id)
+void DBAgent::runTransaction(const InsertArg &arg, int & id)
 {
 	TrxInsert<int> trx(arg, id);
 	runTransaction(trx);
 }
 
-void DBAgent::runTransaction(const InsertArg &arg, uint64_t *id)
+void DBAgent::runTransaction(const InsertArg &arg, uint64_t & id)
 {
 	TrxInsert<uint64_t> trx(arg, id);
 	runTransaction(trx);

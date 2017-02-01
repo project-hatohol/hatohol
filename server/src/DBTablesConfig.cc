@@ -1046,8 +1046,7 @@ void DBTablesConfig::registerServerType(const ServerTypeInfo &serverType)
 	arg.add(serverType.pluginEnabled);
 	arg.add(serverType.uuid);
 	arg.upsertOnDuplicate = true;
-	int id;
-	getDBAgent().runTransaction(arg, &id);
+	getDBAgent().runTransaction(arg);
 }
 
 string DBTablesConfig::getDefaultPluginPath(const MonitoringSystemType &type,
@@ -1549,7 +1548,7 @@ HatoholError DBTablesConfig::addIncidentTracker(
 	arg.add(incidentTrackerInfo.userName);
 	arg.add(incidentTrackerInfo.password);
 
-	getDBAgent().runTransaction(arg, &incidentTrackerInfo.id);
+	getDBAgent().runTransaction(arg, incidentTrackerInfo.id);
 	return HTERR_OK;
 }
 
@@ -1700,7 +1699,7 @@ HatoholError DBTablesConfig::upsertSeverityRankInfo(
 	arg.add(severityRankInfo.asImportant);
 	arg.upsertOnDuplicate = true;
 
-	getDBAgent().runTransaction(arg, &severityRankInfo.id);
+	getDBAgent().runTransaction(arg, severityRankInfo.id);
 	return err;
 }
 
@@ -1852,7 +1851,7 @@ HatoholError DBTablesConfig::upsertCustomIncidentStatus(
 	arg.add(customIncidentStatus.label);
 	arg.upsertOnDuplicate = true;
 
-	getDBAgent().runTransaction(arg, &customIncidentStatus.id);
+	getDBAgent().runTransaction(arg, customIncidentStatus.id);
 	return err;
 }
 
