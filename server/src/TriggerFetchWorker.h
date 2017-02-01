@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TriggerFetchWorker_h
-#define TriggerFetchWorker_h
-
+#pragma once
 #include <deque>
 #include <memory>
 #include "Params.h"
@@ -47,4 +45,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // TriggerFetchWorker_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemTable_h
-#define ItemTable_h
-
+#pragma once
 #include <map>
 #include "UsedCountable.h"
 #include "ItemGroup.h"
@@ -89,4 +87,3 @@ private:
 	std::vector<size_t> m_indexedColumnIndexes;
 };
 
-#endif  // ItemTable_h

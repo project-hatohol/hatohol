@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceSystem_h
-#define RestResourceSystem_h
-
+#pragma once
 #include "FaceRestPrivate.h"
 
 struct RestResourceSystem : public RestResourceMemberHandler
@@ -34,6 +32,4 @@ public:
 	RestResourceSystem(FaceRest *faceRest, HandlerFunc handler);
 	void handlerSystemInfo(void);
 };
-
-#endif // RestResourceSystem_h
 

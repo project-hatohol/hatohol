@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef StatisticsCounter_h
-#define StatisticsCounter_h
-
+#pragma once
 #include <memory>
 #include <SmartTime.h>
 
@@ -56,6 +54,4 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
-
-#endif // StatisticsCounter_h
 

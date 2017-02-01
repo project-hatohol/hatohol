@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTablesConfig_h
-#define DBTablesConfig_h
-
+#pragma once
 #include "DBTables.h"
 #include "DBTablesMonitoring.h"
 #include "MonitoringServerInfo.h"
@@ -412,4 +410,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBTablesConfig_h

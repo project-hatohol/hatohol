@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataStoreFactory_h
-#define DataStoreFactory_h
-
+#pragma once
 #include <memory>
 #include "DataStore.h"
 
@@ -28,6 +26,4 @@ public:
 	static std::shared_ptr<DataStore> create(const MonitoringServerInfo &svInfo,
 	                         const bool &autoStart = false);
 };
-
-#endif // DataStoreFactory_h
 

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ExceptionTestUtils_h
-#define ExceptionTestUtils_h
-
+#pragma once
 #include <cppcutter.h>
 
 template<class ThrowExceptionType, class CaughtExceptionType>
@@ -42,4 +40,3 @@ void _assertThrow(void (*catchCb)(const CaughtExceptionType &e) = NULL)
 }
 #define assertThrow(T,C,...) cut_trace((_assertThrow<T,C>(__VA_ARGS__)))
 
-#endif // ExceptionTestUtils_h

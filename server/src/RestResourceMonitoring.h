@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceMonitoring_h
-#define RestResourceMonitoring_h
-
+#pragma once
 #include "FaceRestPrivate.h"
 
 struct RestResourceMonitoring : public RestResourceMemberHandler
@@ -61,4 +59,3 @@ struct RestResourceMonitoring : public RestResourceMemberHandler
 	static const char *pathForTriggerBriefs;
 };
 
-#endif // RestResourceMonitoring_h

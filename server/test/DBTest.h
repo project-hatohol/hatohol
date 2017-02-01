@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTest_h
-#define DBTest_h
-
+#pragma once
 #include "DB.h"
 
 class TestDB : public DB {
@@ -31,8 +29,4 @@ public:
 private:
 	static SetupContext m_setupCtx;
 };
-
-
-#endif // DBTest_h
-
 

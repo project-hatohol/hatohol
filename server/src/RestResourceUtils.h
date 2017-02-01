@@ -17,8 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceUtils_h
-#define RestResourceUtils_h
+#pragma once
 
 class RestResourceUtils {
 public:
@@ -41,4 +40,3 @@ public:
 	  GHashTable *query);
 };
 
-#endif // RestResourceUtils_h

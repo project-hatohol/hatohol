@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SmartQueue_h
-#define SmartQueue_h
-
+#pragma once
 #include <Mutex.h>
 #include <SimpleSemaphore.h>
 #include <Reaper.h>
@@ -149,4 +147,3 @@ private:
 
 } // namespace mlpl
 
-#endif // SmartQueue_h

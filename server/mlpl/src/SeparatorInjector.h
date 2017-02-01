@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SeparatorInjector_h
-#define SeparatorInjector_h
-
+#pragma once
 #include <string>
 
 namespace mlpl {
@@ -47,4 +45,3 @@ private:
 
 } // namespace mlpl
 
-#endif // SeparatorInjector_h

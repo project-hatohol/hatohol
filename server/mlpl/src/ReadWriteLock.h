@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ReadWriteLock_h
-#define ReadWriteLock_h
-
+#pragma once
 #include <pthread.h>
 
 namespace mlpl {
@@ -41,4 +39,3 @@ private:
 
 } // namespace mlpl
 
-#endif // ReadWriteLock_h

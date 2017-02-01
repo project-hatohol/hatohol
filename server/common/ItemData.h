@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemData_h
-#define ItemData_h
-
+#pragma once
 #include <string>
 #include <sstream>
 #include <map>
@@ -387,4 +385,3 @@ template<> bool ItemUint64::operator ==(const ItemData &itemData) const;
 template<> ItemData * ItemString::operator /(const ItemData &itemData) const;
 template<> ItemData * ItemString::operator /(const ItemData &itemData) const;
 
-#endif // ItemData_h

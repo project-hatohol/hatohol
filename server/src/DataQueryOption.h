@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataQueryOption_h
-#define DataQueryOption_h
-
+#pragma once
 #include <string>
 #include <memory>
 #include <vector>
@@ -224,4 +222,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DataQueryOption_h

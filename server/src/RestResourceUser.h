@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceUser_h
-#define RestResourceUser_h
-
+#pragma once
 #include "FaceRestPrivate.h"
 
 struct RestResourceUser : public RestResourceMemberHandler
@@ -72,4 +70,3 @@ struct RestResourceUser : public RestResourceMemberHandler
 	static const std::string pathForUserMe;
 };
 
-#endif // RestResourceUser_h

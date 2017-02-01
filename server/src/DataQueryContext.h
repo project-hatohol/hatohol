@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataQueryContext_h
-#define DataQueryContext_h
-
+#pragma once
 #include "Params.h"
 #include "UsedCountable.h"
 #include "UsedCountablePtr.h"
@@ -51,4 +49,3 @@ private:
 
 typedef UsedCountablePtr<DataQueryContext> DataQueryContextPtr;
 
-#endif // DataQueryContext_h

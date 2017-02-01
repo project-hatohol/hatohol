@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceCustomIncidentStatus_h
-#define RestResourceCustomIncidentStatus_h
-
+#pragma once
 #include "FaceRestPrivate.h"
 
 struct RestResourceCustomIncidentStatus : public FaceRest::ResourceHandler
@@ -38,4 +36,3 @@ struct RestResourceCustomIncidentStatus : public FaceRest::ResourceHandler
 	static const char *pathForCustomIncidentStatus;
 };
 
-#endif // RestResourceCustomIncidentStatus_h

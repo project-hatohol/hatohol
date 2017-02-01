@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DB_h
-#define DB_h
-
+#pragma once
 #include <memory>
 #include <mutex>
 #include <typeinfo>
@@ -59,4 +57,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DB_h

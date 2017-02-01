@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef StringUtils_h
-#define StringUtils_h
-
+#pragma once
 #include <vector>
 #include <list>
 #include <string>
@@ -126,4 +124,3 @@ namespace StringUtils {
 
 } // namespace mlpl
 
-#endif // StringUtils_h

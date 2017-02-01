@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBAgentSQLite3_h
-#define DBAgentSQLite3_h
-
+#pragma once
 #include <sqlite3.h>
 #include "SQLProcessorTypes.h"
 #include "DBAgent.h"
@@ -135,4 +133,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBAgentSQLite3_h

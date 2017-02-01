@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTablesHost_h
-#define DBTablesHost_h
-
+#pragma once
 #include "DBTables.h"
 #include "DataQueryOption.h"
 #include "HostResourceQueryOption.h"
@@ -428,4 +426,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBTablesHost_h

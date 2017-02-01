@@ -17,8 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EndianConverter_h
-#define EndianConverter_h
+#pragma once
 
 #if defined __x86_64__ || defined __i386__
 class EndianConverter {
@@ -73,4 +72,3 @@ public:
 };
 #endif // defined __x86_64__ || defined __i386__
 
-#endif // EndianConverter_h

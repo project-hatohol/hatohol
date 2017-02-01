@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FaceRest_h
-#define FaceRest_h
-
+#pragma once
 #include <libsoup/soup.h>
 #include "FaceBase.h"
 #include "JSONBuilder.h"
@@ -99,4 +97,3 @@ private:
 	static const char *pathForLogout;
 };
 
-#endif // FaceRest_h

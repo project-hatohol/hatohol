@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBHatohol_h
-#define DBHatohol_h
-
+#pragma once
 #include "DB.h"
 
 class DBTablesConfig;
@@ -65,4 +63,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBHatohol_h

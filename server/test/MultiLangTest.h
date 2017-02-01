@@ -17,10 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MultiLangTest_h
-#define MultiLangTest_h
+#pragma once
 
 #define COMMAND_EX_JP "/usr/bin/紅蓮・憂鬱／葡萄 -l 'キノコ たけのこ'"
-
-#endif // MultiLangTest_h
 

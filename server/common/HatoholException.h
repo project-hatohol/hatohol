@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HatoholException_h
-#define HatoholException_h
-
+#pragma once
 #include <Logger.h>
 #include <StringUtils.h>
 #include <exception>
@@ -165,4 +163,3 @@ protected:
 	virtual void onCaught(void);
 };
 
-#endif // HatoholException_h

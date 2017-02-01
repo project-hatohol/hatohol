@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Mutex_h
-#define Mutex_h
-
+#pragma once
 #include <pthread.h>
 
 namespace mlpl {
@@ -62,4 +60,3 @@ private:
 
 } // namespace mlpl
 
-#endif // Mutex_h

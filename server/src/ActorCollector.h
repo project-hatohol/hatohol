@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ActorCollector_h
-#define ActorCollector_h
-
+#pragma once
 #include "HatoholThreadBase.h"
 #include "HatoholError.h"
 
@@ -107,6 +105,4 @@ protected:
 private:
 	struct Impl;
 };
-
-#endif // ActorCollector_h
 

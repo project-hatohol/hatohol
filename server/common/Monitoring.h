@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Monitoring_h
-#define Monitoring_h
-
+#pragma once
 #include <SmartTime.h>
 #include <Params.h>
 #include <vector>
@@ -275,4 +273,3 @@ struct IncidentHistory {
 	static void initialize(IncidentHistory &incidentHistory);
 };
 
-#endif // Monitoring_h

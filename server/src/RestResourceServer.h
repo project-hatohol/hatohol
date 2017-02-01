@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceServer_h
-#define RestResourceServer_h
-
+#pragma once
 #include "FaceRestPrivate.h"
 
 struct RestResourceServer : public RestResourceMemberHandler
@@ -47,4 +45,3 @@ struct RestResourceServer : public RestResourceMemberHandler
 	void triggerFetchedCallback(Closure0 *closure);
 };
 
-#endif // RestResourceServer_h

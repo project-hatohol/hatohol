@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ThreadLocalDBCache_h
-#define ThreadLocalDBCache_h
-
+#pragma once
 #include "DBTablesMonitoring.h"
 #include "DBTablesUser.h"
 #include "DBTablesConfig.h"
@@ -60,4 +58,3 @@ private:
 	struct Impl;
 };
 
-#endif // ThreadLocalDBCache_h

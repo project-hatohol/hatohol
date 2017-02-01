@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemGroupType_h
-#define ItemGroupType_h
-
+#pragma once
 #include <set>
 #include <vector>
 #include "ItemData.h"
@@ -54,6 +52,4 @@ struct ItemGroupTypeSetComp {
 typedef std::set<ItemGroupType *, ItemGroupTypeSetComp> ItemGroupTypeSet;
 typedef ItemGroupTypeSet::iterator       ItemGroupTypeSetIterator;
 typedef ItemGroupTypeSet::const_iterator ItemGroupTypeSetConstIterator;
-
-#endif // ItemGroupType_h
 

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FaceBase_h
-#define FaceBase_h
-
+#pragma once
 #include "HatoholThreadBase.h"
 
 class FaceBase : public HatoholThreadBase {
@@ -27,6 +25,4 @@ public:
 	FaceBase(void);
 	virtual ~FaceBase();
 };
-
-#endif // FaceBase_h
 

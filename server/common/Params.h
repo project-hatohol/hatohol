@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Params_h
-#define Params_h
-
+#pragma once
 #include <cstdio>
 #include <stdint.h>
 #include <set>
@@ -258,4 +256,3 @@ enum SyncType {
 static const int      AUTO_INCREMENT_VALUE = 0;
 static const uint64_t AUTO_INCREMENT_VALUE_U64 = 0;
 
-#endif // Params_h

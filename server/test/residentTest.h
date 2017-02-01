@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef residentTest_h
-#define residentTest_h
-
+#pragma once
 #include "ResidentProtocol.h"
 
 enum ResidentTestCmdType {
@@ -36,4 +34,3 @@ const char *TEST_HOST_ID_REPLY_MAGIC_CODE = (const char *)0x12345678;
 const char *TEST_TRIGGER_ID_REPLY_MAGIC_CODE = (const char *)0x122333;
 const char *TEST_EVENT_ID_REPLY_MAGIC_CODE   = (const char *)0x76543210;
 
-#endif // residentTest_h

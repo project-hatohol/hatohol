@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IncidentSender_h
-#define IncidentSender_h
-
+#pragma once
 #include "HatoholError.h"
 #include "DBTablesConfig.h"
 #include "DBTablesMonitoring.h"
@@ -193,4 +191,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // IncidentSender_h

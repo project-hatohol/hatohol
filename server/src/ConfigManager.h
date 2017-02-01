@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ConfigManager_h
-#define ConfigManager_h
-
+#pragma once
 #include <glib.h>
 #include <stdint.h>
 #include "DBTablesConfig.h"
@@ -133,4 +131,3 @@ private:
 	virtual ~ConfigManager();
 };
 
-#endif // ConfigManager_h

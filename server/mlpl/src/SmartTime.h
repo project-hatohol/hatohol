@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SmartTime_h
-#define SmartTime_h
-
+#pragma once
 #include <time.h>
 #include <ostream>
 #include <stdint.h>
@@ -78,4 +76,3 @@ private:
 
 std::ostream &operator<<(std::ostream &os, const mlpl::SmartTime &stime);
 
-#endif // SmartTime_h

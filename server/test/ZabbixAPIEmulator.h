@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ZabbixAPIEmulator_h
-#define ZabbixAPIEmulator_h
-
+#pragma once
 #include <map>
 #include <glib.h>
 #include <libsoup/soup.h>
@@ -105,4 +103,3 @@ private:
 	PrivateContext *m_ctx;
 };
 
-#endif // ZabbixAPIEmulator_h

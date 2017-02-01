@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBAgentFactory_h
-#define DBAgentFactory_h
-
+#pragma once
 #include <typeinfo>
 #include "DBAgent.h"
 
@@ -32,4 +30,3 @@ protected:
 	static DBAgent *newDBAgentSQLite3(const DBConnectInfo &connectInfo);
 };
 
-#endif // DBAgentFactory_h

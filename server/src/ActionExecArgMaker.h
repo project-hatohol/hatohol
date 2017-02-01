@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ActionExecArgMaker_h
-#define ActionExecArgMaker_h
-
+#pragma once
 #include <memory>
 #include "Params.h"
 #include "StringUtils.h"
@@ -42,6 +40,4 @@ protected:
 private:
 	std::unique_ptr<Impl> m_impl;
 };
-
-#endif // ActionExecArgMaker_h
 

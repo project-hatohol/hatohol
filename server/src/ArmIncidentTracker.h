@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ArmIncidentTracker_h
-#define ArmIncidentTracker_h
-
+#pragma once
 #include "ArmBase.h"
 #include "DBTablesConfig.h"
 
@@ -44,4 +42,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // ArmIncidentTracker_h

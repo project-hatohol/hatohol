@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HostInfoCache_h
-#define HostInfoCache_h
-
+#pragma once
 #include <string>
 #include "DBTablesMonitoring.h"
 
@@ -70,4 +68,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // HostInfoCache_h

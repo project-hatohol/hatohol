@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLUtils_h
-#define SQLUtils_h
-
+#pragma once
 #include "ItemDataPtr.h"
 #include "SQLProcessorTypes.h"
 
@@ -28,6 +26,4 @@ public:
 	static ItemDataPtr createFromString(const char *str,
 	                                    SQLColumnType type);
 };
-
-#endif // SQLUtils_h
 

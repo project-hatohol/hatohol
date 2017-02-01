@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLProcessorTypes_h
-#define SQLProcessorTypes_h
-
+#pragma once
 #include <list>
 #include "ItemTablePtr.h"
 
@@ -69,4 +67,3 @@ typedef std::list<ColumnDef>          ColumnDefList;
 typedef ColumnDefList::iterator       ColumnDefListIterator;
 typedef ColumnDefList::const_iterator ColumnDefListConstIterator;
 
-#endif // SQLProcessorTypes_h

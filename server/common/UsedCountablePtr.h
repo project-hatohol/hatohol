@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UsedCountablePtr_h
-#define UsedCountablePtr_h
-
+#pragma once
 #include <cstdio>
 #include "Utils.h"
 
@@ -89,4 +87,3 @@ private:
 	}
 };
 
-#endif // #define UsedCountablePtr_h

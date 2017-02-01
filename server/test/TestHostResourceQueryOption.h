@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TestHostResourceQueryOption_h
-#define TestHostResourceQueryOption_h
-
+#pragma once
 #include <string>
 #include <HostResourceQueryOption.h>
 
@@ -40,4 +38,3 @@ public:
 	void callSetValidServerIdSet(const ServerIdSet *set);
 };
 
-#endif // TestHostResourceQueryOption_h

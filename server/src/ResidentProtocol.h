@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ResidentProtocol_h
-#define ResidentProtocol_h
-
+#pragma once
 #include <cstdlib>
 #include <stdint.h>
 #include <SmartBuffer.h>
@@ -179,4 +177,3 @@ enum {
 	RESIDENT_MOD_NOTIFY_EVENT_ACK_OK,
 };
 
-#endif // ResidentProtocol_h

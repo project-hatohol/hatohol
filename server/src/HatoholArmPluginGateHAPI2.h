@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HatoholArmPluginGateHAPI2_h
-#define HatoholArmPluginGateHAPI2_h
-
+#pragma once
 #include "DataStore.h"
 #include "HatoholArmPluginInterfaceHAPI2.h"
 #include "JSONBuilder.h"
@@ -114,4 +112,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // HatoholArmPluginGateHAPI2_h

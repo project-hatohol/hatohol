@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ArmStatus_h
-#define ArmStatus_h
-
+#pragma once
 #include <string>
 #include <memory>
 #include <SmartTime.h>
@@ -77,4 +75,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // ArmStatus_h

@@ -17,8 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EventSemaphore_h
-#define EventSemaphore_h
+#pragma once
 
 namespace mlpl {
 
@@ -60,6 +59,4 @@ private:
 };
 
 } // namespace mlpl
-
-#endif // EventSemaphore_h
 

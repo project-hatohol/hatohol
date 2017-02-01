@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ArmPluginInfo_h
-#define ArmPluginInfo_h
-
+#pragma once
 #include <string>
 #include <vector>
 #include <map>
@@ -73,4 +71,3 @@ typedef std::map<MonitoringSystemType, ArmPluginInfo *> ArmPluginInfoMap;
 typedef ArmPluginInfoMap::iterator          ArmPluginInfoMapIterator;
 typedef ArmPluginInfoMap::const_iterator    ArmPluginInfoMapConstIterator;
 
-#endif // ArmPluginInfo_h

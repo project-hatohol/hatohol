@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AMQPPublisher_h
-#define AMQPPublisher_h
-
+#pragma once
 #include "Params.h"
 #include "AMQPConnection.h"
 
@@ -41,4 +39,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // AMQPPublisher_h

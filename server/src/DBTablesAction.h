@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTablesAction_h
-#define DBTablesAction_h
-
+#pragma once
 #include <string>
 #include "DBTablesMonitoring.h"
 #include "DBTables.h"
@@ -429,4 +427,3 @@ private:
 
 };
 
-#endif // DBTablesAction_h

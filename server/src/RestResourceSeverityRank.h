@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceSeverityRank_h
-#define RestResourceSeverityRank_h
-
+#pragma once
 #include "FaceRestPrivate.h"
 
 struct RestResourceSeverityRank : public FaceRest::ResourceHandler
@@ -39,4 +37,3 @@ struct RestResourceSeverityRank : public FaceRest::ResourceHandler
 	static const char *pathForSeverityRank;
 };
 
-#endif // RestResourceSeverityRank_h

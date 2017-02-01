@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Closure_h
-#define Closure_h
-
+#pragma once
 #include <list>
 #include <ReadWriteLock.h>
 
@@ -186,4 +184,3 @@ struct Signal1 : public SignalBase
 	}
 };
 
-#endif // Closure_h

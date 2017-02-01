@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SelfMonitor_h
-#define SelfMonitor_h
-
+#pragma once
 #include <list>
 #include <memory>
 #include <UsedCountable.h>
@@ -141,4 +139,3 @@ private:
 
 typedef std::list<SelfMonitorWeakPtr> SelfMonitorWeakPtrList;
 
-#endif // SelfMonitor_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NamedPipe_h
-#define NamedPipe_h
-
+#pragma once
 #include <string>
 #include <memory>
 #include <glib.h>
@@ -189,4 +187,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // NamedPipe_h

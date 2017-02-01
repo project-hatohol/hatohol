@@ -17,11 +17,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ChildProcessManager_h
-#define ChildProcessManager_h
-
+#pragma once
 #include <string>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/wait.h>
 #include "HatoholThreadBase.h"
 #include "HatoholError.h"
@@ -123,7 +121,4 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
-
-#endif // ChildProcessManager_h
-
 

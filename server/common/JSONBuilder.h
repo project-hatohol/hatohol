@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef JSONBuilder_h
-#define JSONBuilder_h
-
+#pragma once
 #include <string>
 #include <json-glib/json-glib.h>
 
@@ -46,4 +44,3 @@ private:
 	JsonBuilder *m_builder;
 };
 
-#endif // JSONBuilder_h

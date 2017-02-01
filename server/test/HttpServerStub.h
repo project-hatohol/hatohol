@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HttpServer_h
-#define HttpServer_h
-
+#pragma once
 #include <string>
 #include <libsoup/soup.h>
 #include "JSONParser.h"
@@ -48,4 +46,3 @@ private:
 	PrivateContext *m_ctx;
 };
 
-#endif // HttpServer_h

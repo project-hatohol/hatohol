@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemFetchWorker_h
-#define ItemFetchWorker_h
-
+#pragma once
 #include <deque>
 #include <memory>
 #include "Params.h"
@@ -48,4 +46,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // ItemFetchWorker_h

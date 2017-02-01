@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IncidentSenderRedmine_h
-#define IncidentSenderRedmine_h
-
+#pragma once
 #include "IncidentSender.h"
 
 class IncidentSenderRedmine : public IncidentSender
@@ -60,4 +58,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // IncidentSenderRedmine_h

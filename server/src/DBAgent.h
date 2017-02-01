@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBAgent_h
-#define DBAgent_h
-
+#pragma once
 #include <string>
 #include <memory>
 #include <glib.h>
@@ -436,4 +434,3 @@ private:
 	struct Impl;
 };
 
-#endif // DBAgent_h

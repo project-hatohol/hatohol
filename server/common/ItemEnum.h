@@ -17,8 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemEnum_h
-#define ItemEnum_h
+#pragma once
 
 enum
 {
@@ -472,4 +471,3 @@ enum
 	ITEM_ID_ZBX_TRIGGERS_EXPANDED_DESCRIPTION,
 };
 
-#endif // ItemEnum_h

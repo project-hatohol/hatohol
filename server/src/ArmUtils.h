@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ArmUtils_h
-#define ArmUtils_h
-
+#pragma once
 #include <Monitoring.h>
 #include "DBTablesConfig.h"
 
@@ -53,7 +51,4 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;;
 };
-
-#endif // ArmUtils_h
-
 

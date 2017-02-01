@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HatoholArmPluginGateJSON_h
-#define HatoholArmPluginGateJSON_h
-
+#pragma once
 #include "DataStore.h"
 
 class HatoholArmPluginGateJSON : public DataStore {
@@ -36,6 +34,4 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
-
-#endif // HatoholArmPluginGateJSON_h
 

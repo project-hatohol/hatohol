@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UnifiedDataStore_h
-#define UnifiedDataStore_h
-
+#pragma once
 #include <memory>
 #include "ArmBase.h"
 #include "DBTablesMonitoring.h"
@@ -371,4 +369,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // UnifiedDataStore_h

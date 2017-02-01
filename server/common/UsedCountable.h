@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UsedCountable_h
-#define UsedCountable_h
-
+#pragma once
 #include <AtomicValue.h>
 
 class UsedCountable {
@@ -38,4 +36,3 @@ private:
 	mutable mlpl::AtomicValue<int> m_usedCount;
 };
 
-#endif // UsedCountable_h

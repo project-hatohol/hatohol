@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Reaper_h
-#define Reaper_h
-
+#pragma once
 namespace mlpl {
 
 template<typename T>
@@ -111,6 +109,4 @@ public:
 };
 
 } // namespace mlpl
-
-#endif // Reaper_h
 

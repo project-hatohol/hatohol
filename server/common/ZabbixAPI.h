@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ZabbixAPI_h
-#define ZabbixAPI_h
-
+#pragma once
 #include <string>
 #include <libsoup/soup.h>
 #include "Monitoring.h"
@@ -368,4 +366,3 @@ private:
 	  const T &dummyValue);
 };
 
-#endif // ZabbixAPI_h

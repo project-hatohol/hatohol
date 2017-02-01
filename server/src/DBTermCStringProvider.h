@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTermCStringProvider_h
-#define DBTermCStringProvider_h
-
+#pragma once
 #include <string>
 #include <list>
 #include <stdint.h>
@@ -42,6 +40,4 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
-
-#endif // DBTermCStringProvider_h
 
