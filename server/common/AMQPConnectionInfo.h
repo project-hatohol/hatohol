@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AMQPConnectionInfo_h
-#define AMQPConnectionInfo_h
-
+#pragma once
 #include <string>
 #include <memory>
 #include "Params.h"
@@ -66,4 +64,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // AMQPConnectionInfo_h

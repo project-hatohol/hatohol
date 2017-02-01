@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ResidentCommunicator_h
-#define ResidentCommunicator_h
-
+#pragma once
 #include <cstdio>
 #include <string>
 #include "ResidentProtocol.h"
@@ -126,4 +124,3 @@ private:
 	NamedPipe  *m_pipe;
 };
 
-#endif // ResidentCommunicator_h

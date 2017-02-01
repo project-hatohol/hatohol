@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataStoreManager_h
-#define DataStoreManager_h
-
+#pragma once
 #include <list>
 #include <memory>
 #include "DataStore.h"
@@ -107,4 +105,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DataStoreManager_h

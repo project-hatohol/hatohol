@@ -17,15 +17,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Hatohol_h
-#define Hatohol_h
-
+#pragma once
 #include "Utils.h"
 #include "ConfigManager.h"
 
 void hatoholInit(const CommandLineOptions *cmdLineOpts = NULL,
                  const bool &dontCareChildProcessManager = false);
 void hatoholInitChildProcessManager(void);
-
-#endif // Hatohol_h
 

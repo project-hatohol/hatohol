@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FaceRestPrivate_h
-#define FaceRestPrivate_h
-
+#pragma once
 #include "FaceRest.h"
 #include <StringUtils.h>
 #include <UsedCountable.h>
@@ -234,4 +232,3 @@ bool getParamWithErrorReply(
 	return true;
 }
 
-#endif // FaceRestPrivate_h

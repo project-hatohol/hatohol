@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HatoholError_h
-#define HatoholError_h
-
+#pragma once
 #include <string>
 #include <map>
 
@@ -173,4 +171,3 @@ private:
 	std::string      m_optMessage;
 };
 
-#endif // HatoholError_h

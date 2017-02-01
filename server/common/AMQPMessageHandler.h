@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AMQPMessageHandler_h
-#define AMQPMessageHandler_h
-
+#pragma once
 #include "Params.h"
 #include "AMQPConnection.h"
 #include "AMQPConsumer.h"
@@ -35,4 +33,3 @@ public:
 			    const AMQPMessage &message) = 0;
 };
 
-#endif // AMQPMessageHandler_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RedmineAPIEmulator_h
-#define RedmineAPIEmulator_h
-
+#pragma once
 #include "HttpServerStub.h"
 
 struct RedmineIssue {
@@ -85,6 +83,4 @@ private:
 
 extern const guint EMULATOR_PORT;
 extern RedmineAPIEmulator g_redmineEmulator;
-
-#endif // ZabbixAPIEmulator_h
 

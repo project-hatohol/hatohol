@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IncidentSenderManager_h
-#define IncidentSenderManager_h
-
+#pragma once
 #include "Params.h"
 #include "DBTablesMonitoring.h"
 #include "IncidentSender.h"
@@ -93,4 +91,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // IncidentSenderManager_h

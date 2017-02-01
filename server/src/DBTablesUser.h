@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTablesUser_h
-#define DBTablesUser_h
-
+#pragma once
 #include <list>
 #include <map>
 #include "DBTables.h"
@@ -286,4 +284,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBTablesUser_h

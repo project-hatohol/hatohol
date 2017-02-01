@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AMQPConsumer_h
-#define AMQPConsumer_h
-
+#pragma once
 #include <functional>
 #include "HatoholThreadBase.h"
 #include "AMQPConnection.h"
@@ -53,4 +51,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // AMQPConsumer_h

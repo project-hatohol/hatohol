@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemGroupPtr_h
-#define ItemGroupPtr_h
-
+#pragma once
 #include "ItemGroup.h"
 #include "UsedCountablePtr.h"
 
@@ -28,6 +26,4 @@ typedef UsedCountablePtr<const ItemGroup> ItemGroupPtr;
 
 template<>
 UsedCountablePtr<ItemGroup>::UsedCountablePtr(void);
-
-#endif // #define ItemGroupPtr_h
 

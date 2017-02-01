@@ -17,8 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HatoholArmPluginGateTest_h
-#define HatoholArmPluginGateTest_h
+#pragma once
 #include <string>
 #include <exception>
 #include <qpid/messaging/Session.h>
@@ -114,4 +113,3 @@ private:
 
 typedef UsedCountablePtr<HatoholArmPluginGateTest> HatoholArmPluginGateTestPtr;
 
-#endif // HatoholArmPluginGateTest_h

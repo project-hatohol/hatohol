@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemDataUtils_h 
-#define ItemDataUtils_h
-
+#pragma once
 #include <string>
 #include "ItemDataPtr.h"
 #include "ItemGroupPtr.h"
@@ -100,7 +98,4 @@ private:
 typedef std::vector<ItemDataIndex *>        ItemDataIndexVector;
 typedef ItemDataIndexVector::iterator       ItemDataIndexVectorIterator;
 typedef ItemDataIndexVector::const_iterator ItemDataIndexVectorConstIterator;
-
-#endif // ItemDataUtils_h
-
 

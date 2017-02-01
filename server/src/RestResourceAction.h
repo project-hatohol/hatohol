@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceAction_h
-#define RestResourceAction_h
-
+#pragma once
 #include "FaceRestPrivate.h"
 
 struct RestResourceAction : public FaceRest::ResourceHandler
@@ -39,4 +37,3 @@ struct RestResourceAction : public FaceRest::ResourceHandler
 	static const char *pathForAction;
 };
 
-#endif // RestResourceAction_h

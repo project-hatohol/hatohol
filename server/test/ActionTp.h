@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ActionTp_h
-#define ActionTp_h
-
+#pragma once
 #include <stdint.h>
 
 enum {
@@ -37,6 +35,4 @@ static const size_t ACTTP_SESSION_ID_LEN = 36;
 
 #define OPTION_CRASH_SOON "--crash-soon"
 #define OPTION_STALL      "--stall"
-
-#endif // ActionTp_h
 

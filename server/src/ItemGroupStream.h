@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemGroupStream_h 
-#define ItemGroupStream_h
-
+#pragma once
 #include <string>
 #include "ItemGroup.h"
 
@@ -131,6 +129,4 @@ private:
 template<> uint64_t ItemGroupStream::read<std::string, uint64_t>(void);
 template<> std::string ItemGroupStream::read<int, std::string>(void);
 template<> std::string ItemGroupStream::read<uint64_t, std::string>(void);
-
-#endif // ItemGroupStream_h
 

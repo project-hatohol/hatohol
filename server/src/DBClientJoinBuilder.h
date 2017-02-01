@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBClientJoin_h
-#define DBClientJoin_h
-
+#pragma once
 #include "DBAgent.h"
 #include "DataQueryOption.h"
 
@@ -118,4 +116,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBClientJoin_h

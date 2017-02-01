@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceIncident_h
-#define RestResourceIncident_h
-
+#pragma once
 #include "FaceRestPrivate.h"
 
 struct RestResourceIncident : public RestResourceMemberHandler
@@ -51,4 +49,3 @@ struct RestResourceIncident : public RestResourceMemberHandler
 	void updateIncidentHistory(IncidentHistory &history);
 };
 
-#endif // RestResourceIncident_h

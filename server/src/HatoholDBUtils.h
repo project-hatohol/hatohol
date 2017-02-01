@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HatoholDBUtils_h
-#define HatoholDBUtils_h
-
+#pragma once
 #include "DBTablesMonitoring.h"
 #include "HostInfoCache.h"
 
@@ -90,4 +88,3 @@ protected:
 	  HistoryInfo &historyInfo, const ItemGroup *item);
 };
 
-#endif // HatoholDBUtils_h

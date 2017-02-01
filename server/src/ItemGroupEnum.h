@@ -17,8 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemGroupEnum_h
-#define ItemGroupEnum_h
+#pragma once
 
 enum
 {
@@ -49,4 +48,3 @@ enum
 	GROUP_ID_ZBX_DRULES,
 };
 
-#endif // ItemGroupEnum_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemTablePtr_h
-#define ItemTablePtr_h
-
+#pragma once
 #include <list>
 #include <map>
 #include "UsedCountablePtr.h"
@@ -38,6 +36,4 @@ template<> ItemTablePtr::UsedCountablePtr(void);
 typedef std::map<ItemGroupPtr, VariableItemTablePtr, ItemGroupPtrComparator>
   ItemGroupTableMap;
 typedef ItemGroupTableMap::iterator ItemGroupTableMapIterator;
-
-#endif // #define ItemTablePtr_h
 

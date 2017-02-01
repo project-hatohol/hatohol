@@ -16,9 +16,7 @@
  * License along with Hatohol. If not, see
  * <http://www.gnu.org/licenses/>.
  */
-#ifndef AMQPConnection_h
-#define AMQPConnection_h
-
+#pragma once
 #include "AMQPConnectionInfo.h"
 #include <glib.h>
 #include <unistd.h>
@@ -84,4 +82,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // AMQPConnection_h

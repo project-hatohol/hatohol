@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LabelUtils_h
-#define LabelUtils_h
-
+#pragma once
 #include <string>
 #include "DBTablesMonitoring.h"
 
@@ -30,4 +28,3 @@ public:
 	static std::string getTriggerSeverityLabel(TriggerSeverityType severity);
 };
 
-#endif // LabelUtils_h

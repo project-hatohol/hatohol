@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SmartBuffer_h
-#define SmartBuffer_h
-
+#pragma once
 #include <cstdlib>
 #include <stdint.h>
 #include <string>
@@ -279,4 +277,3 @@ protected:
 
 } // namespace mlpl
 
-#endif // SmartBuffer_h

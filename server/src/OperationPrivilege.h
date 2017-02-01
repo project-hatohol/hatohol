@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OperationPrivilege_h
-#define OperationPrivilege_h
-
+#pragma once
 #include <string>
 #include <memory>
 #include "Params.h"
@@ -114,4 +112,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // OperationPrivilege_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HatoholThreadBase_h
-#define HatoholThreadBase_h
-
+#pragma once
 #include <list>
 #include <memory>
 #include <glib.h>
@@ -107,6 +105,4 @@ private:
 	static void threadCleanup(HatoholThreadArg *arg);
 	static gpointer threadStarter(gpointer data);
 };
-
-#endif // HatoholThreadBase_h
 

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceIncidentTracker_h
-#define RestResourceIncidentTracker_h
-
+#pragma once
 #include "FaceRestPrivate.h"
 
 struct RestResourceIncidentTracker : public FaceRest::ResourceHandler
@@ -39,4 +37,3 @@ struct RestResourceIncidentTracker : public FaceRest::ResourceHandler
 	static const char *pathForIncidentTracker;
 };
 
-#endif // RestResourceIncidentTracker_h

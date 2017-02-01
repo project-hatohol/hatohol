@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MonitoringServerInfo_h
-#define MonitoringServerInfo_h
-
+#pragma once
 #include <list>
 #include <string>
 #include "Params.h"
@@ -104,4 +102,3 @@ typedef std::list<MonitoringServerInfo>    MonitoringServerInfoList;
 typedef MonitoringServerInfoList::iterator MonitoringServerInfoListIterator;
 typedef MonitoringServerInfoList::const_iterator MonitoringServerInfoListConstIterator;
 
-#endif // MonitoringServerInfo_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AssertJoin_h
-#define AssertJoin_h
-
+#pragma once
 #include "Helpers.h"
 
 template <typename RefDataType0, typename RefDataType1>
@@ -163,4 +161,3 @@ public:
 
 #undef BASE
 
-#endif // AssertJoin_h

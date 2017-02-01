@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Synchronizer_h
-#define Synchronizer_h
-
+#pragma once
 #include <glib.h>
 #include <Mutex.h>
 
@@ -36,4 +34,3 @@ public:
 	void wait(void);
 };
 
-#endif // Synchronizer_h

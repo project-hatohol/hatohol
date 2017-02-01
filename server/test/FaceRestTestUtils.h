@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FaceRestTestUtils_h
-#define FaceRestTestUtils_h
-
+#pragma once
 #include <string>
 #include "StringUtils.h"
 #include "Params.h"
@@ -108,4 +106,3 @@ void _assertUpdateRecord(const StringMap &params, const std::string &baseUrl,
 
 void assertServersIdNameHashInParser(JSONParser *parser);
 
-#endif // FaceRestTestUtils_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HostResourceQueryOption_h
-#define HostResourceQueryOption_h
-
+#pragma once
 #include <string>
 #include "Params.h"
 #include "DBAgent.h"
@@ -249,4 +247,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // HostResourceQueryOption_h

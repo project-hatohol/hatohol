@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTablesLastInfo_h
-#define DBTablesLastInfo_h
-
+#pragma once
 #include <string>
 #include "DBTablesMonitoring.h"
 #include "DBTables.h"
@@ -134,4 +132,3 @@ private:
 
 };
 
-#endif // DBTablesLastInfo_h

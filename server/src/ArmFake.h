@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ArmFake_h
-#define ArmFake_h
-
+#pragma once
 #include "ArmBase.h"
 
 class ArmFake : public ArmBase {
@@ -30,6 +28,4 @@ public:
 protected:
 	virtual ArmPollingResult mainThreadOneProc(void) override;
 };
-
-#endif // ArmFake_h
 

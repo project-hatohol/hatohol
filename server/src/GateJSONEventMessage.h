@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GateJSONEventMessage_h
-#define GateJSONEventMessage_h
-
+#pragma once
 #include <json-glib/json-glib.h>
 
 #include <string>
@@ -52,6 +50,4 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> m_impl;
 };
-
-#endif // GateJSONEventMessage_h
 

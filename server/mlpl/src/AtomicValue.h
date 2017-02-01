@@ -17,8 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AtomicValue_h
-#define AtomicValue_h
+#pragma once
 
 namespace mlpl {
 
@@ -71,6 +70,4 @@ private:
 };
 
 } // namespace mlpl
-
-#endif // AtomicValue_h
 

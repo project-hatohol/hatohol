@@ -17,12 +17,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Logger_h
-#define Logger_h
-
+#pragma once
 #include <pthread.h>
 #include <string>
 #include "ReadWriteLock.h"
+
 namespace mlpl {
 
 enum LogLevel {
@@ -84,6 +83,4 @@ do { \
 #define MLPL_ERR(FMT,  ...) MLPL_P(mlpl::MLPL_LOG_ERR,  FMT, ##__VA_ARGS__)
 #define MLPL_CRIT(FMT, ...) MLPL_P(mlpl::MLPL_LOG_CRIT, FMT, ##__VA_ARGS__)
 #define MLPL_BUG(FMT,  ...) MLPL_P(mlpl::MLPL_LOG_BUG,  FMT, ##__VA_ARGS__)
-
-#endif // Logger_h
 

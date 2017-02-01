@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataStore_h
-#define DataStore_h
-
+#pragma once
 #include <map>
 #include <vector>
 #include <Monitoring.h>
@@ -60,4 +58,3 @@ typedef std::vector<std::shared_ptr<DataStore>> DataStoreVector;
 typedef DataStoreVector::iterator               DataStoreVectorIterator;
 typedef DataStoreVector::const_iterator         DataStoreVectorConstIterator;
 
-#endif // DataStore_h

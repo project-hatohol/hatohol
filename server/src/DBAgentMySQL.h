@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBAgentMySQL_h
-#define DBAgentMySQL_h
-
+#pragma once
 #include <mysql.h>
 #include "DBAgent.h"
 
@@ -111,4 +109,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DBAgentMySQL_h

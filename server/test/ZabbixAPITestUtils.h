@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ZabbixAPITestUtils_h
-#define ZabbixAPITestUtils_h
-
+#pragma once
 #include <string>
 #include <cppcutter.h>
 #include "ZabbixAPI.h"
@@ -97,4 +95,3 @@ void _assertCheckAPIVersion(bool expected, int major, int minor , int micro);
 #define assertCheckAPIVersion(EXPECTED,MAJOR,MINOR,MICRO) \
   cut_trace(_assertCheckAPIVersion(EXPECTED,MAJOR,MINOR,MICRO))
 
-#endif // ZabbixAPITestUtils_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ActionManager_h
-#define ActionManager_h
-
+#pragma once
 #include <memory>
 #include "Params.h"
 #include "SmartBuffer.h"
@@ -250,6 +248,4 @@ private:
 	struct ActorProfile;
 	std::unique_ptr<Impl> m_impl;
 };
-
-#endif // ActionManager_h
 

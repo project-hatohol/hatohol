@@ -17,13 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemDataPtr_h
-#define ItemDataPtr_h
-
+#pragma once
 #include "ItemData.h"
 #include "UsedCountablePtr.h"
 
 typedef UsedCountablePtr<ItemData>       VariableItemDataPtr;
 typedef UsedCountablePtr<const ItemData> ItemDataPtr;
 
-#endif // #define ItemDataPtr_h

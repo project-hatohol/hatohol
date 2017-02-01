@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SimpleSemaphore_h
-#define SimpleSemaphore_h
-
+#pragma once
 #include <cstddef>
 
 namespace mlpl {
@@ -88,6 +86,4 @@ private:
 };
 
 } // namespace mlpl
-
-#endif // SimpleSemaphore_h
 

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef JSONParser_h
-#define JSONParser_h
-
+#pragma once
 #include <string>
 #include <memory>
 #include <stack>
@@ -98,4 +96,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // JSONParser_h

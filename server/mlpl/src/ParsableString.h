@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ParsableString_h
-#define ParsableString_h
-
+#pragma once
 #include <vector>
 #include <list>
 #include <string>
@@ -161,4 +159,3 @@ private:
 
 } // namespace mlpl
 
-#endif // ParsableString_h

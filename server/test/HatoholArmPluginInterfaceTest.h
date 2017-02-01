@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HatoholArmPluginInterfaces_h
-#define HatoholArmPluginInterfaces_h
-
+#pragma once
 #include <string>
 #include <SimpleSemaphore.h>
 #include <SmartBuffer.h>
@@ -117,4 +115,3 @@ private:
 	mlpl::AtomicValue<bool> m_msgIntercept;
 };
 
-#endif // HatoholArmPluginInterfaces_h

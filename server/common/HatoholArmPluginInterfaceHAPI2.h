@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HatoholArmPluginInterfaceHAPI2_h
-#define HatoholArmPluginInterfaceHAPI2_h
-
+#pragma once
 #include <string>
 #include <random>
 #include "HatoholThreadBase.h"
@@ -203,4 +201,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // HatoholArmPluginInterfaceHAPI2_h

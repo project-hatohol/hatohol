@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ArmBase_h
-#define ArmBase_h
-
+#pragma once
 #include <string>
 #include "HatoholThreadBase.h"
 #include "DBTablesConfig.h"
@@ -115,4 +113,3 @@ typedef std::vector<ArmBase *>        ArmBaseVector;
 typedef ArmBaseVector::iterator       ArmBaseVectorIterator;
 typedef ArmBaseVector::const_iterator ArmBaseVectorConstIterator;
 
-#endif // ArmBase_h

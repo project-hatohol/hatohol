@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Helpers_h
-#define Helpers_h
-
+#pragma once
 #include <cppcutter.h>
 #include <StringUtils.h>
 #include <Mutex.h>
@@ -450,4 +448,3 @@ private:
 	bool        m_hasOrigValue;
 };
 
-#endif // Helpers_h

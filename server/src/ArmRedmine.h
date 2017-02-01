@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ArmRedmine_h
-#define ArmRedmine_h
-
+#pragma once
 #include "ArmIncidentTracker.h"
 #include "DBTablesConfig.h"
 
@@ -44,4 +42,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // ArmRedmine_h

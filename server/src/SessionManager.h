@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SessionManager_h
-#define SessionManager_h
-
+#pragma once
 #include <string>
 #include <memory>
 #include <map>
@@ -133,4 +131,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // SessionManager_h

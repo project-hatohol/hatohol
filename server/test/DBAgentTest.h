@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBAgentTestCommon_h
-#define DBAgentTestCommon_h
-
+#pragma once
 #include <cppcutter.h>
 #include "SQLProcessorTypes.h"
 #include "DBAgent.h"
@@ -132,4 +130,3 @@ void dbAgentGetLastInsertId(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentGetNumberOfAffectedRows(DBAgent &dbAgent, DBAgentChecker &checker);
 void dbAgentUpsertBySameData(DBAgent &dbAgent, DBAgentChecker &checker);
 
-#endif // DBAgentTestCommon_h

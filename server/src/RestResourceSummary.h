@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RestResourceSummary_h
-#define RestResourceSummary_h
-
+#pragma once
 #include "FaceRestPrivate.h"
 
 struct RestResourceSummary : public RestResourceMemberHandler
@@ -35,4 +33,3 @@ public:
 	void handlerImportantEventSummary(void);
 };
 
-#endif // RestResourceSummary_h

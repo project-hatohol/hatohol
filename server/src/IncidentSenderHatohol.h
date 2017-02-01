@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IncidentSenderHatohol_h
-#define IncidentSenderHatohol_h
-
+#pragma once
 #include "IncidentSender.h"
 
 class IncidentSenderHatohol : public IncidentSender
@@ -45,4 +43,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // IncidentSenderHatohol_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataStoreException_h
-#define DataStoreException_h
-
+#pragma once
 #include "HatoholException.h"
 
 class DataStoreException : public HatoholException
@@ -38,4 +36,3 @@ do { \
 	throw DataStoreException(msg, __FILE__, __LINE__); \
 } while (0)
 
-#endif // DataStoreException_h

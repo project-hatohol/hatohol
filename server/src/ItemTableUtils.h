@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemTableUtils_h 
-#define ItemTableUtils_h
-
+#pragma once
 #include <string>
 #include "ItemTable.h"
 #include "HatoholException.h"
@@ -50,4 +48,3 @@ public:
 	}
 };
 
-#endif // ItemTableUtils_h

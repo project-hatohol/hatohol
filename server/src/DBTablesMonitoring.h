@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTablesMonitoring_h
-#define DBTablesMonitoring_h
-
+#pragma once
 #include <list>
 #include "DBTables.h"
 #include "DataQueryOption.h"
@@ -432,4 +430,3 @@ void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs);
 void operator>>(ItemGroupStream &itemGroupStream, TriggerSeverityType &rhs);
 void operator>>(ItemGroupStream &itemGroupStream, EventType &rhs);
 
-#endif // DBTablesMonitoring_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBClientTest_h
-#define DBClientTest_h
-
+#pragma once
 #include <map>
 #include <set>
 #include <SmartTime.h>
@@ -293,4 +291,3 @@ void loadTestDBSeverityRankInfo(void);
 void loadTestDBCustomIncidentStatusInfo(void);
 void loadTestDBIncidentHistory(void);
 
-#endif // DBClientTest_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemGroup_h
-#define ItemGroup_h
-
+#pragma once
 #include <map>
 #include <list>
 #include <inttypes.h>
@@ -126,4 +124,3 @@ private:
 	  const ItemDataNullFlagType &nullFlag);
 };
 
-#endif  // ItemGroup_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DataStoreFake_h
-#define DataStoreFake_h
-
+#pragma once
 #include "ArmFake.h"
 #include "DataStore.h"
 
@@ -37,4 +35,3 @@ private:
 	std::unique_ptr<Impl> m_impl;
 };
 
-#endif // DataStoreFake_h

@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTables_h
-#define DBTables_h
-
+#pragma once
 #include <string>
 #include <memory>
 #include <Mutex.h>
@@ -149,4 +147,3 @@ struct SeqTransactionProc :
   public MutableSeqTransactionProc<const T, const SEQ_TYPE> {
 };
 
-#endif // DB_h

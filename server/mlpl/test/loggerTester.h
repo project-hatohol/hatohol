@@ -16,10 +16,8 @@
  * License along with Hatohol. If not, see
  * <http://www.gnu.org/licenses/>.
  */
-		 
-#ifndef loggerTester_h
-#define loggerTester_h
+
+#pragma once
 
 const static char *testString  = "Logger_Test_Message.";
 
-#endif // loggerTester_h

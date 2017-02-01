@@ -17,9 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBTermCodec_h
-#define DBTermCodec_h
-
+#pragma once
 #include <string>
 #include <stdint.h>
 
@@ -30,4 +28,3 @@ public:
 	virtual std::string enc(const std::string &val) const;
 };
 
-#endif // DBTermCodec_h
