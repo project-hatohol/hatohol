@@ -20,6 +20,7 @@
 #pragma once
 #include <cstdlib>
 #include <vector>
+#include <type_traits>
 #include <string>
 #include <typeinfo>
 #include <functional>
@@ -51,6 +52,14 @@
 class FormulaElement;
 
 static const guint INVALID_EVENT_ID = -1;
+
+template<typename T>
+typename std::underlying_type<typename std::remove_reference<T>::type>::type
+underlying_value(T && t)
+{
+	return static_cast<typename std::underlying_type<
+		typename std::remove_reference<T>::type>::type>(t);
+}
 
 class Utils {
 public:
