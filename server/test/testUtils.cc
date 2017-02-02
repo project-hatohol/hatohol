@@ -55,7 +55,7 @@ struct TestExecEvtLoop : public HatoholThreadBase {
 	  loop(NULL),
 	  quitLoop(true),
 	  useFunctor(false),
-	  syncType(SYNC),
+	  syncType(SyncType::SYNC),
 	  eventId(INVALID_EVENT_ID)
 	{
 		mutex.lock();
@@ -279,7 +279,7 @@ void test_executeOnGlibEventLoopAsync(void)
 	acquireDefaultContext();
 
 	TestExecEvtLoop thread;
-	thread.syncType = ASYNC;
+	thread.syncType = SyncType::ASYNC;
 	thread.start();
 	const size_t timeoutInMSec = 5000;
 	guint timer_tag = g_timeout_add(timeoutInMSec, proc.expired, NULL);

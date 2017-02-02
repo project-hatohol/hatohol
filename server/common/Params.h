@@ -247,7 +247,8 @@ typedef ItemCategoryNameMap::const_iterator ItemCategoryNameMapConstIterator;
 
 typedef std::vector<LocalHostIdType> LocalHostIdVector;
 
-enum SyncType {
+enum class SyncType
+{
 	SYNC,
 	ASYNC,
 };

@@ -105,7 +105,7 @@ struct TimeoutInfo {
 
 	void removeTimeout(void)
 	{
-		Utils::removeEventSourceIfNeeded(tag, SYNC, glibMainContext);
+		Utils::removeEventSourceIfNeeded(tag, SyncType::SYNC, glibMainContext);
 		tag = INVALID_EVENT_ID;
 	}
 };
@@ -181,7 +181,7 @@ struct NamedPipe::Impl {
 
 	void removeEventSourceIfNeeded(guint tag)
 	{
-		Utils::removeEventSourceIfNeeded(tag, SYNC, glibMainContext);
+		Utils::removeEventSourceIfNeeded(tag, SyncType::SYNC, glibMainContext);
 	}
 
 	void closeFd(void)

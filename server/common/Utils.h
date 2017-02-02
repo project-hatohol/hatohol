@@ -128,24 +128,24 @@ public:
 	 * A pointer that is passed to 'func' as an argument.
 	 *
 	 * @param syncType
-	 * If this is SYNC, this function returns after 'func' is completed.
-	 * If this is ASYNC, this function returns immediately.
+	 * If this is SyncType::SYNC, this function returns after 'func' is completed.
+	 * If this is SyncType::ASYNC, this function returns immediately.
 	 *
 	 * @param context
 	 * A GMainContext on which the function is execuetd. If this is NULL,
 	 * the default context is used.
 	 *
 	 * @return
-	 * An event ID of the scheduled task. When syncType is SYNC,
+	 * An event ID of the scheduled task. When syncType is SyncType::SYNC,
 	 * INVALID_EVENT_ID is always returned.
 	 */
 	static guint executeOnGLibEventLoop(
 	  void (*func)(gpointer data), gpointer data = NULL,
-	  SyncType syncType = SYNC, GMainContext *context = NULL);
+	  SyncType syncType = SyncType::SYNC, GMainContext *context = NULL);
 
 	template<typename T>
 	static guint executeOnGLibEventLoop(
-	  void (*func)(T *data), T *data = NULL, SyncType syncType = SYNC,
+	  void (*func)(T *data), T *data = NULL, SyncType syncType = SyncType::SYNC,
 	  GMainContext *context = NULL)
 	{
 		return executeOnGLibEventLoop(
@@ -154,7 +154,7 @@ public:
 	}
 
 	template<typename T>
-	static guint executeOnGLibEventLoop(T &obj, SyncType syncType = SYNC,
+	static guint executeOnGLibEventLoop(T &obj, SyncType syncType = SyncType::SYNC,
 	                                    GMainContext *context = NULL)
 	{
 		struct Task {
@@ -167,7 +167,7 @@ public:
 	}
 
 	template<typename T>
-	static guint deleteOnGLibEventLoop(T *obj, SyncType syncType = SYNC,
+	static guint deleteOnGLibEventLoop(T *obj, SyncType syncType = SyncType::SYNC,
 	                                   GMainContext *context = NULL)
 	{
 		struct Task {
@@ -184,17 +184,17 @@ public:
 	 *
 	 * @param tag A event tag.
 	 *
-	 * @param syncType 
-	 * If this is SYNC, this function returns after the event source is
+	 * @param syncType
+	 * If this is SyncType::SYNC, this function returns after the event source is
 	 * completely removed.
-	 * If this is ASYNC, this function returns immediately.
+	 * If this is SyncType::ASYNC, this function returns immediately.
 	 *
 	 * @param context A GLibMainContext.
 	 *
 	 * @return true if the event was successfuly removed. Otherwise false.
 	 */
 	static bool removeEventSourceIfNeeded(guint tag,
-	                                      SyncType syncType = SYNC,
+	                                      SyncType syncType = SyncType::SYNC,
 	                                      GMainContext *context = NULL);
 
 	/**

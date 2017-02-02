@@ -287,7 +287,7 @@ guint Utils::executeOnGLibEventLoop(
   void (*func)(gpointer), gpointer data, SyncType syncType,
   GMainContext *context)
 {
-	HATOHOL_ASSERT(syncType == SYNC || syncType == ASYNC,
+	HATOHOL_ASSERT(syncType == SyncType::SYNC || syncType == SyncType::ASYNC,
 	               "Invalid syncType: %d\n", syncType);
 	struct IdleTask {
 		void (*userFunc)(gpointer);
@@ -303,7 +303,7 @@ guint Utils::executeOnGLibEventLoop(
 
 		void callback(void) {
 			(*userFunc)(userData);
-			if (syncType == SYNC)
+			if (syncType == SyncType::SYNC)
 				mutex.unlock();
 			else
 				delete this;
@@ -314,7 +314,7 @@ guint Utils::executeOnGLibEventLoop(
 
 	// just call the function if the caller has the ownership
 	// of the context.
-	if (syncType == SYNC && g_main_context_acquire(context)) {
+	if (syncType == SyncType::SYNC && g_main_context_acquire(context)) {
 		(*func)(data);
 		g_main_context_release(context);
 		return eventId;
@@ -325,13 +325,13 @@ guint Utils::executeOnGLibEventLoop(
 	task->userData = data;
 	task->syncType = syncType;
 
-	if (syncType == SYNC)
+	if (syncType == SyncType::SYNC)
 		task->mutex.lock();
 
 	eventId = setGLibIdleEvent(IdleTask::callbackGate, task, context);
 
 	// wait for the completion
-	if (syncType == SYNC) {
+	if (syncType == SyncType::SYNC) {
 		task->mutex.lock();
 		delete task;
 		eventId = INVALID_EVENT_ID;
