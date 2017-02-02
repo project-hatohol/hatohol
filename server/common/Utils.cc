@@ -474,13 +474,6 @@ void Utils::conv(uint64_t &dest, const string &src)
 	}
 }
 
-uint64_t Utils::sum(const string &num0, const uint64_t num1)
-{
-	uint64_t n;
-	conv(n, num0);
-	return n + num1;
-}
-
 void Utils::foreachTriggerStatus(function<void(const TriggerStatusType &)> func)
 {
 	for (int stat = 0; stat < NUM_TRIGGER_STATUS; stat++)
