@@ -58,7 +58,6 @@ public:
 	static std::string makeDemangledStackTraceLines(void **trace, int num);
 	static void assertNotNull(const void *ptr);
 	static std::string demangle(const std::string &str);
-	static uint64_t getCurrTimeAsMicroSecond(void);
 	static bool isValidPort(int port, bool showErrorMsg = true);
 	static std::string getExtension(const std::string &path);
 	static bool validateJSMethodName(const std::string &name,
