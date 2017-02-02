@@ -211,7 +211,7 @@ public:
 	}
 
 protected:
-	virtual gpointer mainThread(HatoholThreadArg *arg)
+	virtual gpointer mainThread(HatoholThreadArg *arg) override
 	{
 		ResourceHandler *job;
 		MLPL_INFO("start face-rest worker\n");

@@ -52,7 +52,7 @@ public:
 	virtual void stop(void) override;
 	bool isEstablished(void);
 
-	virtual bool isFetchItemsSupported(void);
+	virtual bool isFetchItemsSupported(void) override;
 	virtual bool startOnDemandFetchItems(
 	  const LocalHostIdVector &hostIds = {},
 	  Closure0 *closure = NULL) override;
