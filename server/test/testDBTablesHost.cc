@@ -144,7 +144,7 @@ void test_tablesVersion(void)
 	DBTablesHost &dbHost = dbHatohol.getDBTablesHost();
 	cppcut_assert_not_null(&dbHost);
 	assertDBTablesVersion(dbHatohol.getDBAgent(),
-	                      DB_TABLES_ID_HOST, DBTablesHost::TABLES_VERSION);
+	                      DBTablesId::HOST, DBTablesHost::TABLES_VERSION);
 }
 
 void test_addHost(void)

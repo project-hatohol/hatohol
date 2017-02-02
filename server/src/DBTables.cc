@@ -168,7 +168,7 @@ struct DBTables::Impl {
 	  const DBAgent::TableProfile &tableProfileTablesVersion)
 	{
 		DBAgent::InsertArg arg(tableProfileTablesVersion);
-		arg.add(setupInfo.tablesId);
+		arg.add(underlying_value(setupInfo.tablesId));
 		arg.add(setupInfo.version);
 		dbAgent.insert(arg);
 	}

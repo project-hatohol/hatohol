@@ -904,7 +904,7 @@ DBTables::SetupInfo &DBTablesAction::getSetupInfo(void)
 	};
 
 	static SetupInfo setupInfo = {
-		DB_TABLES_ID_ACTION,
+		DBTablesId::ACTION,
 		ACTION_DB_VERSION,
 		ARRAY_SIZE(DB_TABLE_INFO),
 		DB_TABLE_INFO,

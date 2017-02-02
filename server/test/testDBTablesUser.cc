@@ -315,7 +315,7 @@ void test_tablesVersion(void)
 	DECLARE_DBTABLES_USER(dbUser);
 	assertDBTablesVersion(
 	  dbUser.getDBAgent(),
-	  DB_TABLES_ID_USER, DBTablesUser::USER_DB_VERSION);
+	  DBTablesId::USER, DBTablesUser::USER_DB_VERSION);
 }
 
 void test_addUser(void)

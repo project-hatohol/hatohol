@@ -3811,7 +3811,7 @@ DBTables::SetupInfo &DBTablesMonitoring::getSetupInfo(void)
 	};
 
 	static SetupInfo setupInfo = {
-		DB_TABLES_ID_MONITORING,
+		DBTablesId::MONITORING,
 		MONITORING_DB_VERSION,
 		ARRAY_SIZE(DB_TABLE_INFO),
 		DB_TABLE_INFO,

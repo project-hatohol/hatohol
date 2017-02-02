@@ -124,7 +124,7 @@ void test_tablesVersion(void)
 	DECLARE_DBTABLES_CONFIG(dbConfig);
 	assertDBTablesVersion(
 	  dbConfig.getDBAgent(),
-	  DB_TABLES_ID_CONFIG, DBTablesConfig::CONFIG_DB_VERSION);
+	  DBTablesId::CONFIG, DBTablesConfig::CONFIG_DB_VERSION);
 }
 
 void test_getHostAddressIP(void)

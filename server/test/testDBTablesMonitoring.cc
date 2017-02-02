@@ -332,7 +332,7 @@ void test_tablesVersion(void)
 	DECLARE_DBTABLES_MONITORING(dbMonitoring);
 	assertDBTablesVersion(
 	  dbMonitoring.getDBAgent(),
-	  DB_TABLES_ID_MONITORING, DBTablesMonitoring::MONITORING_DB_VERSION);
+	  DBTablesId::MONITORING, DBTablesMonitoring::MONITORING_DB_VERSION);
 }
 
 

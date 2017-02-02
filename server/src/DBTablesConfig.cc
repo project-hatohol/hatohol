@@ -2299,7 +2299,7 @@ DBTables::SetupInfo &DBTablesConfig::getSetupInfo(void)
 	};
 
 	static SetupInfo setupInfo = {
-		DB_TABLES_ID_CONFIG,
+		DBTablesId::CONFIG,
 		CONFIG_DB_VERSION,
 		ARRAY_SIZE(TABLE_INFO),
 		TABLE_INFO,

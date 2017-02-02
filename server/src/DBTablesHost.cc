@@ -1552,7 +1552,7 @@ DBTables::SetupInfo &DBTablesHost::getSetupInfo(void)
 	  ARRAY_SIZE(TABLE_INFO);
 
 	static SetupInfo SETUP_INFO = {
-		DB_TABLES_ID_HOST,
+		DBTablesId::HOST,
 		TABLES_VERSION,
 		NUM_TABLE_INFO,
 		TABLE_INFO,

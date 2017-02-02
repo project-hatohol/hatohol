@@ -26,14 +26,15 @@
 #include <string>
 #include "config.h"
 
-typedef int DBTablesId;
-
-static const DBTablesId DB_TABLES_ID_CONFIG     = 0x0010;
-static const DBTablesId DB_TABLES_ID_ACTION     = 0x0018;
-static const DBTablesId DB_TABLES_ID_MONITORING = 0x0020;
-static const DBTablesId DB_TABLES_ID_USER       = 0x0030;
-static const DBTablesId DB_TABLES_ID_HOST       = 0x0040;
-static const DBTablesId DB_TABLES_ID_LAST_INFO  = 0x0050;
+enum class DBTablesId : int
+{
+	CONFIG     = 0x0010,
+	ACTION     = 0x0018,
+	MONITORING = 0x0020,
+	USER       = 0x0030,
+	HOST       = 0x0040,
+	LAST_INFO  = 0x0050,
+};
 
 typedef uint64_t GenericIdType;
 #define FMT_GEN_ID PRIu64

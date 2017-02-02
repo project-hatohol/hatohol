@@ -27,7 +27,7 @@ using namespace std;
 
 namespace testDBTables {
 
-const DBTablesId DB_TABLES_ID_TEST = 0x1234567;
+const DBTablesId DB_TABLES_ID_TEST = static_cast<DBTablesId>(0x1234567);
 const int DB_VERSION = 817;
 
 static const int g_columnIndexes[] = {

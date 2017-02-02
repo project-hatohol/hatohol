@@ -312,7 +312,7 @@ DBTables::SetupInfo &DBTablesLastInfo::getSetupInfo(void)
 	};
 
 	static SetupInfo setupInfo = {
-		DB_TABLES_ID_LAST_INFO,
+		DBTablesId::LAST_INFO,
 		LAST_INFO_DB_VERSION,
 		ARRAY_SIZE(DB_TABLE_INFO),
 		DB_TABLE_INFO,

@@ -306,7 +306,7 @@ void test_tablesVersion(void)
 	DECLARE_DBTABLES_ACTION(dbAction);
 	assertDBTablesVersion(
 	  dbAction.getDBAgent(),
-	  DB_TABLES_ID_ACTION, DBTablesAction::ACTION_DB_VERSION);
+	  DBTablesId::ACTION, DBTablesAction::ACTION_DB_VERSION);
 }
 
 void test_addAction(void)

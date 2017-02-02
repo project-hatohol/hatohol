@@ -60,7 +60,7 @@ void test_tablesVersion(void)
 	DECLARE_DBTABLES_LAST_INFO(dbLastInfo);
 	assertDBTablesVersion(
 	  dbLastInfo.getDBAgent(),
-	  DB_TABLES_ID_LAST_INFO, DBTablesLastInfo::LAST_INFO_DB_VERSION);
+	  DBTablesId::LAST_INFO, DBTablesLastInfo::LAST_INFO_DB_VERSION);
 }
 
 void test_upsertLastInfo(void)
