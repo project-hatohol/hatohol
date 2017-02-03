@@ -429,12 +429,4 @@ void data_add(void)
 	               "expect", G_TYPE_UINT64, 3, NULL);
 }
 
-void test_sum(gconstpointer data)
-{
-	const gchar *num0 = gcut_data_get_string(data, "num0");
-	const uint64_t num1 = gcut_data_get_uint64(data, "num1");
-	const uint64_t expect = gcut_data_get_uint64(data, "expect");
-	cppcut_assert_equal(expect, Utils::sum(num0, num1));
-}
-
 } // namespace testUtils
