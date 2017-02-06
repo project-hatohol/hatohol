@@ -69,7 +69,7 @@ var HatoholEventsViewConfig = function(options) {
     'events.summary.default-filter-id': "0",
   };
   self.defaultFilterConfig = {
-    name: gettext("ALL (31 days)"),
+    name: self.defaultFilterName,
     days: 31,
     incident: {
       enable: false,
@@ -268,6 +268,8 @@ var HatoholEventsViewConfig = function(options) {
       request: "DELETE",
       replyCallback: function(reply, parser) {
         self.filterList.splice(self.selectedFilterIndex, 1);
+        if (self.filterList.length == 0)
+          self.filterList = [$.extend(true, {}, self.defaultFilterConfig)];
         self.selectedFilterIndex = 0;
         self.setCurrentFilterConfig();
         self.reset();
@@ -608,7 +610,7 @@ HatoholEventsViewConfig.prototype.reset = function() {
           self.selectedFilterIndex = self.filterList.length - 1;
           self.setCurrentFilterConfig();
           $("#filter-name-entry").change();
-          self.filterList[self.filterList.length -1].name =
+          self.filterList[self.filterList.length - 1].name =
             $("#filter-name-entry").val();
           $("#filter-name-entry").focus();
           $("#filter-name-entry").select();
