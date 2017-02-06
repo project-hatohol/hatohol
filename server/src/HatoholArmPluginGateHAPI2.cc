@@ -112,7 +112,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	struct DividableProcedureCallContext
 	{
 		Impl *m_impl;
-		DividableProcedureCallbackPtr m_callback;
+		shared_ptr<DividableProcedureCallback> m_callback;
 		string m_producerId;
 		guint m_timeoutId;
 	};
@@ -498,7 +498,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 	}
 
 	void queueDivideInfoCallback(const string &requestId,
-	                             DividableProcedureCallbackPtr callback)
+	                             shared_ptr<DividableProcedureCallback> callback)
 	{
 		if (requestId.empty())
 			return;
@@ -530,7 +530,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 		auto it = m_dividableProcedureCallContextMap.find(requestId);
 		if (it != m_dividableProcedureCallContextMap.end()) {
 			DividableProcedureCallContextPtr &context = it->second;
-			if (context->m_callback.hasData())
+			if (context->m_callback)
 				context->m_callback->onGotResponse();
 			g_source_remove(context->m_timeoutId);
 			m_dividableProcedureCallContextMap.erase(it);
@@ -547,7 +547,7 @@ struct HatoholArmPluginGateHAPI2::Impl
 
 		lock_guard<mutex> lock(context->m_impl->m_dividableProcedureMapMutex);
 
-		if (context->m_callback.hasData())
+		if (context->m_callback)
 			context->m_callback->onTimeout();
 
 		map<string, DividableProcedureCallContextPtr> &contextMap
@@ -1808,13 +1808,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutItems(JSONParser &parser)
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
 			if (!divideInfo.isLast) {
-				DividableProcedureCallback *callback =
-				  new Impl::DividedPutItemsProcedureCallback(
-				     *m_impl,
-				     divideInfo.requestId);
-				DividableProcedureCallbackPtr callbackPtr(callback, false);
-				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callbackPtr);
+				auto callback =
+				  make_shared<Impl::DividedPutEventsProcedureCallback>
+					  (*m_impl, divideInfo.requestId);
+				m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -1957,13 +1954,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHistory(
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
 			if (!divideInfo.isLast) {
-				DividableProcedureCallback *callback =
-				  new Impl::DividedPutHistoryProcedureCallback(
-				     *m_impl,
-				     divideInfo.requestId);
-				DividableProcedureCallbackPtr callbackPtr(callback, false);
-				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callbackPtr);
+				auto callback =
+				  make_shared<Impl::DividedPutEventsProcedureCallback>
+					  (*m_impl, divideInfo.requestId);
+				m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -2124,13 +2118,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHosts(
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
 			if (!divideInfo.isLast) {
-				DividableProcedureCallback *callback =
-				  new Impl::DividedPutHostsProcedureCallback(
-				    *m_impl,
-				    divideInfo.requestId);
-				DividableProcedureCallbackPtr callbackPtr(callback, false);
-				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callbackPtr);
+				auto callback =
+				  make_shared<Impl::DividedPutEventsProcedureCallback>
+					  (*m_impl, divideInfo.requestId);
+				m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -2284,13 +2275,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroups(
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
 			if (!divideInfo.isLast) {
-				DividableProcedureCallback *callback =
-				  new Impl::DividedPutHostGroupsProcedureCallback(
-				    *m_impl,
-				    divideInfo.requestId);
-				DividableProcedureCallbackPtr callbackPtr(callback, false);
-				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callbackPtr);
+				auto callback =
+				  make_shared<Impl::DividedPutEventsProcedureCallback>
+					  (*m_impl, divideInfo.requestId);
+				m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -2469,13 +2457,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostGroupMembership(
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
 			if (!divideInfo.isLast) {
-				DividableProcedureCallback *callback =
-				  new Impl::DividedPutHostGroupMembershipProcedureCallback(
-				    *m_impl,
-				    divideInfo.requestId);
-				DividableProcedureCallbackPtr callbackPtr(callback, false);
-				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callbackPtr);
+				auto callback =
+				  make_shared<Impl::DividedPutEventsProcedureCallback>
+					  (*m_impl, divideInfo.requestId);
+				m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -2725,13 +2710,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutTriggers(
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
 			if (!divideInfo.isLast) {
-				DividableProcedureCallback *callback =
-				  new Impl::DividedPutTriggersProcedureCallback(
-				    *m_impl,
-				    divideInfo.requestId);
-				DividableProcedureCallbackPtr callbackPtr(callback, false);
-				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callbackPtr);
+				auto callback =
+				  make_shared<Impl::DividedPutEventsProcedureCallback>
+					  (*m_impl, divideInfo.requestId);
+				m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -2947,13 +2929,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutEvents(
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
 			if (!divideInfo.isLast) {
-				DividableProcedureCallback *callback =
-				  new Impl::DividedPutEventsProcedureCallback(
-				    *m_impl,
-				    divideInfo.requestId);
-				DividableProcedureCallbackPtr callbackPtr(callback, false);
-				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callbackPtr);
+				auto callback =
+				  make_shared<Impl::DividedPutEventsProcedureCallback>
+					  (*m_impl, divideInfo.requestId);
+				m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 			}
 		}
 		if (serialId != sequenceId) {
@@ -3104,13 +3083,10 @@ string HatoholArmPluginGateHAPI2::procedureHandlerPutHostParents(
 				m_impl->runDivideInfoCallback(divideInfo.requestId);
 
 			if (!divideInfo.isLast) {
-				DividableProcedureCallback *callback =
-				  new Impl::DividedPutHostParentsProcedureCallback(
-				    *m_impl,
-				    divideInfo.requestId);
-				DividableProcedureCallbackPtr callbackPtr(callback, false);
-				m_impl->queueDivideInfoCallback(divideInfo.requestId,
-								callbackPtr);
+				auto callback =
+					make_shared<Impl::DividedPutHostParentsProcedureCallback>
+					(*m_impl, divideInfo.requestId);
+				m_impl->queueDivideInfoCallback(divideInfo.requestId, callback);
 			}
 		}
 		if (serialId != sequenceId) {
