@@ -21,6 +21,8 @@
 #include "AMQPConnection.h"
 #include "AMQPMessageHandler.h"
 
+using namespace std;
+
 struct AMQPPublisher::Impl {
 	Impl()
 	: m_connection(NULL)
@@ -31,7 +33,7 @@ struct AMQPPublisher::Impl {
 	{
 	}
 
-	AMQPConnectionPtr m_connection;
+	shared_ptr<AMQPConnection> m_connection;
 	AMQPMessage m_message;
 };
 
@@ -41,7 +43,7 @@ AMQPPublisher::AMQPPublisher(const AMQPConnectionInfo &connectionInfo)
 	m_impl->m_connection = AMQPConnection::create(connectionInfo);
 }
 
-AMQPPublisher::AMQPPublisher(AMQPConnectionPtr &connection)
+AMQPPublisher::AMQPPublisher(shared_ptr<AMQPConnection> connection)
 : m_impl(new Impl())
 {
 	m_impl->m_connection = connection;
@@ -51,7 +53,7 @@ AMQPPublisher::~AMQPPublisher()
 {
 }
 
-AMQPConnectionPtr AMQPPublisher::getConnection(void)
+shared_ptr<AMQPConnection> AMQPPublisher::getConnection(void)
 {
 	return m_impl->m_connection;
 }

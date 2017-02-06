@@ -28,7 +28,6 @@
 #include <amqp_ssl_socket.h>
 
 class AMQPConnection;
-typedef UsedCountablePtr<AMQPConnection> AMQPConnectionPtr;
 
 struct AMQPMessage {
 	std::string contentType;
@@ -42,12 +41,12 @@ struct AMQPJSONMessage : public AMQPMessage {
 	}
 };
 
-class AMQPConnection : public UsedCountable
+class AMQPConnection
 {
 public:
 	static int DEFAULT_HEARTBEAT_SECONDS;
 
-	static AMQPConnectionPtr create(const AMQPConnectionInfo &info);
+	static std::shared_ptr<AMQPConnection> create(const AMQPConnectionInfo &info);
 
 	AMQPConnection(const AMQPConnectionInfo &info);
 	~AMQPConnection();

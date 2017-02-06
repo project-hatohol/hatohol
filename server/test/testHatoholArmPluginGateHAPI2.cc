@@ -1839,7 +1839,7 @@ void test_procedureHandlerPutArmInfoInvalidJSON(void)
 namespace testCommunication {
 
 AMQPConnectionInfo *connectionInfo;
-AMQPConnectionPtr connection;
+shared_ptr<AMQPConnection> connection;
 
 void prepareDB(const char *amqpURL)
 {

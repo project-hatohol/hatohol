@@ -267,8 +267,8 @@ public:
 	void sendResponse(AMQPConsumer &consumer,
 			  const AMQPJSONMessage &response)
 	{
-		AMQPConnectionPtr connectionPtr = consumer.getConnection();
-		AMQPPublisher publisher(connectionPtr);
+		shared_ptr<AMQPConnection> connection = consumer.getConnection();
+		AMQPPublisher publisher(connection);
 		publisher.setMessage(response);
 		bool succeeded = false;
 		do {
