@@ -92,18 +92,6 @@ string Utils::demangle(const string &str)
 	return demangledStr;
 }
 
-uint64_t Utils::getCurrTimeAsMicroSecond(void)
-{
-	struct timeval tv;
-	if (gettimeofday(&tv, NULL) == -1) {
-		MLPL_ERR("Failed to call gettimeofday: %d\n", errno);
-		return 0;
-	}
-	uint64_t currTime = tv.tv_usec;
-	currTime += 1000 * 1000 * tv.tv_sec;
-	return currTime;
-}
-
 bool Utils::isValidPort(int port, bool showErrorMsg)
 {
 	if (port < 0 || port >= 65536) {

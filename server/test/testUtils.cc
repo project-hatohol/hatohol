@@ -127,21 +127,6 @@ void cut_teardown(void)
 // ---------------------------------------------------------------------------
 // Test cases
 // ---------------------------------------------------------------------------
-void test_getCurrTimeAsMicroSecond(void)
-{
-	const size_t allowedErrorInMicroSec = 100 * 1000; // 100 ms
-	struct timeval tv;
-	cppcut_assert_equal(0, gettimeofday(&tv, NULL),
-	                    cut_message("errno: %d", errno));
-	uint64_t currTime = Utils::getCurrTimeAsMicroSecond();
-	uint64_t timeError = currTime;
-	timeError -= tv.tv_sec * 1000 * 1000;
-	timeError -= tv.tv_usec;
-	cppcut_assert_equal(true, timeError < allowedErrorInMicroSec);
-	if (isVerboseMode())
-		cut_notify("timeError: %" PRIu64 " [us]", timeError);
-}
-
 void test_validateJSMethodName(void)
 {
 	assertValidateJSMethodName("IYHoooo_21", true);
