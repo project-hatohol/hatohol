@@ -437,10 +437,8 @@ struct HatoholArmPluginGateHAPI2::Impl
 		int64_t id = random();
 		builder.add("id", id);
 		builder.endObject();
-		ProcedureCallback *callback =
-		  new Impl::ExchangeProfileCallback(*this);
-		ProcedureCallbackPtr callbackPtr(callback, false);
-		m_hapi2.send(builder.generate(), id, callbackPtr);
+		auto callback = make_shared<Impl::ExchangeProfileCallback>(*this);
+		m_hapi2.send(builder.generate(), id, callback);
 	}
 
 	void callUpdateMonitoringServerInfoNotification(
@@ -1410,11 +1408,9 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchItems(
 	builder.endObject();
 	builder.add("id", id);
 	builder.endObject();
-	ProcedureCallback *callback =
-	  new Impl::FetchProcedureCallback(*m_impl, fetchIdString,
-					   HAPI2_FETCH_ITEMS);
-	ProcedureCallbackPtr callbackPtr(callback, false);
-	send(builder.generate(), id, callbackPtr);
+	auto callback = make_shared<Impl::FetchProcedureCallback>
+		(*m_impl, fetchIdString, HAPI2_FETCH_ITEMS);
+	send(builder.generate(), id, callback);
 	return true;
 }
 
@@ -1458,11 +1454,9 @@ void HatoholArmPluginGateHAPI2::startOnDemandFetchHistory(
 	builder.endObject();
 	builder.add("id", id);
 	builder.endObject();
-	ProcedureCallback *callback =
-	  new Impl::FetchProcedureCallback(*m_impl, fetchIdString,
-					   HAPI2_FETCH_HISTORY);
-	ProcedureCallbackPtr callbackPtr(callback, false);
-	send(builder.generate(), id, callbackPtr);
+	auto callback = make_shared<Impl::FetchProcedureCallback>
+		(*m_impl, fetchIdString, HAPI2_FETCH_HISTORY);
+	send(builder.generate(), id, callback);
 }
 
 bool HatoholArmPluginGateHAPI2::startOnDemandFetchTriggers(
@@ -1490,11 +1484,9 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchTriggers(
 	builder.endObject();
 	builder.add("id", id);
 	builder.endObject();
-	ProcedureCallback *callback =
-	  new Impl::FetchProcedureCallback(*m_impl, fetchIdString,
-					   HAPI2_FETCH_TRIGGERS);
-	ProcedureCallbackPtr callbackPtr(callback, false);
-	send(builder.generate(), id, callbackPtr);
+	auto callback = make_shared<Impl::FetchProcedureCallback>
+		(*m_impl, fetchIdString, HAPI2_FETCH_TRIGGERS);
+	send(builder.generate(), id, callback);
 	return true;
 }
 
@@ -1521,11 +1513,9 @@ bool HatoholArmPluginGateHAPI2::startOnDemandFetchEvents(
 	builder.endObject();
 	builder.add("id", id);
 	builder.endObject();
-	ProcedureCallback *callback =
-	  new Impl::FetchProcedureCallback(*m_impl, fetchIdString,
-					   HAPI2_FETCH_EVENTS);
-	ProcedureCallbackPtr callbackPtr(callback, false);
-	send(builder.generate(), id, callbackPtr);
+	auto callback = make_shared<Impl::FetchProcedureCallback>
+		(*m_impl, fetchIdString, HAPI2_FETCH_EVENTS);
+	send(builder.generate(), id, callback);
 	return true;
 }
 
