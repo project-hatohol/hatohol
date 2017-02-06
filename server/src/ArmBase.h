@@ -85,7 +85,7 @@ protected:
 	void sleepInterruptible(int sleepTime);
 
 	// virtual methods
-	gpointer mainThread(HatoholThreadArg *arg);
+	gpointer mainThread(HatoholThreadArg *arg) override;
 
 	// virtual methods defined in this class
 	virtual ArmPollingResult mainThreadOneProc(void) = 0;

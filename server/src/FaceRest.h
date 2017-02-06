@@ -62,7 +62,7 @@ protected:
 	class Worker;
 
 	// virtual methods
-	gpointer mainThread(HatoholThreadArg *arg);
+	gpointer mainThread(HatoholThreadArg *arg) override;
 
 	// for async mode
 	bool isAsyncMode(void);
