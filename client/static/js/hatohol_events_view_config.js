@@ -114,7 +114,12 @@ var HatoholEventsViewConfig = function(options) {
     "column"    : gettext("Display Item")
   };
 
-  $('#events-view-config').on('show.bs.modal', function (event) {
+  $('#events-view-config').on('hide.bs.modal', function (event) {
+    for (var i=0; self.filterList.length > i; i++) {
+      if (self.filterList[i].id == undefined)
+        self.filterList.splice(i, 1);
+    }
+    self.selectedFilterIndex = 0;
     self.reset();
   });
 
@@ -528,6 +533,7 @@ HatoholEventsViewConfig.prototype.reset = function() {
     "summary", self.getValue('events.summary.default-filter-id'));
   resetDefaultFilterList(
     "events", self.getValue('events.default-filter-id'));
+  self.setCurrentFilterConfig();
 
   function resetAutoReloadInterval() {
     $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
