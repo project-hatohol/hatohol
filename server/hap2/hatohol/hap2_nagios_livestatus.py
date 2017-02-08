@@ -71,7 +71,7 @@ class Common:
             if self.__port:
                 socket_arg = (socket_arg, self.__port)
             self.__socket = Socket(socket_arg)
-            test_query = self.__socket.test
+            test_query = self.__socket.contacts
             test_query.call()
         except socket.error as (errno, msg):
             logger.error('Socket Error [%d]: %s' % (errno, msg))
@@ -134,7 +134,7 @@ class Common:
 
             if len(self.__trigger_last_info):
                 unix_timestamp = hapcommon.translate_hatohol_time_to_unix_time(self.__trigger_last_info)
-                query = query.filter("last_state_change >= %s" % unix_timestamp)
+                query = query.filter("last_state_change > %d" % unix_timestamp)
                 update_type = "UPDATED"
 
         result = query.call()
@@ -179,23 +179,20 @@ class Common:
                                                 "current_host_name",
                                                 "current_host_alias",
                                                 "service_description")
-
         if last_info is None:
             last_info = self.get_cached_event_last_info()
-
-        if last_info:
-            last_info = json.loads(last_info)
-
         if not last_info:
-            pass
-        elif direction == "ASC":
+            last_info = str(hapcommon.get_current_hatohol_time())
+            self.set_event_last_info(last_info)
+
+        if direction == "ASC":
             unix_timestamp = \
-                hapcommon.translate_hatohol_time_to_unix_time(last_info["time"])
-            query = query.filter("time >= %s" % unix_timestamp)
+                hapcommon.translate_hatohol_time_to_unix_time(last_info)
+            query = query.filter("time > %s" % unix_timestamp)
         elif direction == "DESC":
             unix_timestamp = \
-                hapcommon.translate_hatohol_time_to_unix_time(last_info["time"])
-            query = query.filter("time <= %s" % unix_timestamp)
+                hapcommon.translate_hatohol_time_to_unix_time(last_info)
+            query = query.filter("time < %s" % unix_timestamp)
 
         result = query.call()
         logger.debug(query)
@@ -213,7 +210,7 @@ class Common:
 
             hapi_event_type = self.EVENT_TYPE_MAP.get(event["state"])
             if hapi_event_type is None:
-                log.warning("Unknown status: " + event["state"])
+                logger.warning("Unknown status: %d" % event["state"])
                 hapi_event_type = "UNKNOWN"
 
             hapi_status, hapi_severity = \
@@ -238,7 +235,7 @@ class Common:
         if len(result):
             # livestatus return a sorted list.
             # result[0] is latest statehist.
-            self.__latest_statehist = json.dumps(result[0])
+            self.__latest_statehist = str(result[0]["time"])
 
         put_empty_contents = True
         if fetch_id is None:
