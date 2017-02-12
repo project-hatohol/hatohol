@@ -32,7 +32,7 @@ using namespace mlpl;
 
 namespace testAMQPConnection {
 	AMQPConnectionInfo *connectionInfo;
-	AMQPConnectionPtr connection;
+	shared_ptr<AMQPConnection> connection;
 
 	class TestMessageHandler : public AMQPMessageHandler {
 	public:
@@ -60,7 +60,7 @@ namespace testAMQPConnection {
 		return *connectionInfo;
 	}
 
-	AMQPConnectionPtr getConnection(void)
+	shared_ptr<AMQPConnection> getConnection(void)
 	{
 		return AMQPConnection::create(getConnectionInfo());
 	}
@@ -81,7 +81,7 @@ namespace testAMQPConnection {
 
 	void cut_teardown(void)
 	{
-		if (connection.hasData())
+		if (connection)
 			connection->deleteAllQueues();
 		connection = NULL;
 		delete connectionInfo;

@@ -144,12 +144,11 @@ public:
 	typedef std::string (HatoholArmPluginInterfaceHAPI2::*ProcedureHandler)
 	  (JSONParser &parser);
 
-	class ProcedureCallback : public UsedCountable {
+	class ProcedureCallback {
 	public:
 		virtual void onGotResponse(JSONParser &parser) = 0;
 		virtual void onTimeout(void) {};
 	};
-	typedef UsedCountablePtr<ProcedureCallback> ProcedureCallbackPtr;
 
 	/**
 	 * Register a procedure receive callback method.
@@ -170,7 +169,7 @@ public:
 	virtual void send(const std::string &message);
 	virtual void send(const std::string &message,
 			  const int64_t id,
-			  ProcedureCallbackPtr callback);
+			  std::shared_ptr<ProcedureCallback> callback);
 
 	virtual bool getEstablished(void);
 	virtual void setEstablished(bool established);

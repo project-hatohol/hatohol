@@ -466,10 +466,9 @@ public:
 	}
 };
 
-AMQPConnectionPtr AMQPConnection::create(const AMQPConnectionInfo &info)
+shared_ptr<AMQPConnection> AMQPConnection::create(const AMQPConnectionInfo &info)
 {
-	AMQPConnectionPtr connection(new AMQPConnection(info), false);
-	return connection;
+	return make_shared<AMQPConnection>(info);
 }
 
 AMQPConnection::AMQPConnection(const AMQPConnectionInfo &info)

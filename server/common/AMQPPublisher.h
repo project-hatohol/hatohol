@@ -26,10 +26,10 @@ class AMQPMessageHandler;
 class AMQPPublisher {
 public:
 	AMQPPublisher(const AMQPConnectionInfo &connectionInfo);
-	AMQPPublisher(AMQPConnectionPtr &connection);
+	AMQPPublisher(std::shared_ptr<AMQPConnection> connection);
 	virtual ~AMQPPublisher();
 
-	AMQPConnectionPtr getConnection(void);
+	std::shared_ptr<AMQPConnection> getConnection(void);
 	void setMessage(const AMQPMessage &message);
 	void clear(void);
 	bool publish(void);

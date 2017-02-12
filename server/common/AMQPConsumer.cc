@@ -47,7 +47,7 @@ struct AMQPConsumer::Impl {
 	{
 	}
 
-	AMQPConnectionPtr m_connection;
+	shared_ptr<AMQPConnection> m_connection;
 	AMQPMessageHandler *m_handler;
 	SimpleSemaphore m_waitSem;
 	ConnectionChangeCallback m_connChangeCallback;
@@ -62,7 +62,7 @@ AMQPConsumer::AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
 	m_impl->m_handler = handler;
 }
 
-AMQPConsumer::AMQPConsumer(AMQPConnectionPtr &connection,
+AMQPConsumer::AMQPConsumer(shared_ptr<AMQPConnection> connection,
 			   AMQPMessageHandler *handler)
 : m_impl(new Impl())
 {
@@ -76,7 +76,7 @@ AMQPConsumer::~AMQPConsumer()
 	exitSync();
 }
 
-AMQPConnectionPtr AMQPConsumer::getConnection(void)
+shared_ptr<AMQPConnection> AMQPConsumer::getConnection(void)
 {
 	return m_impl->m_connection;
 }

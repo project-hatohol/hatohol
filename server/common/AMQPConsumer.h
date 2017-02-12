@@ -36,11 +36,11 @@ public:
 
 	AMQPConsumer(const AMQPConnectionInfo &connectionInfo,
 		     AMQPMessageHandler *handle);
-	AMQPConsumer(AMQPConnectionPtr &connection,
+	AMQPConsumer(std::shared_ptr<AMQPConnection> connection,
 		     AMQPMessageHandler *handler);
 	virtual ~AMQPConsumer();
 
-	AMQPConnectionPtr getConnection(void);
+	std::shared_ptr<AMQPConnection> getConnection(void);
 	void setConnectionChangeCallback(ConnectionChangeCallback cb);
 
 protected:

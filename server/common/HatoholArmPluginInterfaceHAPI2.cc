@@ -267,8 +267,8 @@ public:
 	void sendResponse(AMQPConsumer &consumer,
 			  const AMQPJSONMessage &response)
 	{
-		AMQPConnectionPtr connectionPtr = consumer.getConnection();
-		AMQPPublisher publisher(connectionPtr);
+		shared_ptr<AMQPConnection> connection = consumer.getConnection();
+		AMQPPublisher publisher(connection);
 		publisher.setMessage(response);
 		bool succeeded = false;
 		do {
@@ -287,7 +287,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	struct ProcedureCallContext
 	{
 		Impl *m_impl;
-		ProcedureCallbackPtr m_callback;
+		shared_ptr<ProcedureCallback> m_callback;
 		string m_procedureId;
 		guint m_timeoutId;
 	};
@@ -392,7 +392,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 	}
 
 	void queueProcedureCallback(const string id,
-				    ProcedureCallbackPtr callback)
+				    shared_ptr<ProcedureCallback> callback)
 	{
 		constexpr int PROCEDURE_TIMEOUT_MSEC = 60 * 1000;
 
@@ -417,7 +417,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 		auto it = m_procedureCallContextMap.find(id);
 		if (it != m_procedureCallContextMap.end()) {
 			ProcedureCallContextPtr &context = it->second;
-			if (context->m_callback.hasData())
+			if (context->m_callback)
 				context->m_callback->onGotResponse(parser);
 			g_source_remove(context->m_timeoutId);
 			m_procedureCallContextMap.erase(it);
@@ -434,7 +434,7 @@ struct HatoholArmPluginInterfaceHAPI2::Impl
 
 		lock_guard<mutex> lock(context->m_impl->m_procedureMapMutex);
 
-		if (context->m_callback.hasData())
+		if (context->m_callback)
 			context->m_callback->onTimeout();
 
 		map<string, ProcedureCallContextPtr> &contextMap
@@ -565,7 +565,7 @@ void HatoholArmPluginInterfaceHAPI2::send(const std::string &message)
 }
 
 void HatoholArmPluginInterfaceHAPI2::send(
-  const std::string &message, const int64_t id, ProcedureCallbackPtr callback)
+  const std::string &message, const int64_t id, shared_ptr<ProcedureCallback> callback)
 {
 	string idString = StringUtils::sprintf("%" PRId64, id);
 	m_impl->queueProcedureCallback(idString, callback);
