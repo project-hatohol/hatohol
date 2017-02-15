@@ -1,4 +1,4 @@
-from centos:6.7
+from centos:7.3.1611
 
 maintainer hatohol project
 
