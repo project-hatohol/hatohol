@@ -63,7 +63,7 @@ static bool findHostCache(
 // Public methods
 // ----------------------------------------------------------------------------
 void HatoholDBUtils::transformTriggersToHatoholFormat(
-  TriggerInfoList &trigInfoList, const ItemTablePtr triggers,
+  TriggerInfoList &trigInfoList, const shared_ptr<const ItemTable> triggers,
   const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
 	const ItemGroupList &trigGrpList = triggers->getItemGroupList();
@@ -120,7 +120,7 @@ void HatoholDBUtils::transformTriggersToHatoholFormat(
 }
 
 void HatoholDBUtils::transformEventsToHatoholFormat(
-  EventInfoList &eventInfoList, const ItemTablePtr events,
+  EventInfoList &eventInfoList, const shared_ptr<const ItemTable> events,
   const ServerIdType &serverId)
 {
 	const ItemGroupList &itemGroupList = events->getItemGroupList();
@@ -136,7 +136,7 @@ void HatoholDBUtils::transformEventsToHatoholFormat(
 }
 
 void HatoholDBUtils::transformGroupsToHatoholFormat(
-  HostgroupVect &hostgroups, const ItemTablePtr groups,
+  HostgroupVect &hostgroups, const shared_ptr<const ItemTable> groups,
   const ServerIdType &serverId)
 {
 	const ItemGroupList &itemGroupList = groups->getItemGroupList();
@@ -151,7 +151,7 @@ void HatoholDBUtils::transformGroupsToHatoholFormat(
 }
 
 void HatoholDBUtils::transformHostsGroupsToHatoholFormat(
-  HostgroupMemberVect &hostgroupMembers, const ItemTablePtr mapHostHostgroups,
+  HostgroupMemberVect &hostgroupMembers, const shared_ptr<const ItemTable> mapHostHostgroups,
   const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
 {
 	const ItemGroupList &itemGroupList = mapHostHostgroups->getItemGroupList();
@@ -166,7 +166,7 @@ void HatoholDBUtils::transformHostsGroupsToHatoholFormat(
 }
 
 void HatoholDBUtils::transformHostsToHatoholFormat(
-  ServerHostDefVect &svHostDefs, const ItemTablePtr hosts,
+  ServerHostDefVect &svHostDefs, const shared_ptr<const ItemTable> hosts,
   const ServerIdType &serverId)
 {
 	const ItemGroupList &itemGroupList = hosts->getItemGroupList();
@@ -192,7 +192,7 @@ void HatoholDBUtils::transformHostsToHatoholFormat(
 }
 
 void HatoholDBUtils::transformHistoryToHatoholFormat(
-  HistoryInfoVect &historyInfoVect,  const ItemTablePtr items,
+  HistoryInfoVect &historyInfoVect,  const shared_ptr<const ItemTable> items,
   const ServerIdType &serverId)
 {
 	// Make HistoryInfoVect

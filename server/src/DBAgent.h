@@ -25,6 +25,7 @@
 #include "Params.h"
 #include "SQLProcessorTypes.h"
 #include "DBTermCodec.h"
+#include "ItemTable.h"
 
 static const int CURR_DATETIME = -1;
 
@@ -148,7 +149,7 @@ public:
 		const TableProfile &tableProfile;
 		std::vector<size_t> columnIndexes;
 		// output
-		mutable ItemTablePtr dataTable;
+		mutable std::shared_ptr<const ItemTable> dataTable;
 
 		SelectArg(const TableProfile &tableProfile);
 		void add(const size_t &columnIndex);
@@ -168,7 +169,7 @@ public:
 		bool                       useFullName;
 		bool                       useDistinct;
 		// output
-		mutable ItemTablePtr        dataTable;
+		mutable std::shared_ptr<const ItemTable> dataTable;
 
 		SelectExArg(const TableProfile &tableProfile);
 		void add(const size_t &columnIndex);
@@ -353,7 +354,7 @@ public:
 			: arg(_arg)
 			{
 			}
-	
+
 			void operator ()(DBAgent &dbAgent) override
 			{
 				(dbAgent.*OPERATION)(arg);

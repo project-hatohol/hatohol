@@ -49,11 +49,11 @@ void _assertStringVectorVA(const mlpl::StringVector *actual, ...);
 cut_trace(_assertStringVectorVA(A,##__VA_ARGS__))
 
 template<typename T>
-static ItemTable * addItems(T* srcTable, int numTable,
+static std::shared_ptr<ItemTable> addItems(T* srcTable, int numTable,
                             void (*addFunc)(ItemGroup *, T *),
-                            void (*tableCreatedCb)(ItemTable *) = NULL)
+                            void (*tableCreatedCb)(std::shared_ptr<ItemTable>) = NULL)
 {
-	ItemTable *table = new ItemTable();
+	auto table = std::make_shared<ItemTable>();
 	if (tableCreatedCb)
 		(*tableCreatedCb)(table);
 	for (int i = 0; i < numTable; i++) {
@@ -81,7 +81,7 @@ extern void _assertExist(const std::string &target, const std::string &words);
 #define assertExist(T,W) cut_trace(_assertExist(T,W))
 
 extern void _assertItemTable(
-  const ItemTablePtr &expect, const ItemTablePtr &actual);
+  const std::shared_ptr<const ItemTable> &expect, const std::shared_ptr<const ItemTable> &actual);
 #define assertItemTable(E,A) cut_trace(_assertItemTable(E,A))
 
 template<typename CT, typename KT>
@@ -317,7 +317,7 @@ void _assertEqualSize(const T0 &exp, const T1 &act)
 #define assertEqualSize(E, A) \
   cut_trace((_assertEqualSize<__typeof__(E), __typeof__(A)>(E,A)))
 
-ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap);
+std::shared_ptr<const ItemTable> convert(const ItemCategoryNameMap &itemCategoryNameMap);
 
 VariableItemGroupPtr convert(const HistoryInfo &historyInfo);
 VariableItemGroupPtr convert(const TriggerInfo &triggerInfo);
@@ -339,7 +339,7 @@ public:
 	/**
 	 * Start a watch loop.
 	 * NOTE: this function must be called on the default GLIB context.
-	 * 
+	 *
 	 * @ @param timeout
 	 * A timeout value in milli-second.
 	 *

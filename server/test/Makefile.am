@@ -72,7 +72,6 @@ testHatohol_la_SOURCES = \
 	testIncidentSenderManager.cc \
 	testItemData.cc testItemGroup.cc testItemGroupStream.cc \
 	testItemDataPtr.cc testItemGroupType.cc testItemTable.cc \
-	testItemTablePtr.cc \
 	testItemDataUtils.cc \
 	testJSONParser.cc testJSONBuilder.cc testUtils.cc \
 	testJSONParserPositionStack.cc \
@@ -106,7 +105,7 @@ libTest_la_SOURCES = \
 	Helpers.h DBAgentTest.h DBTablesTest.h \
 	HttpServerStub.h RedmineAPIEmulator.h \
 	Synchronizer.h \
-	ExceptionTestUtils.h AssertJoin.h \
+	ExceptionTestUtils.h \
 	MultiLangTest.h
 
 libTest_la_LDFLAGS =

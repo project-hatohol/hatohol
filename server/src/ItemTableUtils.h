@@ -26,10 +26,10 @@
 class ItemTableUtils {
 public:
 	template<typename NativeType, typename ItemDataType>
-	static const NativeType &getFirstRowData(ItemTablePtr tablePtr,
+	static const NativeType &getFirstRowData(std::shared_ptr<const ItemTable> itemTable,
 	                                  size_t columnIndex = 0)
 	{
-		const ItemGroupList &grpList = tablePtr->getItemGroupList();
+		const ItemGroupList &grpList = itemTable->getItemGroupList();
 		HATOHOL_ASSERT(!grpList.empty(), "ItamTable: empty");
 
 		const ItemGroup *itemGroup = *grpList.begin();

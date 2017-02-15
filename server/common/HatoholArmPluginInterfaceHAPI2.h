@@ -26,7 +26,7 @@
 #include "JSONBuilder.h"
 #include "ItemDataPtr.h"
 #include "ItemGroupPtr.h"
-#include "ItemTablePtr.h"
+#include "ItemTable.h"
 #include "Utils.h"
 #include "MonitoringServerInfo.h"
 #include "ArmPluginInfo.h"

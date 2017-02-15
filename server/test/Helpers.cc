@@ -74,7 +74,7 @@ void _assertExist(const string &target, const string &words)
 	cut_fail("Not found: %s in %s", target.c_str(), words.c_str());
 }
 
-void _assertItemTable(const ItemTablePtr &expect, const ItemTablePtr &actual)
+void _assertItemTable(const shared_ptr<const ItemTable> &expect, const shared_ptr<const ItemTable> &actual)
 {
 	const ItemGroupList &expectList = expect->getItemGroupList();
 	const ItemGroupList &actualList = actual->getItemGroupList();
@@ -1410,9 +1410,9 @@ void _assertGError(const GError *error)
 	cppcut_assert_null(error, cut_message("%s", errmsg));
 }
 
-ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap)
+shared_ptr<const ItemTable> convert(const ItemCategoryNameMap &itemCategoryNameMap)
 {
-	VariableItemTablePtr tablePtr;
+	auto itemTable = make_shared<ItemTable>();
 	ItemCategoryNameMapConstIterator it = itemCategoryNameMap.begin();
 	for (; it != itemCategoryNameMap.end(); ++it) {
 		VariableItemGroupPtr grp;
@@ -1420,9 +1420,9 @@ ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap)
 		const string &name = it->second;
 		grp->addNewItem(ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID, id);
 		grp->addNewItem(ITEM_ID_ZBX_APPLICATIONS_NAME, name);
-		tablePtr->add(grp);
+		itemTable->add(grp);
 	}
-	return static_cast<ItemTablePtr>(tablePtr);
+	return itemTable;
 }
 
 VariableItemGroupPtr convert(const HistoryInfo &historyInfo)

@@ -24,28 +24,28 @@
 class HatoholDBUtils {
 public:
 	static void transformTriggersToHatoholFormat(
-	  TriggerInfoList &trigInfoList, const ItemTablePtr triggers,
+	  TriggerInfoList &trigInfoList, const std::shared_ptr<const ItemTable> triggers,
 	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
 	static void transformEventsToHatoholFormat(
-	  EventInfoList &eventInfoList, const ItemTablePtr events,
+	  EventInfoList &eventInfoList, const std::shared_ptr<const ItemTable> events,
 	  const ServerIdType &serverId);
 
 	static void transformGroupsToHatoholFormat(
-	  HostgroupVect &hostgroups, const ItemTablePtr groups,
+	  HostgroupVect &hostgroups, const std::shared_ptr<const ItemTable> groups,
 	  const ServerIdType &serverId);
 
 	static void transformHostsGroupsToHatoholFormat(
 	  HostgroupMemberVect &hostgroupMembers,
-	  const ItemTablePtr mapHostHostgroups,
+	  const std::shared_ptr<const ItemTable> mapHostHostgroups,
 	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
 	static void transformHostsToHatoholFormat(
-	  ServerHostDefVect &svHostDefs, const ItemTablePtr hosts,
+	  ServerHostDefVect &svHostDefs, const std::shared_ptr<const ItemTable> hosts,
 	  const ServerIdType &serverId);
 
 	static void transformHistoryToHatoholFormat(
-	  HistoryInfoVect &historyInfoVect, const ItemTablePtr items,
+	  HistoryInfoVect &historyInfoVect, const std::shared_ptr<const ItemTable> items,
 	  const ServerIdType &serverId);
 
 protected:

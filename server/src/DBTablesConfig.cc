@@ -1381,7 +1381,7 @@ void DBTablesConfig::getTargetServers(
 	getDBAgent().runTransaction(builder.getSelectExArg());
 
 	// check the result and copy
-	ItemTablePtr &dataTable = builder.getSelectExArg().dataTable;
+	auto dataTable = builder.getSelectExArg().dataTable;
 	if (armPluginInfoVect) {
 		const size_t reserveSize =
 		  armPluginInfoVect->size() + dataTable->getNumberOfRows();

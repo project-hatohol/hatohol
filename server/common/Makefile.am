@@ -16,7 +16,6 @@ libhatohol_common_la_SOURCES = \
 	ItemGroupType.cc ItemGroupType.h \
 	ItemGroupPtr.cc ItemGroupPtr.h \
 	ItemTable.cc ItemTable.h \
-	ItemTablePtr.cc ItemTablePtr.h \
 	JSONBuilder.cc JSONBuilder.h \
 	JSONParser.cc JSONParser.h \
 	JSONParserPositionStack.cc \

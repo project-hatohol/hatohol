@@ -19,7 +19,6 @@
 
 #pragma once
 #include <list>
-#include "ItemTablePtr.h"
 
 enum SQLColumnType {
 	SQL_COLUMN_TYPE_INT,

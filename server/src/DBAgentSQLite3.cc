@@ -708,7 +708,7 @@ void DBAgentSQLite3::select(sqlite3 *db, const SelectArg &selectArg)
 		                      result);
 	}
 	
-	VariableItemTablePtr dataTable;
+	auto dataTable = make_shared<ItemTable>();
 	while ((result = sqlite3_step(stmt)) == SQLITE_ROW)
 		selectGetValuesIteration(selectArg, stmt, dataTable);
 	selectArg.dataTable = dataTable;
@@ -742,7 +742,7 @@ void DBAgentSQLite3::select(sqlite3 *db, const SelectExArg &selectExArg)
 		                      result);
 	}
 	size_t numColumns = selectExArg.statements.size();
-	VariableItemTablePtr dataTable;
+	auto dataTable = make_shared<ItemTable>();
 	while ((result = sqlite3_step(stmt)) == SQLITE_ROW) {
 		VariableItemGroupPtr itemGroup;
 		for (size_t index = 0; index < numColumns; index++) {
@@ -806,7 +806,7 @@ const DBTermCodec *DBAgentSQLite3::getDBTermCodec(void) const
 
 void DBAgentSQLite3::selectGetValuesIteration(const SelectArg &selectArg,
                                               sqlite3_stmt *stmt,
-                                              VariableItemTablePtr &dataTable)
+                                              shared_ptr<ItemTable> dataTable)
 {
 	VariableItemGroupPtr itemGroup;
 	for (size_t i = 0; i < selectArg.columnIndexes.size(); i++) {

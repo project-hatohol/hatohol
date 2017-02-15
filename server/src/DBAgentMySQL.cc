@@ -412,7 +412,7 @@ void DBAgentMySQL::select(const DBAgent::SelectArg &selectArg)
 	}
 
 	MYSQL_ROW row;
-	VariableItemTablePtr dataTable;
+	auto dataTable = make_shared<ItemTable>();
 	size_t numColumns = selectArg.columnIndexes.size();
 	while ((row = mysql_fetch_row(result))) {
 		VariableItemGroupPtr itemGroup;
@@ -444,7 +444,7 @@ void DBAgentMySQL::select(const SelectExArg &selectExArg)
 	}
 
 	MYSQL_ROW row;
-	VariableItemTablePtr dataTable;
+	auto dataTable = make_shared<ItemTable>();
 	size_t numColumns = selectExArg.statements.size();
 	while ((row = mysql_fetch_row(result))) {
 		VariableItemGroupPtr itemGroup;
