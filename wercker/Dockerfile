@@ -1,10 +1,10 @@
-from centos:6.7
+from centos:7.3.1611
 
 maintainer hatohol project
 
 # install libraries for Hatohol
 RUN yum install -y glib2-devel libsoup-devel sqlite-devel mysql-devel mysql-server \
-  libuuid-devel qpid-cpp-client-devel MySQL-python httpd mod_wsgi python-argparse
+  libuuid-devel qpid-cpp-client-devel MySQL-python httpd mod_wsgi python-argparse autoconf-archive
 # setup mysql
 RUN echo "NETWORKING=yes" > /etc/sysconfig/network
 RUN rpm -ivh --force http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm

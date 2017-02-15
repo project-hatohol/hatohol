@@ -1,4 +1,4 @@
-box: centos:6.7
+box: centos:7.3.1611
 build:
   steps:
     - script:
@@ -13,7 +13,7 @@ build:
     - script:
         name: Setup yum repositories
         code: |
-          rpm -ivh --force http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+          yum install -y epel-release centos-release-scl
           yum install -y librabbitmq-devel wget
           wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
 
@@ -30,8 +30,7 @@ build:
     - script:
         name: Setup newer gcc toolchain and libraries
         code: |
-          cd /etc/yum.repos.d && wget http://people.centos.org/tru/devtools-2/devtools-2.repo
-          yum install -y devtoolset-2-gcc devtoolset-2-binutils devtoolset-2-gcc-c++
+          yum install -y devtoolset-4 autoconf-archive
           yum install -y gettext
           rpm -Uvh http://sourceforge.net/projects/cutter/files/centos/cutter-release-1.1.0-0.noarch.rpm
           yum install -y cutter tar
@@ -50,8 +49,8 @@ build:
         code: |
           cd ~/hatohol
           libtoolize && autoreconf -i
-          scl enable devtoolset-2 "./configure"
-          scl enable devtoolset-2 "make -j `cat /proc/cpuinfo | grep processor | wc -l`"
+          scl enable devtoolset-4 "./configure"
+          scl enable devtoolset-4 "make -j `cat /proc/cpuinfo | grep processor | wc -l`"
           make dist -j `cat /proc/cpuinfo | grep processor | wc -l`
 
     - script:
@@ -59,5 +58,5 @@ build:
         code: |
           yum install -y rpm-build
           cd ~/hatohol
-          scl enable devtoolset-2 "MAKEFLAGS=\"-j `cat /proc/cpuinfo | grep processor | wc -l`\" rpmbuild -tb hatohol-*.tar.bz2"
-          scl enable devtoolset-2 "gcc --version"
+          scl enable devtoolset-4 "MAKEFLAGS=\"-j `cat /proc/cpuinfo | grep processor | wc -l`\" rpmbuild -tb hatohol-*.tar.bz2"
+          scl enable devtoolset-4 "gcc --version"
