@@ -17,7 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include <ZabbixAPI.h>
+#include "JSONBuilder.h"
 #include "HatoholDBUtils.h"
 #include "DBTablesMonitoring.h"
 #include "ThreadLocalDBCache.h"
@@ -188,51 +188,6 @@ void HatoholDBUtils::transformHostsToHatoholFormat(
 		svHostDef.status = HOST_STAT_NORMAL;
 
 		svHostDefs.push_back(svHostDef);
-	}
-}
-
-void HatoholDBUtils::transformItemsToHatoholFormat(
-  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
-  const ItemTablePtr items, const ItemTablePtr applications,
-  const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
-{
-	// Make application map
-	ItemCategoryNameMap itemCategoryNameMap;
-	const ItemGroupList &appGroupList = applications->getItemGroupList();
-	ItemGroupListConstIterator appGrpItr = appGroupList.begin();
-	for (; appGrpItr != appGroupList.end(); ++appGrpItr) {
-		ItemCategoryIdType appId;
-		string   appName;
-		ItemGroupStream itemGroupStream(*appGrpItr);
-
-		itemGroupStream.seek(ITEM_ID_ZBX_APPLICATIONS_APPLICATIONID);
-		itemGroupStream >> appId;
-
-		itemGroupStream.seek(ITEM_ID_ZBX_APPLICATIONS_NAME);
-		itemGroupStream >> appName;
-
-		itemCategoryNameMap[appId] = appName;
-	}
-
-	// Make ItemInfoList
-	const ItemGroupList &itemGroupList = items->getItemGroupList();
-	ItemGroupListConstIterator it = itemGroupList.begin();
-	for (; it != itemGroupList.end(); ++it) {
-		ItemInfo itemInfo;
-		itemInfo.serverId = serverStatus.serverId;
-		const bool succeeded = transformItemItemGroupToItemInfo(
-		                         itemInfo, *it, itemCategoryNameMap,
-		                         serverId, hostInfoCache);
-		if (!succeeded)
-			continue;
-		itemInfoList.push_back(itemInfo);
-	}
-
-	ItemInfoListConstIterator item_it = itemInfoList.begin();
-	serverStatus.nvps = 0.0;
-	for (; item_it != itemInfoList.end(); ++item_it) {
-		if ((*item_it).delay != 0)
-			serverStatus.nvps += 1.0/(*item_it).delay;
 	}
 }
 
@@ -425,75 +380,6 @@ void HatoholDBUtils::transformHostsGroupsItemGroupToHatoholFormat(
 	if (!found)
 		return;
 	hostgrpMember.hostId = cacheElem.hostId;
-}
-
-bool HatoholDBUtils::transformItemItemGroupToItemInfo(
-  ItemInfo &itemInfo, const ItemGroup *itemItemGroup,
-  const ItemCategoryNameMap &itemCategoryNameMap,
-  const ServerIdType &serverId, const HostInfoCache &hostInfoCache)
-{
-	itemInfo.lastValueTime.tv_nsec = 0;
-	itemInfo.brief = makeItemBrief(itemItemGroup);
-
-	ItemGroupStream itemGroupStream(itemItemGroup);
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_ITEMID);
-	itemGroupStream >> itemInfo.id;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_HOSTID);
-	itemGroupStream >> itemInfo.hostIdInServer;
-
-	HostInfoCache::Element cacheElem;
-	const bool found = findHostCache(serverId, itemInfo.hostIdInServer,
-	                                 hostInfoCache, cacheElem);
-	if (!found)
-		return false;
-	itemInfo.globalHostId = cacheElem.hostId;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTCLOCK),
-	itemGroupStream >> itemInfo.lastValueTime.tv_sec;
-	if (itemInfo.lastValueTime.tv_sec == 0) {
-		// We assume that the item in this case is a kind of
-		// template such as 'Incoming network traffic on {#IFNAME}'.
-		return false;
-	}
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_LASTVALUE);
-	itemGroupStream >> itemInfo.lastValue;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_PREVVALUE);
-	itemGroupStream >> itemInfo.prevValue;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_DELAY);
-	itemGroupStream >> itemInfo.delay;
-
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_UNITS);
-	itemGroupStream >> itemInfo.unit;
-
-	int valueType;
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_VALUE_TYPE);
-	itemGroupStream >> valueType;
-	itemInfo.valueType
-	  = ZabbixAPI::toItemValueType(
-	      static_cast<ZabbixAPI::ValueType>(valueType));
-
-	ItemCategoryIdType itemCategoryId;
-	itemGroupStream.seek(ITEM_ID_ZBX_ITEMS_APPLICATIONID);
-	itemGroupStream >> itemCategoryId;
-
-	if (itemCategoryId != NO_ITEM_CATEGORY_ID) {
-		ItemCategoryNameMapConstIterator it =
-		  itemCategoryNameMap.find(itemCategoryId);
-		if (it == itemCategoryNameMap.end()) {
-			MLPL_ERR("Failed to get item category name: "
-			         "%" FMT_ITEM_CATEGORY_ID "\n",
-			         itemCategoryId.c_str());
-			return false;
-		}
-		itemInfo.categoryNames.push_back(it->second);
-	}
-
-	return true;
 }
 
 void HatoholDBUtils::transformHistoryItemGroupToHistoryInfo(
