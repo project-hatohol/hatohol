@@ -1,10 +1,6 @@
-box: centos:6.7
+box: centos:7.3.1611
 build:
   steps:
-    - script:
-        name: Install libraries for Hatohol
-        code: |
-          yum install -y glib2-devel libsoup-devel sqlite-devel mysql-devel mysql-server libuuid-devel MySQL-python httpd mod_wsgi python-argparse
     - script:
         name: Setup network
         code: |
@@ -13,28 +9,26 @@ build:
     - script:
         name: Setup yum repositories
         code: |
-          rpm -ivh --force http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-          yum install -y librabbitmq-devel wget
-          wget -P /etc/yum.repos.d/ http://project-hatohol.github.io/repo/hatohol-el6.repo
+          yum install -y epel-release
+          cd /etc/yum.repos.d/
+          curl http://project-hatohol.github.io/repo/hatohol-el7.repo -O
 
     - script:
-        name: Setup json-glib-devel
+        name: Install libraries for Hatohol
         code: |
-          yum install -y json-glib-devel
+          yum install -y sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel librabbitmq-devel mysql-server glib2-devel httpd mod_wsgi MySQL-python python-argparse
 
     - script:
         name: Setup build enviroment
         code: |
           yum groupinstall -y 'Development tools'
+          yum install -y rpm-build
 
     - script:
-        name: Setup newer gcc toolchain and libraries
+        name: Setup Cutter
         code: |
-          cd /etc/yum.repos.d && wget http://people.centos.org/tru/devtools-2/devtools-2.repo
-          yum install -y devtoolset-2-gcc devtoolset-2-binutils devtoolset-2-gcc-c++
-          yum install -y gettext
-          rpm -Uvh http://sourceforge.net/projects/cutter/files/centos/cutter-release-1.1.0-0.noarch.rpm
-          yum install -y cutter tar
+          rpm -Uvh http://sourceforge.net/projects/cutter/files/centos/cutter-release-1.3.0-1.noarch.rpm
+          yum install -y cutter
 
     - script:
         name: Clone & fetch Hatohol repository
@@ -49,15 +43,13 @@ build:
         name: Building Hatohol
         code: |
           cd ~/hatohol
-          libtoolize && autoreconf -i
-          scl enable devtoolset-2 "./configure"
-          scl enable devtoolset-2 "make -j `cat /proc/cpuinfo | grep processor | wc -l`"
+          ./autogen.sh
+          ./configure
+          make -j `cat /proc/cpuinfo | grep processor | wc -l`
           make dist -j `cat /proc/cpuinfo | grep processor | wc -l`
 
     - script:
         name: Build RPM
         code: |
-          yum install -y rpm-build
           cd ~/hatohol
-          scl enable devtoolset-2 "MAKEFLAGS=\"-j `cat /proc/cpuinfo | grep processor | wc -l`\" rpmbuild -tb hatohol-*.tar.bz2"
-          scl enable devtoolset-2 "gcc --version"
+          MAKEFLAGS="-j `cat /proc/cpuinfo | grep processor | wc -l`" rpmbuild -tb hatohol-*.tar.bz2
