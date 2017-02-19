@@ -73,7 +73,6 @@ You can add a new repository the following command.
 
 You can install sqlite3, MySQL, libsoup, json-glib and others by the following command:
 
-    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel librabbitmq-devel
     # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel librabbitmq-devel mysql-server glib2-devel httpd mod_wsgi MySQL-python python-argparse
 
 ### Example to install required libraries on ubuntu 14.04
