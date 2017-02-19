@@ -53,7 +53,6 @@ the specific monitoring software in various way.
 - MySQL
 - libsoup >= 2.22 (https://live.gnome.org/LibSoup)
 - json-glib >= 0.12.0 (https://live.gnome.org/JsonGlib/)
-  (CentOS and EPEL do not contain json-glib.)
 - libc
 - librt
 - libstdc++
@@ -74,7 +73,7 @@ You can add a new repository the following command.
 
 You can install sqlite3, MySQL, libsoup, json-glib and others by the following command:
 
-    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel librabbitmq-devel
+    # yum install sqlite-devel mysql-devel libsoup-devel libuuid-devel json-glib-devel librabbitmq-devel mysql-server glib2-devel httpd mod_wsgi MySQL-python python-argparse
 
 ### Example to install required libraries on ubuntu 14.04
 
@@ -156,23 +155,6 @@ For example, user/password are 'myuser'/'mypasswd' and the IP address of
 Hatohol server is 192.168.10.50.
 
     mysql> GRANT ALL PRIVILEGES ON hatohol.* TO myuser@"192.168.10.50" IDENTIFIED BY 'mypasswd';
-
-
-NOTE: If you meet the folloing error, there're two ways to solve it.
-
-    ImportError: No module named argparse
-
-This error happens on the system that doesn't have argparse Python package such as default state of CentOS 6.5.
-
-(1.1.a) EPEL
-
-    # rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-    # yum install python-argparse
-
-(1.1.b) easy_install
-
-    # yum install python-setuptools
-    # easy_install argparse
 
 NOTE: If you meet the folloing error, set LD_LIBRARY_PATH like the way in the section (1.2) or configure /etc/ld.so.conf.
 
