@@ -17,7 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include <Synchronizer.h>
 #include <Hatohol.h>
 #include <IncidentSenderRedmine.h>
 #include <LabelUtils.h>
@@ -26,6 +25,7 @@
 #include <RedmineAPI.h>
 #include <cppcutter.h>
 #include <gcutter.h>
+#include "Synchronizer.h"
 #include "RedmineAPIEmulator.h"
 #include "DBTablesTest.h"
 #include "Helpers.h"

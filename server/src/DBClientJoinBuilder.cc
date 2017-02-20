@@ -18,7 +18,7 @@
  */
 
 #include <StringUtils.h>
-#include <SQLUtils.h>
+#include "SQLUtils.h"
 #include "DBClientJoinBuilder.h"
 #include "HostResourceQueryOption.h"
 
