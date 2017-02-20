@@ -900,9 +900,13 @@ msgstr ""
 msgid "The following filter(s) empty."
 msgstr "ポーリング間隔が入力されていません！"
 
-#: static/js/hatohol_events_view_config.js:196
-msgid "Fail to saving a filter"
-msgstr "保存に失敗しました。"
+#: static/js/hatohol_events_view_config.js:402
+msgid "Is selecting over limit number of items in the following filter(s)."
+msgstr "下記のフィルターで選択しているアイテム数が上限を超えています。"
+
+#: static/js/hatohol_events_view_config.js:389
+msgid "Failed to save"
+msgstr "保存に失敗しました"
 
 #: static/js/hatohol_events_view_config.js:217
 msgid "Close"

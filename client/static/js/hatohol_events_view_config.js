@@ -341,15 +341,24 @@ var HatoholEventsViewConfig = function(options) {
   };
 
   function saveFilterConfig(){
-    var emptyFilterList = []
+    var emptyFilterList = [], floodFilterList = [];
     $.map(self.multiselectFilterTypes, function(selector) {
-      if ($('#' + selector + '-filter-selector-selected')[0].length < 1 &&
-          $('#enable-' + selector + '-filter-selector').prop("checked")) {
+      if ($('#' + selector + '-filter-selector-selected')[0].length == 0 &&
+          $('#enable-' + selector + '-filter-selector').prop("checked"))
         emptyFilterList.push(selector);
-      }
+
+      if ($('#' + selector + '-filter-selector-selected')[0].length > 100 &&
+          $('#enable-' + selector + '-filter-selector').prop("checked"))
+        floodFilterList.push(selector);
+
     });
     if (emptyFilterList.length != 0) {
       showEmptyErrorDialog(emptyFilterList);
+      return;
+    }
+
+    if (floodFilterList.length != 0) {
+      showFloodErrorDialog(floodFilterList);
       return;
     }
 
@@ -386,14 +395,25 @@ var HatoholEventsViewConfig = function(options) {
       for (var x = 0; x < emptyFilterList.length; x++) {
         body += " - " + self.filterTypeLabelMap[emptyFilterList[x]] + "</br>";
      }
+    showErrorDialog(body);
+  }
 
+  function showFloodErrorDialog(floodFilterList) {
+    var body = gettext("Is selecting over limit number of items in the following filter(s).") + "</br>";
+      for (var x = 0; x < floodFilterList.length; x++) {
+        body += " - " + self.filterTypeLabelMap[floodFilterList[x]] + "</br>";
+     }
+    showErrorDialog(body);
+  }
+
+  function showErrorDialog(body) {
     var label = gettext("Close");
     var footer = '<button type="button" class="btn btn-primary"';
     footer += 'id="close-button">' + label + '</button>';
 
     var errorDialog = new HatoholModal({
       "id": "filter-error-dialog",
-      "title": gettext("Failed to delete"),
+      "title": gettext("Failed to save"),
       "body": body,
       "footer": $(footer),
     });
