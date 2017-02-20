@@ -45,28 +45,28 @@ public:
 	                const std::string &tableName);
 
 	// virtual methods
-	virtual bool isTableExisting(const std::string &tableName);
+	virtual bool isTableExisting(const std::string &tableName) override;
 	virtual bool isRecordExisting(const std::string &tableName,
-	                              const std::string &condition);
-	virtual void begin(void);
-	virtual void commit(void);
-	virtual void rollback(void);
+	                              const std::string &condition) override;
+	virtual void begin(void) override;
+	virtual void commit(void) override;
+	virtual void rollback(void) override;
 	virtual void execSql(const std::string &sql) override;
-	virtual void createTable(const TableProfile &tableProfile); //override
+	virtual void createTable(const TableProfile &tableProfile) override;
 	virtual void insert(const InsertArg &insertArg) override;
 	virtual void update(const UpdateArg &updateArg) override;
 	virtual void select(const SelectArg &selectArg) override;
 	virtual void select(const SelectExArg &selectExArg) override;
 	virtual void deleteRows(const DeleteArg &deleteArg) override;
-	virtual void addColumns(const AddColumnsArg &addColumnsArg);
+	virtual void addColumns(const AddColumnsArg &addColumnsArg) override;
 	virtual void changeColumnDef(const TableProfile &tableProfile,
 				     const std::string &oldColumnName,
 				     const size_t &columnIndex) override;
 	virtual void dropPrimaryKey(const std::string &tableName) override;
 	virtual void renameTable(const std::string &srcName,
-				 const std::string &destName);
-	virtual uint64_t getLastInsertId(void);
-	virtual uint64_t getNumberOfAffectedRows(void);
+				 const std::string &destName) override;
+	virtual uint64_t getLastInsertId(void) override;
+	virtual uint64_t getNumberOfAffectedRows(void) override;
 	virtual bool lastUpsertDidUpdate(void) override;
 	virtual bool lastUpsertDidInsert(void) override;
 	/**

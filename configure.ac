@@ -44,6 +44,20 @@ dnl Optional C++ compiler flags
 dnl **************************************************************
 OPT_CXXFLAGS="-Wall -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"
 
+dnl **************************************************************
+dnl enable -Wsuggest-override option
+dnl **************************************************************
+AC_ARG_ENABLE([suggest-override],
+  [AS_HELP_STRING([--enable-suggest-override], [Enable -Wsuggest-override option (default is no)])],
+  [],
+  [enable_suggest_override=no])
+
+if test "$enable_suggest_override" == "yes"; then
+  AC_DEFINE(USE_SUGGEST_OVERRIDE, 1, [Define to 1 if you use -Wsuggest-override])
+  OPT_CXXFLAGS+=" -Wsuggest-override"
+  AC_SUBST(OPT_CXXFLAGS)
+fi
+
 enable_debug_default=no
 AC_ARG_ENABLE([debug],
   [AS_HELP_STRING([--enable-debug],
