@@ -85,13 +85,14 @@ HatoholModal.prototype.show = function() {
 };
 
 HatoholModal.prototype.close = function(doneHandler) {
+  console.log(doneHandler)
   var self = this;
   var modal = $("#" + this.modalId);
   modal.modal("hide");
   modal.off("hidden.bs.modal");
   modal.on("hidden.bs.modal", function(e) {
     modal.remove();
-    if (doneHandler != null)
+    if (doneHandler != undefined)
       doneHandler();
   });
 };

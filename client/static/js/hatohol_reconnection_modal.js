@@ -17,14 +17,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-var HatoholReconnectModalVars = {
-  taskList: [],
-};
-
 var HatoholReconnectModal = function(retryFunc, errorMsg) {
   var self = this;
-  var DEFAULT_RETRY_INTERVAL = 30;
-  self.timeToReconnect = DEFAULT_RETRY_INTERVAL;
 
   HatoholModal.apply(self, [{
     "id": "reconnectionModal",
@@ -33,35 +27,21 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
     "footer": $(getFooterHTML()),
   }]);
 
-  HatoholReconnectModalVars.taskList.push(retryFunc);
   // Only the object that created the modal first carreis out countdown.
   if (!self.isOwner())
     return;
 
-  self.timerId = setTimeout(function() {self.countdown();}, 1000);
-
   $("#reconn-retry-button").on("click", function() {
-    if (self.timerId) {
-      clearTimeout(self.timerId);
-      self.timerId = null;
-    }
-    self.timeToReconnect = 1;
-    self.countdown();
+    self.close(retryFunc);
   });
 
   $("#reconn-cancel-button").on("click", function() {
-    HatoholReconnectModalVars.taskList.length = 0;
     self.close();
   });
 
   function getBodyHTML() {
     var s = "<p>";
-    if (errorMsg) {
-      s += errorMsg;
-      s += "<hr>";
-    }
-    s += gettext("Try to reconnect after ") + self.timeToReconnect +
-      pgettext("ReconnectionModal", " sec.");
+    s += errorMsg;
     s += "</p>";
     return s;
   }
@@ -75,27 +55,6 @@ var HatoholReconnectModal = function(retryFunc, errorMsg) {
     s += 'id="reconn-retry-button">' + label + '</button>';
     return s;
   }
-
-  function retryAllTasks() {
-    // Some tasks invoked in the following loop may push a task again and
-    // cause an infinite loop. So we take the current tasks here and make
-    // the new empty list in which new retry tasks are pushed.
-    var taskList = HatoholReconnectModalVars.taskList;
-    HatoholReconnectModalVars.taskList = [];
-    for (var i = 0; i < taskList.length;i++)
-        taskList[i]();
-  }
-
-  self.countdown = function() {
-    self.timeToReconnect -= 1;
-    if (self.timeToReconnect === 0) {
-      self.close(retryAllTasks);
-    } else {
-      self.updateBody($(getBodyHTML()));
-      self.timerId = setTimeout(function() {self.countdown();}, 1000);
-    }
-  };
-
 };
 
 HatoholReconnectModal.prototype = Object.create(HatoholModal.prototype);
