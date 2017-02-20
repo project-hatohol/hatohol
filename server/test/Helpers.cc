@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <typeinfo>
 #include <errno.h>
-#include <ZabbixAPI.h>
+#include <JSONParser.h>
 #include <SeparatorInjector.h>
 #include "Helpers.h"
 #include "DBTablesConfig.h"
@@ -35,6 +35,7 @@
 #include "Reaper.h"
 #include "ConfigManager.h"
 #include "HatoholDBUtils.h"
+
 using namespace std;
 using namespace mlpl;
 
@@ -1407,29 +1408,6 @@ void _assertGError(const GError *error)
 {
 	const char *errmsg = error ? error->message : "";
 	cppcut_assert_null(error, cut_message("%s", errmsg));
-}
-
-VariableItemGroupPtr convert(const ItemInfo &itemInfo,
-                             const ItemCategoryIdType &itemCategoryId)
-{
-	// TODO: Don't use IDs concerned with Zabbix.
-	VariableItemGroupPtr grp;
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_NAME, itemInfo.brief);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_KEY_, "");
-
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_ITEMID, itemInfo.id);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_HOSTID, itemInfo.hostIdInServer);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTCLOCK,
-	                (int)itemInfo.lastValueTime.tv_sec);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_LASTVALUE, itemInfo.lastValue);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_PREVVALUE, itemInfo.prevValue);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_DELAY,     itemInfo.delay);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_APPLICATIONID, itemCategoryId);
-	// TODO: remove Zabbix dependency!
-	int valueType = ZabbixAPI::fromItemValueType(itemInfo.valueType);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_VALUE_TYPE, valueType);
-	grp->addNewItem(ITEM_ID_ZBX_ITEMS_UNITS, itemInfo.unit);
-	return grp;
 }
 
 ItemTablePtr convert(const ItemCategoryNameMap &itemCategoryNameMap)

@@ -60,7 +60,6 @@ testHatohol_la_SOURCES = \
 	testDBTermCStringProvider.cc \
 	testOperationPrivilege.cc \
 	testSQLUtils.cc \
-	testMySQLWorkerZabbix.cc \
 	testFaceRest.cc \
 	testFaceRestCustomIncidentStatus.cc \
 	testFaceRestSeverityRank.cc testFaceRestSummary.cc \
@@ -84,7 +83,6 @@ testHatohol_la_SOURCES = \
 	testArmStatus.cc testStatisticsCounter.cc \
 	testUsedCountable.cc \
 	testUnifiedDataStore.cc testMain.cc \
-	testZabbixAPI.cc \
 	testAMQPConnectionInfo.cc \
 	testAMQPConnection.cc \
 	testGateJSONEventMessage.cc \
@@ -103,11 +101,10 @@ libTest_la_SOURCES = \
 	DBTest.cc DBTest.h \
 	FaceRestTestUtils.cc FaceRestTestUtils.h \
 	Helpers.cc DBAgentTest.cc DBTablesTest.cc \
-	ZabbixAPITestUtils.cc ZabbixAPITestUtils.h \
-	HttpServerStub.cc ZabbixAPIEmulator.cc RedmineAPIEmulator.cc \
+	HttpServerStub.cc RedmineAPIEmulator.cc \
 	Synchronizer.cc \
 	Helpers.h DBAgentTest.h DBTablesTest.h \
-	HttpServerStub.h ZabbixAPIEmulator.h RedmineAPIEmulator.h \
+	HttpServerStub.h RedmineAPIEmulator.h \
 	Synchronizer.h \
 	ExceptionTestUtils.h AssertJoin.h \
 	MultiLangTest.h

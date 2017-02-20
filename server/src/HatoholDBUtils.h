@@ -44,11 +44,6 @@ public:
 	  ServerHostDefVect &svHostDefs, const ItemTablePtr hosts,
 	  const ServerIdType &serverId);
 
-	static void transformItemsToHatoholFormat(
-	  ItemInfoList &itemInfoList, MonitoringServerStatus &serverStatus,
-	  const ItemTablePtr items, const ItemTablePtr applications,
-	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
-
 	static void transformHistoryToHatoholFormat(
 	  HistoryInfoVect &historyInfoVect, const ItemTablePtr items,
 	  const ServerIdType &serverId);
@@ -77,11 +72,6 @@ protected:
 
 	static void transformHostsGroupsItemGroupToHatoholFormat(
 	  HostgroupMember &hostgrpMember, const ItemGroup *groupHostsGroups,
-	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
-
-	static bool transformItemItemGroupToItemInfo(
-	  ItemInfo &itemInfo, const ItemGroup *item,
-	  const ItemCategoryNameMap &itemCategoryNameMap,
 	  const ServerIdType &serverId, const HostInfoCache &hostInfoCache);
 
 	static void transformHistoryItemGroupToHistoryInfo(

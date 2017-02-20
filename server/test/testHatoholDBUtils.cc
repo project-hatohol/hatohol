@@ -43,50 +43,6 @@ public:
 		cppcut_assert_equal(
 		  expected, HatoholDBUtilsTest::makeItemBrief(itemGroup));
 	}
-
-	static void assertTransformItemItemGroupToItemInfo(
-	  const bool useItemCategoryNameMap)
-	{
-		const ItemCategoryIdType itemCategoryId =
-		  useItemCategoryNameMap ? "1234" : NO_ITEM_CATEGORY_ID;
-		ItemInfo expect = testItemInfo[0]; // make a copy
-		VariableItemGroupPtr item = convert(expect, itemCategoryId);
-
-		ItemInfo actual;
-		// actual.serverId shall not be changed in the target method.
-		actual.serverId = expect.serverId;
-
-		ItemCategoryNameMap itemCategoryNameMap;
-		if (useItemCategoryNameMap) {
-			itemCategoryNameMap[itemCategoryId] =
-			  expect.categoryNames[0];
-		} else {
-			expect.categoryNames.clear();
-		}
-
-		HostInfoCache hostInfoCache;
-		loadHostInfoCache(hostInfoCache, actual.serverId);
-		bool succeeded =
-		   HatoholDBUtils::transformItemItemGroupToItemInfo(
-		     actual, item, itemCategoryNameMap,
-		     actual.serverId, hostInfoCache);
-		cppcut_assert_equal(true, succeeded);
-
-		cppcut_assert_equal(expect.serverId, actual.serverId);
-		cppcut_assert_equal(expect.id, actual.id);
-		cppcut_assert_equal(expect.globalHostId, actual.globalHostId);
-		cppcut_assert_equal(expect.hostIdInServer,
-		                    actual.hostIdInServer);
-		cppcut_assert_equal(expect.brief, actual.brief);
-		cppcut_assert_equal(expect.lastValueTime.tv_sec,
-		                    actual.lastValueTime.tv_sec);
-		cppcut_assert_equal(expect.lastValueTime.tv_nsec,
-		                    actual.lastValueTime.tv_nsec);
-		cppcut_assert_equal(expect.lastValue, actual.lastValue);
-		cppcut_assert_equal(expect.prevValue, actual.prevValue);
-		assertStringVector(expect.categoryNames, actual.categoryNames);
-		cppcut_assert_equal(expect.delay, actual.delay);
-	}
 };
 
 // ---------------------------------------------------------------------------
@@ -219,18 +175,6 @@ void test_makeItemBriefNoVariables(void)
 {
 	HatoholDBUtilsTest::testMakeItemBrief(
 	  "Host name", "system.hostname", "Host name");
-}
-
-void test_transformItemItemGroupToItemInfoWithoutItemCategory(void)
-{
-	cut_trace(
-	  HatoholDBUtilsTest::assertTransformItemItemGroupToItemInfo(false));
-}
-
-void test_transformItemItemGroupToItemInfoWithItemCategory(void)
-{
-	cut_trace(
-	  HatoholDBUtilsTest::assertTransformItemItemGroupToItemInfo(true));
 }
 
 } // namespace testHatoholDBUtils

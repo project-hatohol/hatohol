@@ -28,7 +28,6 @@ libhatohol_common_la_SOURCES = \
 	UsedCountable.cc UsedCountable.h \
 	Utils.cc Utils.h \
 	UsedCountablePtr.cc UsedCountablePtr.h \
-	ZabbixAPI.cc ZabbixAPI.h \
 	AMQPConnectionInfo.cc AMQPConnectionInfo.h \
 	AMQPConnection.cc AMQPConnection.h \
 	AMQPConsumer.cc AMQPConsumer.h \
