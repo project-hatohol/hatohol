@@ -1,0 +1,122 @@
+include_directories(${GLIB2_INCLUDE_DIRS})
+include_directories(${GTHREAD_INCLUDE_DIRS})
+include_directories(${JSON_GLIB_INCLUDE_DIRS})
+include_directories(${LIBSOUP_INCLUDE_DIRS})
+include_directories(${LIBRABBITMQ_INCLUDE_DIRS})
+include_directories(${SQLITE3_INCLUDE_DIRS})
+include_directories(${UUID_INCLUDE_DIRS})
+include_directories("/usr/include/mysql")
+
+include_directories(${PROJECT_BINARY_DIR})
+include_directories("../..")
+include_directories("../common")
+include_directories("../mlpl/src")
+
+add_executable(hatohol main.cc)
+target_link_libraries(hatohol
+	${GLIB2_LIBRARIES}
+	${GTHREAD_LIBRARIES}
+	${JSON_GLIB_LIBRARIES}
+	${LIBRABBITMQ_LIBRARIES}
+	${LIBSOUP_LIBRARIES}
+	${SQLITE3_LIBRARIES}
+	${UUID_LIBRARIES}
+	dl
+	mysqlclient
+	pthread
+	libhatohol
+	libhatohol-common
+	libmlpl
+)
+
+add_executable(hatohol-resident-yard hatoholResidentYard.cc)
+target_link_libraries(hatohol-resident-yard
+	${GLIB2_LIBRARIES}
+	${GTHREAD_LIBRARIES}
+	${JSON_GLIB_LIBRARIES}
+	${LIBRABBITMQ_LIBRARIES}
+	${LIBSOUP_LIBRARIES}
+	${SQLITE3_LIBRARIES}
+	${UUID_LIBRARIES}
+	dl
+	mysqlclient
+	pthread
+	libhatohol
+	libhatohol-common
+	libmlpl
+)
+
+add_library(libhatohol SHARED
+	ActionExecArgMaker.cc
+	ActionManager.cc
+	ActorCollector.cc
+	ArmBase.cc
+	ArmFake.cc
+	ArmIncidentTracker.cc
+	ArmRedmine.cc
+	ArmUtils.cc
+	ChildProcessManager.cc
+	ConfigManager.cc
+	DataQueryContext.cc
+	DataQueryOption.cc
+	DataStore.cc
+	DataStoreFactory.cc
+	DataStoreFake.cc
+	DataStoreManager.cc
+	DBAgent.cc
+	DBAgentFactory.cc
+	DBAgentMySQL.cc
+	DBAgentSQLite3.cc
+	DB.cc
+	DBClientJoinBuilder.cc
+	DBHatohol.cc
+	DBTablesAction.cc
+	DBTables.cc
+	DBTablesConfig.cc
+	DBTablesHost.cc
+	DBTablesLastInfo.cc
+	DBTablesMonitoring.cc
+	DBTablesUser.cc
+	DBTermCodec.cc
+	DBTermCStringProvider.cc
+	FaceBase.cc
+	FaceRest.cc
+	GateJSONEventMessage.cc
+	HatoholArmPluginGateHAPI2.cc
+	HatoholArmPluginGateJSON.cc
+	Hatohol.cc
+	HatoholDBUtils.cc
+	hatoholResidentYard.cc
+	HatoholServer.cc
+	HostInfoCache.cc
+	HostResourceQueryOption.cc
+	IncidentSender.cc
+	IncidentSenderHatohol.cc
+	IncidentSenderManager.cc
+	IncidentSenderRedmine.cc
+	ItemFetchWorker.cc
+	ItemGroupStream.cc
+	LabelUtils.cc
+	OperationPrivilege.cc
+	RedmineAPI.cc
+	ResidentCommunicator.cc
+	RestResourceAction.cc
+	RestResourceCustomIncidentStatus.cc
+	RestResourceIncident.cc
+	RestResourceIncidentTracker.cc
+	RestResourceMonitoring.cc
+	RestResourceServer.cc
+	RestResourceSeverityRank.cc
+	RestResourceSummary.cc
+	RestResourceSystem.cc
+	RestResourceUser.cc
+	RestResourceUtils.cc
+	SelfMonitor.cc
+	SessionManager.cc
+	SQLUtils.cc
+	StatisticsCounter.cc
+	ThreadLocalDBCache.cc
+	TriggerFetchWorker.cc
+	UnifiedDataStore.cc
+)
+set_target_properties(libhatohol PROPERTIES PREFIX "")

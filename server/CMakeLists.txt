@@ -1,0 +1,17 @@
+find_package(PkgConfig)
+pkg_check_modules(GLIB2 glib-2.0)
+pkg_check_modules(GTHREAD gthread-2.0)
+pkg_check_modules(JSON_GLIB json-glib-1.0)
+pkg_check_modules(LIBSOUP libsoup-2.4)
+pkg_check_modules(LIBRABBITMQ librabbitmq)
+pkg_check_modules(SQLITE3 sqlite3)
+pkg_check_modules(UUID uuid)
+
+pkg_check_modules(CUTTER cutter)
+pkg_check_modules(CPP_CUTTER cppcutter)
+
+add_subdirectory(src)
+add_subdirectory(test)
+add_subdirectory(common)
+add_subdirectory(mlpl/src)
+add_subdirectory(mlpl/test)
