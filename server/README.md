@@ -160,7 +160,7 @@ NOTE: If you meet the folloing error, set LD_LIBRARY_PATH like the way in the se
 
     OSError: libhatohol.so: cannot open shared object file: No such file or directory
 
-(1.2) Example to set LD_LIBRARY_PATH
+(1.1) Example to set LD_LIBRARY_PATH
 
     $  export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
