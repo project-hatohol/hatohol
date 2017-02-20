@@ -22,7 +22,7 @@ build:
         name: Setup build enviroment
         code: |
           yum groupinstall -y 'Development tools'
-          yum install -y rpm-build
+          yum install -y rpm-build autoconf-archive
 
     - script:
         name: Setup Cutter

@@ -66,6 +66,7 @@ First, you need to install development tools to build Hatohol and some required
 packages
 
     # yum groupinstall "Development Tools"
+    # yum install rpm-build autoconf-archive
 
 You can add a new repository the following command.
 
@@ -80,6 +81,7 @@ You can install sqlite3, MySQL, libsoup, json-glib and others by the following c
 You should install these packages to build Hatohol and required libraries.
 
 - automake
+- autoconf-archive
 - g++
 - libtool
 - libsoup2.4-dev
@@ -92,7 +94,7 @@ You should install these packages to build Hatohol and required libraries.
 
 installing by the following command:
 
-    $ sudo apt-get install automake g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev librabbitmq-dev
+    $ sudo apt-get install automake autoconf-archive g++ libtool libsoup2.4-dev libjson-glib-dev libsqlite3-dev libmysqlclient-dev mysql-server sqlite3 uuid-dev librabbitmq-dev
 
 ## How to build Hatohol
 First, you need to install required libraries.
