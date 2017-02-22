@@ -22,7 +22,7 @@ var ServersView = function(userProfile) {
   var serverIds = [];
   var paramsArrayMap = {};
   var currServersMap = {};
- 
+
   // call the constructor of the super class
   HatoholMonitoringView.apply(this, [userProfile]);
 
@@ -165,24 +165,21 @@ var ServersView = function(userProfile) {
     hatoholInfoMsgBox("Reloading...", {buttons: []});
   }
 
-  function drawTableBody(rd) {
-    var x;
-    var s;
-    var o;
-    var ip, serverURL;
+  function drawTableBody(rd)
+  {
+    let s = "";
 
-    s = "";
-    for (x = 0; x < rd["servers"].length; ++x) {
-      o = rd["servers"][x];
-      ip = o["ipAddress"];
-
-      var serverId = o["id"];
+    for (let server of rd["servers"])
+	{
+      const serverId = server["id"];
       serverIds.push(serverId);
-      var idConnStat = getIdConnStat(serverId);
-      serverURL = getServerLocation(o);
+      const idConnStat = getIdConnStat(serverId);
+      const serverURL = getServerLocation(server);
       s += "<tr>";
       s += "<td class='delete-selector' style='display:none;'>";
-      s += "<input type='checkbox' class='selectcheckbox' serverId='" + escapeHTML(o["id"]) + "'>";
+      s += "<input type='checkbox' class='selectcheckbox'" +
+           "  value='" + rd["servers"].indexOf(server) + "'" +
+           "  serverId='" + escapeHTML(server["id"]) + "'>";
       s += "</td>";
       s += "<td id='"+ idConnStat + "' " +
              "data-title='" + gettext("Server ID") + ": " + serverId + "'" +
@@ -190,15 +187,18 @@ var ServersView = function(userProfile) {
              "data-trigger='hover' " +
              "data-container='body' " +
            ">" + escapeHTML(gettext("Checking")) + "</td>";
-      s += "<td>" + makeMonitoringSystemTypeLabel(o) + "</td>";
+      s += "<td>" + makeMonitoringSystemTypeLabel(server) + "</td>";
 
-      if (serverURL) {
+      if (serverURL)
+	  {
         s += "<td class='server-url-link'><a href='" + serverURL +
-          "' target='_blank'>" + escapeHTML(o["nickname"])  + "</a></td>";
-      } else {
-        s += "<td>" + escapeHTML(o["nickname"])  + "</td>";
+          "' target='_blank'>" + escapeHTML(server["nickname"])  + "</a></td>";
       }
-      s += "<td>" + escapeHTML(o["baseURL"])  + "</td>";
+	  else
+	  {
+        s += "<td>" + escapeHTML(server["nickname"])  + "</td>";
+      }
+      s += "<td>" + escapeHTML(server["baseURL"])  + "</td>";
 
 
       s += "<td id='server-info-" + escapeHTML(serverId) + "'" +
@@ -207,15 +207,15 @@ var ServersView = function(userProfile) {
            "  data-trigger='hover'" +
            "  data-container='body'" +
            "  data-placement='left'" +
-           "  serverType='" + getServerTypeId(o) + "'" +
+           "  serverType='" + getServerTypeId(server) + "'" +
            "  serverId='" + escapeHTML(serverId) + "'" +
            ">";
       s += "<i class='glyphicon glyphicon-info-sign'></i>";
       s += "</td>";
       s += "<td class='edit-server-column' style='display:none;'>";
-      s += "<input id='edit-server" + escapeHTML(o["id"]) + "'";
+      s += "<input id='edit-server" + escapeHTML(server["id"]) + "'";
       s += "  type='button' class='btn btn-default'";
-      s += "  serverId='" + escapeHTML(o["id"]) + "'";
+      s += "  serverId='" + escapeHTML(server["id"]) + "'";
       s += "  value='" + gettext("EDIT") + "' />";
       s += "</td>";
       s += "</tr>";
@@ -229,6 +229,7 @@ var ServersView = function(userProfile) {
     $("#table tbody").append(drawTableBody(reply));
     self.setupCheckboxForDelete($("#delete-server-button"));
     self.setupCheckboxForDelete($("#update-tirgger-server-button"));
+    $(".delete-selector").shiftcheckbox();
     $(".delete-selector").show();
     setupEditButtons(reply);
     setupServerInfo(reply);
