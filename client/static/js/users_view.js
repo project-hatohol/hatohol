@@ -145,34 +145,39 @@ var UsersView = function(userProfile) {
   //
   // callback function from the base template
   //
-  function drawTableBody(reply) {
-    var i;
-    var html;
-    var user;
+  function drawTableBody(reply)
+  {
+    let html = "";
 
-    html = "";
-    for (i = 0; i < reply["users"].length; ++i) {
-      user = reply["users"][i];
+    for (let user of reply["users"])
+    {
       html += "<tr>";
       html += "<td class='delete-selector' style='display:none;'>";
-      html += "<input type='checkbox' class='selectcheckbox' userId='" +
-        escapeHTML(user["userId"]) + "'>";
+      html += "<input type='checkbox' class='selectcheckbox'";
+      html += "value='" + reply["users"].indexOf(user) + "'";
+      html += "userId='" + escapeHTML(user["userId"]) + "'>";
       html += "</td>";
       html += "<td>" + escapeHTML(user["userId"]) + "</td>";
       html += "<td>";
-      if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_USER)) {
+      if (userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_USER))
+      {
         html += "<a href='javascript:void(0);' id='edit-user" +
           escapeHTML(user["userId"]);
         html += "' userId='"+ escapeHTML(user["userId"]) + "'>" +
           escapeHTML(user["name"])   + "</a></td>";
-      } else {
+      }
+      else
+      {
         html += escapeHTML(user["name"]);
       }
       html += "<td>" + getUserTypeFromFlags(user["flags"], reply)  + "</td>";
-      if (user["flags"] == hatohol.ALL_PRIVILEGES) {
+      if (user["flags"] == hatohol.ALL_PRIVILEGES)
+      {
         html += "<td class='privilege-column' style='display:none;'>";
         html += gettext("All") + "</td>";
-      } else {
+      }
+      else
+      {
         html += "<td class='privilege-column' style='display:none;'>";
         html += "<form class='form-inline' style='margin: 0'>";
         html += "  <input id='edit-user" + escapeHTML(user["userId"]) + "-privileges'";
@@ -193,6 +198,7 @@ var UsersView = function(userProfile) {
     $("#table tbody").append(drawTableBody(reply));
     self.setupCheckboxForDelete($("#delete-user-button"));
     if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_USER))
+      $(".delete-selector").shiftcheckbox();
       $(".delete-selector").show();
     setupEditLinksAndButtons(reply);
     self.displayUpdateTime();
