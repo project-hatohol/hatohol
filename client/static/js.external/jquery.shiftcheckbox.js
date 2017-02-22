@@ -55,13 +55,13 @@
                     if (currentChecked < prevChecked[classname]) {
                         $(selectorStr[classname]).each(function(i) {
                             if (i >= currentChecked && i <= prevChecked[classname]) {
-                                $(this).find('[type=checkbox]').prop('checked' , startStatus[classname]);
+                                $(this).find('[type=checkbox]').prop('checked' , startStatus[classname]).trigger('change');
                             }
                         });
                     } else {
                         $(selectorStr[classname]).each(function(i) {
                             if (i >= prevChecked[classname] && i <= currentChecked) {
-                                $(this).find('[type=checkbox]').prop('checked' , startStatus[classname]);
+                                $(this).find('[type=checkbox]').prop('checked' , startStatus[classname]).trigger('change');
                             }
                         });
                     }
