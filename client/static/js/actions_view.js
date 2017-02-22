@@ -185,62 +185,62 @@ var ActionsView = function(userProfile) {
   //
   // callback function from the base template
   //
-  function drawTableBody(actionsPkt) {
-    var x;
-    var klass, server, host;
-
-    var s = "";
-    for (x = 0; x < actionsPkt["actions"].length; ++x) {
-      var actionDef = actionsPkt["actions"][x];
+  function drawTableBody(actionsPkt)
+  {
+    let s = "";
+    for (let actionDef of actionsPkt["actions"])
+    {
       s += "<tr>";
       s += "<td class='delete-selector' style='display:none;'>";
-      s += "<input type='checkbox' class='selectcheckbox' " +
-        "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
+      s += "<input type='checkbox' class='selectcheckbox' ";
+      s += "value='" + actionsPkt["actions"].indexOf(actionDef) + "'";
+      s += "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
-      var nickName = getNickNameFromAction(actionsPkt, actionDef);
+      const nickName = getNickNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(nickName) + "</td>";
 
-      var hostName = getHostNameFromAction(actionsPkt, actionDef);
+      const hostName = getHostNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostName)   + "</td>";
 
-      var hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
+      const hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostgroupName) + "</td>";
 
-      var triggerBrief = getTriggerBriefFromAction(actionsPkt, actionDef);
+      const triggerBrief = getTriggerBriefFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(triggerBrief) + "</td>";
 
-      var triggerStatus = actionDef.triggerStatus;
-      var triggerStatusLabel = "ANY";
+      const triggerStatus = actionDef.triggerStatus;
+      let triggerStatusLabel = "ANY";
       if (triggerStatus !== null)
         triggerStatusLabel = makeTriggerStatusLabel(triggerStatus);
       s += "<td>" + triggerStatusLabel + "</td>";
 
-      var triggerSeverity = actionDef.triggerSeverity;
-      var severityLabel = "ANY";
+      const triggerSeverity = actionDef.triggerSeverity;
+      let severityLabel = "ANY";
       if (triggerSeverity !== null)
         severityLabel = makeSeverityLabel(triggerSeverity);
 
-      var severityCompType = actionDef.triggerSeverityComparatorType;
-      var severityCompLabel = "";
+      const severityCompType = actionDef.triggerSeverityComparatorType;
+      let severityCompLabel = "";
       if (triggerSeverity !== null)
         severityCompLabel = makeSeverityCompTypeLabel(severityCompType);
 
       s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
-      var type = actionDef.type;
-      var typeLabel = makeTypeLabel(type);
+      const type = actionDef.type;
+      const typeLabel = makeTypeLabel(type);
       s += "<td>" + typeLabel + "</td>";
 
-      var workingDir = actionDef.workingDirectory;
+      let workingDir = actionDef.workingDirectory;
       if (!workingDir)
         workingDir = "N/A";
       s += "<td>" + escapeHTML(workingDir) + "</td>";
 
-      var command = actionDef.command;
+      const command = actionDef.command;
       s += "<td>" + escapeHTML(command) + "</td>";
 
-      var timeout = actionDef.timeout;
+      const timeout = actionDef.timeout;
+      let timeoutLabel;
       if (timeout === 0)
         timeoutLabel = gettext("No limit");
       else
@@ -264,7 +264,8 @@ var ActionsView = function(userProfile) {
     $("#table tbody").append(drawTableBody(rawData));
     self.setupCheckboxForDelete($("#delete-action-button"));
     if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ACTION) ||
-	self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_ACTION)) {
+    self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_ALL_ACTION)) {
+      $(".delete-selector").shiftcheckbox();
       $(".delete-selector").show();
     }
     setupEditButtons(rawData);
