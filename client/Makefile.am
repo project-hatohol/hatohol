@@ -51,6 +51,7 @@ nobase_dist_hatohol_client_DATA = \
 	static/images/logo_hatohol.png \
 	static/images/icon_push_hatohol.png \
 	static/js.external/jquery.min.js \
+	static/js.external/jquery.shiftcheckbox.js \
 	static/js.external/jquery-ui.min.js \
 	static/js.external/jquery-ui-slider-pips.min.js \
 	static/js.external/jquery.datetimepicker.js \
