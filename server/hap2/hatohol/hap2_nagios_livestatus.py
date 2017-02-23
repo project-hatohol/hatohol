@@ -109,8 +109,7 @@ class Common:
         self.divide_and_put_data(self.put_host_group_membership, membership)
 
     def collect_triggers_and_put(self, fetch_id=None, host_ids=None):
-        query = self.__socket.services.columns("plugin_output",
-                                               "description",
+        query = self.__socket.services.columns("description",
                                                "last_state_change",
                                                "host_alias",
                                                "host_name",
@@ -154,7 +153,7 @@ class Common:
                 "lastChangeTime": hapi_time,
                 "hostId": service["host_name"],
                 "hostName": service["host_alias"],
-                "brief": service["plugin_output"],
+                "brief": service["description"],
                 "extendedInfo": ""
             })
         self.__trigger_last_info = \
@@ -182,26 +181,20 @@ class Common:
         if last_info is None:
             last_info = self.get_cached_event_last_info()
         if not last_info:
-            last_info = str(hapcommon.get_current_hatohol_time())
+            last_info = datetime.datetime.now().strftime("%s")
             self.set_event_last_info(last_info)
 
         if direction == "ASC":
-            unix_timestamp = \
-                hapcommon.translate_hatohol_time_to_unix_time(last_info)
-            query = query.filter("time > %s" % unix_timestamp)
+            query = query.filter("time > %s" % last_info)
         elif direction == "DESC":
-            unix_timestamp = \
-                hapcommon.translate_hatohol_time_to_unix_time(last_info)
-            query = query.filter("time < %s" % unix_timestamp)
+            query = query.filter("time < %s" % last_info)
+        else:
+            logger.error("Set unknow direction: %s" % direction);
+            return
 
         result = query.call()
         logger.debug(query)
-
-        try:
-            latest_state_index = result.index(last_info)
-            result = result[:latest_state_index]
-        except ValueError:
-            pass
+        logger.debug(result)
 
         events = []
         for event in result:
