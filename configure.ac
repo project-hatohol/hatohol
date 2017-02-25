@@ -44,6 +44,11 @@ dnl Optional C++ compiler flags
 dnl **************************************************************
 OPT_CXXFLAGS="-Wall -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"
 
+dnl **************************************************************
+dnl enable -Wsuggest-override option
+dnl **************************************************************
+AX_CHECK_COMPILE_FLAG([-Wsuggest-override], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wsuggest-override"])
+
 enable_debug_default=no
 AC_ARG_ENABLE([debug],
   [AS_HELP_STRING([--enable-debug],
