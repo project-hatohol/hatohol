@@ -112,16 +112,8 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
   var numSelected = 0;
   var setupCheckboxes = function() {
     $(".userRoleSelectCheckbox").change(function() {
-      var check = $(this).is(":checked");
-      var prevNumSelected = numSelected;
-      if (check)
-        numSelected += 1;
-      else
-        numSelected -= 1;
-      if (prevNumSelected === 0 && numSelected == 1)
-        $("#deleteUserRolesButton").attr("disabled", false);
-      else if (prevNumSelected == 1 && numSelected === 0)
-        $("#deleteUserRolesButton").attr("disabled", true);
+      const selected = $(".userRoleSelectCheckbox:checked");
+      $("#deleteUserRolesButton").attr("disabled", !selected.length);
     });
   };
   var setupEditButtons = function()
@@ -186,19 +178,19 @@ HatoholUserRolesEditor.prototype.generateMainTable = function() {
 };
 
 HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
-  var html = '', role;
+  let html = '';
 
   html += '<tr><td class="deleteUserRole"></td><td>-</td><td>' +
     gettext('Guest') + '</td><td>' + gettext("None") +'</td></tr>';
   html += '<tr><td class="deleteUserRole"></td><td>-</td><td>' +
     gettext('Admin') + '</td><td>' + gettext("All") +'</td></tr>';
 
-  for (var i = 0; i < data.userRoles.length; i++) {
-    role = data.userRoles[i];
+  for (let role of data.userRoles) {
     html +=
     '<tr>' +
     '<td class="deleteUserRole">' +
     '  <input type="checkbox" class="userRoleSelectCheckbox" ' +
+    '         value="' + data.userRoles.indexOf(role) + '"' +
     '         userRoleId="' + escapeHTML(role.userRoleId) + '"></td>' +
     '<td>' + escapeHTML(role.userRoleId) + '</td>' +
     '<td>' + escapeHTML(role.name) + '</td>' +
@@ -234,7 +226,10 @@ HatoholUserRolesEditor.prototype.setupWidgetsState = function () {
     $(".addUserRole").hide();
 
   if (this.hasPrivilege(hatohol.OPPRVLG_DELETE_ALL_USER_ROLE))
+  {
+    $(".deleteUserRole").shiftcheckbox();
     $(".deleteUserRole").show();
+  }
   else
     $(".deleteUserRole").hide();
 
