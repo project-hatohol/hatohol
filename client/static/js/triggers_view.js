@@ -238,7 +238,8 @@ var TriggersView = function(userProfile, options) {
   function setupTimeRangeFilter() {
     $('#begin-time').datetimepicker({
       format: 'Y/m/d H:i:s',
-      closeOnDateSelect: true,
+      closeOnDateSelect: false,
+      closeOnTimeSelect: false,
       onSelectDate: function(currentTime, $input) {
         $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
@@ -249,7 +250,8 @@ var TriggersView = function(userProfile, options) {
 
     $('#end-time').datetimepicker({
       format: 'Y/m/d H:i:s',
-      closeOnDateSelect: true,
+      closeOnDateSelect: false,
+      closeOnTimeSelect: false,
       onDateTime: function(currentTime, $input) {
         $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
