@@ -262,6 +262,19 @@ var HatoholEventsViewConfig = function(options) {
     $("#filter-name-entry").val(value);
   });
 
+  $("#filter-name-list-add-button").click(function () {
+    var newFilter = $.extend(true, {}, self.defaultFilterConfig);
+    newFilter.name = self.defaultFilterName;
+    self.filterList.push(newFilter);
+    self.selectedFilterIndex = self.filterList.length - 1;
+    self.setCurrentFilterConfig();
+    $("#filter-name-entry").change();
+    self.filterList[self.selectedFilterIndex].name = $("#filter-name-entry").val();
+    $("#filter-name-entry").focus();
+    $("#filter-name-entry").select();
+    reset();
+  });
+
   $("#filter-name-list-delete-button").click(function () {
     if (!self.filterList[self.selectedFilterIndex].id) {
       self.filterList.splice(self.selectedFilterIndex, 1);
@@ -441,7 +454,7 @@ var HatoholEventsViewConfig = function(options) {
   function getFilterNameList(){
     var filterNameList = [];
     var anchors = $("#filter-name-list").children("li").find("a");
-    for (var i=0; anchors.length - 1 > i; i++) {
+    for (var i=0; anchors.length > i; i++) {
       filterNameList.push(anchors[i].text);
     };
     return filterNameList;
@@ -580,33 +593,6 @@ var HatoholEventsViewConfig = function(options) {
         })
       ).appendTo("#filter-name-list");
     });
-
-    for(var i = 0; i < self.filterList.length; i++) {
-      if (self.filterList[i].id === undefined)
-        return;
-    }
-
-    $("<li/>", {"class": "divider"}).appendTo("#filter-name-list");
-
-    $("<li/>").append(
-      $("<a>", {
-        text: gettext("Add a new filter"),
-        href: "#",
-        click: function(obj) {
-          var newFilter = $.extend(true, {}, self.defaultFilterConfig);
-          newFilter.name = self.defaultFilterName;
-          self.filterList.push(newFilter);
-          self.selectedFilterIndex = self.filterList.length - 1;
-          self.setCurrentFilterConfig();
-          $("#filter-name-entry").change();
-          self.filterList[self.filterList.length - 1].name =
-            $("#filter-name-entry").val();
-          $("#filter-name-entry").focus();
-          $("#filter-name-entry").select();
-          resetFilterList();
-        },
-      })
-    ).appendTo("#filter-name-list");
   }
 
   function resetDefaultFilterList() {
