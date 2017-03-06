@@ -102,7 +102,7 @@ div#controller-container
     padding: 16px 4px 16px 4px;
 }
 
-#view-config input[type="text"] {
+input#auto-reload-interval,#num-rows-per-page {
     width: 4em;
     display: inline-block;
 }
@@ -123,8 +123,8 @@ label.unit {
 }
 
 div#filter-name-config {
-    margin-top: 16px;
-    margin-bottom: 20px;
+    margin-top: 6px;
+    margin-bottom: 10px;
 }
 
 #filter-name-config .btn.dropdown-toggle {
@@ -132,9 +132,7 @@ div#filter-name-config {
 }
 
 #filter-name-config ul {
-    width: 380px;
-    left: initial;
-    right: 32px;
+    min-width: 320px;
 }
 
 #filter-name-config li {
@@ -149,6 +147,10 @@ input#filter-name-entry {
 
 button#filter-name-list-button {
     margin-bottom: 2px;
+}
+
+button#filter-name-list-add-button {
+    margin-bottom: 6px;
 }
 
 button#filter-name-list-delete-button {
@@ -217,13 +219,6 @@ table.view-layout-mock td.controlbar {
 table.view-layout-mock td.highlight {
     border-width: 4px !important;
     border-color: red !important;
-}
-
-select.default-filter-selector {
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 40px;
-    width: 200px;
 }
 
 td[contenteditable=true]:empty::before {
@@ -358,10 +353,27 @@ h2.hatohol-graph {
 }
 
 .filter-element {
-    display: inline-block;
-    *display:inline;
-    text-align: left;
-    margin-right: 10px;
+  *display:inline;
+  display: inline-table;
+  text-align: left;
+  margin-right: 10px;
+  width: 33%;
+  margin: 0;
+  padding: 0 0 12px 0;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+.filter-element p {
+  display: table-cell;
+  vertical-align: middle;
+  height: auto;
+  line-height: 100%;
+}
+
+.filter-element select {
+    width: 50%;
 }
 
 .filter-time-range {
@@ -557,12 +569,20 @@ html {
   color: #666666;
 }
 
-#summaryBar #select-summary-filter {
+#summaryBar .filter-element {
   position: relative;
   left: 10px;
   top: 7px;
-  width: auto;
+  width: 100px;
   font-size: 12px;
+}
+
+#summaryBar .filter-element .bootstrap-select {
+  width: 150px;
+}
+
+#select-filter ul {
+  min-width: 250px;
 }
 
 #summaryBar #summaryBarRight {
@@ -638,29 +658,8 @@ html {
     margin: 0;
 }
 
-#hideDiv .filter-element {
-  display: inline-table;
-  width: 33%;
-  margin: 0;
-  padding: 0 0 12px 0;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-}
-
-#hideDiv .filter-element p {
-  display: table-cell;
-  vertical-align: middle;
-  height: auto;
-  line-height: 100%;
-}
-
-#hideDiv .bootstrap-select.btn-group > .disabled {
+.bootstrap-select.btn-group > .disabled {
     background-color: #adadad;
-}
-
-#hideDiv .filter-element select {
-    width: 50%;
 }
 
 #hideDiv #apply-all-filter {
@@ -771,6 +770,10 @@ div#abbreviating-event-descriptions-container {
 #view-config .row label {
     font-weight: normal;
     margin: 0;
+}
+
+#view-config .bootstrap-select {
+  width: 200px;
 }
 
 .table.verticalAlignMiddle > tbody > tr > td {
