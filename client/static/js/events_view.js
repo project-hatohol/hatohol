@@ -38,9 +38,8 @@ var EventsView = function(userProfile, options) {
     sortType:         "time",
     sortOrder:        hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
   };
-  self.lastFilterId = null;
   self.lastQuickFilter = {};
-  self.isFilteringOptionsUsed = false;
+  self.lastMode = null;
   self.showToggleAutoRefreshButton();
   self.setupToggleAutoRefreshButtonHandler(load, self.reloadIntervalSeconds);
 
@@ -279,8 +278,6 @@ var EventsView = function(userProfile, options) {
     self.baseQuery.sortOrder = config.getValue('events.sort.order');
     self.columnNames = config.getValue('events.columns').split(',');
 
-    // Reset filter menu
-    self.lastFilterId = defaultFilterId;
     $("#select-filter").empty();
     $.map(config.filterList, function(filter) {
       var option = $("<option/>", {
@@ -306,11 +303,10 @@ var EventsView = function(userProfile, options) {
     });
   }
 
-  function updateFilteringResult() {
-    var numEvents = self.rawData["events"].length;
+  function updateFilteringResult(isFilteringOptionsUsed) {
     var title;
     var filteringOpts = $("#filtering-options-brief");
-    if (!self.isFilteringOptionsUsed) {
+    if (!isFilteringOptionsUsed) {
         filteringOpts.hide();
         title = gettext("All Events");
     } else {
@@ -318,7 +314,6 @@ var EventsView = function(userProfile, options) {
         $("#filtering-options-brief-line").text(getBriefOfFilteringOptions());
         title = gettext("Filtering Results");
     }
-    title += " (" + numEvents + ")";
     $("#controller-container-title").text(title);
   }
 
@@ -361,13 +356,7 @@ var EventsView = function(userProfile, options) {
 
   function getEventsQueryInURI() {
     var knownKeys = [
-      "serverId", "hostgroupId", "hostId",
-      "hostname", "hostgroupName",
-      "limit", "offset", "limitOfUnifiedId",
-      "sortType", "sortOrder",
-      "type", "minimumSeverity", "status", "triggerId",
-      "severities", "incidentStatuses",
-    ];
+      "serverId", "hostgroupId", "hostId", "triggerId"];
     var i, allParams = deparam(), query = {};
     for (i = 0; i < knownKeys.length; i++) {
       if (knownKeys[i] in allParams)
@@ -404,8 +393,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function getQuery(options) {
-    var query = {}, baseFilter, URIQuery, URISeverities, URIIncidentStatuses;
-
+    var query = {}, baseFilter, URIQuery;
     options = options || {};
 
     if (!options.page) {
@@ -414,38 +402,31 @@ var EventsView = function(userProfile, options) {
       if (!self.limitOfUnifiedId)
         self.limitOfUnifiedId = self.rawData.lastUnifiedEventId;
     }
-
-    if (!self.lastFilterId)
-      self.lastFilterId = self.userConfig.getValue("events.default-filter-id");
     if (options.applyFilter) {
-      self.lastFilterId = $("#select-filter").val();
       self.lastQuickFilter = getQuickFilter();
     }
-    baseFilter = self.userConfig.getFilter(self.lastFilterId);
+
+    baseFilter = self.userConfig.getFilter($("#select-filter").val());
     URIQuery = getEventsQueryInURI();
-    URISeverities = URIQuery.severities;
-    delete URIQuery["severities"];
-    URIIncidentStatuses = URIQuery.incidentStatuses;
-    delete URIQuery["incidentStatuses"];
 
-    if (baseFilter.severities && URISeverities) {
-      baseFilter.severities = getListProduct(baseFilter.severities.split(","),
-                                             URISeverities.split(",")).join(",");
-      if (baseFilter.severities.length === 0) {
-        baseFilter.severities = "-1";
-      }
-    } else if (URISeverities) {
-      baseFilter.severities = URISeverities;
-    }
+    if (self.lastMode) {
+      var importantSeverities = getImportantSeverities();
+      if (baseFilter.severities) {
+        baseFilter.severities =
+          getListProduct(baseFilter.severities.split(","),
+                         importantSeverities).join(",");
+      } else
+        baseFilter.severities = importantSeverities.join(",");
 
-    if (baseFilter.incidentStatuses && URIIncidentStatuses) {
-      baseFilter.incidentStatuses = getListProduct(baseFilter.incidentStatuses.split(","),
-                                             URIIncidentStatuses.split(",")).join(",");
-      if (baseFilter.incidentStatuses.length === 0) {
-        baseFilter.incidentStatuses = "NOTHING";
+      if (self.lastMode == "unhandledImportant" && baseFilter.incidentStatuses) {
+        baseFilter.incidentStatuses =
+          getListProduct(baseFilter.incidentStatuses.split(","),
+                         ["NONE"]).join(",");
+        if (baseFilter.incidentStatuses.length == 0)
+          baseFilter.incidentStatuses = "NOTHING";
+      } else if (self.lastMode == "unhandledImportant") {
+        baseFilter.incidentStatuses = "NONE";
       }
-    } else if (URIIncidentStatuses) {
-        baseFilter.incidentStatuses =  URIIncidentStatuses;
     }
 
     $.extend(query, self.baseQuery, baseFilter, URIQuery, self.lastQuickFilter, {
@@ -704,27 +685,21 @@ var EventsView = function(userProfile, options) {
 
   function setupCallbacks() {
     $('#summaryAllEvents').click(function() {
-      domesticLink("ajax_events");
+      self.lastMode = null;
+      load();
+      $("#controller-container-title").text(gettext("All Events"));
     });
 
     $('#summaryUnhandledImportantEvents').click(function() {
-      var query = { incidentStatuses: ["NONE", ""].join(",") };
-      var importantSeverities = getImportantSeverities();
-
-      if (importantSeverities.length > 0)
-        query.severities = importantSeverities.join(",");
-
-      domesticLink("ajax_events?" + $.param(query));
+      self.lastMode = "unhandledImportant";
+      load();
+      $("#controller-container-title").text(gettext("Unhandled Important Events"));
     });
 
     $('#summaryImportantEvents').click(function() {
-      var query = {};
-      var importantSeverities = getImportantSeverities();
-
-      if (importantSeverities.length > 0)
-        query.severities = importantSeverities.join(",");
-
-      domesticLink("ajax_events?" + $.param(query));
+      self.lastMode = "important";
+      load();
+      $("#controller-container-title").text(gettext("Important Events"));
     });
 
     $('#select-filter').change(function() {
@@ -753,17 +728,12 @@ var EventsView = function(userProfile, options) {
       resetQuickFilter();
       refreshSelectPickers();
       load({ applyFilter: true });
-      self.isFilteringOptionsUsed = false;
+      updateFilteringResult(false);
     });
 
     $('button.btn-apply-all-filter').click(function() {
       load({ applyFilter: true });
-      self.isFilteringOptionsUsed = true;
-    });
-
-    $("#select-filter").change(function() {
-      setupFilterValues();
-      resetQuickFilter();
+      updateFilteringResult(true);
     });
 
     $(document).on("change",".toggleDescriptionFull", function() {
@@ -856,8 +826,8 @@ var EventsView = function(userProfile, options) {
       url: "/incident",
       request: "POST",
       data: {
-	  unifiedEventId: eventId,
-	  incidentTrackerId: trackerId,
+        unifiedEventId: eventId,
+        incidentTrackerId: trackerId,
       },
       replyCallback: function() {
         var promise = applyIncidentStatus(eventId, status, errors);
@@ -1191,7 +1161,7 @@ var EventsView = function(userProfile, options) {
 
     html += "<td class='" + getSeverityClass(event) + "'>";
     if (serverURL && serverURL.indexOf("zabbix") >= 1 &&
-	!isSelfMonitoringHost(hostId)) {
+        !isSelfMonitoringHost(hostId)) {
       html +=
       "<a href='" + serverURL + "tr_events.php?&triggerid=" +
         triggerId + "&eventid=" + eventId +
@@ -1812,13 +1782,12 @@ var EventsView = function(userProfile, options) {
     self.userConfig.setServers(reply.servers);
     self.durations = parseData(self.rawData);
 
+    setLoading(false);
     setupFilterValues();
     drawTableContents();
     setupHandlingMenu();
     setupTableColor();
     updatePager();
-    updateFilteringResult();
-    setLoading(false);
     if (self.currentPage === 0)
       self.enableAutoRefresh(load, self.reloadIntervalSeconds);
   }
