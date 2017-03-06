@@ -425,6 +425,7 @@ var TriggersView = function(userProfile, options) {
       html += "<td class='" + severityClass + "'>" +
         anchorTagForDomesticLink(
           'ajax_events?serverId=' + escapeHTML(serverId) +
+          '&hostId=' + escapeHTML(trigger["hostId"]) +
           '&triggerId=' + escapeHTML(trigger["id"]),
           escapeHTML(triggerName));
         + "</td>";
