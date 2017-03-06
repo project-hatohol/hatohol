@@ -263,8 +263,15 @@ var HatoholEventsViewConfig = function(options) {
   });
 
   $("#filter-name-list-delete-button").click(function () {
-    if (!self.filterList[self.selectedFilterIndex].id)
+    if (!self.filterList[self.selectedFilterIndex].id) {
+      self.filterList.splice(self.selectedFilterIndex, 1);
+      if (self.filterList.length == 0)
+        self.filterList = [$.extend(true, {}, self.defaultFilterConfig)];
+      self.selectedFilterIndex = 0;
+      self.setCurrentFilterConfig();
+      reset();
       return;
+    }
 
     new HatoholConnector({
       pathPrefix: "",
@@ -276,7 +283,7 @@ var HatoholEventsViewConfig = function(options) {
           self.filterList = [$.extend(true, {}, self.defaultFilterConfig)];
         self.selectedFilterIndex = 0;
         self.setCurrentFilterConfig();
-        self.reset();
+        reset();
         if (self.options.savedCallback)
           self.options.savedCallback(self);
         showSucccessDialog(gettext("Successfully deleted"));
@@ -305,7 +312,7 @@ var HatoholEventsViewConfig = function(options) {
     self.store({
       items: self.config,
       successCallback: function(reply) {
-        self.reset();
+        reset();
         showSucccessDialog();
       },
       connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -352,7 +359,7 @@ var HatoholEventsViewConfig = function(options) {
       data: JSON.stringify(filter),
       replyCallback: function(reply, parser) {
         self.filterList[self.selectedFilterIndex].id = reply.id;
-        self.reset();
+        reset();
         showSucccessDialog();
         self.options.savedCallback(self);
       },
@@ -478,7 +485,7 @@ var HatoholEventsViewConfig = function(options) {
           self.filterList = reply;
         else
           self.filterList = [$.extend(true, {}, self.defaultFilterConfig)];
-        self.reset();
+        reset();
         self.setCurrentFilterConfig();
       },
       parseErrorCallback: function(reply, parser) {
@@ -494,46 +501,23 @@ var HatoholEventsViewConfig = function(options) {
         self.options.loadedCallback(self);
     });
   };
-};
 
-HatoholEventsViewConfig.prototype = Object.create(HatoholUserConfig.prototype);
-HatoholEventsViewConfig.prototype.constructor = HatoholEventsViewConfig;
-
-HatoholEventsViewConfig.prototype.getValue = function(key) {
-  return this.findOrDefault(this.config, key, this.defaultConfig[key]);
-};
-
-HatoholEventsViewConfig.prototype.saveValue = function(key, value) {
-  var self = this;
-
-  self.config[key] = "" + value;
-
-  self.store({
-    items: self.config,
-    successCallback: function(reply) {
-    },
-    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-      self.showXHRError(XMLHttpRequest);
-    },
-  });
-};
-
-HatoholEventsViewConfig.prototype.reset = function() {
-  var self = this;
-  var autoReloadInterval = self.getValue('events.auto-reload.interval');
-  var key;
-
-  resetAutoReloadInterval();
-  resetNumRowsPerPage();
-  resetColumnSelector();
-  resetFilterList();
-  resetDefaultFilterList(
-    "summary", self.getValue('events.summary.default-filter-id'));
-  resetDefaultFilterList(
-    "events", self.getValue('events.default-filter-id'));
-  self.setCurrentFilterConfig();
+  function reset() {
+    resetAutoReloadInterval();
+    resetNumRowsPerPage();
+    resetColumnSelector();
+    resetFilterList();
+    resetDefaultFilterList();
+    self.setCurrentFilterConfig();
+    $("#filter-name-list-add-button").removeAttr("disabled")
+    for(var filter of self.filterList) {
+      if (filter.id === undefined)
+        $("#filter-name-list-add-button").attr("disabled", "disabled")
+    }
+  }
 
   function resetAutoReloadInterval() {
+    var autoReloadInterval = self.getValue('events.auto-reload.interval');
     $("#auto-reload-interval-slider").slider("value", autoReloadInterval);
     $("#auto-reload-interval").val(autoReloadInterval);
   }
@@ -543,6 +527,7 @@ HatoholEventsViewConfig.prototype.reset = function() {
   }
 
   function resetColumnSelector() {
+    var key;
     var definitions = self.options.columnDefinitions;
     var columns = self.getValue('events.columns').split(",");
     var selectedColumns = {}, i, column, def;
@@ -624,11 +609,10 @@ HatoholEventsViewConfig.prototype.reset = function() {
     ).appendTo("#filter-name-list");
   }
 
-  function resetDefaultFilterList(type, defaultFilterId) {
-    var elementId = $("#" + type + "-default-filter-selector").empty();
-
-    if (!self.getFilterConfig(defaultFilterId).id)
-      defaultFilterId = 0;
+  function resetDefaultFilterList() {
+    var defaultFilterId = self.getValue('events.default-filter-id');
+    var elementId = $("#events-default-filter-selector");
+    elementId.empty();
 
     $.map(self.filterList, function(filter, i) {
       var option = $("<option/>", {
@@ -636,14 +620,35 @@ HatoholEventsViewConfig.prototype.reset = function() {
         value: filter.id
       }).appendTo(elementId);
 
-      if (defaultFilterId && defaultFilterId > 0) {
-        if (defaultFilterId == filter.id)
-          option.attr("selected", true);
-      } else if (i === 0) {
+      if (self.getFilterConfig(defaultFilterId).id == filter.id)
         option.attr("selected", true);
-      }
+      else if (i === 0)
+        option.attr("selected", true);
     });
+    elementId.selectpicker("refresh");
   }
+};
+
+HatoholEventsViewConfig.prototype = Object.create(HatoholUserConfig.prototype);
+HatoholEventsViewConfig.prototype.constructor = HatoholEventsViewConfig;
+
+HatoholEventsViewConfig.prototype.getValue = function(key) {
+  return this.findOrDefault(this.config, key, this.defaultConfig[key]);
+};
+
+HatoholEventsViewConfig.prototype.saveValue = function(key, value) {
+  var self = this;
+
+  self.config[key] = "" + value;
+
+  self.store({
+    items: self.config,
+    successCallback: function(reply) {
+    },
+    connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
+      self.showXHRError(XMLHttpRequest);
+    },
+  });
 };
 
 HatoholEventsViewConfig.prototype.setFilterCandidates = function(candidates) {
@@ -805,54 +810,49 @@ HatoholEventsViewConfig.prototype.getFilterConfig = function(filterId) {
 HatoholEventsViewConfig.prototype.getFilter = function(filterId) {
   var self = this;
 
-  return createFilter(self.getFilterConfig(filterId));
+  var conf = self.getFilterConfig(filterId);
+  var filter = {}, selectHosts = [], excludeHosts = [], hostList;
+  var secondsInDay = 60 * 60 * 24;
+  var now = parseInt(Date.now() / 1000, 10);
 
-  function createFilter(filterConfig) {
-    var conf = filterConfig;
-    var filter = {}, selectHosts = [], excludeHosts = [], hostList;
-    var secondsInDay = 60 * 60 * 24;
-    var now = parseInt(Date.now() / 1000, 10);
+  if (conf.days > 0)
+    filter["beginTime"] = parseInt(now - secondsInDay * conf.days, 10);
 
-    if (conf.days > 0)
-      filter["beginTime"] = parseInt(now - secondsInDay * conf.days, 10);
+  if (conf.incident.enable && conf.incident.selected.length > 0)
+    filter["incidentStatuses"] = conf.incident.selected.join(",");
 
-    if (conf.incident.enable && conf.incident.selected.length > 0)
-      filter["incidentStatuses"] = conf.incident.selected.join(",");
+  if (conf.type.enable && conf.type.selected.length > 0)
+    filter["types"] = conf.type.selected.join(",");
+  if (conf.severity.enable && conf.severity.selected.length > 0)
+    filter["severities"] = conf.severity.selected.join(",");
 
-    if (conf.type.enable && conf.type.selected.length > 0)
-      filter["types"] = conf.type.selected.join(",");
+  if (conf.server.enable) {
+    hostList = conf.server.exclude ? excludeHosts : selectHosts;
+    $.map(conf.server.selected, function(id) {
+      hostList.push({ serverId: id });
+    });
+  }
 
-    if (conf.severity.enable && conf.severity.selected.length > 0)
-      filter["severities"] = conf.severity.selected.join(",");
+  if (conf.hostgroup.enable) {
+    hostList = conf.hostgroup.exclude ? excludeHosts : selectHosts;
+    $.map(conf.hostgroup.selected, function(item) {
+      var pair = item.split(",", 2);
+      hostList.push({ serverId: pair[0], hostgroupId: pair[1] });
+    });
+  }
 
-    if (conf.server.enable) {
-      hostList = conf.server.exclude ? excludeHosts : selectHosts;
-      $.map(conf.server.selected, function(id) {
-        hostList.push({ serverId: id });
-      });
-    }
+  if (conf.host.enable) {
+    hostList = conf.host.exclude ? excludeHosts : selectHosts;
+    $.map(conf.host.selected, function(item) {
+      var pair = item.split(",", 2);
+      hostList.push({ serverId: pair[0], hostId: pair[1] });
+    });
+  }
 
-    if (conf.hostgroup.enable) {
-      hostList = conf.hostgroup.exclude ? excludeHosts : selectHosts;
-      $.map(conf.hostgroup.selected, function(item) {
-        var pair = item.split(",", 2);
-        hostList.push({ serverId: pair[0], hostgroupId: pair[1] });
-      });
-    }
+  if (selectHosts.length > 0)
+    filter["selectHosts"] = selectHosts;
+  if (excludeHosts.length > 0)
+    filter["excludeHosts"] = excludeHosts;
 
-    if (conf.host.enable) {
-      hostList = conf.host.exclude ? excludeHosts : selectHosts;
-      $.map(conf.host.selected, function(item) {
-        var pair = item.split(",", 2);
-        hostList.push({ serverId: pair[0], hostId: pair[1] });
-      });
-    }
-
-    if (selectHosts.length > 0)
-      filter["selectHosts"] = selectHosts;
-    if (excludeHosts.length > 0)
-      filter["excludeHosts"] = excludeHosts;
-
-    return filter;
-  };
+  return filter;
 };
