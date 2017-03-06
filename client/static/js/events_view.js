@@ -273,7 +273,6 @@ var EventsView = function(userProfile, options) {
 
   function applyConfig(config) {
     var defaultFilterId = config.getValue('events.default-filter-id');
-    var defaultSummaryFilterId = config.getValue('events.summary.default-filter-id');
     self.reloadIntervalSeconds = config.getValue('events.auto-reload.interval');
     self.baseQuery.limit = config.getValue('events.num-rows-per-page');
     self.baseQuery.sortType = config.getValue('events.sort.type');
@@ -283,18 +282,11 @@ var EventsView = function(userProfile, options) {
     // Reset filter menu
     self.lastFilterId = defaultFilterId;
     $("#select-filter").empty();
-    $("#select-summary-filter").empty();
     $.map(config.filterList, function(filter) {
       var option = $("<option/>", {
         text: filter.name,
       }).val(filter.id).appendTo("#select-filter");
       if (filter.id == defaultFilterId)
-        option.attr("selected", true);
-
-      option = $("<option/>", {
-        text: filter.name,
-      }).val(filter.id).appendTo("#select-summary-filter");
-      if (filter.id == defaultSummaryFilterId)
         option.attr("selected", true);
     });
     setupFilterValues();
@@ -358,7 +350,6 @@ var EventsView = function(userProfile, options) {
     appendFilteringValue("#select-host-group", s);
     appendFilteringValue("#select-host", s);
 
-    appendFilteringValue("#select-filter", s);
     return s["brief"];
   }
 
@@ -474,7 +465,7 @@ var EventsView = function(userProfile, options) {
   function getSummaryQuery() {
     var query = {}, baseFilterId, baseFilter;
 
-    baseFilterId = $("#select-summary-filter").val();
+    baseFilterId = $("#select-filter").val();
     baseFilter = self.userConfig.getFilter(baseFilterId);
     $.extend(query, baseFilter);
 
@@ -735,8 +726,10 @@ var EventsView = function(userProfile, options) {
       domesticLink("ajax_events?" + $.param(query));
     });
 
-    $('#select-summary-filter').change(function() {
-      load();
+    $('#select-filter').change(function() {
+      setupFilterValues();
+      resetQuickFilter();
+      load({applyFilter: true});
     });
 
     $('#select-server').change(function() {
