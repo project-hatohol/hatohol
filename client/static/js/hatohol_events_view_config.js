@@ -66,7 +66,6 @@ var HatoholEventsViewConfig = function(options) {
     'events.sort.type': "time",
     'events.sort.order': "" + hatohol.DATA_QUERY_OPTION_SORT_DESCENDING,
     'events.default-filter-id': "0",
-    'events.summary.default-filter-id': "0",
   };
   self.defaultFilterConfig = {
     name: self.defaultFilterName,
@@ -120,8 +119,10 @@ var HatoholEventsViewConfig = function(options) {
         self.filterList.splice(i, 1);
     }
     self.selectedFilterIndex = 0;
-    self.reset();
+    reset();
   });
+
+  $("#events-default-filter-selector").selectpicker();
 
   $("#auto-reload-interval-slider").slider({
     min: minAutoReloadInterval,
@@ -237,8 +238,6 @@ var HatoholEventsViewConfig = function(options) {
       saveViewConfig();
     } else if (tabId == "filter-config"){
       saveFilterConfig();
-    }else if (tabId == "default-filter-config"){
-      saveDefaultFilterConfig();
     }
   });
 
@@ -300,27 +299,6 @@ var HatoholEventsViewConfig = function(options) {
       'events.auto-reload.interval': $("#auto-reload-interval").val(),
       'events.num-rows-per-page': $("#num-rows-per-page").val(),
       'events.columns': buildSelectedColumns(),
-    });
-
-    self.store({
-      items: self.config,
-      successCallback: function(reply) {
-        self.reset();
-        showSucccessDialog();
-      },
-      connectErrorCallback: function(XMLHttpRequest, textStatus, errorThrown) {
-        self.showXHRError(XMLHttpRequest);
-      },
-      completionCallback: function() {
-        if (self.options.savedCallback)
-          self.options.savedCallback(self);
-      },
-    });
-  };
-
-  function saveDefaultFilterConfig(){
-    $.extend(self.config, {
-      'events.summary.default-filter-id': $("#summary-default-filter-selector").val(),
       'events.default-filter-id': $("#events-default-filter-selector").val(),
     });
 
