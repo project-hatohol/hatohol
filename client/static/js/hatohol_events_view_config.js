@@ -850,9 +850,9 @@ HatoholEventsViewConfig.prototype.getFilter = function(filterId) {
   }
 
   if (selectHosts.length > 0)
-    filter["selectHosts"] = selectHosts;
+    filter["s"] = selectHosts;
   if (excludeHosts.length > 0)
-    filter["excludeHosts"] = excludeHosts;
+    filter["e"] = excludeHosts;
 
   return filter;
 };
