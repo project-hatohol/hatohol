@@ -60,8 +60,8 @@ struct SelectedHosts {
 		  *static_cast<SelectedHosts *>(userData);
 		const string keyStr(static_cast<const char *>(key));
 		const string valueStr(static_cast<const char *>(value));
-		const string selectHosts("selectHosts");
-		const string excludeHosts("excludeHosts");
+		const string selectHosts("s");
+		const string excludeHosts("e");
 
 		if (StringUtils::hasPrefix(keyStr, selectHosts)) {
 			data.parseHostQuery(data.selected.stringMap,
