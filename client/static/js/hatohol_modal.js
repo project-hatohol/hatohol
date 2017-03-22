@@ -85,7 +85,6 @@ HatoholModal.prototype.show = function() {
 };
 
 HatoholModal.prototype.close = function(doneHandler) {
-  console.log(doneHandler)
   var self = this;
   var modal = $("#" + this.modalId);
   modal.modal("hide");
