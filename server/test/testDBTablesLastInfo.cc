@@ -71,7 +71,7 @@ void test_upsertLastInfo(void)
 	LastInfoDef lastInfo;
 	lastInfo.id = AUTO_INCREMENT_VALUE;
 	lastInfo.dataType = LAST_INFO_HOST;
-	lastInfo.value = "1432103640";
+	lastInfo.value = "201505151340.0000000000";
 	lastInfo.serverId = 10001;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	LastInfoIdType lastInfoId = dbLastInfo.upsertLastInfo(lastInfo, privilege);
@@ -116,7 +116,7 @@ void test_updateLastInfo(void)
 	LastInfoDef lastInfo;
 	lastInfo.id = 3;
 	lastInfo.dataType = LAST_INFO_TRIGGER;
-	lastInfo.value = "1433054040";
+	lastInfo.value = "201505201540.0000000000";
 	lastInfo.serverId = 12001;
 	OperationPrivilege privilege(USER_ID_SYSTEM);
 	dbLastInfo.updateLastInfo(lastInfo, privilege);
