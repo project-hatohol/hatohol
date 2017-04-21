@@ -1,0 +1,7 @@
+- name: run hatohol
+  shell: LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH pkill hatohol; /usr/local/sbin/hatohol
+
+- name: manage.py runserver
+  shell: nohup ./manage.py runserver 0.0.0.0:80 &
+  args:
+    chdir: /usr/local/src/hatohol/client

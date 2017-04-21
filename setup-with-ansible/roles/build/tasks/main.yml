@@ -1,0 +1,29 @@
+- name: copy this repo
+  synchronize:
+    src=../../../../
+    dest=/usr/local/src/hatohol
+  register: rsync_hatohol
+
+- name: autogen
+  command: ./autogen.sh
+  args:
+    chdir: /usr/local/src/hatohol/
+  when: rsync_hatohol.changed
+
+- name: configure
+  command: ./configure
+  args:
+    chdir: /usr/local/src/hatohol/
+  when: rsync_hatohol.changed
+
+- name: make hatohol
+  shell: make -j`nproc`
+  args:
+    chdir: /usr/local/src/hatohol/
+  when: rsync_hatohol.changed
+
+- name: hatohol install
+  command: make install
+  args:
+    chdir: /usr/local/src/hatohol/
+  when: rsync_hatohol.changed

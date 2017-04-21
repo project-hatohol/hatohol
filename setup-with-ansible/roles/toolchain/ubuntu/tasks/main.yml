@@ -12,3 +12,6 @@
 
 - name: install libtool
   apt: name=libtool
+
+- name: install rsync
+  apt: name=rsync
