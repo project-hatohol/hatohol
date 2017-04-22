@@ -34,6 +34,8 @@
 - name: install librabbitmq-devel
   yum: name=librabbitmq-devel
 
+- name: install autoconf-archive
+  yum: name=autoconf-archive
 
 - name: install curl
   yum: name=curl
