@@ -45,11 +45,11 @@ build:
           cd ~/hatohol
           ./autogen.sh
           ./configure
-          make -j `cat /proc/cpuinfo | grep processor | wc -l`
-          make dist -j `cat /proc/cpuinfo | grep processor | wc -l`
+          make -j `nproc`
+          make dist -j `nproc`
 
     - script:
         name: Build RPM
         code: |
           cd ~/hatohol
-          MAKEFLAGS="-j `cat /proc/cpuinfo | grep processor | wc -l`" rpmbuild -tb hatohol-*.tar.bz2
+          MAKEFLAGS="-j `nproc`" rpmbuild -tb hatohol-*.tar.bz2
