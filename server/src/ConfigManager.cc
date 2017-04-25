@@ -42,9 +42,6 @@ const char *ConfigManager::HATOHOL_DB_DIR_ENV_VAR_NAME = "HATOHOL_DB_DIR";
 static const char *DEFAULT_DATABASE_DIR = "/tmp";
 static const size_t DEFAULT_NUM_PRESERVED_REPLICA_GENERATION = 3;
 
-int ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
-static int DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS
-  = 60 * 60 * 24; // 24 hours
 const char *ConfigManager::DEFAULT_PID_FILE_PATH = LOCALSTATEDIR "/run/hatohol.pid";
 
 static int DEFAULT_MAX_NUM_RUNNING_COMMAND_ACTION = 10;
@@ -427,11 +424,6 @@ string ConfigManager::getDBServerAddress(void) const
 int ConfigManager::getDBServerPort(void) const
 {
 	return m_impl->dbServerPort;
-}
-
-int ConfigManager::getAllowedTimeOfActionForOldEvents(void)
-{
-	return DEFAULT_ALLOWED_TIME_OF_ACTION_FOR_OLD_EVENTS;
 }
 
 int ConfigManager::getMaxNumberOfRunningCommandAction(void)

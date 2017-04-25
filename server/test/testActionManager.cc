@@ -63,11 +63,6 @@ public:
 		execResidentAction(actionDef, eventInfo, dbAction, actorInfo);
 	}
 
-	bool callShouldSkipByTime(const EventInfo &eventInfo)
-	{
-		return shouldSkipByTime(eventInfo);
-	}
-
 	bool callShouldSkipByLog(const EventInfo &eventInfo)
 	{
 		ThreadLocalDBCache cache;
@@ -1207,35 +1202,6 @@ void test_execResidentActionCheckArg(void)
 	logarg.currStatus = ACTLOG_STAT_STARTED;
 	logarg.newStatus  = ACTLOG_STAT_SUCCEEDED;
 	assertActionLogAfterExecResident(logarg);
-}
-
-void test_shouldSkipByTime(void)
-{
-	TestActionManager actMgr;
-	ConfigManager *confMgr = ConfigManager::getInstance();
-	EventInfoList eventInfoList;
-	static const size_t numTestEvt = 4;
-	static const size_t timeOffsetUnitSec = 100;
-	struct timeval tv;
-	cppcut_assert_equal(0, gettimeofday(&tv, NULL));
-	tv.tv_sec -= confMgr->getAllowedTimeOfActionForOldEvents();
-
-	for (size_t i = 0; i < numTestEvt; i++) {
-		// Even Index: past, Odd index: future.
-		EventInfo evtInfo = testEventInfo[i % NumTestEventInfo];
-		evtInfo.time.tv_sec = tv.tv_sec;
-		if (i % 2 == 0)
-			evtInfo.time.tv_sec -= timeOffsetUnitSec * i;
-		else
-			evtInfo.time.tv_sec += timeOffsetUnitSec * i;
-		eventInfoList.push_back(evtInfo);
-	}
-
-	// check
-	EventInfoListIterator it = eventInfoList.begin();
-	bool evenIdx = true;
-	for (; it != eventInfoList.end(); ++it, evenIdx = !evenIdx)
-		cppcut_assert_equal(evenIdx, actMgr.callShouldSkipByTime(*it));
 }
 
 void test_shouldSkipByLog(void)

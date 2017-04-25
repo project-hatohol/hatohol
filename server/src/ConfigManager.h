@@ -47,7 +47,6 @@ public:
 
 	static const char *HATOHOL_DB_DIR_ENV_VAR_NAME;
 	static ConfigManager *getInstance(void);
-	static int ALLOW_ACTION_FOR_ALL_OLD_EVENTS;
 	static const char *DEFAULT_PID_FILE_PATH;
 
 	/**
@@ -74,19 +73,6 @@ public:
 	bool isForegroundProcess(void) const;
 	std::string getDBServerAddress(void) const;
 	int getDBServerPort(void) const;
-
-	/**
-	 * Get the time to ignore an action for old events.
-	 * The events that are older than Tc - Ts shall be ignored, where
-	 * Tc is the current time and Ts is a return value of this function.
-	 *
-	 * @return
-	 * The allowed time in second. If this value is
-	 * ALLOW_ACTION_FOR_ALL_OLD_EVENTS, the action shoall be invoked
-	 * even for any old event.
-	 *
-	 */
-	int getAllowedTimeOfActionForOldEvents(void);
 
 	int getMaxNumberOfRunningCommandAction(void);
 

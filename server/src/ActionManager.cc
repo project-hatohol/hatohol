@@ -527,8 +527,6 @@ void ActionManager::checkEvents(const EventInfoList &eventList)
 		ActionDefList actionDefList;
 		const EventInfo &eventInfo = *it;
 		if (eventInfo.id != DISCONNECT_SERVER_EVENT_ID) {
-			if (shouldSkipByTime(eventInfo))
-				continue;
 			if (shouldSkipByLog(eventInfo, dbAction))
 				continue;
 		}
@@ -619,19 +617,6 @@ void ActionManager::setupPathForAction(string &path, string &ldLibraryPath)
 		ldLibraryPath = "LD_LIBRARY_PATH=";
 		ldLibraryPath += env;
 	}
-}
-
-bool ActionManager::shouldSkipByTime(const EventInfo &eventInfo)
-{
-	ConfigManager *configMgr = ConfigManager::getInstance();
-	int allowedOldTime = configMgr->getAllowedTimeOfActionForOldEvents();
-	if (allowedOldTime == ConfigManager::ALLOW_ACTION_FOR_ALL_OLD_EVENTS)
-		return false;
-
-	SmartTime eventTime(eventInfo.time);
-	SmartTime passedTime(SmartTime::INIT_CURR_TIME);
-	passedTime -= eventTime;
-	return passedTime.getAsSec() > allowedOldTime;
 }
 
 bool ActionManager::shouldSkipByLog(const EventInfo &eventInfo,

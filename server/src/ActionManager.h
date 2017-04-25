@@ -102,7 +102,6 @@ protected:
 	static gboolean commandActionTimeoutCb(gpointer data);
 	static void residentActionTimeoutCb(NamedPipe *namedPipe,
 	                                    gpointer data);
-	bool shouldSkipByTime(const EventInfo &eventInfo);
 	bool shouldSkipByLog(const EventInfo &eventInfo,
 	                     DBTablesAction &dbAction);
 	HatoholError runAction(const ActionDef &actionDef,
