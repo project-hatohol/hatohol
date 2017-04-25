@@ -71,7 +71,16 @@ static const ColumnDef COLUMN_DEF_TEST[] = {
 	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
-}
+},{
+	"hostname",                        // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
 };
 
 enum {
@@ -79,6 +88,7 @@ enum {
 	IDX_TEST_TABLE_SERVER_ID,
 	IDX_TEST_TABLE_HOST_ID,
 	IDX_TEST_TABLE_FLOWER,
+	IDX_TEST_TABLE_HOSTNAME,
 	NUM_IDX_TEST_TABLE,
 };
 
@@ -125,7 +135,16 @@ static const ColumnDef COLUMN_DEF_TEST_HGRP[] = {
 	SQL_KEY_IDX,                       // keyType
 	0,                                 // flags
 	NULL,                              // defaultValue
-}
+},{
+	"host_group_name",                 // columnName
+	SQL_COLUMN_TYPE_VARCHAR,           // type
+	255,                               // columnLength
+	0,                                 // decFracLength
+	false,                             // canBeNull
+	SQL_KEY_NONE,                      // keyType
+	0,                                 // flags
+	NULL,                              // defaultValue
+},
 };
 
 enum {
@@ -133,6 +152,7 @@ enum {
 	IDX_TEST_HGRP_TABLE_SERVER_ID,
 	IDX_TEST_HGRP_TABLE_HOST_ID,
 	IDX_TEST_HGRP_TABLE_HOST_GROUP_ID,
+	IDX_TEST_HGRP_TABLE_HOST_GROUP_NAME,
 	NUM_IDX_TEST_HGRP_TABLE,
 };
 
@@ -148,7 +168,8 @@ static const HostResourceQueryOption::Synapse TEST_SYNAPSE(
   true,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
-  IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
+  IDX_TEST_HGRP_TABLE_HOST_GROUP_ID,
+  IDX_TEST_TABLE_HOSTNAME, IDX_TEST_HGRP_TABLE_HOST_GROUP_NAME);
 
 static const HostResourceQueryOption::Synapse TEST_SYNAPSE_HGRP(
   tableProfileTestHGrp,
@@ -157,7 +178,8 @@ static const HostResourceQueryOption::Synapse TEST_SYNAPSE_HGRP(
   false,
   tableProfileTestHGrp,
   IDX_TEST_HGRP_TABLE_SERVER_ID, IDX_TEST_HGRP_TABLE_HOST_ID,
-  IDX_TEST_HGRP_TABLE_HOST_GROUP_ID);
+  IDX_TEST_HGRP_TABLE_HOST_GROUP_ID,
+  IDX_TEST_TABLE_HOSTNAME, IDX_TEST_HGRP_TABLE_HOST_GROUP_NAME);
 
 // TODO: I want to remove these, which are too denpendent on the implementation
 // NOTE: The same definitions are in testDBClientHatohol.cc
@@ -452,6 +474,16 @@ void test_excludeServersWithoutPrivilege(void)
 	serverIdSet.insert(211);
 	option.setExcludedServerIds(serverIdSet);
 	string expect("0");
+	cppcut_assert_equal(expect, option.getCondition());
+}
+
+void test_targetNamesCondition(void)
+{
+	HostResourceQueryOption option(TEST_SYNAPSE, USER_ID_SYSTEM);
+	option.setTargetHostname("hostX1");
+	option.setTargetHostgroupName("hostgroup Y1");
+	string expect("server_id IN (1,2,3,4,211,222,301)"
+		      " AND hostname='hostX1' AND host_group_name='hostgroup Y1'");
 	cppcut_assert_equal(expect, option.getCondition());
 }
 

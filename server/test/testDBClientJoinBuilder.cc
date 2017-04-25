@@ -177,7 +177,7 @@ void test_constructorWithHostResourceQueryOption(gconstpointer data)
 	   synapse(tableProfileTest0, 0, 0,
 		   tableProfileTest0, 0,
 		   true,
-		   tableProfileTest1, 0, 0, 0);
+		   tableProfileTest1, 0, 0, 0, 0, 0);
 	class MyOption : public HostResourceQueryOption {
 	public:
 		bool hostgroupIsUsed;

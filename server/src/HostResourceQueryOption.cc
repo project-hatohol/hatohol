@@ -40,6 +40,8 @@ HostResourceQueryOption::Synapse::Synapse(
   const size_t &_hostgroupMapServerIdColumnIdx,
   const size_t &_hostgroupMapHostIdColumnIdx,
   const size_t &_hostgroupMapGroupIdColumnIdx,
+  const size_t &_hostnameColumnIdx,
+  const size_t &_hostgroupNameColumnIdx,
   const size_t &_globalHostIdColumnIdx,
   const size_t &_hostgroupMapGlobalHostIdColumnIdx)
 : tableProfile(_tableProfile),
@@ -52,6 +54,8 @@ HostResourceQueryOption::Synapse::Synapse(
   hostgroupMapServerIdColumnIdx(_hostgroupMapServerIdColumnIdx),
   hostgroupMapHostIdColumnIdx(_hostgroupMapHostIdColumnIdx),
   hostgroupMapGroupIdColumnIdx(_hostgroupMapGroupIdColumnIdx),
+  hostnameColumnIdx(_hostnameColumnIdx),
+  hostgroupNameColumnIdx(_hostgroupNameColumnIdx),
   globalHostIdColumnIdx(_globalHostIdColumnIdx),
   hostgroupMapGlobalHostIdColumnIdx(_hostgroupMapGlobalHostIdColumnIdx)
 {
@@ -69,6 +73,8 @@ struct HostResourceQueryOption::Impl {
 	ServerIdType    targetServerId;
 	LocalHostIdType targetHostId;
 	HostgroupIdType targetHostgroupId;
+	string          targetHostname;
+	string          targetHostgroupName;
 	bool            excludeDefunctServers;
 	ServerIdSet selectedServerIdSet;
 	ServerIdSet excludedServerIdSet;
@@ -86,6 +92,8 @@ struct HostResourceQueryOption::Impl {
 	  targetServerId(ALL_SERVERS),
 	  targetHostId(ALL_LOCAL_HOSTS),
 	  targetHostgroupId(ALL_HOST_GROUPS),
+	  targetHostname(""),
+	  targetHostgroupName(""),
 	  excludeDefunctServers(true),
 	  validServerIdSet(NULL),
 	  allowedServersAndHostgroups(NULL)
@@ -97,6 +105,8 @@ struct HostResourceQueryOption::Impl {
 		targetServerId        = rhs.targetServerId;
 		targetHostId          = rhs.targetHostId;
 		targetHostgroupId     = rhs.targetHostgroupId;
+		targetHostname        = rhs.targetHostname;
+		targetHostgroupName   = rhs.targetHostgroupName;
 		excludeDefunctServers = rhs.excludeDefunctServers;
 		selectedServerIdSet   = rhs.selectedServerIdSet;
 		excludedServerIdSet   = rhs.excludedServerIdSet;
@@ -165,6 +175,7 @@ string HostResourceQueryOption::getCondition(void) const
 	}
 
 	// Select servers, hostgroups and hosts sepcified by the caller
+	addCondition(condition, makeConditionTargetNames());
 	addCondition(condition, makeConditionTargetIds());
 	addCondition(condition, makeConditionHostsFilter());
 
@@ -269,6 +280,28 @@ void HostResourceQueryOption::setTargetHostgroupId(
 	m_impl->targetHostgroupId = targetHostgroupId;
 }
 
+string HostResourceQueryOption::getTargetHostname(void) const
+{
+	return m_impl->targetHostname;
+}
+
+void HostResourceQueryOption::setTargetHostname(
+  const string &targetHostname)
+{
+	m_impl->targetHostname = targetHostname;
+}
+
+string HostResourceQueryOption::getTargetHostgroupName(void) const
+{
+	return m_impl->targetHostgroupName;
+}
+
+void HostResourceQueryOption::setTargetHostgroupName(
+  const string &targetHostgroupName)
+{
+	m_impl->targetHostgroupName = targetHostgroupName;
+}
+
 void HostResourceQueryOption::setExcludeDefunctServers(
   const bool &enable)
 {
@@ -367,6 +400,18 @@ string HostResourceQueryOption::getHostIdColumnName(void) const
 	                           m_impl->synapse.hostIdColumnIdx);
 }
 
+string HostResourceQueryOption::getHostnameColumnName(void) const
+{
+	return getColumnNameCommon(m_impl->synapse.hostTableProfile,
+	                           m_impl->synapse.hostnameColumnIdx);
+}
+
+string HostResourceQueryOption::getHostgroupNameColumnName(void) const
+{
+	const size_t &idx = m_impl->synapse.hostgroupNameColumnIdx;
+	return getHostgroupColumnName(idx);
+}
+
 bool HostResourceQueryOption::isAllowedServer(
   const ServerIdType &targetServerId) const
 {
@@ -397,6 +442,29 @@ bool HostResourceQueryOption::isAllowedHostgroup(
 	return hostgroupSet.find(targetHostgroupId) != hostgroupSet.end();
 }
 
+string HostResourceQueryOption::makeConditionTargetNames(void) const
+{
+	string condition;
+	DBTermCStringProvider rhs(*getDBTermCodec());
+
+	if (!m_impl->targetHostname.empty()) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostnameColumnName().c_str(),
+		    rhs(m_impl->targetHostname)));
+	}
+	if (!m_impl->targetHostgroupName.empty()) {
+		addCondition(condition,
+		  StringUtils::sprintf(
+		    "%s=%s",
+		    getHostgroupNameColumnName().c_str(),
+		    rhs(m_impl->targetHostgroupName)));
+	}
+
+	return condition;
+}
+
 string HostResourceQueryOption::makeConditionTargetIds(void) const
 {
 	string condition;
@@ -423,7 +491,6 @@ string HostResourceQueryOption::makeConditionTargetIds(void) const
 		    getHostgroupIdColumnName().c_str(),
 		    rhs(m_impl->targetHostgroupId)));
 	}
-
 	if (condition.empty())
 		return condition;
 	return StringUtils::sprintf("(%s)", condition.c_str());
