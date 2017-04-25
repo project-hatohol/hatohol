@@ -87,6 +87,9 @@ def translate_int_to_decimal(nano_sec):
     return float(nano_sec) / 10 ** (int(math.log10(nano_sec)) + 1)
 
 def get_top_file_name():
+    if not top_frame.f_globals.get("__file__"):
+        return "Interactive"
+
     current_frame = inspect.currentframe()
     while True:
         if current_frame is None:
