@@ -30,4 +30,30 @@ gulp.task("lint", function() {
     .pipe(jshint.reporter("fail"));
 });
 
+gulp.task('copy', function() {
+  // Copy external JavaScript files
+  gulp.src([
+    'node_modules/bootstrap/dist/js/bootstrap.min.js',
+    'node_modules/bootstrap-select/dist/js/bootstrap-select.js',
+    'node_modules/jquery/dist/jquery.min.js',
+    'node_modules/jquery-flot/jquery.flot.js',
+    'node_modules/jquery-flot/jquery.flot.selection.js',
+    'node_modules/jquery-flot/jquery.flot.time.js',
+    'node_modules/spectrum-colorpicker/spectrum.js',
+  ])
+  .pipe(gulp.dest('client/static/js.external'));
+  // Copy external CSS files
+  gulp.src([
+    'node_modules/bootstrap/dist/css/bootstrap.min.css',
+    'node_modules/bootstrap-select/dist/css/bootstrap-select.css',
+  ])
+  .pipe(gulp.dest('client/static/css.external'));
+  // Copy external fonts files
+  gulp.src(['node_modules/bootstrap/dist/fonts/*'])
+  .pipe(gulp.dest('client/static/fonts'));
+});
+
 gulp.task('default', ['lint']);
+gulp.task('test', ['copy', 'browsertest'], function(){
+  verbose: true;
+});

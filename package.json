@@ -14,6 +14,11 @@
     "gulp-mocha-phantomjs": "~0.11.0"
   },
   "dependencies": {
-    "npm-check-updates": "~1.5.1"
+    "npm-check-updates": "~1.5.1",
+    "bootstrap-select": "~1.10.0",
+    "jquery": "~2.2.1",
+    "bootstrap": "~3.3.6",
+    "jquery-flot": "~0.8.3",
+    "spectrum-colorpicker": "~1.8.0"
   }
 }
