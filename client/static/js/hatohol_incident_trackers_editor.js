@@ -108,19 +108,14 @@ HatoholIncidentTrackersEditor.prototype.load = function() {
 
 HatoholIncidentTrackersEditor.prototype.updateMainTable = function() {
   var self = this;
-  var numSelected = 0;
-  var setupCheckboxes = function() {
-    $(".incidentTrackerSelectCheckbox").change(function() {
-      var check = $(this).is(":checked");
-      var prevNumSelected = numSelected;
-      if (check)
-        numSelected += 1;
-      else
-        numSelected -= 1;
-      if (prevNumSelected === 0 && numSelected == 1)
-        $("#deleteIncidentTrackersButton").attr("disabled", false);
-      else if (prevNumSelected == 1 && numSelected === 0)
-        $("#deleteIncidentTrackersButton").attr("disabled", true);
+  const setupCheckboxes = function()
+  {
+    $(".deleteIncidentTracker").shiftcheckbox();
+    $(".deleteIncidentTracker").show();
+    $(".incidentTrackerSelectCheckbox").change(function()
+    {
+      const selected = $(".incidentTrackerSelectCheckbox:checked");
+      $("#deleteIncidentTrackersButton").attr("disabled", !selected.length);
     });
   };
   const setupEditButtons = function()
@@ -211,6 +206,7 @@ HatoholIncidentTrackersEditor.prototype.generateTableRows = function(data) {
     '<tr>' +
     '<td class="deleteIncidentTracker">' +
     '  <input type="checkbox" class="incidentTrackerSelectCheckbox"' +
+    '     value="' + data.incidentTrackers.indexOf(tracker) + '"' +
     '     incidentTrackerId="' + escapeHTML(tracker.id) + '"></td>' +
     '<td>' + escapeHTML(tracker.id) + '</td>' +
     '<td>' + type + '</td>' +
