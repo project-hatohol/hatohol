@@ -171,6 +171,7 @@ HatoholPrivilegeEditDialog.prototype.updateServersTable = function() {
 };
 
 HatoholPrivilegeEditDialog.prototype.setupAllCheckButton = function() {
+  $(".serverSelectCheckboxes").shiftcheckbox();
   const checkboxes = $(".serverSelectCheckbox");
   $("#all-check").click(function() {
     for (var i = 0; i < checkboxes.length; i++)
@@ -213,7 +214,9 @@ HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
   for (let server of servers)
   {
     s += '<tr>';
-    s += '<td><input type="checkbox" class="serverSelectCheckbox" ' +
+    s += '<td class="serverSelectCheckboxes">' +
+		 '<input type="checkbox" class="serverSelectCheckbox" ' +
+		       'value="' + servers.indexOf(server) + '" ' +
                'serverId="' + server.id + '"></td>';
     s += '<td>' + escapeHTML(server.numberOfAllowedHostgroups) + '/';
     s +=          escapeHTML(server.numberOfHostgroups) + '</td>';
