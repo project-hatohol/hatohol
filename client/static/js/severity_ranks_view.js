@@ -44,19 +44,17 @@ var SeverityRanksView = function(userProfile) {
     gettext("Disaster")
   ];
 
-  function drawTableBody(replyData) {
-    var html, severityRank, severityRankId, status, color, label, asImportant;
-    var defaultLabel;
-    html = "";
+  function drawTableBody(replyData)
+  {
+    let html = "";
 
-    for (var x = 0; x < replyData["SeverityRanks"].length; ++x) {
-      severityRank = replyData["SeverityRanks"][x];
-      severityRankId = severityRank["id"];
-      status = severityRank["status"];
-      color = severityRank["color"];
-      label = severityRank["label"];
-      asImportant = severityRank["asImportant"];
-      defaultLabel = severityChoices[status];
+    for (let severityRank of replyData.SeverityRanks)
+    {
+      const status = severityRank.status;
+      const color = severityRank.color;
+      const label = severityRank.label;
+      const asImportant = severityRank.asImportant;
+      const defaultLabel = severityChoices[status];
 
       html += "<tr>";
       html += "<td id='severity-rank-status" + escapeHTML(status) +"'>" +
@@ -65,16 +63,17 @@ var SeverityRanksView = function(userProfile) {
         " style='background-color: " + escapeHTML(color) + "'>" +
         escapeHTML(color) + "</td>";
       html += "<td><input type=\"text\" id='severity-rank-label" + escapeHTML(status) +"'" +
-        "contenteditable='true' placeholder='" + defaultLabel + "' value='" +
-	 escapeHTML(label) + "'></td>";
-      html += "<td class='delete-selector'>";
-      html += "<input type='checkbox' id='severity-rank-checkbox" +
-        escapeHTML(status) +"'";
-      if (asImportant) {
-        html += "checked='checked'";
+              " contenteditable='true' placeholder='" + defaultLabel + "'" +
+              " value='" + escapeHTML(label) + "'></td>";
+      html += "<td class='delete-selector'>" +
+              "<input type='checkbox'" +
+              " id='severity-rank-checkbox" + escapeHTML(status) + "'";
+      if (asImportant)
+      {
+        html += " checked='checked'";
       }
-      html += " class='selectcheckbox' " +
-        "severityRankStatus='" + escapeHTML(status) + "'></td>";
+      html += " class='selectcheckbox'" +
+              " severityRankStatus='" + escapeHTML(status) + "'></td>";
 
       html += "</tr>";
     }
