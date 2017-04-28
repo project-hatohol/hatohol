@@ -123,21 +123,26 @@ HatoholIncidentTrackersEditor.prototype.updateMainTable = function() {
         $("#deleteIncidentTrackersButton").attr("disabled", true);
     });
   };
-  var setupEditButtons = function()
+  const setupEditButtons = function()
   {
-    var incidentTrackers = self.incidentTrackersData.incidentTrackers;
-    var incidentTrackersMap = {};
-    var i, id;
+    const incidentTrackers = self.incidentTrackersData.incidentTrackers;
+    let incidentTrackersMap = {};
 
-    for (i = 0; i < incidentTrackers.length; ++i)
-      incidentTrackersMap[incidentTrackers[i]["id"]] = incidentTrackers[i];
+    for (let incidentTracker of incidentTrackers)
+    {
+      incidentTrackersMap[incidentTracker.id] = incidentTracker;
+    }
 
-    for (i = 0; i < incidentTrackers.length; ++i) {
-      id = "#editIncidentTracker" + incidentTrackers[i]["id"];
-      $(id).click(function() {
-        var incidentTrackerId = this.getAttribute("incidentTrackerId");
-        new HatoholIncidentTrackerEditor({
-          succeededCallback: function() {
+    for (let incidentTracker of incidentTrackers)
+    {
+      const id = "#editIncidentTracker" + incidentTracker.id;
+      $(id).click(function()
+      {
+        const incidentTrackerId = this.getAttribute("incidentTrackerId");
+        new HatoholIncidentTrackerEditor(
+        {
+          succeededCallback: function()
+          {
             self.load();
             self.changed = true;
           },
@@ -189,21 +194,23 @@ HatoholIncidentTrackersEditor.prototype.generateMainTable = function() {
 };
 
 HatoholIncidentTrackersEditor.prototype.generateTableRows = function(data) {
-  var html = '';
-  var tracker, type;
+  let html = '';
 
-  for (var i = 0; i < data.incidentTrackers.length; i++) {
-    tracker = data.incidentTrackers[i];
-    type = gettext("Unknown");
-    if (tracker.type == hatohol.INCIDENT_TRACKER_REDMINE) {
+  for (let tracker of data.incidentTrackers)
+  {
+    let type = gettext("Unknown");
+    if (tracker.type == hatohol.INCIDENT_TRACKER_REDMINE)
+    {
       type = gettext("Redmine");
-    } else if (tracker.type == hatohol.INCIDENT_TRACKER_HATOHOL) {
+    }
+    else if (tracker.type == hatohol.INCIDENT_TRACKER_HATOHOL)
+    {
       type = gettext("Hatohol");
     }
     html +=
     '<tr>' +
     '<td class="deleteIncidentTracker">' +
-    '  <input type="checkbox" class="incidentTrackerSelectCheckbox" ' +
+    '  <input type="checkbox" class="incidentTrackerSelectCheckbox"' +
     '     incidentTrackerId="' + escapeHTML(tracker.id) + '"></td>' +
     '<td>' + escapeHTML(tracker.id) + '</td>' +
     '<td>' + type + '</td>' +
@@ -213,9 +220,9 @@ HatoholIncidentTrackersEditor.prototype.generateTableRows = function(data) {
     '<td>' + escapeHTML(tracker.trackerId) + '</td>' +
     '<td>' +
     '<form class="form-inline" style="margin: 0">' +
-    '  <input id="editIncidentTracker' + escapeHTML(tracker["id"]) + '"' +
+    '  <input id="editIncidentTracker' + escapeHTML(tracker.id) + '"' +
     '    type="button" class="btn btn-default editIncidentTracker"' +
-    '    incidentTrackerId="' + escapeHTML(tracker["id"]) + '"' +
+    '    incidentTrackerId="' + escapeHTML(tracker.id) + '"' +
     '    value="' + gettext("Edit") + '" />' +
     '</form>' +
     '</td>' +
@@ -268,10 +275,10 @@ var HatoholIncidentTrackerEditor = function(params) {
       makeQueryData();
       if (self.incidentTracker)
         hatoholInfoMsgBox(
-	  gettext("Now updating the incident tracking server ..."));
+          gettext("Now updating the incident tracking server ..."));
       else
         hatoholInfoMsgBox(
-	  gettext("Now creating an incident tracking server ..."));
+          gettext("Now creating an incident tracking server ..."));
       postIncidentTracker();
     }
   }
