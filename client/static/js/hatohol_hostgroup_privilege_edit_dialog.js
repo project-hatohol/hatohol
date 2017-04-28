@@ -151,6 +151,7 @@ HatoholHostgroupPrivilegeEditDialog.prototype.updateHostgroupTable = function() 
 };
 
 HatoholHostgroupPrivilegeEditDialog.prototype.setupAllCheckButton = function() {
+  $(".hostgroupSelectCheckboxes").shiftcheckbox();
   var checkboxes = $(".hostgroupSelectCheckbox");
   $("#all-check-hostgroup").click(function() {
     for (var i = 0; i < checkboxes.length; i++)
@@ -189,7 +190,9 @@ HatoholHostgroupPrivilegeEditDialog.prototype.generateTableRows = function() {
   for (let hostgroup of hostgroups)
   {
     s += '<tr>';
-    s += '<td><input type="checkbox" class="hostgroupSelectCheckbox" ' +
+    s += '<td class="hostgroupSelectCheckboxes">' +
+         '<input type="checkbox" class="hostgroupSelectCheckbox" ' +
+               'value="' + hostgroups.indexOf(hostgroup) + "' " +
                'hostgroupId="' + escapeHTML(hostgroup.groupId) + '"></td>';
     s += '<td>' + escapeHTML(hostgroup.groupId) + '</td>';
     s += '<td>' + escapeHTML(hostgroup.groupName) + '</td>';
