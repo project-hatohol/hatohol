@@ -67,6 +67,7 @@ var SeverityRanksView = function(userProfile) {
               " value='" + escapeHTML(label) + "'></td>";
       html += "<td class='delete-selector'>" +
               "<input type='checkbox'" +
+              " value='" + replyData.SeverityRanks.indexOf(severityRank) + "'" +
               " id='severity-rank-checkbox" + escapeHTML(status) + "'";
       if (asImportant)
       {
@@ -138,6 +139,9 @@ var SeverityRanksView = function(userProfile) {
   function setupApplyButton(reply) {
     if (!userProfile.hasFlag(hatohol.OPPRVLG_UPDATE_SEVERITY_RANK))
       return;
+
+    $(".delete-selector").shiftcheckbox();
+    $(".delete-selector").show();
 
     $("#save-severity-ranks").show();
     $("#save-severity-ranks").click(function() {
