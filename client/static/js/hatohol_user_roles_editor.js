@@ -118,19 +118,25 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
   };
   var setupEditButtons = function()
   {
-    var userRoles = self.userRolesData.userRoles, userRolesMap = {};
-    var i, id;
+    let userRoles = self.userRolesData.userRoles;
+    let userRolesMap = {};
 
-    for (i = 0; i < userRoles.length; ++i)
-      userRolesMap[userRoles[i]["userRoleId"]] = userRoles[i];
+    for (let userRole of userRoles)
+    {
+      userRolesMap[userRole.userRoleId] = userRole;
+    }
 
-    for (i = 0; i < userRoles.length; ++i) {
-      id = "#editUserRole" + userRoles[i]["userRoleId"];
-      $(id).click(function() {
+    for (let userRole of userRoles)
+    {
+      const id = "#editUserRole" + userRole.userRoleId;
+      $(id).click(function()
+      {
         var userRoleId = this.getAttribute("userRoleId");
-        new HatoholUserRoleEditor({
+        new HatoholUserRoleEditor(
+        {
           operatorProfile: self.operatorProfile,
-          succeededCallback: function() {
+          succeededCallback: function()
+          {
             self.load();
             self.changed = true;
           },
