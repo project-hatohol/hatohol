@@ -184,15 +184,15 @@ HatoholHostgroupPrivilegeEditDialog.prototype.generateMainTable = function() {
 };
 
 HatoholHostgroupPrivilegeEditDialog.prototype.generateTableRows = function() {
-  var s = '';
-  var hostgroup = this.hostgroupData.hostgroups;
-  for (var i = 0; i < hostgroup.length; i++) {
-    hstgrp = hostgroup[i];
+  let s = '';
+  const hostgroups = this.hostgroupData.hostgroups;
+  for (let hostgroup of hostgroups)
+  {
     s += '<tr>';
     s += '<td><input type="checkbox" class="hostgroupSelectCheckbox" ' +
-               'hostgroupId="' + escapeHTML(hstgrp.groupId) + '"></td>';
-    s += '<td>' + escapeHTML(hstgrp.groupId) + '</td>';
-    s += '<td>' + escapeHTML(hstgrp.groupName)  + '</td>';
+               'hostgroupId="' + escapeHTML(hostgroup.groupId) + '"></td>';
+    s += '<td>' + escapeHTML(hostgroup.groupId) + '</td>';
+    s += '<td>' + escapeHTML(hostgroup.groupName) + '</td>';
     s += '</tr>';
   }
   return s;
@@ -202,12 +202,15 @@ HatoholHostgroupPrivilegeEditDialog.prototype.updateAllowCheckboxes = function()
   if (!this.hostgroupData || !this.allowedServers)
     return;
 
-  var i, checkboxes = $(".hostgroupSelectCheckbox");
-  var allowedHostgroup = {};
+  const checkboxes = $(".hostgroupSelectCheckbox");
+  let allowedHostgroup = {};
   if (this.serverId in this.allowedServers)
-    allowedHostgroup = this.allowedServers[this.serverId]["allowedHostgroups"];
+  {
+    allowedHostgroup = this.allowedServers[this.serverId].allowedHostgroups;
+  }
 
-  for (i = 0; i < checkboxes.length; i++) {
+  for (let i = 0; i < checkboxes.length; i++)
+  {
     hostgroupId = checkboxes[i].getAttribute("hostgroupId");
     if (hostgroupId in allowedHostgroup)
       checkboxes[i].checked = true;
@@ -216,7 +219,7 @@ HatoholHostgroupPrivilegeEditDialog.prototype.updateAllowCheckboxes = function()
 
 HatoholHostgroupPrivilegeEditDialog.prototype.addAccessInfo = function(accessInfo) {
   var self = this;
-  var userId = this.userId;
+  const userId = this.userId;
   new HatoholConnector({
     url: "/user/" + userId + "/access-info",
     request: "POST",
@@ -238,7 +241,7 @@ HatoholHostgroupPrivilegeEditDialog.prototype.addAccessInfo = function(accessInf
 
 HatoholHostgroupPrivilegeEditDialog.prototype.deleteAccessInfo = function(accessInfoId) {
   var self = this;
-  var userId = this.userId;
+  const userId = this.userId;
   new HatoholConnector({
     url: "/user/" + userId + "/access-info/" + accessInfoId,
     request: "DELETE",
@@ -278,20 +281,23 @@ HatoholHostgroupPrivilegeEditDialog.prototype.checkApplyResult = function(access
 
 HatoholHostgroupPrivilegeEditDialog.prototype.applyPrivileges = function() {
   var self = this;
-  var i,hostgroupId, accessInfoId;
-  var checkboxes = $(".hostgroupSelectCheckbox");
+  const checkboxes = $(".hostgroupSelectCheckbox");
   var getAccessInfoId = function(hostgroupId) {
-    var id, allowedHostgroups, allowedHostgroup;
+    let allowedHostgroups;
 
     if (self.serverId in self.allowedServers)
-      allowedHostgroups = self.allowedServers[self.serverId]["allowedHostgroups"];
+      allowedHostgroups = self.allowedServers[self.serverId].allowedHostgroups;
     else
       return 0;
 
-    if (hostgroupId in allowedHostgroups) {
-      allowedHostgroup = allowedHostgroups[hostgroupId];
-      id = allowedHostgroup["accessInfoId"];
-    } else {
+    let id;
+    if (hostgroupId in allowedHostgroups)
+    {
+      const allowedHostgroup = allowedHostgroups[hostgroupId];
+      id = allowedHostgroup.accessInfoId;
+    }
+    else
+    {
       id = 0;
     }
     return id;
@@ -302,9 +308,10 @@ HatoholHostgroupPrivilegeEditDialog.prototype.applyPrivileges = function() {
     numSucceeded: 0,
     numFailed:    0
   };
-  for (i = 0; i < checkboxes.length; i++) {
-    hostgroupId = checkboxes[i].getAttribute("hostgroupId");
-    accessInfoId = getAccessInfoId(hostgroupId);
+  for (let i = 0; i < checkboxes.length; i++)
+  {
+    const hostgroupId = checkboxes[i].getAttribute("hostgroupId");
+    const accessInfoId = getAccessInfoId(hostgroupId);
 
     if (checkboxes[i].checked) {
       if (!accessInfoId)
