@@ -31,6 +31,26 @@ matrix:
     - compiler: gcc
       env: RUN_TEST="test/feature-test.sh"
 
+addons:
+  apt:
+    packages:
+    - autotools-dev
+    - autoconf-archive
+    - libglib2.0-dev
+    - libjson-glib-dev
+    - libsoup2.4-dev
+    - libmysqlclient-dev
+    - sqlite3
+    - ndoutils-nagios3-mysql
+    - uuid-dev
+    - python-pip
+    - expect
+    - python-dev
+    - rabbitmq-server
+    - python-mysqldb
+    - python-pika
+    - gettext
+
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update -qq
@@ -41,7 +61,6 @@ before_install:
 install:
   - server/misc/setup-cutter.sh
   - server/misc/setup-librabbitmq-ppa.sh
-  - sudo apt-get install -qq -y autotools-dev autoconf-archive libglib2.0-dev libjson-glib-dev libsoup2.4-dev libmysqlclient-dev sqlite3 ndoutils-nagios3-mysql uuid-dev python-pip expect python-dev rabbitmq-server python-mysqldb python-pika
   - sudo sh -c "printf '[%s]\n%s=%s\n' mysqld character-set-server utf8  > /etc/mysql/conf.d/utf8.cnf"
   - sudo sh -c "printf '[%s]\n%s=%s\n' client default-character-set utf8  >> /etc/mysql/conf.d/utf8.cnf"
   - mysql -u root < data/test/setup.sql
