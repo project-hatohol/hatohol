@@ -37,6 +37,7 @@ var HistoryView = function(userProfile, options) {
     setupGraphItems(self.parseGraphItems());
   updateView();
 
+  $(window).off("beforeunload");
   if (self.graphId) {
     // load config from server
     loadConfig();

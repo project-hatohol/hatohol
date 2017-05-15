@@ -87,7 +87,8 @@ var GraphsView = function(userProfile) {
       table += "<input class='selectcheckbox' graphID='" + graphID +
 	"' type='checkbox'></td>";
       table += "<td>" + graphID + "</td>";
-      table += "<td>" + anchorTagForDomesticLink(graphURL, title) + "</td>";
+      table += "<td>" +  '<a target="_blank" href="' + graphURL + '">' +
+               title + '</a></td>';
 
       var editURL = "ajax_history?mode=edit&id=" + graphID;
       table += "<td>" + anchorTagForDomesticLink(editURL, gettext("EDIT"),
