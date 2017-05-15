@@ -255,6 +255,8 @@ var LatestView = function(userProfile) {
     setLoading(true);
     if (!isNaN(page)) {
       self.currentPage = page;
+    } else {
+      self.currentPage = 0;
     }
     self.startConnection(getQuery(false, self.currentPage), updateCore);
     self.pager.update({ currentPage: self.currentPage });
