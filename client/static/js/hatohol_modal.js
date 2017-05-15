@@ -91,7 +91,7 @@ HatoholModal.prototype.close = function(doneHandler) {
   modal.off("hidden.bs.modal");
   modal.on("hidden.bs.modal", function(e) {
     modal.remove();
-    if (doneHandler != null)
+    if (doneHandler != undefined)
       doneHandler();
   });
 };
