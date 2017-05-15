@@ -1588,13 +1588,14 @@ string TriggersQueryOption::getCondition(void) const
 
 	if (m_impl->endTime.tv_sec != 0 || m_impl->endTime.tv_nsec != 0) {
 		addCondition(condition, StringUtils::sprintf(
-			"(%s<%ld OR (%s=%ld AND %s<=%ld))",
+			"((%s<%ld OR (%s=%ld AND %s<=%ld)) AND (%s != 0))",
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
 			m_impl->endTime.tv_sec,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName,
 			m_impl->endTime.tv_sec,
 			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_NS].columnName,
-			m_impl->endTime.tv_nsec));
+			m_impl->endTime.tv_nsec,
+			COLUMN_DEF_TRIGGERS[IDX_TRIGGERS_LAST_CHANGE_TIME_SEC].columnName));
 	}
 
 	if (!m_impl->hostnameList.empty()) {
