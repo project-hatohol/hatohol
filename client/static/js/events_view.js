@@ -959,7 +959,8 @@ var EventsView = function(userProfile, options) {
   function setupTimeRangeFilter() {
     $('#begin-time').datetimepicker({
       format: 'Y/m/d H:i:s',
-      closeOnDateSelect: true,
+      closeOnDateSelect: false,
+      closeOnTimeSelect: false,
       onSelectDate: function(currentTime, $input) {
         $('#begin-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
@@ -970,7 +971,8 @@ var EventsView = function(userProfile, options) {
 
     $('#end-time').datetimepicker({
       format: 'Y/m/d H:i:s',
-      closeOnDateSelect: true,
+      closeOnDateSelect: false,
+      closeOnTimeSelect: false,
       onDateTime: function(currentTime, $input) {
         $('#end-time').val(formatDateTimeWithZeroSecond(currentTime));
       },
@@ -1625,7 +1627,7 @@ var EventsView = function(userProfile, options) {
         ++commentCount;
     }
     $tr.find(".userCommentCount").text(commentCount);
-    
+
     // TODO: Should we also update self.rawData?
   }
 
