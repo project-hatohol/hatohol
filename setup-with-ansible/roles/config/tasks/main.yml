@@ -1,0 +1,71 @@
+- name: mariadb start
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: exists hatohol
+  command: mysql -u root -e "SHOW DATABASES LIKE 'hatohol';"
+  register: exists_hatohol
+  changed_when: false
+
+- name: hatohol-db-initiator
+  shell: LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH /usr/local/bin/hatohol-db-initiator
+  when: exists_hatohol.stdout == ""
+
+- name: exists hatohol_client
+  command: mysql -u root -e "SHOW DATABASES LIKE 'hatohol_client';"
+  register: exists_hatohol_client
+  changed_when: false
+
+- name: create hatohol_client
+  command: mysql -u root -e "CREATE DATABASE hatohol_client DEFAULT CHARACTER SET utf8; GRANT ALL PRIVILEGES ON hatohol_client.* TO hatohol@localhost IDENTIFIED BY 'hatohol';"
+  when: exists_hatohol_client.stdout == ""
+
+- name: syncdb
+  command: ./manage.py syncdb
+  args:
+    chdir: /usr/local/src/hatohol/client
+  when: exists_hatohol_client.stdout == ""
+
+- name: rabbitmq start
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: yes
+
+- name: rabbitmq list_vhosts
+  shell: rabbitmqctl list_vhosts | grep hatohol
+  ignore_errors: yes
+  register: rabbitmq_list_vhosts
+  changed_when: false
+
+- name: rabbitmq add_vhost
+  command: rabbitmqctl add_vhost hatohol
+  when: rabbitmq_list_vhosts.stdout == ""
+
+- name: rabbitmq list_users
+  shell: rabbitmqctl list_users | grep hatohol
+  ignore_errors: yes
+  register: rabbitmq_list_users
+  changed_when: false
+
+- name: rabbitmq add_user
+  command: rabbitmqctl add_user hatohol hatohol
+  when: rabbitmq_list_users.stdout == ""
+
+- name: rabbitmq list_permissions
+  shell: rabbitmqctl list_permissions -p hatohol | tail -n +2 | head -n -1
+  ignore_errors: yes
+  register: rabbitmq_list_permissions
+  changed_when: false
+
+- name: rabbitmq set_permissions
+  command: rabbitmqctl set_permissions -p hatohol hatohol '.*' '.*' '.*'
+  when: rabbitmq_list_permissions.stdout == ""
+
+- name: mkdir /usr/local/var/run
+  file:
+    state: directory
+    path: /usr/local/var/run
+    mode: 0755

@@ -22,17 +22,6 @@
 - name: install ndoutils-nagios3-mysql
   apt: name=ndoutils-nagios3-mysql
 
-- name: install QPid dev packages
-  apt: name={{ item }}
-  with_items:
-    - libqpidmessaging2-dev
-    - libqpidtypes1-dev
-    - libqpidcommon2-dev
-
-# TODO: installation scripts causes failure.
-# - name: install qpidd
-#   apt: name=qpidd
-
 - name: librabbitmq-dev
   apt: name=librabbitmq-dev
 

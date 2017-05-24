@@ -1,0 +1,16 @@
+- hosts: targets
+  user: root
+
+  roles:
+    - upgrade-server
+    - software-properties-common
+    - toolchain
+    - libraries
+    - cutter
+    - python
+    - nodejs
+    - mysql-server
+    - rabbitmq-server
+    - build
+    - config
+    - run

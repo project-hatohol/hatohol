@@ -28,10 +28,5 @@
 - name: install librabbitmq-devel
   yum: name=librabbitmq-devel
 
-- name: install QPid dev packages
-  yum: name={{ item }}
-  with_items:
-    - qpid-cpp-client-devel
-
 - name: install curl
   yum: name=curl

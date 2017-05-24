@@ -1,0 +1,5 @@
+---
+dependencies:
+  - { role: mysql-server/redhat, when: "ansible_distribution == 'CentOS' and ansible_distribution_version.split('.')[0]|int == 6" }
+  - { role: mysql-server/redhat7, when: "ansible_distribution == 'CentOS' and ansible_distribution_version.split('.')[0]|int == 7" }
+  - { role: mysql-server/ubuntu, when: "ansible_os_family == 'Debian'" }
