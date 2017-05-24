@@ -142,48 +142,48 @@ var IncidentSettingsView = function(userProfile) {
   //
   // callback function from the base template
   //
-  function drawTableBody(actionsPkt) {
-    var x;
-    var klass, server, host;
-
-    var s = "";
-    for (x = 0; x < actionsPkt["actions"].length; ++x) {
-      var actionDef = actionsPkt["actions"][x];
+  function drawTableBody(actionsPkt)
+  {
+    let s = "";
+    for (let actionDef of actionsPkt["actions"])
+    {
       s += "<tr>";
       s += "<td class='delete-selector' style='display:none'>";
-      s += "<input type='checkbox' class='selectcheckbox' " +
-        "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
+      s += "<input type='checkbox' class='selectcheckbox' ";
+      s += "value='" + actionsPkt["actions"].indexOf(actionDef) + "'";
+      s += "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
-      var serverName = getNickNameFromAction(actionsPkt, actionDef);
+      const serverName = getNickNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(serverName) + "</td>";
 
-      var hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
+      const hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostgroupName) + "</td>";
 
-      var triggerStatus = actionDef.triggerStatus;
-      var triggerStatusLabel = "ANY";
+      const triggerStatus = actionDef.triggerStatus;
+      const triggerStatusLabel = "ANY";
       if (triggerStatus !== null)
         triggerStatusLabel = makeTriggerStatusLabel(triggerStatus);
       s += "<td>" + triggerStatusLabel + "</td>";
 
-      var triggerSeverity = actionDef.triggerSeverity;
-      var severityLabel = "ANY";
+      const triggerSeverity = actionDef.triggerSeverity;
+      const severityLabel = "ANY";
       if (triggerSeverity !== null)
         severityLabel = makeSeverityLabel(triggerSeverity);
 
-      var severityCompType = actionDef.triggerSeverityComparatorType;
-      var severityCompLabel = "";
-      severityCompLabel = makeSeverityCompTypeLabel(severityCompType);
+      const severityCompType = actionDef.triggerSeverityComparatorType;
+      const severityCompLabel = makeSeverityCompTypeLabel(severityCompType);
 
       s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
-      var command = actionDef.command;
-      var incidentTracker = self.incidentTrackersMap[actionDef.command];
+      const command = actionDef.command;
+      const incidentTracker = self.incidentTrackersMap[actionDef.command];
       s += "<td>";
-      if (incidentTracker) {
-	s += incidentTracker.nickname;
-        switch (incidentTracker.type) {
+      if (incidentTracker)
+      {
+        s += incidentTracker.nickname;
+        switch (incidentTracker.type)
+        {
         case hatohol.INCIDENT_TRACKER_REDMINE:
           s += " (" + gettext("Project: ") + incidentTracker.projectId;
           break;
@@ -193,11 +193,14 @@ var IncidentSettingsView = function(userProfile) {
         default:
           s += " (" + gettext("Unknown");
         }
-        if (incidentTracker.trackerId) {
+        if (incidentTracker.trackerId)
+        {
           s += ", " + gettext("Tracker: ") + incidentTracker.trackerId;
         }
         s += ")";
-      } else {
+      }
+      else
+      {
         s += gettext("Unknown");
       }
       s += "</td>";
@@ -250,6 +253,7 @@ var IncidentSettingsView = function(userProfile) {
     $("#table tbody").append(drawTableBody(self.incidentSettingsData));
     self.setupCheckboxForDelete($("#delete-incident-setting-button"));
     if (self.userProfile.hasFlag(hatohol.OPPRVLG_DELETE_INCIDENT_SETTING))
+      $(".delete-selector").shiftcheckbox();
       $(".delete-selector").show();
     setupEditButtons(self.incidentSettingsData);
   }

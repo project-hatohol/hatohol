@@ -78,14 +78,15 @@ var GraphsView = function(userProfile) {
   //
   function drawTableBody(graphs) {
     var table = "";
-    $.each(graphs, function(inbdex, graph) {
+    for (let graph of graphs) {
       var title = graph.title ? escapeHTML(graph.title) : gettext("No title");
       var graphID = escapeHTML(graph.id);
       var graphURL = "ajax_history?id=" + graphID;
       table += "<tr>";
       table += "<td class='delete-selector' style='display:none'>";
-      table += "<input class='selectcheckbox' graphID='" + graphID +
-	"' type='checkbox'></td>";
+      table += "<input class='selectcheckbox'" +
+               "  value='" + graphs.indexOf(graph) + "'" +
+               "  graphID='" + graphID + "' type='checkbox'></td>";
       table += "<td>" + graphID + "</td>";
       table += "<td>" +  '<a target="_blank" href="' + graphURL + '">' +
                title + '</a></td>';
@@ -94,7 +95,7 @@ var GraphsView = function(userProfile) {
       table += "<td>" + anchorTagForDomesticLink(editURL, gettext("EDIT"),
                                                  "btn btn-default") + "</td>";
       table += "</tr>";
-    });
+    };
     return table;
   }
 
@@ -103,6 +104,7 @@ var GraphsView = function(userProfile) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody(self.graphs));
     self.setupCheckboxForDelete($("#delete-graph-button"));
+    $(".delete-selector").shiftcheckbox();
     $(".delete-selector").show();
     $(".edit-graph-column").show();
   }

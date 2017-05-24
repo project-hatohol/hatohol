@@ -728,7 +728,7 @@ div#abbreviating-event-descriptions-container {
     border-color: #ff0000;
 }
 
-#event-table-area .incident .incidentCheckbox {
+#event-table-area .incident .selectcheckbox {
 	position: relative;
     display: inline-block;
     width: 14px;
@@ -738,23 +738,6 @@ div#abbreviating-event-descriptions-container {
     border: #a5a5a5 solid 1px;
     border-radius: 2px;
     background: #ffffff;
-}
-
-#event-table-area .incident .incidentCheckbox .glyphicon {
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	display: none;
-    font-size: 10px;
-    color: #000000;
-	width: 12px;
-	height: 12px;
-	line-height: 12px;
-	text-align: center;
-}
-
-#event-table-area .incident.selected .incidentCheckbox .glyphicon {
-	display: inline-block;
 }
 
 .event-table-content .eventStatus {

@@ -677,7 +677,8 @@ var EventsView = function(userProfile, options) {
       $("#summaryUnhandledImportantEvents").show();
       $("#enable-incident-filter-selector").show();
       $("#enable-incident-filter-selector-label").show();
-      $(".incidentCheckbox").show();
+      $(".selectable").shiftcheckbox();
+      $(".selectable").show();
       fixupEventsTableHeight();
     } else {
       $("#select-incident-container").hide();
@@ -685,7 +686,7 @@ var EventsView = function(userProfile, options) {
       $("#summaryUnhandledImportantEvents").hide();
       $("#enable-incident-filter-selector").hide();
       $("#enable-incident-filter-selector-label").hide();
-      $(".incidentCheckbox").hide();
+      $(".selectable").hide();
       fixupEventsTableHeight();
     }
   }
@@ -790,7 +791,7 @@ var EventsView = function(userProfile, options) {
   function updateIncidentStatus() {
     var status = $("#change-incident").val();
     var unifiedId, trackerId;
-    var incidents = $(".incident.selected");
+    var incidents = $(".selectcheckbox:checked").parent();
     var promise, promises = [], errors = [];
     var errorMessage;
     var selectedTrackerId;
@@ -835,7 +836,7 @@ var EventsView = function(userProfile, options) {
           hatoholErrorMsgBox(errorMessage, { optionMessages: errors });
         }
         $("#change-incident").val("");
-        $('.incident.selectable').removeClass("selected");
+        $(".selectcheckbox").prop("checked", false);
         setupChangeIncidentMenu();
         load({page: self.currentPage});
       });
@@ -1311,9 +1312,8 @@ var EventsView = function(userProfile, options) {
         html += " data-tracker-id=''";
     }
     html += " style='display:none;'>";
-    html += "<span class='incidentCheckbox' style='display: none;'>";
-    html += "<span class='glyphicon glyphicon-ok'></span>";
-    html += "</span>";
+    html += "<input type='checkbox' class='selectcheckbox'" +
+            "  value='" + self.rawData["events"].indexOf(event) + "'>";
 
     if (!incident)
       return html + "</td>";
@@ -1691,8 +1691,15 @@ var EventsView = function(userProfile, options) {
     }
 
     $('.incident.selectable').on('click', function() {
-      $(this).toggleClass('selected');
+      var toggle = $(this).children('.selectcheckbox').prop('checked');
+      $(this).children('.selectcheckbox').prop("checked", !toggle).change();
+    });
+    $('.selectcheckbox').change(function() {
+      $(this).parent().toggleClass('selected', $(this).prop('checked'));
       setupChangeIncidentMenu();
+    });
+    $('.selectcheckbox').click(function(event) {
+      event.stopPropagation();
     });
 
     $('.userCommentButton').on('click', function() {
@@ -1750,7 +1757,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupChangeIncidentMenu() {
-    var selected = $('.incident.selectable.selected');
+    var selected = $('.incident.selectable').children('.selectcheckbox:checked');
     if (selected.length > 0) {
       $("#change-incident").removeAttr("disabled", "disabled").parents('form').show();
     } else {

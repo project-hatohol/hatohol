@@ -454,21 +454,11 @@ HatoholMonitoringView.prototype.clearAutoReload = function()
 HatoholMonitoringView.prototype.setupCheckboxForDelete =
   function(jQObjDeleteButton, hasPrivilege)
 {
-  var self = this;
-  var numSelected = 0;
   $(".selectcheckbox").attr("checked", false);
   jQObjDeleteButton.attr("disabled", true);
   $(".selectcheckbox").change(function() {
-    check = $(this).is(":checked");
-    var prevNumSelected = numSelected;
-    if (check)
-      numSelected += 1;
-    else
-      numSelected -= 1;
-    if (prevNumSelected === 0 && numSelected == 1)
-      jQObjDeleteButton.attr("disabled", false);
-    else if (prevNumSelected == 1 && numSelected === 0)
-      jQObjDeleteButton.attr("disabled", true);
+    const selected = $(".selectcheckbox:checked");
+    jQObjDeleteButton.attr("disabled", !selected.length);
   });
 };
 
