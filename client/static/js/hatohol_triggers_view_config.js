@@ -53,39 +53,35 @@ var HatoholTriggersViewConfig = function(options) {
   });
 
   $("#auto-reload-interval").change(function() {
-    var value = $("#auto-reload-interval").val();
+    var value = parseInt($("#auto-reload-interval").val());
 
     if (value < minAutoReloadInterval) {
       value = minAutoReloadInterval;
-      $("#auto-reload-interval").val(value);
     }
     if (value > maxAutoReloadInterval) {
       value = maxAutoReloadInterval;
-      $("#auto-reload-interval").val(value);
     }
     if (isNaN(value)) {
       value = defaultAutoReloadInterval;
-      $("#auto-reload-interval").val(value);
     }
 
+    $("#auto-reload-interval").val(value);
     $("#auto-reload-interval-slider").slider("value", value);
   });
 
   $("#num-rows-per-page").change(function() {
-    var value = $("#num-rows-per-page").val();
+    var value = parseInt($("#num-rows-per-page").val());
 
     if (value < minNumberOfRows) {
       value = minNumberOfRows;
-      $("#num-rows-per-page").val(value);
     }
     if (value > maxNumberOfRows) {
       value = maxNumberOfRows;
-      $("#num-rows-per-page").val(value);
     }
     if (isNaN(value)) {
       value = defaultNumberOfRows;
-      $("#num-rows-per-page").val(value);
     }
+    $("#num-rows-per-page").val(value);
   });
 
   $("#config-save").click(function() {
