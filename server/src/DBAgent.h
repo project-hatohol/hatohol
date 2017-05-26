@@ -353,7 +353,7 @@ public:
 			: arg(_arg)
 			{
 			}
-	
+
 			void operator ()(DBAgent &dbAgent) override
 			{
 				(dbAgent.*OPERATION)(arg);

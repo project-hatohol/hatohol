@@ -3043,7 +3043,7 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	map<GenericIdType, ItemInfo *> globalItemIdMap;
 	map<GenericIdType, ItemInfo *>::iterator itr;
-	
+
 	auto setCategoryName = [](ItemInfo &itemInfo, const string &name) {
 		if (name.empty())
 			return;
