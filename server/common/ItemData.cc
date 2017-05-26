@@ -114,8 +114,7 @@ string ItemDataException::getMessageHeader(const ItemDataExceptionType type)
 // ---------------------------------------------------------------------------
 void ItemData::init(void)
 {
-	HATOHOL_BUILD_ASSERT(ARRAY_SIZE(ItemData::m_nativeTypeNames) ==
-			     NUM_ITEM_TYPE);
+	static_assert(ARRAY_SIZE(ItemData::m_nativeTypeNames) == NUM_ITEM_TYPE, "");
 }
 
 ItemId ItemData::getId(void) const

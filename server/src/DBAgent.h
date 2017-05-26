@@ -22,6 +22,7 @@
 #include <memory>
 #include <glib.h>
 #include <stdint.h>
+#include <type_traits>
 #include "Params.h"
 #include "SQLProcessorTypes.h"
 #include "DBTermCodec.h"
@@ -45,11 +46,10 @@ struct DBConnectInfo {
 
 // Initialize DBAgent::TableProfile
 // Note: Compile fails if number of coldefs does not match numcols.
-#define DBAGENT_TABLEPROFILE_INIT(name, coldefs, numcols, ...)          \
-	DBAgent::TableProfile(                                          \
-		name, coldefs,                                          \
-		HATOHOL_BUILD_EXPECT(ARRAY_SIZE(coldefs), numcols),     \
-		##__VA_ARGS__)
+// TODO: Change to constexpr with static_assert
+#define DBAGENT_TABLEPROFILE_INIT(name, coldefs, numcols, ...) \
+	std::enable_if<ARRAY_SIZE(coldefs) == numcols, DBAgent>::type:: \
+		TableProfile(name, coldefs, numcols, ##__VA_ARGS__)
 
 class DBAgent {
 public:
