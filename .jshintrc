@@ -8,5 +8,6 @@
   // Relaxing Options
   "eqnull" : true,  // permit "== null" comparison
   "expr" : true,  // permit x || (x = 1); expression
-  "loopfunc": true
+  "loopfunc": true,
+  "esversion": 6
 }
