@@ -45,7 +45,7 @@ var DashboardView = function(userProfile) {
 
   function parseData(replyData) {
     var parsedData = {};
-    var serverStatus, hostStatus, systemStatus;
+    var serverStatus, systemStatus;
     var x, y;
     var serverId, groupId, severity, numberOfTriggers;
 
@@ -100,7 +100,6 @@ var DashboardView = function(userProfile) {
     var serverStatus;
     var serverStatuses;
     var x;
-    var serverId;
 
     serverStatuses = replyData["serverStatus"];
 

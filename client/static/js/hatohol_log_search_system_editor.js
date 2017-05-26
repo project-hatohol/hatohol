@@ -94,8 +94,6 @@ var HatoholLogSearchSystemEditor = function(params) {
   }
 
   function validateParameters() {
-    var label;
-
     if ($("#editLogSearchSystemType").val() === "") {
       hatoholErrorMsgBox(gettext("Type is empty!"));
       return false;
@@ -118,17 +116,8 @@ HatoholLogSearchSystemEditor.prototype = Object.create(HatoholDialog.prototype);
 HatoholLogSearchSystemEditor.prototype.constructor = HatoholLogSearchSystemEditor;
 
 HatoholLogSearchSystemEditor.prototype.createMainElement = function() {
-  var html = '<div>';
-  var system = this.LogSearchSystem;
-  var type = "";
-  var baseURL = "";
-
-  if (system) {
-    type = system.type;
-    baseURL = system.base_url;
-  }
-
-  html +=
+  return '' +
+  '<div>' +
   '<div>' +
   '<label>' + gettext("Type") + '</label>' +
   '<select id="selectLogSearchSystemType" style="width:10em">' +
@@ -141,8 +130,6 @@ HatoholLogSearchSystemEditor.prototype.createMainElement = function() {
   '       class="input-xlarge">' +
   '</div>' +
   '</div>';
-
-  return html;
 };
 
 HatoholLogSearchSystemEditor.prototype.onAppendMainElement = function() {

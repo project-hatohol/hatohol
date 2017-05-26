@@ -547,7 +547,6 @@ var EventsView = function(userProfile, options) {
   function resetEventPropertyFilter(filterConfig, type) {
     var conf = filterConfig;
     var candidates = eventPropertyChoices[type];
-    var option;
     var selectedCandidates = {};
     var useAllItems = (!conf[type].enable || conf[type].selected.length <= 0);
     var currentId = $("#select-" + type).val();
@@ -558,16 +557,14 @@ var EventsView = function(userProfile, options) {
 
     $("#select-" + type).empty();
 
-    option = $("<option/>", {
+    $("<option/>", {
       text: "---------",
       value: "",
     }).appendTo("#select-" + type);
 
     $.map(candidates, function(candidate) {
-      var option;
-
       if (useAllItems || selectedCandidates[candidate.value]) {
-        option = $("<option/>", {
+        $("<option/>", {
           text: candidate.label,
           value: candidate.value
         }).appendTo("#select-" + type);
@@ -1151,7 +1148,6 @@ var EventsView = function(userProfile, options) {
   function getSeverityClass(event) {
     var type = event["type"];
     var severity = event["severity"];
-    var severityClass = "severity";
 
     if (type == hatohol.EVENT_TYPE_BAD)
       return "severity" + escapeHTML(severity);
@@ -1276,8 +1272,6 @@ var EventsView = function(userProfile, options) {
   }
 
   function renderTableDataEventSeverity(event, server) {
-    var severity = event["severity"];
-
     return "<td class='" + getSeverityClass(event) + "'>" +
       getSeverityLabel(event) + "</td>";
   }
@@ -1569,7 +1563,6 @@ var EventsView = function(userProfile, options) {
   function drawTableBody() {
     var html = "";
     var x, y, serverId, server, event, columnName, definition, unifiedId;
-    var haveIncident = self.rawData["haveIncident"];
 
     for (x = 0; x < self.rawData["events"].length; ++x) {
       event = self.rawData["events"][x];
@@ -1595,16 +1588,13 @@ var EventsView = function(userProfile, options) {
   }
 
   function switchSort() {
-    var icon;
     var currentOrder = self.baseQuery.sortOrder;
 
     if (currentOrder == hatohol.DATA_QUERY_OPTION_SORT_DESCENDING) {
-      icon = "up";
       self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_ASCENDING;
       self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
       self.startConnection(getQuery({ page: self.currentPage }), updateCore);
     } else {
-      icon = "down";
       self.baseQuery.sortOrder = hatohol.DATA_QUERY_OPTION_SORT_DESCENDING;
       self.userConfig.saveValue('events.sort.order', self.baseQuery.sortOrder);
       self.startConnection(getQuery({ page: self.currentPage }), updateCore);

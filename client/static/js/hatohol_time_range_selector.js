@@ -99,8 +99,6 @@ HatoholTimeRangeSelector.prototype.draw = function() {
     max: timeRange.max,
     values: [timeRange.begin, timeRange.end],
     change: function(event, ui) {
-      var i;
-
       if (self.settingTimeRange)
         return;
 

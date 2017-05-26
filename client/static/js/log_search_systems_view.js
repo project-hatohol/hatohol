@@ -50,7 +50,6 @@ var LogSearchSystemsView = function(userProfile) {
     logSearchSystems.forEach(function(logSearchSystem) {
       var elementID = "#edit-log-search-system-" + logSearchSystem.id;
       $(elementID).click(function() {
-        var id = this.getAttribute("logSearchSystemID");
         new HatoholLogSearchSystemEditor({
           logSearchSystem: logSearchSystem,
           succeededCallback: load

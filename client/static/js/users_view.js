@@ -68,7 +68,7 @@ var UsersView = function(userProfile) {
   //
   function setupEditLinksAndButtons(reply)
   {
-    var i, id, users = reply["users"], usersMap = {}, userId;
+    var i, id, users = reply["users"], usersMap = {};
     for (i = 0; i < users.length; ++i) {
       usersMap[users[i]["userId"]] = users[i];
     }

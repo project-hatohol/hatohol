@@ -317,7 +317,7 @@ HatoholServerEditDialogParameterized.prototype.onAppendMainElement = function ()
     var divCheckbox = $('<div class="checkbox">').appendTo(div);
     var labelEl = $('<label>').appendTo(divCheckbox);
     labelEl.text(gettext(label));
-    var input = $('<input type="checkbox" id="' + id + '">').appendTo(labelEl);
+    $('<input type="checkbox" id="' + id + '">').appendTo(labelEl);
     return div;
   }
 };

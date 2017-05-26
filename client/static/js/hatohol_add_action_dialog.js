@@ -822,7 +822,7 @@ HatoholAddActionDialog.prototype.createMainElement = function() {
   }
 
   function makeIncidentTrackerArea() {
-    var s = "", i, incidentTracker;
+    var s = "";
     s += '<h3>' + gettext("Incident Tracking Server") + '</h3>';
     s += '<form class="form-inline">';
     s += '<select id="selectIncidentTracker">';

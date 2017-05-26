@@ -176,7 +176,6 @@ var IncidentSettingsView = function(userProfile) {
 
       s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
-      const command = actionDef.command;
       const incidentTracker = self.incidentTrackersMap[actionDef.command];
       s += "<td>";
       if (incidentTracker)

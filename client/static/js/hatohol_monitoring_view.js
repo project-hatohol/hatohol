@@ -188,7 +188,7 @@ HatoholMonitoringView.prototype.setHostFilterCandidates =
 HatoholMonitoringView.prototype.setHostnameFilterCandidates =
   function(servers, withoutSelfMonitor)
 {
-  var id, server, hosts, hostLabels = [], current;
+  var id, server, hostLabels = [], current;
   var hostnameSelector = $('#select-hostname');
   var tempStorage = {};
 
@@ -255,7 +255,7 @@ HatoholMonitoringView.prototype.setHostgroupNameFilterCandidates =
 HatoholMonitoringView.prototype.setTriggerBriefsFilterCandidates =
   function(triggerBriefs)
 {
-  var id, server, brief, briefLabels = [], current;
+  var brief, briefLabels = [], current;
   var triggerBriefSelector = $('#select-trigger-brief');
 
   current = triggerBriefSelector.val();

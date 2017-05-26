@@ -357,17 +357,6 @@ HatoholIncidentTrackerEditor.prototype.constructor = HatoholIncidentTrackerEdito
 
 HatoholIncidentTrackerEditor.prototype.createMainElement = function() {
   var html = '<div>';
-  var tracker = this.incidentTracker;
-  var nickname = "", baseURL = "", projectId = "", trackerId = "";
-  var userName = "";
-
-  if (tracker) {
-    nickname = tracker.nickname;
-    baseURL = tracker.baseURL;
-    projectId = tracker.projectId;
-    trackerId = tracker.trackerId;
-    userName = tracker.userName;
-  }
 
   html +=
   '<div>' +

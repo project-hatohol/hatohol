@@ -19,7 +19,6 @@
 
 var HistoryView = function(userProfile, options) {
   var self = this;
-  var secondsInHour = 60 * 60;
 
   self.options = options || {};
   self.queryParams = deparam(self.options.query);

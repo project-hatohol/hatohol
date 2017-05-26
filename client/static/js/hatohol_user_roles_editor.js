@@ -109,7 +109,6 @@ HatoholUserRolesEditor.prototype.load = function() {
 
 HatoholUserRolesEditor.prototype.updateMainTable = function() {
   var self = this;
-  var numSelected = 0;
   var setupCheckboxes = function() {
     $(".userRoleSelectCheckbox").change(function() {
       const selected = $(".userRoleSelectCheckbox:checked");

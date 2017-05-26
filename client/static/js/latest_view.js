@@ -43,7 +43,6 @@ var LatestView = function(userProfile) {
   });
 
   function start() {
-    var numRecordsPerPage;
     self.userConfig.get({
       itemNames:['num-items-per-page'],
       successCallback: function(conf) {

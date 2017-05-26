@@ -155,7 +155,7 @@ var OverviewTriggers = function(userProfile) {
   }
 
   function drawTableHeader(parsedData) {
-    var serverName, hostNames, hostName;
+    var hostNames, hostName;
     var x, serversRow, hostsRow;
 
     serversRow = "<tr><th></th>";
@@ -269,20 +269,17 @@ var OverviewTriggers = function(userProfile) {
 
   function resetTriggerPropertyFilter(type) {
     var candidates = triggerPropertyChoices[type];
-    var option;
     var currentId = $("#select-" + type).val();
 
     $("#select-" + type).empty();
 
-    option = $("<option/>", {
+    $("<option/>", {
       text: "---------",
       value: "-1",
     }).appendTo("#select-" + type);
 
     $.map(candidates, function(candidate) {
-      var option;
-
-      option = $("<option/>", {
+      $("<option/>", {
         text: candidate.label,
         value: candidate.value
       }).appendTo("#select-" + type);

@@ -57,7 +57,7 @@ HatoholHistoryLoader.prototype.load = function() {
 
   function getHistoryQuery() {
     var query = $.extend({}, self.options.query);
-    var lastReply, lastData;
+    var lastData;
 
     // omit loading existing data
     if (self.history && self.history.length > 0) {
@@ -154,7 +154,7 @@ HatoholHistoryLoader.prototype.updateHistory = function(history) {
   }
 
   function shiftHistory(history) {
-    var beginTimeInMSec, data;
+    var beginTimeInMSec;
 
     if (!history)
       return;

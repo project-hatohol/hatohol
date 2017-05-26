@@ -162,22 +162,17 @@ var TriggersView = function(userProfile, options) {
 
   function resetTriggerPropertyFilter(type) {
     var candidates = triggerPropertyChoices[type];
-    var option;
     var currentId = $("#select-" + type).val();
 
     $("#select-" + type).empty();
 
-    $("#select-" + type).empty();
-
-    option = $("<option/>", {
+    $("<option/>", {
       text: "---------",
       value: "",
     }).appendTo("#select-" + type);
 
     $.map(candidates, function(candidate) {
-      var option;
-
-      option = $("<option/>", {
+      $("<option/>", {
         text: candidate.label,
         value: candidate.value
       }).appendTo("#select-" + type);
@@ -388,7 +383,7 @@ var TriggersView = function(userProfile, options) {
   }
 
   function drawTableBody(replyData) {
-    var serverName, hostName, clock, status, severity, triggerName;
+    var hostName, clock, status, severity, triggerName;
     var html, server, trigger, severityClass;
     var x, serverId, hostId;
 

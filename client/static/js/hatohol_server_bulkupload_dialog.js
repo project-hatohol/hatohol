@@ -386,9 +386,7 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
     var fileString = evt.target.result;
     var lines = fileString.split(/\r\n|\r|\n/);
     var colnames = null;
-    var obj = {};
     var row;
-    var type = $('#selectMultipleServersType').val();
     var paramObj = self.currParamObj;
     var tbody = $('<tbody id="selectMultipleServersTableBody">');
     var paramId2col = null;
@@ -406,7 +404,6 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
       var tr = $('<tr>');
       var cols;
       var badCols = 0;
-      var idBadl;
 
       if (line.length === 0)
         continue;
@@ -482,7 +479,6 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
     for (var i = -1; i < paramObj.length; i++) {
       var id;
       var label = null;
-      var hint = null;
       var title = '';
 
       if (i < 0) {
@@ -568,7 +564,7 @@ HatoholServerBulkUploadDialog.prototype.onAppendMainElement = function () {
     var divCheckbox = $('<div class="checkbox">').appendTo(div);
     var labelEl = $('<label>').appendTo(divCheckbox);
     labelEl.text(gettext(label));
-    var input = $('<input type="checkbox" id="' + id + '">').appendTo(labelEl);
+    $('<input type="checkbox" id="' + id + '">').appendTo(labelEl);
     return div;
   }
 };
