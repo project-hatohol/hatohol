@@ -46,7 +46,7 @@ public:
 	                          const std::string &sourceFileName = "",
 	                          const int &lineNumber = UNKNOWN_LINE_NUMBER);
 	virtual ~HatoholException() _HATOHOL_NOEXCEPT;
-	virtual const char* what() const _HATOHOL_NOEXCEPT;
+	virtual const char* what() const _HATOHOL_NOEXCEPT override;
 	virtual std::string getFancyMessage(void) const;
 
 	HatoholErrorCode getErrCode() const;

@@ -54,12 +54,12 @@ struct ClosureTemplate0 : public Closure0
 	{
 	}
 
-	virtual void operator()(void)
+	virtual void operator()(void) override
 	{
 		(m_receiver->*m_func)(this);
 	}
 
-	virtual bool operator==(const ClosureBase &closureBase)
+	virtual bool operator==(const ClosureBase &closureBase) override
 	{
 		const ClosureTemplate0 *closure
 		  = dynamic_cast<const ClosureTemplate0 *>(&closureBase);
@@ -82,12 +82,12 @@ struct ClosureTemplate1 : public Closure1<A>
 	{
 	}
 
-	virtual void operator()(const A &arg)
+	virtual void operator()(const A &arg) override
 	{
 		(m_receiver->*m_func)(this, arg);
 	}
 
-	virtual bool operator==(const ClosureBase &closureBase)
+	virtual bool operator==(const ClosureBase &closureBase) override
 	{
 		const ClosureTemplate1 *closure
 		  = dynamic_cast<const ClosureTemplate1 *>(&closureBase);

@@ -214,7 +214,7 @@ public:
 	{
 	}
 
-	bool handle(AMQPConsumer &consumer, const AMQPMessage &message)
+	bool handle(AMQPConsumer &consumer, const AMQPMessage &message) override
 	{
 		MLPL_DBG("message: <%s>/<%s>\n",
 			 message.contentType.c_str(),

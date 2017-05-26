@@ -43,7 +43,7 @@ public:
 		initializeHosts();
 	}
 
-	bool handle(AMQPConsumer &consumer, const AMQPMessage &message)
+	bool handle(AMQPConsumer &consumer, const AMQPMessage &message) override
 	{
 		// TODO: check content-type
 		MLPL_DBG("message: <%s>/<%s>\n",

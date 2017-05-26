@@ -205,13 +205,12 @@ public:
 		return m_data;
 	}
 
-	// virtual methods (override)
-	virtual ItemData *clone(void) const
+	virtual ItemData *clone(void) const override
 	{
 		return new ItemGeneric<T, ITEM_TYPE>(getId(), m_data);
 	}
 
-	virtual std::string getString(void) const
+	virtual std::string getString(void) const override
 	{
 		std::stringstream ss;
 		ss << m_data;
@@ -219,7 +218,7 @@ public:
 	}
 
 	// The following cast operators are assumed to be specialized
-	virtual operator const bool &() const
+	virtual operator const bool &() const override
 	{
 		static const bool ret = false;
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
@@ -227,7 +226,7 @@ public:
 		return ret;
 	}
 
-	virtual operator const int &() const
+	virtual operator const int &() const override
 	{
 		static const int ret = 0;
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
@@ -235,7 +234,7 @@ public:
 		return ret;
 	}
 
-	virtual operator const uint64_t &() const
+	virtual operator const uint64_t &() const override
 	{
 		static const uint64_t ret = 0;
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
@@ -243,7 +242,7 @@ public:
 		return ret;
 	}
 
-	virtual operator const double &() const
+	virtual operator const double &() const override
 	{
 		static const double ret = 0;
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
@@ -251,7 +250,7 @@ public:
 		return ret;
 	}
 
-	virtual operator const std::string &() const
+	virtual operator const std::string &() const override
 	{
 		static const std::string ret;
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(
@@ -259,7 +258,7 @@ public:
 		return ret;
 	}
 
-	virtual ItemData & operator =(const ItemData &itemData)
+	virtual ItemData & operator =(const ItemData &itemData) override
 	{
 		if (isSameType(itemData)) {
 			m_data = cast(itemData)->get();
@@ -269,7 +268,7 @@ public:
 		return *this;
 	}
 
-	virtual ItemData * operator +(const ItemData &itemData) const
+	virtual ItemData * operator +(const ItemData &itemData) const override
 	{
 		if (isSameType(itemData)) {
 			const T &v0 = m_data;
@@ -280,7 +279,7 @@ public:
 		return NULL;
 	}
 
-	virtual ItemData * operator /(const ItemData &itemData) const
+	virtual ItemData * operator /(const ItemData &itemData) const override
 	{
 		if (isSameType(itemData)) {
 			const T &v0 = m_data;
@@ -291,7 +290,7 @@ public:
 		return NULL;
 	}
 
-	virtual bool operator >(const ItemData &itemData) const
+	virtual bool operator >(const ItemData &itemData) const override
 	{
 		if (isSameType(itemData)) {
 			const T &v0 = m_data;
@@ -302,7 +301,7 @@ public:
 		return false;
 	}
 
-	virtual bool operator <(const ItemData &itemData) const
+	virtual bool operator <(const ItemData &itemData) const override
 	{
 		if (isSameType(itemData)) {
 			const T &v0 = m_data;
@@ -313,19 +312,19 @@ public:
 		return false;
 	}
 
-	virtual bool operator >=(const ItemData &itemData) const
+	virtual bool operator >=(const ItemData &itemData) const override
 	{
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION(">=", itemData);
 		return false;
 	}
 
-	virtual bool operator <=(const ItemData &itemData) const
+	virtual bool operator <=(const ItemData &itemData) const override
 	{
 		THROW_ITEM_DATA_EXCEPTION_UNDEFINED_OPERATION("<=", itemData);
 		return false;
 	}
 
-	virtual bool operator ==(const ItemData &itemData) const
+	virtual bool operator ==(const ItemData &itemData) const override
 	{
 		if (isSameType(itemData)) {
 			const T &v0 = m_data;
@@ -336,12 +335,12 @@ public:
 		return false;
 	}
 
-	virtual bool operator !=(const ItemData &itemData) const
+	virtual bool operator !=(const ItemData &itemData) const override
 	{
 		return !(*this == itemData);
 	}
 
-	virtual void operator +=(const ItemData &itemData)
+	virtual void operator +=(const ItemData &itemData) override
 	{
 		if (isSameType(itemData)) {
 			m_data += cast(itemData)->get();
