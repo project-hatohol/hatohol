@@ -87,19 +87,19 @@ var OverviewTriggers = function(userProfile) {
     triggerNames = [];
     hostNames = {};
 
-    for (x = 0; x < replyData["triggers"].length; ++x) {
-      trigger = replyData["triggers"][x];
-      if (trigger["severity"] < targetSeverity)
+    for (x = 0; x < replyData.triggers.length; ++x) {
+      trigger = replyData.triggers[x];
+      if (trigger.severity < targetSeverity)
         continue;
-      if (targetStatus >= 0 && trigger["status"] != targetStatus)
+      if (targetStatus >= 0 && trigger.status != targetStatus)
         continue;
 
-      var serverId = trigger["serverId"];
-      var hostId   = trigger["hostId"];
-      server      = replyData["servers"][serverId];
+      var serverId = trigger.serverId;
+      var hostId   = trigger.hostId;
+      server      = replyData.servers[serverId];
       nickName    = getNickName(server, serverId);
       hostName    = getHostName(server, hostId);
-      triggerName = trigger["brief"];
+      triggerName = trigger.brief;
 
       nickNames.push(nickName);
       triggerNames.push(triggerName);
@@ -190,10 +190,10 @@ var OverviewTriggers = function(userProfile) {
           hostName  = hostNames[x];
           trigger = parsedData.values[serverName][hostName][triggerName];
           if (trigger) {
-            switch (trigger["status"]) {
+            switch (trigger.status) {
             case 1:
               html += "<td class='severity" +
-                escapeHTML(trigger["severity"]) + "'>&nbsp;</td>";
+                escapeHTML(trigger.severity) + "'>&nbsp;</td>";
               break;
             case 0:
               html += "<td class='healthy'>&nbsp;</td>";
@@ -298,7 +298,7 @@ var OverviewTriggers = function(userProfile) {
   }
 
   function setupTableSeverityColor() {
-    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    var severityRanks = self.rawSeverityRankData.SeverityRanks;
     var severity, color;
     if (!severityRanks)
       return;
@@ -320,7 +320,7 @@ var OverviewTriggers = function(userProfile) {
         var choices = triggerPropertyChoices.severity;
         self.rawSeverityRankData = reply;
         self.severityRanksMap = {};
-        severityRanks = self.rawSeverityRankData["SeverityRanks"];
+        severityRanks = self.rawSeverityRankData.SeverityRanks;
         if (severityRanks) {
           for (i = 0; i < severityRanks.length; i++) {
             self.severityRanksMap[severityRanks[i].status] = severityRanks[i];

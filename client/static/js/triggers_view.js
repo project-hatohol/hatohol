@@ -99,7 +99,7 @@ var TriggersView = function(userProfile, options) {
         var choices = triggerPropertyChoices.severity;
         self.rawSeverityRankData = reply;
         self.severityRanksMap = {};
-        severityRanks = self.rawSeverityRankData["SeverityRanks"];
+        severityRanks = self.rawSeverityRankData.SeverityRanks;
         if (severityRanks) {
           for (i = 0; i < severityRanks.length; i++) {
             self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
@@ -150,7 +150,7 @@ var TriggersView = function(userProfile, options) {
 
   function updatePager() {
     self.pager.update({
-      numTotalRecords: rawData ? rawData["totalNumberOfTriggers"] : -1,
+      numTotalRecords: rawData ? rawData.totalNumberOfTriggers : -1,
       numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
         if (self.pager.numRecordsPerPage != self.baseQuery.limit)
@@ -224,7 +224,7 @@ var TriggersView = function(userProfile, options) {
   }
 
   function setupTableColor() {
-    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    var severityRanks = self.rawSeverityRankData.SeverityRanks;
     var severity, color;
     if (!severityRanks)
       return;
@@ -369,16 +369,16 @@ var TriggersView = function(userProfile, options) {
     var extendedInfo, name;
 
     try {
-      extendedInfo = JSON.parse(trigger["extendedInfo"]);
-      name = extendedInfo["expandedDescription"];
+      extendedInfo = JSON.parse(trigger.extendedInfo);
+      name = extendedInfo.expandedDescription;
     } catch(e) {
     }
-    return name ? name : trigger["brief"];
+    return name ? name : trigger.brief;
   }
 
   function getSeverityClass(trigger) {
-    var status     = trigger["status"];
-    var severity   = trigger["severity"];
+    var status     = trigger.status;
+    var severity   = trigger.severity;
     var severityClass = "severity";
 
     if (status == hatohol.TRIGGER_STATUS_PROBLEM)
@@ -393,16 +393,16 @@ var TriggersView = function(userProfile, options) {
     var x, serverId, hostId;
 
     html = "";
-    for (x = 0; x < replyData["triggers"].length; ++x) {
-      trigger    = replyData["triggers"][x];
-      serverId   = trigger["serverId"];
-      hostId     = trigger["hostId"];
-      server     = replyData["servers"][serverId];
+    for (x = 0; x < replyData.triggers.length; ++x) {
+      trigger    = replyData.triggers[x];
+      serverId   = trigger.serverId;
+      hostId     = trigger.hostId;
+      server     = replyData.servers[serverId];
       nickName   = getNickName(server, serverId);
       hostName   = getHostName(server, hostId);
-      clock      = trigger["lastChangeTime"];
-      status     = trigger["status"];
-      severity   = trigger["severity"];
+      clock      = trigger.lastChangeTime;
+      status     = trigger.status;
+      severity   = trigger.severity;
       severityClass = getSeverityClass(trigger);
       triggerName = getTriggerName(trigger);
 
@@ -425,7 +425,7 @@ var TriggersView = function(userProfile, options) {
       html += "<td class='" + severityClass + "'>" +
         anchorTagForDomesticLink(
           'ajax_events?serverId=' + escapeHTML(serverId) +
-          '&triggerId=' + escapeHTML(trigger["id"]),
+          '&triggerId=' + escapeHTML(trigger.id),
           escapeHTML(triggerName));
         + "</td>";
       html += "</tr>";

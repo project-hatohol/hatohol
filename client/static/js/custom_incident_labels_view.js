@@ -51,11 +51,11 @@ var CustomIncidentLabelsView = function(userProfile) {
     var html, customIncidentStatus, customIncidentStatusId, code, label;
     html = "";
 
-    for (var x = 0; x < replyData["CustomIncidentStatuses"].length; ++x) {
-      customIncidentStatus = replyData["CustomIncidentStatuses"][x];
-      customIncidentStatusId = customIncidentStatus["id"];
-      code = customIncidentStatus["code"];
-      label = customIncidentStatus["label"];
+    for (var x = 0; x < replyData.CustomIncidentStatuses.length; ++x) {
+      customIncidentStatus = replyData.CustomIncidentStatuses[x];
+      customIncidentStatusId = customIncidentStatus.id;
+      code = customIncidentStatus.code;
+      label = customIncidentStatus.label;
 
       html += "<tr>";
       html += "<td id='custom-incident-status-code" + escapeHTML(customIncidentStatusId) + "'>" +
@@ -101,7 +101,7 @@ var CustomIncidentLabelsView = function(userProfile) {
   }
 
   function saveCustomIncidentLabels() {
-    var CustomIncidentStatuses = rawData["CustomIncidentStatuses"];
+    var CustomIncidentStatuses = rawData.CustomIncidentStatuses;
     var promise, promises = [];
 
     // TODO: Save only modified labels

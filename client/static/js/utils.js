@@ -153,9 +153,9 @@ function getItemGraphLocation(server, itemId) {
 }
 
 function getNickName(server, serverId) {
-  if (!server || !server["nickname"])
+  if (!server || !server.nickname)
     return gettext("Unknown") + " (ID: " + serverId + ")";
-  return server["nickname"];
+  return server.nickname;
 }
 
 function getHostgroupName(server, hostgroupId) {
@@ -163,10 +163,10 @@ function getHostgroupName(server, hostgroupId) {
     return gettext("Unknown") + " (ID: " + hostgroupId + ")";
   };
 
-  if (!server || !server["groups"] || !(hostgroupId in server["groups"]))
+  if (!server || !server.groups || !(hostgroupId in server.groups))
     return getNamelessHostgroupName(hostgroupId);
 
-  var hostgroupName = server["groups"][hostgroupId]["name"];
+  var hostgroupName = server.groups[hostgroupId].name;
   if (!hostgroupName)
     return getNamelessHostgroupName(hostgroupId);
 
@@ -186,10 +186,10 @@ function getHostName(server, hostId) {
             return hostName;
   }
 
-  if (!server || !server["hosts"] || !(hostId in server["hosts"]))
+  if (!server || !server.hosts || !(hostId in server.hosts))
     return getNamelessHostName(hostId);
 
-  var hostName = server["hosts"][hostId]["name"];
+  var hostName = server.hosts[hostId].name;
   if (!hostName)
     return getNamelessHostName(hostId);
 
@@ -201,10 +201,10 @@ function getTriggerBrief(server, triggerId) {
     return gettext("Unknown") + " (ID: " + triggerId + ")";
   };
 
-  if (!server || !server["triggers"] || !(triggerId in server["triggers"]))
+  if (!server || !server.triggers || !(triggerId in server.triggers))
     return getNamelessTriggerName(triggerId);
 
-  var triggerName = server["triggers"][triggerId]["brief"];
+  var triggerName = server.triggers[triggerId].brief;
   if (!triggerName)
     return getNamelessTriggerName(triggerId);
 
@@ -349,15 +349,15 @@ function isFloat(value) {
 }
 
 function formatItemLastValue(item) {
-  if (isNaN(item["lastValue"]))
-    return escapeHTML(item["lastValue"]);
-  return formatItemValue(item["lastValue"], item["unit"]);
+  if (isNaN(item.lastValue))
+    return escapeHTML(item.lastValue);
+  return formatItemValue(item.lastValue, item.unit);
 }
 
 function formatItemPrevValue(item) {
-  if (isNaN(item["prevValue"]))
-    return escapeHTML(item["prevValue"]);
-  return formatItemValue(item["prevValue"], item["unit"]);
+  if (isNaN(item.prevValue))
+    return escapeHTML(item.prevValue);
+  return formatItemValue(item.prevValue, item.unit);
 }
 
 function hasFlag(flags, flagNumber) {

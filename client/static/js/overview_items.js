@@ -62,13 +62,13 @@ var OverviewItems = function(userProfile) {
     itemNames = [];
     hostNames = {};
 
-    for (x = 0; x < replyData["items"].length; ++x) {
-      item = replyData["items"][x];
-      serverId = item["serverId"];
-      server = replyData["servers"][serverId];
+    for (x = 0; x < replyData.items.length; ++x) {
+      item = replyData.items[x];
+      serverId = item.serverId;
+      server = replyData.servers[serverId];
       nickName   = getNickName(server, serverId);
-      hostName   = getHostName(server, item["hostId"]);
-      itemName   = item["brief"];
+      hostName   = getHostName(server, item.hostId);
+      itemName   = item.brief;
 
       nickNames.push(nickName);
       itemNames.push(itemName);
@@ -147,7 +147,7 @@ var OverviewItems = function(userProfile) {
         for (x = 0; x < hostNames.length; ++x) {
           hostName = hostNames[x];
           item = parsedData.values[serverName][hostName][itemName];
-          if (item && item["lastValue"] !== undefined) {
+          if (item && item.lastValue !== undefined) {
             html += "<td>" + formatItemLastValue(item) + "</td>";
           } else {
             html += "<td>&nbsp;</td>";

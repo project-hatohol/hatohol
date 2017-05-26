@@ -24,7 +24,7 @@ var HistoryView = function(userProfile, options) {
   self.options = options || {};
   self.queryParams = deparam(self.options.query);
   self.config = $.extend({}, self.queryParams);
-  self.graphId = self.config["id"];
+  self.graphId = self.config.id;
   self.reloadIntervalSeconds = 60;
   self.autoReloadIsEnabled = false;
   self.graph = undefined;
@@ -66,14 +66,14 @@ var HistoryView = function(userProfile, options) {
   }
 
   function isCreateMode() {
-    var mode = self.queryParams['mode'];
+    var mode = self.queryParams.mode;
     if (!mode)
       return false;
     return (mode.toLowerCase() == "create");
   }
 
   function isEditMode() {
-    var mode = self.queryParams['mode'];
+    var mode = self.queryParams.mode;
     if (!mode)
       return false;
     return (mode.toLowerCase() == "edit");
@@ -332,7 +332,7 @@ HistoryView.prototype.constructor = HistoryView;
 
 HistoryView.prototype.parseGraphItems = function(query) {
   var allParams = query ? deparam(query) : this.config;
-  var histories = allParams["histories"];
+  var histories = allParams.histories;
   var i, tables = [];
 
   var addHistoryQuery = function(params) {

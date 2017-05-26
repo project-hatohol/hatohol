@@ -82,7 +82,7 @@ var LatestView = function(userProfile) {
 
   function updatePager() {
     self.pager.update({
-      numTotalRecords: rawData ? rawData["totalNumberOfItems"] : -1,
+      numTotalRecords: rawData ? rawData.totalNumberOfItems : -1,
       numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
         if (self.pager.numRecordsPerPage != self.baseQuery.limit) {
@@ -114,13 +114,13 @@ var LatestView = function(userProfile) {
     var itemGrpNames = [];
     var x, item;
 
-    for (x = 0; x < replyData["itemGroups"].length; ++x) {
-      item = replyData["itemGroups"][x];
+    for (x = 0; x < replyData.itemGroups.length; ++x) {
+      item = replyData.itemGroups[x];
 
-      if (item["name"].length === 0)
-        item["name"] = "_non_";
+      if (item.name.length === 0)
+        item.name = "_non_";
       else
-        itemGrpNames.push(item["name"]);
+        itemGrpNames.push(item.name);
     }
     parsedData.itemGroupNames = itemGrpNames.uniq().sort();
 
@@ -142,15 +142,15 @@ var LatestView = function(userProfile) {
 
   function getGraphURL(item) {
     var query = {
-      serverId: item["serverId"],
-      hostId:   item["hostId"],
-      itemId:   item["id"]
+      serverId: item.serverId,
+      hostId:   item.hostId,
+      itemId:   item.id
     };
     return "ajax_history?" + $.param(query);
   }
 
   function getGraphLink(item) {
-    if (!item || !item["lastValue"] || isNaN(item["lastValue"]))
+    if (!item || !item.lastValue || isNaN(item.lastValue))
       return "";
     return '<a target="_blank" href="' + getGraphURL(item) + '">' +
            gettext("Graph") + '</a>';
@@ -162,14 +162,14 @@ var LatestView = function(userProfile) {
     var targetItemGrpName = self.getTargetAppName();
 
     html = "";
-    for (x = 0; x < replyData["items"].length; ++x) {
-      item       = replyData["items"][x];
-      server     = replyData["servers"][item["serverId"]];
-      url        = getItemGraphLocation(server, item["id"]);
-      nickName = getNickName(server, item["serverId"]);
-      hostName   = getHostName(server, item["hostId"]);
-      clock      = item["lastValueTime"];
-      grpNames   = item["itemGroupNames"];
+    for (x = 0; x < replyData.items.length; ++x) {
+      item       = replyData.items[x];
+      server     = replyData.servers[item.serverId];
+      url        = getItemGraphLocation(server, item.id);
+      nickName = getNickName(server, item.serverId);
+      hostName   = getHostName(server, item.hostId);
+      clock      = item.lastValueTime;
+      grpNames   = item.itemGroupNames;
 
       if (targetItemGrpName && (grpNames.indexOf(targetItemGrpName) < 0))
         continue;
@@ -179,9 +179,9 @@ var LatestView = function(userProfile) {
       html += "<td>" + escapeHTML(grpNames.join(", ")) + "</td>";
       if (url)
         html += "<td><a href='" + url + "' target='_blank'>" +
-                escapeHTML(item["brief"])  + "</a></td>";
+                escapeHTML(item.brief)  + "</a></td>";
       else
-        html += "<td>" + escapeHTML(item["brief"])  + "</td>";
+        html += "<td>" + escapeHTML(item.brief)  + "</td>";
       html += "<td data-sort-value='" + escapeHTML(clock) + "'>" + formatDate(clock) + "</td>";
       html += "<td>" + formatItemLastValue(item) + "</td>";
       html += "<td>" + getGraphLink(item) + "</td>";
@@ -203,7 +203,7 @@ var LatestView = function(userProfile) {
     self.setApplicationFilterCandidates(parsedData.itemGroupNames);
 
     drawTableContents(rawData);
-    self.pager.update({ numTotalRecords: rawData["totalNumberOfItems"] });
+    self.pager.update({ numTotalRecords: rawData.totalNumberOfItems });
     setupFilterValues(rawData.servers,
                       self.lastQuery ? self.lastQuery : self.baseQuery,
                       true);

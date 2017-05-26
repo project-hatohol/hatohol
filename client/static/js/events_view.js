@@ -199,7 +199,7 @@ var EventsView = function(userProfile, options) {
         var choices = eventPropertyChoices.severity;
         self.rawSeverityRankData = reply;
         self.severityRanksMap = {};
-        severityRanks = self.rawSeverityRankData["SeverityRanks"];
+        severityRanks = self.rawSeverityRankData.SeverityRanks;
         if (severityRanks) {
           for (i = 0; i < severityRanks.length; i++) {
             self.severityRanksMap[severityRanks[i].status] = severityRanks[i];
@@ -230,7 +230,7 @@ var EventsView = function(userProfile, options) {
       replyCallback: function(reply, parser) {
         var i, incidentStatuses, status, label;
 
-        incidentStatuses = reply["CustomIncidentStatuses"];
+        incidentStatuses = reply.CustomIncidentStatuses;
 
         if (!incidentStatuses || incidentStatuses.length <= 0) {
           deferred.resolve();
@@ -296,7 +296,7 @@ var EventsView = function(userProfile, options) {
   function updatePager() {
     self.pager.update({
       currentPage: self.currentPage,
-      numRecords: self.rawData ? self.rawData["numberOfEvents"] : -1,
+      numRecords: self.rawData ? self.rawData.numberOfEvents : -1,
       numRecordsPerPage: self.baseQuery.limit,
       selectPageCallback: function(page) {
         if (self.pager.numRecordsPerPage != self.baseQuery.limit)
@@ -307,7 +307,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function updateFilteringResult() {
-    var numEvents = self.rawData["events"].length;
+    var numEvents = self.rawData.events.length;
     var title;
     var filteringOpts = $("#filtering-options-brief");
     if (!self.isFilteringOptionsUsed) {
@@ -326,21 +326,21 @@ var EventsView = function(userProfile, options) {
     var value = $(elementId).val();
     if (!value)
       value = $(elementId).attr("placeholder");
-    briefObj["brief"] += value;
+    briefObj.brief += value;
   }
 
   function appendFilteringValue(elementId, briefObj) {
     var value = $(elementId + " option:selected").text();
     if (value == "---------")
       return;
-    briefObj["brief"] += ", ";
-    briefObj["brief"] += value;
+    briefObj.brief += ", ";
+    briefObj.brief += value;
   }
 
   function getBriefOfFilteringOptions() {
     var s = {"brief":""};
     appendFilteringTimeRange("#begin-time", s);
-    s["brief"] += " - ";
+    s.brief += " - ";
     appendFilteringTimeRange("#end-time", s);
 
     appendFilteringValue("#select-incident", s);
@@ -350,7 +350,7 @@ var EventsView = function(userProfile, options) {
     appendFilteringValue("#select-host-group", s);
     appendFilteringValue("#select-host", s);
 
-    return s["brief"];
+    return s.brief;
   }
 
   function showXHRError(XMLHttpRequest) {
@@ -424,9 +424,9 @@ var EventsView = function(userProfile, options) {
     baseFilter = self.userConfig.getFilter(self.lastFilterId);
     URIQuery = getEventsQueryInURI();
     URISeverities = URIQuery.severities;
-    delete URIQuery["severities"];
+    delete URIQuery.severities;
     URIIncidentStatuses = URIQuery.incidentStatuses;
-    delete URIQuery["incidentStatuses"];
+    delete URIQuery.incidentStatuses;
 
     if (baseFilter.severities && URISeverities) {
       baseFilter.severities = getListProduct(baseFilter.severities.split(","),
@@ -634,7 +634,7 @@ var EventsView = function(userProfile, options) {
 
   function shouldEnableHandlingFeature() {
     var trackers = self.rawData.incidentTrackers;
-    var enableIncident = self.rawData["haveIncident"];
+    var enableIncident = self.rawData.haveIncident;
     var hasIncidentTypeHatohol = false;
     var hasIncidentTypeOthers = false;
 
@@ -1071,17 +1071,17 @@ var EventsView = function(userProfile, options) {
     var x, event, now, times, durationsForTrigger;
 
     // extract times from raw data
-    for (x = 0; x < replyData["events"].length; ++x) {
-      event = replyData["events"][x];
-      serverId = event["serverId"];
-      triggerId = event["triggerId"];
+    for (x = 0; x < replyData.events.length; ++x) {
+      event = replyData.events[x];
+      serverId = event.serverId;
+      triggerId = event.triggerId;
 
       if (!durations[serverId])
         durations[serverId] = {};
       if (!durations[serverId][triggerId])
         durations[serverId][triggerId] = [];
 
-      durations[serverId][triggerId].push(event["time"]);
+      durations[serverId][triggerId].push(event.time);
     }
 
     // create durations maps and replace times arrays with them
@@ -1133,24 +1133,24 @@ var EventsView = function(userProfile, options) {
     var extendedInfo, name;
 
     try {
-      extendedInfo = JSON.parse(event["extendedInfo"]);
-      name = extendedInfo["expandedDescription"];
+      extendedInfo = JSON.parse(event.extendedInfo);
+      name = extendedInfo.expandedDescription;
     } catch(e) {
     }
 
-    return name ? name : event["brief"];
+    return name ? name : event.brief;
   }
 
   function getIncident(event) {
-    if (!self.rawData["haveIncident"])
+    if (!self.rawData.haveIncident)
       return null;
     else
-      return event["incident"];
+      return event.incident;
   }
 
   function getSeverityClass(event) {
-    var type = event["type"];
-    var severity = event["severity"];
+    var type = event.type;
+    var severity = event.severity;
     var severityClass = "severity";
 
     if (type == hatohol.EVENT_TYPE_BAD)
@@ -1161,7 +1161,7 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataMonitoringServer(event, server) {
     var html = "";
-    var serverId = event["serverId"];
+    var serverId = event.serverId;
     var serverURL = getServerLocation(server);
     var nickName = getNickName(server, serverId);
 
@@ -1178,16 +1178,16 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataEventId(event, server) {
     return "<td class='" + getSeverityClass(event) + "'>" +
-      escapeHTML(event["eventId"]) + "</td>";
+      escapeHTML(event.eventId) + "</td>";
   }
 
   function renderTableDataEventTime(event, server) {
     var html = "";
     var serverURL = getServerLocation(server);
-    var hostId = event["hostId"];
-    var triggerId = event["triggerId"];
-    var eventId = event["eventId"];
-    var clock = event["time"];
+    var hostId = event.hostId;
+    var triggerId = event.triggerId;
+    var eventId = event.eventId;
+    var clock = event.time;
 
     html += "<td class='" + getSeverityClass(event) + "'>";
     if (serverURL && serverURL.indexOf("zabbix") >= 1 &&
@@ -1206,7 +1206,7 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataHostName(event, server) {
     var html = "";
-    var hostId = event["hostId"];
+    var hostId = event.hostId;
     var serverURL = getServerLocation(server);
     var hostName = getHostName(server, hostId);
 
@@ -1237,7 +1237,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function renderTableDataEventType(event, server) {
-    var type = event["type"];
+    var type = event.type;
     var typeClass = "event-type" + type;
     var icons = {
       "0": "glyphicon-ok-sign",
@@ -1253,7 +1253,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function renderTableDataTriggerStatus(event, server) {
-    var status = event["status"];
+    var status = event.status;
     var statusClass = "status" + status;
 
     return "<td class='" + getSeverityClass(event) + " " + statusClass + "'>" +
@@ -1261,12 +1261,12 @@ var EventsView = function(userProfile, options) {
   }
 
   function getSeverityLabel(event) {
-    var severity = event["severity"];
+    var severity = event.severity;
     return eventPropertyChoices.severity[Number(severity)].label;
   }
 
   function getIncidentStatusLabel(event) {
-    var incident = event["incident"];
+    var incident = event.incident;
 
     if (incidentLabelMap[incident.status])
       return incidentLabelMap[incident.status];
@@ -1276,16 +1276,16 @@ var EventsView = function(userProfile, options) {
   }
 
   function renderTableDataEventSeverity(event, server) {
-    var severity = event["severity"];
+    var severity = event.severity;
 
     return "<td class='" + getSeverityClass(event) + "'>" +
       getSeverityLabel(event) + "</td>";
   }
 
   function renderTableDataEventDuration(event, server) {
-    var serverId = event["serverId"];
-    var triggerId  = event["triggerId"];
-    var clock = event["time"];
+    var serverId = event.serverId;
+    var triggerId  = event.triggerId;
+    var clock = event.time;
     var duration = self.durations[serverId][triggerId][clock];
 
     return "<td class='" + getSeverityClass(event) + "'>" +
@@ -1297,7 +1297,7 @@ var EventsView = function(userProfile, options) {
 
     html += "<td class='selectable incident nowrap " + getSeverityClass(event) + "'";
     if (incident) {
-      trackerId = incident["trackerId"];
+      trackerId = incident.trackerId;
       if (trackerId > 0)
         html += " data-tracker-id='" + trackerId + "'";
       else
@@ -1305,7 +1305,7 @@ var EventsView = function(userProfile, options) {
     }
     html += " style='display:none;'>";
     html += "<input type='checkbox' class='selectcheckbox'" +
-            "  value='" + self.rawData["events"].indexOf(event) + "'>";
+            "  value='" + self.rawData.events.indexOf(event) + "'>";
 
     if (!incident)
       return html + "</td>";
@@ -1368,15 +1368,15 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataUserCommentButton(event, server) {
     var html = "";
-    var incident = event["incident"];
+    var incident = event.incident;
 
     html += "<td class='" + getSeverityClass(event) + "'>";
     if (incident) {
       html += "<span class='userCommentButton'>";
-      if (!event["incident"]["commentCount"])
+      if (!event.incident.commentCount)
         html += "<span class='glyphicon glyphicon-pencil'></span>";
       else
-        html += "<span class='userCommentCount'>" + incident["commentCount"] + "</span>";
+        html += "<span class='userCommentCount'>" + incident.commentCount + "</span>";
       html += "<span class='glyphicon glyphicon-remove'></span>";
       html += "</span>";
     }
@@ -1387,8 +1387,8 @@ var EventsView = function(userProfile, options) {
 
   function renderTableDataUserCommentRow(event, server) {
     var html = "";
-    var type = event["type"];
-    var severity = event["severity"];
+    var type = event.type;
+    var severity = event.severity;
 
     html += "<tr class='userCommentRow'>";
     html += "<td colspan='";
@@ -1415,23 +1415,23 @@ var EventsView = function(userProfile, options) {
     }
     html += "'>";
 
-    for (i = 0; i < event["incidentHistory"].length; i++) {
-      incidentHistoryData = event["incidentHistory"][i];
-      if (incidentHistoryData["comment"]) {
+    for (i = 0; i < event.incidentHistory.length; i++) {
+      incidentHistoryData = event.incidentHistory[i];
+      if (incidentHistoryData.comment) {
         commentArray.push(incidentHistoryData);
       }
     }
 
     for (i = 0; i < commentArray.length; i++) {
       commentData = commentArray[i];
-      commentedDate = new Date(commentData["time"] * 1000);
+      commentedDate = new Date(commentData.time * 1000);
       html += "<li>";
       html += "<div class='userCommentLeft'>";
       html += "<em class='userCommentIcon'";
-      html += " title='userIconPath/user_icon_" + commentData["userId"] + "'>";
+      html += " title='userIconPath/user_icon_" + commentData.userId + "'>";
       html += "</em>";
       html += "<p class='userCommentName'>";
-      html += escapeHTML(commentData["userName"]);
+      html += escapeHTML(commentData.userName);
       html += "</p>";
       html += "<p class='userCommentedTime'>";
       html += "<span>";
@@ -1441,11 +1441,11 @@ var EventsView = function(userProfile, options) {
       html += getTimeZone();
       html += "</span>";
       html += "</p>";
-      if (nowUnixTime - commentData["time"] < newLimit)
+      if (nowUnixTime - commentData.time < newLimit)
         html += "<p><span class='userCommentNew'>NEW</span></p>";
       html += "</div>";
       html += "<div class='userCommentRight'>";
-      html += escapeHTML(commentData["comment"]).replace(/\n/g,"<br>");
+      html += escapeHTML(commentData.comment).replace(/\n/g,"<br>");
       html += "</div>";
       html += "</li>";
     }
@@ -1569,13 +1569,13 @@ var EventsView = function(userProfile, options) {
   function drawTableBody() {
     var html = "";
     var x, y, serverId, server, event, columnName, definition, unifiedId;
-    var haveIncident = self.rawData["haveIncident"];
+    var haveIncident = self.rawData.haveIncident;
 
-    for (x = 0; x < self.rawData["events"].length; ++x) {
-      event = self.rawData["events"][x];
-      serverId = event["serverId"];
-      unifiedId = event["unifiedId"];
-      server = self.rawData["servers"][serverId];
+    for (x = 0; x < self.rawData.events.length; ++x) {
+      event = self.rawData.events[x];
+      serverId = event.serverId;
+      unifiedId = event.unifiedId;
+      server = self.rawData.servers[serverId];
 
       html += "<tr data-unified-id='" + unifiedId + "'>";
       for (y = 0; y < self.columnNames.length; y++) {
@@ -1676,7 +1676,7 @@ var EventsView = function(userProfile, options) {
     $("#table tbody").empty();
     $("#table tbody").append(drawTableBody());
 
-    if (self.rawData["haveIncident"]) {
+    if (self.rawData.haveIncident) {
       $(".incident").show();
     } else {
       $(".incident").hide();
@@ -1759,8 +1759,8 @@ var EventsView = function(userProfile, options) {
 
   function setupStatictics() {
     // Assign/UnAssign events statistics
-    var numOfImportantEvents = self.rawSummaryData["numOfImportantEvents"];
-    var numOfAssignedEvents = self.rawSummaryData["numOfAssignedImportantEvents"];
+    var numOfImportantEvents = self.rawSummaryData.numOfImportantEvents;
+    var numOfAssignedEvents = self.rawSummaryData.numOfAssignedImportantEvents;
     var numOfUnAssignedEvents = numOfImportantEvents - numOfAssignedEvents;
     $("#numOfUnAssignedEvents").text(numOfUnAssignedEvents);
     var unAssignedEventsPercentage = 0;
@@ -1773,10 +1773,10 @@ var EventsView = function(userProfile, options) {
     // Important events statistics
     $("#numOfImportantEvents").text(numOfImportantEvents);
     var numOfImportantEventOccurredHosts =
-          self.rawSummaryData["numOfImportantEventOccurredHosts"];
+          self.rawSummaryData.numOfImportantEventOccurredHosts;
     $("#numOfImportantEventOccurredHosts").text(numOfImportantEventOccurredHosts);
     var numOfAllHosts =
-          self.rawSummaryData["numOfAllHosts"];
+          self.rawSummaryData.numOfAllHosts;
     var importantEventOccurredHostsPercentage = 0;
     if (numOfAllHosts > 0)
       importantEventOccurredHostsPercentage =
@@ -1788,7 +1788,7 @@ var EventsView = function(userProfile, options) {
   }
 
   function setupTableColor() {
-    var severityRanks = self.rawSeverityRankData["SeverityRanks"];
+    var severityRanks = self.rawSeverityRankData.SeverityRanks;
     var severity, color;
     if (!severityRanks)
       return;
