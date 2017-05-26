@@ -8,9 +8,9 @@
     "sinon": "~1.15.4",
     "phantomjs": "1.9.7-15",
     "mocha-phantomjs": "~3.6.0",
-    "casperjs": "~1.1.0-beta4",
+    "casperjs": "~1.1.4",
     "gulp": "~3.9.1",
-    "gulp-jshint": "~2.0.0",
+    "gulp-jshint": "~2.0.4",
     "gulp-mocha-phantomjs": "~0.11.0"
   },
   "dependencies": {
