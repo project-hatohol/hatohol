@@ -72,6 +72,10 @@ install:
   - sudo server/misc/setup-rabbitmq-server-port.sh
   - sudo service rabbitmq-server restart
 before_script:
+  - pkg-config cutter --cflags
+  - pkg-config cutter --libs
+  - pkg-config cppcutter --cflags
+  - pkg-config cppcutter --libs
   - ./autogen.sh
   - ./configure
   - mkdir build
