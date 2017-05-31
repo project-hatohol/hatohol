@@ -930,10 +930,10 @@ void test_eventsWithHostsFilter(void)
 	startFaceRest();
 
 	RequestArg arg("/event"
-		       "?excludeHosts%5B0%5D%5BserverId%5D=1"
-		       "&excludeHosts%5B1%5D%5BserverId%5D=3"
-		       "&selectHosts%5B2%5D%5BserverId%5D=1"
-		       "&selectHosts%5B2%5D%5BhostId%5D=235013");
+		       "?e%5B0%5D%5BserverId%5D=1"
+		       "&e%5B1%5D%5BserverId%5D=3"
+		       "&s%5B2%5D%5BserverId%5D=1"
+		       "&s%5B2%5D%5BhostId%5D=235013");
 	arg.userId = findUserWith(OPPRVLG_GET_ALL_SERVER);
 	getServerResponse(arg);
 	string expected("{"

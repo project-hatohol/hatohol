@@ -340,20 +340,28 @@ var HatoholEventsViewConfig = function(options) {
 
   function saveFilterConfig(){
     var emptyFilterList = [], floodFilterList = [];
+
     $.map(self.multiselectFilterTypes, function(selector) {
       if ($('#' + selector + '-filter-selector-selected')[0].length == 0 &&
           $('#enable-' + selector + '-filter-selector').prop("checked"))
         emptyFilterList.push(selector);
-
-      if ($('#' + selector + '-filter-selector-selected')[0].length > 100 &&
-          $('#enable-' + selector + '-filter-selector').prop("checked"))
-        floodFilterList.push(selector);
-
     });
     if (emptyFilterList.length != 0) {
       showEmptyErrorDialog(emptyFilterList);
       return;
     }
+
+    if ($('#server-filter-selector-selected')[0].length > 5 &&
+        $('#enable-server-filter-selector').prop("checked"))
+      floodFilterList.push("server");
+
+    if ($('#hostgroup-filter-selector-selected')[0].length > 30 &&
+        $('#enable-hostgroup-filter-selector').prop("checked"))
+      floodFilterList.push("hostgroup");
+
+    if ($('#host-filter-selector-selected')[0].length > 100 &&
+        $('#enable-host-filter-selector').prop("checked"))
+      floodFilterList.push("host");
 
     if (floodFilterList.length != 0) {
       showFloodErrorDialog(floodFilterList);
@@ -836,9 +844,9 @@ HatoholEventsViewConfig.prototype.getFilter = function(filterId) {
   }
 
   if (selectHosts.length > 0)
-    filter["selectHosts"] = selectHosts;
+    filter["s"] = selectHosts;
   if (excludeHosts.length > 0)
-    filter["excludeHosts"] = excludeHosts;
+    filter["e"] = excludeHosts;
 
   return filter;
 };
