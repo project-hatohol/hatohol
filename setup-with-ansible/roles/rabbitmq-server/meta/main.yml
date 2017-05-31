@@ -1,0 +1,4 @@
+---
+dependencies:
+  - { role: rabbitmq-server/redhat, when: ansible_os_family == 'RedHat' }
+  - { role: rabbitmq-server/ubuntu, when: ansible_os_family == 'Debian' }

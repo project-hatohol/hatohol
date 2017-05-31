@@ -28,3 +28,6 @@
 
 - name: install rpm-build
   yum: name=rpm-build
+
+- name: install rsync
+  yum: name=rsync
