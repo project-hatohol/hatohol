@@ -603,6 +603,10 @@ var EventsView = function(userProfile, options) {
     if (serverId) {
       removeUnselectableFilterCandidates(filterConfig, "hostgroup", serverId);
       removeUnselectableFilterCandidates(filterConfig, "host", serverId);
+      $("#select-hostname").val("");
+      $("#select-host-group-name").val("");
+      $("#select-hostname").prop("disabled", true);
+      $("#select-host-group-name").prop("disabled", true);
     }
 
     refreshSelectPickers();
