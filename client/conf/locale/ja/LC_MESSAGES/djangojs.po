@@ -150,7 +150,7 @@ msgstr "保存中..."
 #: static/js/custom_incident_labels_view.js:118
 #: static/js/severity_ranks_view.js:130
 msgid "Succeeded to save."
-msgstr "保存に成功しました。"
+msgstr "保存しました。"
 
 #: static/js/custom_incident_labels_view.js:122
 #: static/js/severity_ranks_view.js:134
@@ -365,7 +365,7 @@ msgstr "対処の変更中に未知のエラーが発生しました イベン�
 msgid ""
 "Failed to connect to Hatohol server on changing handling of an event with "
 "ID: "
-msgstr "イベントの対処の変更時に Hatohol サーバーへの接続に失敗しました ID: "
+msgstr "対処の変更時に Hatohol サーバーへの接続に失敗しました ID: "
 
 #: static/js/events_view.js:940 static/js/hatohol_add_action_dialog.js:374
 #: static/js/hatohol_incident_trackers_editor.js:310
@@ -892,13 +892,17 @@ msgstr "入力したキュー名はHatoholサーバーで予約されていま�
 msgid "New filter"
 msgstr "新規フィルター"
 
-#: static/js/hatohol_events_view_config.js:71
+#: static/js/hatohol_events_view_config.js:113
 msgid "Display Item"
-msgstr ""
+msgstr "表示項目"
+
+#: static/js/hatohol_events_view_config.js:302
+msgid "Successfully deleted"
+msgstr "削除しました"
 
 #: static/js/hatohol_events_view_config.js:190
 msgid "The following filter(s) empty."
-msgstr "ポーリング間隔が入力されていません！"
+msgstr "下記のフィルターが空です。"
 
 #: static/js/hatohol_events_view_config.js:402
 msgid "Is selecting over limit number of items in the following filter(s)."
@@ -908,9 +912,12 @@ msgstr "下記のフィルターで選択しているアイテム数が上限を
 msgid "Failed to save"
 msgstr "保存に失敗しました"
 
-#: static/js/hatohol_events_view_config.js:217
+#: static/js/hatohol_events_view_config.js:416
 msgid "Close"
 msgstr ""
+#: static/js/hatohol_events_view_config.js:405
+msgid "Successfully saved"
+msgstr "保存しました"
 
 #: static/js/hatohol_events_view_config.js:609
 msgid "Add a new filter"
@@ -1005,7 +1012,7 @@ msgstr "適用に失敗しました。"
 #: static/js/hatohol_hostgroup_privilege_edit_dialog.js:274
 #: static/js/hatohol_privilege_edit_dialog.js:311
 msgid "Succeeded to apply."
-msgstr "適用に成功しました。"
+msgstr "適用しました。"
 
 #: static/js/hatohol_hostgroup_selector.js:26
 msgid "Hostgroup selecion"
@@ -1749,11 +1756,11 @@ msgstr "アイテムを選択する"
 msgid "No item is specified!"
 msgstr "アイテムが選択されていません！"
 
-#: static/js/history_view.js:184
+#: static/js/history_view.js:185
 msgid "Successfully saved."
-msgstr "正常に保存されました。"
+msgstr "保存しました。"
 
-#: static/js/latest_view.js:155
+#: static/js/latest_view.js:156
 msgid "Graph"
 msgstr "グラフ"
 
