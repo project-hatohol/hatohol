@@ -200,6 +200,12 @@ var TriggersView = function(userProfile, options) {
       query = self.lastQuery ? self.lastQuery : self.baseQuery;
 
     self.setupHostFilters(servers, query);
+    if ($("#select-server").val()) {
+      $("#select-hostname").val("");
+      $("#select-host-group-name").val("");
+      $("#select-hostname").prop("disabled", true);
+      $("#select-host-group-name").prop("disabled", true);
+    }
     resetTriggerPropertyFilter("severity");
 
     refreshSelectPickers();
