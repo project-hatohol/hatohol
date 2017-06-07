@@ -42,7 +42,9 @@
     <button style="display: none;">
       {% trans "Hosts with important events" %}<span class="badge" id="numOfImportantEventOccurredHosts">N/A</span>
     </button>
-    <select id="select-summary-filter" class="form-control"></select>
+    <div class="filter-element">
+    <select id="select-filter" class="form-control" data-live-search="true"></select>
+    </div>
     <div id="summaryBarRight">
       <div id="update-time-wrap">
 	<div id="update-time"> {% trans "Last Update:"%} None </div>
@@ -63,7 +65,7 @@
 	<form class="form-inline hatohol-filter-toolbar">
 	  <div class="clearfix">
 	    <div class="pull-left">
-	      <h3 id="controller-container-title"></h3>
+            <h3 id="controller-container-title"> {% trans "All Events" %} </h3>
               <span id="filtering-options-brief"><span aria-hiden="true" class="glyphicon glyphicon-tag"></span><span id="filtering-options-brief-line"/></span>
 	    </div>
 	    <div class="pull-right">
@@ -136,9 +138,7 @@
 	      </select>
 	    </div>
 	    <div class="filter-element">
-	      <p><label>{% trans "Filter:" %}</label></p>
-	      <select id="select-filter" class="form-control" data-live-search="true" data-width="50%">
-	      </select>
+	      <p></p>
 	    </div>
 	    <div class="filter-element">
 	      <p><label>{% trans "Hostgroup Name:" %}</label></p>
@@ -210,10 +210,16 @@
 	  <ul id="config-tab-list" class="nav nav-tabs">
 	    <li class="active"><a href="#view-config" data-toggle="tab">{% trans "View" %}</a></li>
 	    <li><a href="#filter-config" data-toggle="tab">{% trans "Filter" %}</a></li>
-	    <li><a href="#default-filter-config" data-toggle="tab">{% trans "Default filter" %}</a></li>
 	  </ul>
 	  <div class="tab-content">
 	    <div class="tab-pane fade in active" id="view-config">
+        <label>{% trans "Default filter" %}</label>
+	    <div class="filter-element" style="float: right;">
+	      <select id="events-default-filter-selector" class="form-control" data-live-search="true">
+	      </select>
+	    </div>
+
+	      <hr>
 	      <div class="boxed-group">
 		<p><label for="auto-reload-interval">{% trans "Auto reload interval (5 - 600 sec)" %}</p>
 		<p>
@@ -289,8 +295,9 @@
 	    <div class="tab-pane fade" id="filter-config">
 
 	      <!-- Filter name -->
-	      <div id="filter-name-config" class="btn-group">
 		<label for="filter-name-entry">{% trans "Filter name(1 - 128 char)" %}</label>
+        <br>
+	      <div id="filter-name-config" class="btn-group">
 		<input id="filter-name-entry" class="form-control" type="text"  style="width: 290px" maxlength="128">
 		<button id="filter-name-list-button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
 		  <span class="caret"></span>
@@ -302,7 +309,7 @@
             <i class="glyphicon glyphicon-plus"></i>
 	      </button>
 	      <button id="filter-name-list-delete-button" class="btn btn-primary">
-		{% trans "Delete" %}
+            <i class="glyphicon glyphicon-trash"></i>
 	      </button>
 
 	      <!-- Period filter config -->
@@ -573,36 +580,6 @@
 	      </div>
 	    </div>
 
-	    <div class="tab-pane fade" id="default-filter-config">
-
-	      <div>
-		<p>{% trans 'Select a filter to apply as the default filter of the summary view.' %}
-		</p>
-		<div class="view-layout-mock">
-		  <table class="table-bordered view-layout-mock">
-		    <tr><td class="controlbar highlight"></td></tr>
-		    <tr><td></td></tr>
-		  </table>
-		</div>
-		<select size="8" id="summary-default-filter-selector" class="default-filter-selector">
-		</select>
-	      </div>
-
-	      <hr>
-
-	      <div>
-		<p>{% trans 'Select a filter to apply as the default filter of the event list view.' %}</p>
-		<div class="view-layout-mock">
-		  <table class="table-bordered view-layout-mock">
-		    <tr><td class="controlbar"></td></tr>
-		    <tr><td class="highlight"></td></tr>
-		  </table>
-		</div>
-		<select size="8" id="events-default-filter-selector" class="default-filter-selector">
-		</select>
-	      </div>
-
-	    </div>
 	  </div>
 
 	</div>
