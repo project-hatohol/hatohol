@@ -192,7 +192,7 @@ HatoholHostgroupPrivilegeEditDialog.prototype.generateTableRows = function() {
     s += '<tr>';
     s += '<td class="hostgroupSelectCheckboxes">' +
          '<input type="checkbox" class="hostgroupSelectCheckbox" ' +
-               'value="' + hostgroups.indexOf(hostgroup) + "' " +
+               'value="' + hostgroups.indexOf(hostgroup) + '" ' +
                'hostgroupId="' + escapeHTML(hostgroup.groupId) + '"></td>';
     s += '<td>' + escapeHTML(hostgroup.groupId) + '</td>';
     s += '<td>' + escapeHTML(hostgroup.groupName) + '</td>';
