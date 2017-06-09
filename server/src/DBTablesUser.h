@@ -86,8 +86,7 @@ public:
 	void                   unsetPrivilegesFlag(void);
 	void         queryOnlyMyself(void);
 
-	// Overriding virtual methods
-	virtual std::string getCondition(void) const;
+	virtual std::string getCondition(void) const override;
 
 private:
 	struct Impl;
@@ -100,8 +99,7 @@ public:
 	AccessInfoQueryOption(DataQueryContext *dataQueryContext);
 	virtual ~AccessInfoQueryOption();
 
-	// Overriding of virtual methods
-	virtual std::string getCondition(void) const;
+	virtual std::string getCondition(void) const override;
 
 	void setTargetUserId(UserIdType userId);
 	UserIdType getTargetUserId(void) const;
@@ -120,8 +118,7 @@ public:
 	void setTargetUserRoleId(UserRoleIdType userRoleId);
         UserRoleIdType getTargetUserRoleId(void) const;
 
-	// Overriding of virtual methods
-	virtual std::string getCondition(void) const;
+	virtual std::string getCondition(void) const override;
 
 private:
 	struct Impl;

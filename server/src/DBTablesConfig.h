@@ -113,7 +113,7 @@ public:
 
 	void setTargetId(const IncidentTrackerIdType &targetId);
 
-	virtual std::string getCondition(void) const; //overrride
+	virtual std::string getCondition(void) const override;
 
 private:
 	struct Impl;
