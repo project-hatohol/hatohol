@@ -562,7 +562,6 @@ HatoholUserRoleEditor.prototype.hasPrivilege = function (privilege) {
 
 HatoholUserRoleEditor.prototype.onAppendMainElement = function () {
   $(".privilegeSelector").shiftcheckbox();
-  $(".privilegeSelector").show();
   var widgets = $(".editUserRoleProp");
   if (!this.hasPrivilege(hatohol.OPPRVLG_EDIT_ALL_USER_ROLE))
     widgets.attr("disabled", "disabled");
