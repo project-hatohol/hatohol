@@ -141,7 +141,6 @@ var SeverityRanksView = function(userProfile) {
       return;
 
     $(".delete-selector").shiftcheckbox();
-    $(".delete-selector").show();
 
     $("#save-severity-ranks").show();
     $("#save-severity-ranks").click(function() {
