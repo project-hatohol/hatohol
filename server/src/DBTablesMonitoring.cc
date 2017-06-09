@@ -72,8 +72,7 @@ static StatisticsCounter *eventsCounters[] = {
   new StatisticsCounter(100),
   new StatisticsCounter(1000),
 };
-static size_t _check = HATOHOL_BUILD_EXPECT(
-  ARRAY_SIZE(eventsCounters), DBTablesMonitoring::NUM_EVENTS_COUNTERS);
+static_assert(ARRAY_SIZE(eventsCounters) == DBTablesMonitoring::NUM_EVENTS_COUNTERS, "");
 
 void operator>>(ItemGroupStream &itemGroupStream, TriggerStatusType &rhs)
 {
@@ -3043,7 +3042,7 @@ void DBTablesMonitoring::getItemInfoList(ItemInfoList &itemInfoList,
 	ItemGroupListConstIterator itemGrpItr = grpList.begin();
 	map<GenericIdType, ItemInfo *> globalItemIdMap;
 	map<GenericIdType, ItemInfo *>::iterator itr;
-	
+
 	auto setCategoryName = [](ItemInfo &itemInfo, const string &name) {
 		if (name.empty())
 			return;

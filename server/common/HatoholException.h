@@ -87,45 +87,6 @@ do { \
 	} \
 } while (0)
 
-/*
- * HATOHOL_BUILD_EXPECT(exp,val) emits build failure if
- * compile-time constant expression exp is not equal to val.
- * Otherwise, it just returns exp itself.
- */
-template<typename T>
-struct _BuildError; // The body is not defined to cause an build error
-
-template <typename T, bool COND>
-inline T _buildExpect(T exp)
-{
-	_BuildError<T>("The used value is invalid (unexpected) or the matched specialized template method is not defined.");
-	return exp;
-}
-
-template<>
-inline size_t
-_buildExpect<size_t, true>(size_t exp)
-{
-	return exp;
-}
-
-template<>
-inline bool
-_buildExpect<bool, true>(bool exp)
-{
-	return exp;
-}
-
-#define HATOHOL_BUILD_EXPECT(exp,val)	\
-	_buildExpect<__typeof__(exp), (exp == val)>(exp)
-
-/*
- * HATOHOL_BUILD_ASSERT(cond) emits build failure if compile-time
- * constant expression cond is false.
- */
-#define HATOHOL_BUILD_ASSERT(cond)	\
-	((void)HATOHOL_BUILD_EXPECT(!!(cond), true))
-
 #define THROW_HATOHOL_EXCEPTION_WITH_ERROR_CODE(ERROR_CODE, FMT, ...) \
 do { \
         throw HatoholException( \

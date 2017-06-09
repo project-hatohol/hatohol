@@ -16,7 +16,7 @@
  * License along with Hatohol. If not, see
  * <http://www.gnu.org/licenses/>.
  */
- 
+
 #include <cstring>
 #include <string>
 using namespace std;
@@ -30,12 +30,8 @@ struct ResidentCommunicator::Impl {
 	SmartBuffer sbuf;
 };
 
-// This variable is only used for consistency check on the build.
-// It is not actually used in run time.
-// If the build fails at the following line, check ResidentStringHeader in
-// ResidentProtocol.h
-static size_t _check = HATOHOL_BUILD_EXPECT(
-  sizeof(mlpl::SmartBuffer::StringHeader), sizeof(ResidentStringHeader));
+static_assert(sizeof(mlpl::SmartBuffer::StringHeader) == sizeof(ResidentStringHeader),
+	"check ResidentStringHeader in ResidentProtocol.h");
 
 // ---------------------------------------------------------------------------
 // Public methods
