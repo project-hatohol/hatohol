@@ -653,7 +653,7 @@ var EventsView = function(userProfile, options) {
       $("#enable-incident-filter-selector").show();
       $("#enable-incident-filter-selector-label").show();
       $(".selectable").shiftcheckbox();
-      $(".selectable").show();
+      $(".selectcheckbox").show();
       fixupEventsTableHeight();
     } else {
       $("#select-incident-container").hide();
@@ -661,7 +661,7 @@ var EventsView = function(userProfile, options) {
       $("#summaryUnhandledImportantEvents").hide();
       $("#enable-incident-filter-selector").hide();
       $("#enable-incident-filter-selector-label").hide();
-      $(".selectable").hide();
+      $(".selectcheckbox").hide();
       fixupEventsTableHeight();
     }
   }
