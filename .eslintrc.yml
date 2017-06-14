@@ -1,0 +1,31 @@
+env:
+  es6: true
+  jquery: true
+  browser: true
+globals:
+  gettext: true
+  escapeHTML: true
+rules:
+  indent:
+    - warn
+    - 2
+  max-len:
+    - warn
+    - code: 100
+  dot-notation:
+    - warn
+  eqeqeq:
+    - warn
+  quotes:
+    - warn
+    - double
+  semi:
+    - warn
+    - always
+  space-before-function-paren:
+    - warn
+    - never
+  no-unused-vars:
+    - warn
+    - args: none
+      vars: local
