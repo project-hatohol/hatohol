@@ -1,4 +1,25 @@
-2016-01-11 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.12
+2017-06-19 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 17.06
+
+	* New Features
+	- [WebUI] Dynamic change of event viewing when click summary button.
+	- [WebUI] Enabled multiple select by using click with shift key.
+	- [WebUI] Integrate summary filter and event filter.
+
+	* Bug Fixes
+	- [WebUI] Set limit of selected server, host and host group in default filter.
+	- [Server] Fix to get trigger query when not specify beginTime.
+
+
+	* Support OS
+	- CentOS 7
+	- Ubuntu 14.04 LTS(x86_64)
+
+	* Contributer
+	- Masayuki Nakagawa
+	- Takuto Yoshida
+	- Atsushi Yamaguchi
+
+2017-01-11 Masayuki Nakagawa <masayuki.nakagawa@miraclelinux.com> 16.12
 
 	* New Features
 	- [WebUI] Set security header to apache config.
