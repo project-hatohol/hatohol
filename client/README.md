@@ -33,7 +33,7 @@ maintained by [joequery]
 (http://joequery.github.io/Stupid-Table-Plugin/)
 
 ## How to setup
-> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/16.04/en/index.md)
+> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/17.06/en/index.md)
 > to setup Hatohol for CentOS with the binary packages.
 
 ### Install Hatohol Client

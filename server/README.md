@@ -59,7 +59,7 @@ the specific monitoring software in various way.
 - uuid-dev
 
 ### Example to install required libraries on CentOS 7
-> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/16.01/ja/index.md)
+> See also [this page](https://github.com/project-hatohol/website/blob/master/contents/docs/install/17.06/ja/index.md)
 > to setup Hatohol for CentOS with the binary packages.
 
 First, you need to install development tools to build Hatohol and some required

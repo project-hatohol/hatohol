@@ -14,7 +14,7 @@ http://www.hatohol.org/
 - [Installation](#user-content-installation)
 	- [Installation by RPM files (only for CentOS 7)](#user-content-installation-by-rpm-files-only-for-centos-7)
 	- [Installation by building needed applications](#user-content-installation-by-building-needed-applications)
-	- [About Upgrade on CentOS 7 (x86_64) from version 16.01 to version 16.04](#user-content-about-upgrade-on-centos-7-x86_64-from-version-1601-to-version-1604)
+	- [About Upgrade on CentOS 7 (x86_64) from version 16.12_to version 17.06](#user-content-about-upgrade-on-centos-7-x86_64-from-version-1612-to-version-1706)
 - [Plans](#user-content-plans)
 - [Mailing Lists](#user-content-mailing-lists)
 
@@ -89,13 +89,13 @@ Other pages are being constructed.
 
 ## Installation
 ### Installation by RPM files (only for CentOS 7)
-The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/16.04/en/index.md)
+The detailed document is [here](https://github.com/project-hatohol/website/blob/master/contents/docs/install/17.06/en/index.md)
 
 ### Installation by building needed applications
 - [Server installation](server/README.md)
 - [Client (Web UI server) installation](client/README.md)
 
-### About Upgrade on CentOS 7 (x86_64) from version 16.01 to version 16.04
+### About Upgrade on CentOS 7 (x86_64) from version 16.12 to version 17.06
 We are currently under investigation.
 
 ## Plans
