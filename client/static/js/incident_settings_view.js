@@ -161,13 +161,13 @@ var IncidentSettingsView = function(userProfile) {
       s += "<td>" + escapeHTML(hostgroupName) + "</td>";
 
       const triggerStatus = actionDef.triggerStatus;
-      const triggerStatusLabel = "ANY";
+      let triggerStatusLabel = "ANY";
       if (triggerStatus !== null)
         triggerStatusLabel = makeTriggerStatusLabel(triggerStatus);
       s += "<td>" + triggerStatusLabel + "</td>";
 
       const triggerSeverity = actionDef.triggerSeverity;
-      const severityLabel = "ANY";
+      let severityLabel = "ANY";
       if (triggerSeverity !== null)
         severityLabel = makeSeverityLabel(triggerSeverity);
 
