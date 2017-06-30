@@ -147,10 +147,11 @@ var UsersView = function(userProfile) {
   //
   function drawTableBody(reply)
   {
-    let html = "";
+    var html = "";
 
-    for (let user of reply["users"])
+    for (var i = 0; i < reply["users"].length; ++i)
     {
+      var user = reply["users"][i];
       html += "<tr>";
       html += "<td class='delete-selector' style='display:none;'>";
       html += "<input type='checkbox' class='selectcheckbox'";

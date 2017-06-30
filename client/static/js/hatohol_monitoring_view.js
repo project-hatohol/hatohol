@@ -457,7 +457,7 @@ HatoholMonitoringView.prototype.setupCheckboxForDelete =
   $(".selectcheckbox").attr("checked", false);
   jQObjDeleteButton.attr("disabled", true);
   $(".selectcheckbox").change(function() {
-    const selected = $(".selectcheckbox:checked");
+    var selected = $(".selectcheckbox:checked");
     jQObjDeleteButton.attr("disabled", !selected.length);
   });
 };

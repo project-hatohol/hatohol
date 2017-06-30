@@ -167,14 +167,15 @@ var ServersView = function(userProfile) {
 
   function drawTableBody(rd)
   {
-    let s = "";
+    var s = "";
 
-    for (let server of rd["servers"])
+    for (var i = 0; i < rd["servers"].length; ++i)
 	{
-      const serverId = server["id"];
+      var server = rd["servers"][i];
+      var serverId = server["id"];
       serverIds.push(serverId);
-      const idConnStat = getIdConnStat(serverId);
-      const serverURL = getServerLocation(server);
+      var idConnStat = getIdConnStat(serverId);
+      var serverURL = getServerLocation(server);
       s += "<tr>";
       s += "<td class='delete-selector' style='display:none;'>";
       s += "<input type='checkbox' class='selectcheckbox'" +

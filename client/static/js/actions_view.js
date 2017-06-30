@@ -187,9 +187,10 @@ var ActionsView = function(userProfile) {
   //
   function drawTableBody(actionsPkt)
   {
-    let s = "";
-    for (let actionDef of actionsPkt["actions"])
+    var s = "";
+    for (var i = 0; i < actionsPkt["actions"].length; ++i)
     {
+      var actionDef = actionsPkt["actions"][i];
       s += "<tr>";
       s += "<td class='delete-selector' style='display:none;'>";
       s += "<input type='checkbox' class='selectcheckbox' ";
@@ -197,50 +198,50 @@ var ActionsView = function(userProfile) {
       s += "actionId='" + escapeHTML(actionDef.actionId) + "'></td>";
       s += "<td>" + escapeHTML(actionDef.actionId) + "</td>";
 
-      const nickName = getNickNameFromAction(actionsPkt, actionDef);
+      var nickName = getNickNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(nickName) + "</td>";
 
-      const hostName = getHostNameFromAction(actionsPkt, actionDef);
+      var hostName = getHostNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostName)   + "</td>";
 
-      const hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
+      var hostgroupName = getHostgroupNameFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(hostgroupName) + "</td>";
 
-      const triggerBrief = getTriggerBriefFromAction(actionsPkt, actionDef);
+      var triggerBrief = getTriggerBriefFromAction(actionsPkt, actionDef);
       s += "<td>" + escapeHTML(triggerBrief) + "</td>";
 
-      const triggerStatus = actionDef.triggerStatus;
-      let triggerStatusLabel = "ANY";
+      var triggerStatus = actionDef.triggerStatus;
+      var triggerStatusLabel = "ANY";
       if (triggerStatus !== null)
         triggerStatusLabel = makeTriggerStatusLabel(triggerStatus);
       s += "<td>" + triggerStatusLabel + "</td>";
 
-      const triggerSeverity = actionDef.triggerSeverity;
-      let severityLabel = "ANY";
+      var triggerSeverity = actionDef.triggerSeverity;
+      var severityLabel = "ANY";
       if (triggerSeverity !== null)
         severityLabel = makeSeverityLabel(triggerSeverity);
 
-      const severityCompType = actionDef.triggerSeverityComparatorType;
-      let severityCompLabel = "";
+      var severityCompType = actionDef.triggerSeverityComparatorType;
+      var severityCompLabel = "";
       if (triggerSeverity !== null)
         severityCompLabel = makeSeverityCompTypeLabel(severityCompType);
 
       s += "<td>" + severityCompLabel + " " + severityLabel + "</td>";
 
-      const type = actionDef.type;
-      const typeLabel = makeTypeLabel(type);
+      var type = actionDef.type;
+      var typeLabel = makeTypeLabel(type);
       s += "<td>" + typeLabel + "</td>";
 
-      let workingDir = actionDef.workingDirectory;
+      var workingDir = actionDef.workingDirectory;
       if (!workingDir)
         workingDir = "N/A";
       s += "<td>" + escapeHTML(workingDir) + "</td>";
 
-      const command = actionDef.command;
+      var command = actionDef.command;
       s += "<td>" + escapeHTML(command) + "</td>";
 
-      const timeout = actionDef.timeout;
-      let timeoutLabel;
+      var timeout = actionDef.timeout;
+      var timeoutLabel;
       if (timeout === 0)
         timeoutLabel = gettext("No limit");
       else

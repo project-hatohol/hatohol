@@ -78,7 +78,8 @@ var GraphsView = function(userProfile) {
   //
   function drawTableBody(graphs) {
     var table = "";
-    for (let graph of graphs) {
+    for (var i = 0; i < graphs.length; ++i) {
+      var graph = graphs[i];
       var title = graph.title ? escapeHTML(graph.title) : gettext("No title");
       var graphID = escapeHTML(graph.id);
       var graphURL = "ajax_history?id=" + graphID;

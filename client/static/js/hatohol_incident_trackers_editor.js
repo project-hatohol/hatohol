@@ -108,32 +108,34 @@ HatoholIncidentTrackersEditor.prototype.load = function() {
 
 HatoholIncidentTrackersEditor.prototype.updateMainTable = function() {
   var self = this;
-  const setupCheckboxes = function()
+  var setupCheckboxes = function()
   {
     $(".deleteIncidentTracker").shiftcheckbox();
     $(".deleteIncidentTracker").show();
     $(".incidentTrackerSelectCheckbox").change(function()
     {
-      const selected = $(".incidentTrackerSelectCheckbox:checked");
+      var selected = $(".incidentTrackerSelectCheckbox:checked");
       $("#deleteIncidentTrackersButton").attr("disabled", !selected.length);
     });
   };
-  const setupEditButtons = function()
+  var setupEditButtons = function()
   {
-    const incidentTrackers = self.incidentTrackersData.incidentTrackers;
-    let incidentTrackersMap = {};
+    var incidentTrackers = self.incidentTrackersData.incidentTrackers;
+    var incidentTrackersMap = {};
 
-    for (let incidentTracker of incidentTrackers)
+    for (var i = 0; i < incidentTrackers.length; ++i)
     {
+      var incidentTracker = incidentTrackers[i];
       incidentTrackersMap[incidentTracker.id] = incidentTracker;
     }
 
-    for (let incidentTracker of incidentTrackers)
+    for (var i = 0; i < incidentTrackers.length; ++i)
     {
-      const id = "#editIncidentTracker" + incidentTracker.id;
+      var incidentTracker = incidentTrackers[i];
+      var id = "#editIncidentTracker" + incidentTracker.id;
       $(id).click(function()
       {
-        const incidentTrackerId = this.getAttribute("incidentTrackerId");
+        var incidentTrackerId = this.getAttribute("incidentTrackerId");
         new HatoholIncidentTrackerEditor(
         {
           succeededCallback: function()
@@ -189,11 +191,12 @@ HatoholIncidentTrackersEditor.prototype.generateMainTable = function() {
 };
 
 HatoholIncidentTrackersEditor.prototype.generateTableRows = function(data) {
-  let html = '';
+  var html = '';
 
-  for (let tracker of data.incidentTrackers)
+  for (var i = 0; i < data.incidentTrackers.length; ++i)
   {
-    let type = gettext("Unknown");
+    var tracker = data.incidentTrackers[i];
+    var type = gettext("Unknown");
     if (tracker.type == hatohol.INCIDENT_TRACKER_REDMINE)
     {
       type = gettext("Redmine");

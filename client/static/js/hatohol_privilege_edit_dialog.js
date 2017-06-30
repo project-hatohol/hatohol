@@ -69,13 +69,14 @@ HatoholPrivilegeEditDialog.prototype.setMessage = function(msg) {
 
 HatoholPrivilegeEditDialog.prototype.setupSelectHostgroupDialog = function() {
   var self = this;
-  const servers = self.serversData.servers;
-  const userId = self.userId;
-  for (const server of servers)
+  var servers = self.serversData.servers;
+  var userId = self.userId;
+  for (var i = 0; i < servers.length; ++i)
   {
-    const id = "#edit-server" + server.id;
+    var server = servers[i];
+    var id = "#edit-server" + server.id;
     $(id).click(function() {
-      const serverId = this.getAttribute("serverId");
+      var serverId = this.getAttribute("serverId");
       new HatoholHostgroupPrivilegeEditDialog(
         userId, serverId, applyPrivilegesCb);
     });
@@ -172,7 +173,7 @@ HatoholPrivilegeEditDialog.prototype.updateServersTable = function() {
 
 HatoholPrivilegeEditDialog.prototype.setupAllCheckButton = function() {
   $(".serverSelectCheckboxes").shiftcheckbox();
-  const checkboxes = $(".serverSelectCheckbox");
+  var checkboxes = $(".serverSelectCheckbox");
   $("#all-check").click(function() {
     for (var i = 0; i < checkboxes.length; i++)
       checkboxes[i].checked = true;
@@ -209,10 +210,11 @@ HatoholPrivilegeEditDialog.prototype.generateMainTable = function() {
 };
 
 HatoholPrivilegeEditDialog.prototype.generateTableRows = function() {
-  let s = '';
-  const servers = this.serversData.servers;
-  for (let server of servers)
+  var s = '';
+  var servers = this.serversData.servers;
+  for (var i = 0; i < servers.length; ++i)
   {
+    var server = servers[i];
     s += '<tr>';
     s += '<td class="serverSelectCheckboxes">' +
 		 '<input type="checkbox" class="serverSelectCheckbox" ' +
@@ -238,7 +240,7 @@ HatoholPrivilegeEditDialog.prototype.updateAllowCheckboxes = function() {
   if (!this.serversData || !this.allowedServers)
     return;
 
-  const checkboxes = $(".serverSelectCheckbox");
+  var checkboxes = $(".serverSelectCheckbox");
   var allHostgroupIsEnabled = function(server) {
     var ALL_HOST_GROUPS = "*", hostgroup;
     if (!server || !server.allowedHostgroups)
@@ -247,10 +249,10 @@ HatoholPrivilegeEditDialog.prototype.updateAllowCheckboxes = function() {
     return hostgroup && hostgroup.accessInfoId;
   };
 
-  for (let i = 0; i < checkboxes.length; i++)
+  for (var i = 0; i < checkboxes.length; i++)
   {
-    const checkbox = checkboxes[i];
-    const serverId = checkbox.getAttribute("serverId");
+    var checkbox = checkboxes[i];
+    var serverId = checkbox.getAttribute("serverId");
     if (allHostgroupIsEnabled(this.allowedServers[serverId]))
     {
       checkbox.checked = true;
@@ -322,7 +324,7 @@ HatoholPrivilegeEditDialog.prototype.checkApplyResult = function(accessInfo) {
 
 HatoholPrivilegeEditDialog.prototype.applyPrivileges = function() {
   var self = this;
-  const checkboxes = $(".serverSelectCheckbox");
+  var checkboxes = $(".serverSelectCheckbox");
   var getAccessInfoId = function(serverId) {
     var id, allowedHostgroups, allowedHostgroup;
     var ALL_HOST_GROUPS = "*";
@@ -340,11 +342,11 @@ HatoholPrivilegeEditDialog.prototype.applyPrivileges = function() {
     numSucceeded: 0,
     numFailed:    0
   };
-  for (let i = 0; i < checkboxes.length; i++)
+  for (var i = 0; i < checkboxes.length; i++)
   {
-    const checkbox = checkboxes[i];
-    const serverId = checkbox.getAttribute("serverId");
-    const accessInfoId = getAccessInfoId(serverId);
+    var checkbox = checkboxes[i];
+    var serverId = checkbox.getAttribute("serverId");
+    var accessInfoId = getAccessInfoId(serverId);
 
     if (checkbox.checked) {
       if (!accessInfoId)

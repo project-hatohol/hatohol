@@ -46,15 +46,16 @@ var SeverityRanksView = function(userProfile) {
 
   function drawTableBody(replyData)
   {
-    let html = "";
+    var html = "";
 
-    for (let severityRank of replyData.SeverityRanks)
+    for (var i = 0; i < replyData.SeverityRanks.length; ++i)
     {
-      const status = severityRank.status;
-      const color = severityRank.color;
-      const label = severityRank.label;
-      const asImportant = severityRank.asImportant;
-      const defaultLabel = severityChoices[status];
+      var severityRank = replyData.SeverityRanks[i];
+      var status = severityRank.status;
+      var color = severityRank.color;
+      var label = severityRank.label;
+      var asImportant = severityRank.asImportant;
+      var defaultLabel = severityChoices[status];
 
       html += "<tr>";
       html += "<td id='severity-rank-status" + escapeHTML(status) +"'>" +

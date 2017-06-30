@@ -144,9 +144,10 @@ var IncidentSettingsView = function(userProfile) {
   //
   function drawTableBody(actionsPkt)
   {
-    let s = "";
-    for (let actionDef of actionsPkt["actions"])
+    var s = "";
+    for (var i = 0; i < actionsPkt["actions"].length; ++i)
     {
+      var actionDef = actionsPkt["actions"][i];
       s += "<tr>";
       s += "<td class='delete-selector' style='display:none'>";
       s += "<input type='checkbox' class='selectcheckbox' ";

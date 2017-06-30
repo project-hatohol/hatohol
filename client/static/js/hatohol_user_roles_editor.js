@@ -112,23 +112,25 @@ HatoholUserRolesEditor.prototype.updateMainTable = function() {
   var numSelected = 0;
   var setupCheckboxes = function() {
     $(".userRoleSelectCheckbox").change(function() {
-      const selected = $(".userRoleSelectCheckbox:checked");
+      var selected = $(".userRoleSelectCheckbox:checked");
       $("#deleteUserRolesButton").attr("disabled", !selected.length);
     });
   };
   var setupEditButtons = function()
   {
-    let userRoles = self.userRolesData.userRoles;
-    let userRolesMap = {};
+    var userRoles = self.userRolesData.userRoles;
+    var userRolesMap = {};
 
-    for (let userRole of userRoles)
+    for (var i = 0; i < userRoles.length; ++i)
     {
+      var userRole = userRoles[i];
       userRolesMap[userRole.userRoleId] = userRole;
     }
 
-    for (let userRole of userRoles)
+    for (var i = 0; i < userRoles.length; ++i)
     {
-      const id = "#editUserRole" + userRole.userRoleId;
+      var userRole = userRoles[i];
+      var id = "#editUserRole" + userRole.userRoleId;
       $(id).click(function()
       {
         var userRoleId = this.getAttribute("userRoleId");
@@ -184,14 +186,15 @@ HatoholUserRolesEditor.prototype.generateMainTable = function() {
 };
 
 HatoholUserRolesEditor.prototype.generateTableRows = function(data) {
-  let html = '';
+  var html = '';
 
   html += '<tr><td class="deleteUserRole"></td><td>-</td><td>' +
     gettext('Guest') + '</td><td>' + gettext("None") +'</td></tr>';
   html += '<tr><td class="deleteUserRole"></td><td>-</td><td>' +
     gettext('Admin') + '</td><td>' + gettext("All") +'</td></tr>';
 
-  for (let role of data.userRoles) {
+  for (var i = 0; i < data.userRoles.length; ++i) {
+    var role = data.userRoles[i];
     html +=
     '<tr>' +
     '<td class="deleteUserRole">' +
@@ -294,11 +297,12 @@ var HatoholUserRoleEditor = function(params) {
   }
 
   function getPrivilegeFlags() {
-    let flags = 0;
-    const privileges = self.hatoholPrivileges;
-    for (let privilege of privileges)
+    var flags = 0;
+    var privileges = self.hatoholPrivileges;
+    for (var i = 0; i < privileges.length; ++i)
     {
-      const checked =
+      var privilege = privileges[i];
+      var checked =
       $(".privilegeCheckbox[value='" + privileges.indexOf(privilege) + "']").is(":checked");
       if (checked)
       {
@@ -517,10 +521,10 @@ HatoholUserRoleEditor.prototype.hatoholPrivileges = [
 ];
 
 HatoholUserRoleEditor.prototype.createMainElement = function() {
-  const name = this.userRole ? this.userRole.name : "";
-  const flags = this.userRole ? this.userRole.flags : 0;
-  const privileges = this.hatoholPrivileges;
-  let html = '<div>';
+  var name = this.userRole ? this.userRole.name : "";
+  var flags = this.userRole ? this.userRole.flags : 0;
+  var privileges = this.hatoholPrivileges;
+  var html = '<div>';
 
   // User role name
   html +=
@@ -536,9 +540,10 @@ HatoholUserRoleEditor.prototype.createMainElement = function() {
   '<div class="ui-widget-content" style="overflow-y: scroll; height: 200px">' +
   '<table class="table table-condensed table-striped table-hover">' +
   '<tbody>';
-  for (let privilege of privileges)
+  for (var i = 0; i < privileges.length; ++i)
   {
-    const checked = hasFlag(flags, privilege.flag) ? "checked" : "";
+    var privilege = privileges[i];
+    var checked = hasFlag(flags, privilege.flag) ? "checked" : "";
     html +=
     '<tr>' +
     '<td class="privilegeSelector">' +
