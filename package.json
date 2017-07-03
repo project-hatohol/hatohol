@@ -10,10 +10,13 @@
     "mocha-phantomjs": "~3.6.0",
     "casperjs": "~1.1.0-beta4",
     "gulp": "~3.9.1",
-    "gulp-jshint": "~2.0.0",
-    "gulp-mocha-phantomjs": "~0.11.0"
+    "gulp-mocha-phantomjs": "~0.11.0",
+    "eslint": "~3.19.0"
   },
   "dependencies": {
     "npm-check-updates": "~1.5.1"
+  },
+  "scripts": {
+    "lint": "eslint client/static/js/*.js client/static/js.plugins/*.js --ignore-pattern client/static/js/hatohol_def.js"
   }
 }
